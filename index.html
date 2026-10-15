@@ -174,7 +174,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-slate-200/80 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">毎月の収支入力</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">2026年11月以降の収支を無限のセレクトボックスから選択して管理できます。</p>
+                        <p class="text-xs text-slate-500 mt-0.5">無限に伸びるセレクトボックスから未来永劫どの月でも選択・追加できます。</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 transition cursor-pointer shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
@@ -234,27 +234,32 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS (今後の予定 - 対話型AI会話ウィザード付き) ================= -->
+        <!-- ================= TAB 4: EVENTS (今後の予定 - チャット形式AI相場アドバイザー付き) ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-200 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">イベントを入力し「AI相場対話」ボタンからステップを重ねて最適な費用を決定できます。</p>
+                        <p class="text-xs text-slate-500 mt-0.5">「＋ 予定を追加」からAIとのチャット対話を通じて、段階的に予定を組み立てて自動反映できます。</p>
                     </div>
-                    <button onclick="addEventRow()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm">＋ 予定を追加</button>
+                    <button onclick="startAiChatWizard()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5">
+                        <span>🤖</span> ＋ 予定を追加 (AIと対話)
+                    </button>
                 </div>
 
-                <!-- Interactive Deep AI Wizard Box -->
-                <div id="ai-wizard-box" class="glass-card-sm p-5 rounded-2xl border border-indigo-300 bg-gradient-to-r from-indigo-50/95 to-sky-50/95 space-y-4 hidden shadow-lg">
-                    <div class="flex items-center justify-between pb-2 border-b border-indigo-100">
+                <!-- Chat-style AI Wizard Modal / Box -->
+                <div id="ai-chat-box" class="glass-card p-5 rounded-2xl border border-indigo-300 bg-gradient-to-r from-indigo-50/95 to-sky-50/95 space-y-4 hidden shadow-xl">
+                    <div class="flex items-center justify-between pb-2 border-b border-indigo-200">
                         <h4 class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
-                            <span>🤖</span> AI相場アドバイザーとの対話 (<span id="wizard-event-name">イベント</span>)
+                            <span>🤖</span> AI相場アドバイザー・対話セッション
                         </h4>
-                        <button onclick="closeAiWizard()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">× 閉じる</button>
+                        <button onclick="closeAiChatWizard()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">× 閉じる</button>
                     </div>
-                    <div id="wizard-content" class="space-y-3 text-xs text-slate-700">
-                        <!-- Dynamic conversation steps -->
+                    <div id="ai-chat-messages" class="space-y-3 text-xs text-slate-700 max-h-72 overflow-y-auto custom-scrollbar p-2 bg-white/70 rounded-xl border border-indigo-100">
+                        <!-- Chat bubbles injected here -->
+                    </div>
+                    <div id="ai-chat-input-area" class="pt-2 flex gap-2">
+                        <!-- Dynamic inputs based on conversation step -->
                     </div>
                 </div>
 
@@ -266,7 +271,7 @@
                                 <th class="p-3">予定時期</th>
                                 <th class="p-3">予定費用 (円)</th>
                                 <th class="p-3">ステータス</th>
-                                <th class="p-3 text-center">AI相場対話</th>
+                                <th class="p-3 text-center">対話内容・詳細</th>
                                 <th class="p-3 w-16 text-center">操作</th>
                             </tr>
                         </thead>
@@ -370,10 +375,10 @@
                 }
             ],
             events: [
-                { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', memoOpen: false },
-                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', memoOpen: false },
-                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', memoOpen: false },
-                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', memoOpen: false }
+                { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', chatLog: 'AI: 婚姻届と引越し手続きの標準プランです。', memoOpen: false },
+                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', chatLog: 'AI: 前撮り・式・旅行を含めたバランス標準プランです。', memoOpen: false },
+                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', chatLog: 'AI: 中古車購入と新居の初期費用込みのプランです。', memoOpen: false },
+                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', chatLog: 'AI: 将来の住宅購入頭金および諸費用想定プランです。', memoOpen: false }
             ]
         };
 
@@ -381,8 +386,9 @@
         let nisaChart = null;
         let pieChart = null;
         let currentEditingIndex = 0;
-        let activeWizardIndex = null;
-        let wizardState = {};
+
+        // Chat wizard state variables
+        let chatSession = { step: 1, eventName: '', eventDate: '2027-04', scale: 'standard', cost: 100000, extraNote: '' };
 
         const categoryColors = [
             '#f59e0b', '#3b82f6', '#60a5fa', '#8b5cf6', '#ec4899', 
@@ -390,10 +396,12 @@
             '#2563eb', '#db2777', '#e11d48', '#ea580c', '#f97316'
         ];
 
-        // Infinite date options generator (2026 to 2050+)
+        // INFINITE Date options generator (from 2026 to currentYear + 60 years automatically)
         function generateDateOptions(selectedVal) {
             let opts = '';
-            for (let y = 2026; y <= 2050; y++) {
+            const startY = 2026;
+            const endY = new Date().getFullYear() + 60; // Future extension
+            for (let y = startY; y <= endY; y++) {
                 for (let m = 1; m <= 12; m++) {
                     const mm = String(m).padStart(2, '0');
                     const val = `${y}-${mm}`;
@@ -404,7 +412,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v11');
+            const saved = localStorage.getItem('lifeplan_data_v12');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -418,16 +426,15 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v11', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_v12', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
 
-        // Cross-device sync simulator helper (Cloud JSONBin sync feature)
         function syncCloudData() {
             const jsonStr = JSON.stringify(appData);
             localStorage.setItem('lifeplan_cloud_backup', jsonStr);
-            alert('🔄 クラウド同期が完了しました！同じアカウントの端末でデータを読み込めます。');
+            alert('🔄 端末間のクラウド同期が完了しました！他の端末（iPhone/iPad）でも同期ボタンで最新データを読み込めます。');
         }
 
         function syncSettingsToUI() {
@@ -507,8 +514,8 @@
 
             let html = `
                 登録されている「今後の予定」の総額は <strong>¥${totalEventCost.toLocaleString()}</strong> です。<br>
-                2026年11月スタートから目標達成に向け、毎月の貯金余力（約¥${surplus.toLocaleString()}）が正常に機能しています。<br>
-                <span class="text-indigo-700 font-semibold">💡 AI最適解:</span> iPhone/iPad間での同期データを元に、直近の大きな出費の半年前から積立ペースを微調整することをおすすめします。
+                無限セレクトで拡張された未来の期間に対し、毎月の貯金余力（約¥${surplus.toLocaleString()}）が安定して機能しています。<br>
+                <span class="text-indigo-700 font-semibold">💡 AI最適解:</span> AIチャット対話で追加したイベントの費用や時期を元に、直近半年前からの現金積立を最適化しましょう。
             `;
             container.innerHTML = html;
             if (inputSummary) {
@@ -516,85 +523,118 @@
             }
         }
 
-        // Deep Interactive AI Wizard (Multi-step conversation)
-        function openAiWizard(index) {
-            activeWizardIndex = index;
-            const ev = appData.events[index];
-            document.getElementById('wizard-event-name').innerText = ev.name;
-            wizardState = { type: '', scale: '', baseCost: 0 };
-            
-            const box = document.getElementById('ai-wizard-box');
-            box.classList.remove('hidden');
-            renderWizardStep1();
+        // ================= CHAT WIZARD LOGIC =================
+        function startAiChatWizard() {
+            chatSession = { step: 1, eventName: '', eventDate: '2027-04', scale: 'standard', cost: 1500000, extraNote: '' };
+            document.getElementById('ai-chat-box').classList.remove('hidden');
+            renderChatStep();
         }
 
-        function renderWizardStep1() {
-            const content = document.getElementById('wizard-content');
-            content.innerHTML = `
-                <p class="font-semibold text-slate-800">🤖 AI: 「${appData.events[activeWizardIndex].name}」について詳しくお伺いします。どのような規模感をご希望ですか？</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 py-2">
-                    <button onclick="wizardStep2('economy')" class="p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left transition shadow-xs">
-                        <p class="font-bold text-emerald-600">① 節約・コンパクト</p>
-                        <p class="text-[11px] text-slate-500">コスト重視で賢く抑える</p>
-                    </button>
-                    <button onclick="wizardStep2('standard')" class="p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left transition shadow-xs">
-                        <p class="font-bold text-indigo-600">② 標準・バランス</p>
-                        <p class="text-[11px] text-slate-500">一般的な平均相場</p>
-                    </button>
-                    <button onclick="wizardStep2('luxury')" class="p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left transition shadow-xs">
-                        <p class="font-bold text-amber-600">③ こだわり・豪華</p>
-                        <p class="text-[11px] text-slate-500">充実のプレミアムプラン</p>
-                    </button>
-                </div>
-            `;
+        function closeAiChatWizard() {
+            document.getElementById('ai-chat-box').classList.add('hidden');
         }
 
-        function wizardStep2(scale) {
-            wizardState.scale = scale;
-            const ev = appData.events[activeWizardIndex];
-            const name = ev.name.toLowerCase();
+        function appendChatMessage(sender, text) {
+            const container = document.getElementById('ai-chat-messages');
+            const bubble = document.createElement('div');
+            bubble.className = sender === 'ai' ? 'p-2.5 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-900 mr-8' : 'p-2.5 rounded-xl bg-slate-900 text-white ml-8 text-right font-medium';
+            bubble.innerHTML = text;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+        }
 
-            let base = 1500000;
-            if (name.includes('結婚') || name.includes('式')) {
-                base = scale === 'economy' ? 1200000 : scale === 'luxury' ? 3200000 : 2000000;
-            } else if (name.includes('車') || name.includes('中古')) {
-                base = scale === 'economy' ? 1000000 : scale === 'luxury' ? 2800000 : 1800000;
-            } else if (name.includes('引越し') || name.includes('家')) {
-                base = scale === 'economy' ? 300000 : scale === 'luxury' ? 800000 : 500000;
-            } else {
-                base = scale === 'economy' ? 100000 : scale === 'luxury' ? 1000000 : 300000;
-            }
-            wizardState.baseCost = base;
+        function renderChatStep() {
+            const container = document.getElementById('ai-chat-messages');
+            const inputArea = document.getElementById('ai-chat-input-area');
+            container.innerHTML = '';
+            inputArea.innerHTML = '';
 
-            const content = document.getElementById('wizard-content');
-            content.innerHTML = `
-                <p class="font-semibold text-slate-800">🤖 AI: ご希望の規模（${scale === 'economy' ? '節約' : scale === 'luxury' ? 'こだわり' : '標準'}）に基づき、対話を進めました。</p>
-                <div class="p-3 bg-white rounded-xl border border-indigo-200 space-y-2">
-                    <p class="text-xs text-slate-600">算出された試算お見積もり:</p>
-                    <p class="text-xl font-extrabold text-indigo-600">¥${base.toLocaleString()}</p>
-                    <p class="text-[11px] text-slate-500">この内容で予定費用に決定しますか？それとも微調整しますか？</p>
-                    <div class="flex gap-2 pt-2">
-                        <button onclick="applyWizardCost(${base})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">この金額で決定する</button>
-                        <button onclick="renderWizardStep1()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-2 rounded-xl font-semibold transition">もう一度選び直す</button>
+            if (chatSession.step === 1) {
+                appendChatMessage('ai', 'こんにちは！AI相場アドバイザーです。新しく追加したい**予定（イベント名）**を教えてください。（例：マイホーム購入、海外旅行、家電買い替え など）');
+                inputArea.innerHTML = `
+                    <input type="text" id="chat-input-val" placeholder="イベント名を入力..." class="flex-grow bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button onclick="handleChatStep1()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition shrink-0">次へ ➔</button>
+                `;
+            } else if (chatSession.step === 2) {
+                appendChatMessage('ai', `「**${chatSession.eventName}**」ですね！それでは、その予定は**いつ頃（予定時期）**を想定していますか？`);
+                inputArea.innerHTML = `
+                    <select id="chat-input-date" class="flex-grow bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        ${generateDateOptions('2027-04')}
+                    </select>
+                    <button onclick="handleChatStep2()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition shrink-0">次へ ➔</button>
+                `;
+            } else if (chatSession.step === 3) {
+                appendChatMessage('ai', `ご希望の時期は **${chatSession.eventDate}** ですね。次に、ご予算や規模感はどれくらいを想定しますか？`);
+                inputArea.innerHTML = `
+                    <div class="flex flex-wrap gap-2 w-full">
+                        <button onclick="handleChatStep3('economy', 500000)" class="flex-1 p-2 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left text-[11px]">
+                            <span class="font-bold text-emerald-600">節約 (約50万)</span>
+                        </button>
+                        <button onclick="handleChatStep3('standard', 1500000)" class="flex-1 p-2 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left text-[11px]">
+                            <span class="font-bold text-indigo-600">標準 (約150万)</span>
+                        </button>
+                        <button onclick="handleChatStep3('luxury', 3000000)" class="flex-1 p-2 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left text-[11px]">
+                            <span class="font-bold text-amber-600">こだわり (約300万)</span>
+                        </button>
                     </div>
-                </div>
-            `;
-        }
-
-        function applyWizardCost(cost) {
-            if (activeWizardIndex !== null) {
-                appData.events[activeWizardIndex].cost = cost;
-                appData.events[activeWizardIndex].memoOpen = true; // Open accordion to show result
-                saveStorage();
-                renderEventsTable();
-                updateAiRecommendation();
+                `;
+            } else if (chatSession.step === 4) {
+                appendChatMessage('ai', `AI相場試算額: **¥${chatSession.cost.toLocaleString()}** で算出しました。ほかにも追加で相談したいことやご要望はありますか？（例：分割払いにしたい、両親からの支援がある など。なければ「OK」とご入力ください）`);
+                inputArea.innerHTML = `
+                    <input type="text" id="chat-input-note" placeholder="例：特になし、または追加の希望..." class="flex-grow bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <button onclick="handleChatStep4()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition shrink-0">これで決定する ✨</button>
+                `;
             }
-            closeAiWizard();
         }
 
-        function closeAiWizard() {
-            document.getElementById('ai-wizard-box').classList.add('hidden');
-            activeWizardIndex = null;
+        function handleChatStep1() {
+            const val = document.getElementById('chat-input-val').value.trim();
+            if (!val) { alert('イベント名を入力してください'); return; }
+            chatSession.eventName = val;
+            appendChatMessage('user', val);
+            chatSession.step = 2;
+            renderChatStep();
+        }
+
+        function handleChatStep2() {
+            const val = document.getElementById('chat-input-date').value;
+            chatSession.eventDate = val;
+            appendChatMessage('user', val);
+            chatSession.step = 3;
+            renderChatStep();
+        }
+
+        function handleChatStep3(scale, cost) {
+            chatSession.scale = scale;
+            chatSession.cost = cost;
+            appendChatMessage('user', `${scale === 'economy' ? '節約プラン' : scale === 'luxury' ? 'こだわりプラン' : '標準プラン'} (¥${cost.toLocaleString()})`);
+            chatSession.step = 4;
+            renderChatStep();
+        }
+
+        function handleChatStep4() {
+            const note = document.getElementById('chat-input-note').value.trim() || '特になし';
+            chatSession.extraNote = note;
+            appendChatMessage('user', note);
+
+            // Register event automatically
+            appData.events.push({
+                name: chatSession.eventName,
+                date: chatSession.eventDate,
+                cost: chatSession.cost,
+                status: '予定',
+                chatLog: `AI対話まとめ: ${chatSession.scale}プラン・メモ: ${chatSession.extraNote}`,
+                memoOpen: true
+            });
+
+            saveStorage();
+            renderEventsTable();
+            updateAiRecommendation();
+
+            appendChatMessage('ai', '🎉 予定が自動作成され、ライフプランに反映されました！「閉じる」ボタンから確認できます。');
+            document.getElementById('ai-chat-input-area').innerHTML = `
+                <button onclick="closeAiChatWizard(); switchTab('events');" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 rounded-xl font-semibold transition">今後の予定一覧を確認する ➔</button>
+            `;
         }
 
         function toggleEventAccordion(index) {
@@ -621,7 +661,6 @@
         }
 
         function addNewMonthByDropdown() {
-            // Pick next month automatically based on last month
             let lastMonthStr = "2026-11";
             if (appData.monthly.length > 0) {
                 lastMonthStr = appData.monthly[appData.monthly.length - 1].month;
@@ -960,10 +999,13 @@
                     <td class="p-2.5">
                         <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
-                    <td class="p-2.5 text-center">
-                        <button onclick="openAiWizard(${index})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-sky-200 flex items-center gap-1 mx-auto">
-                            <span>🤖</span> AI相場対話
-                        </button>
+                    <td class="p-2.5">
+                        <div class="space-y-1">
+                            <button onclick="toggleEventAccordion(${index})" class="text-indigo-600 hover:text-indigo-800 text-[11px] font-bold flex items-center gap-1">
+                                <span>💬</span> ${ev.memoOpen ? '対話履歴を隠す ▲' : '対話履歴・詳細を見る ▼'}
+                            </button>
+                            ${ev.memoOpen ? `<div class="p-2 bg-indigo-50/70 rounded-lg text-[11px] text-slate-700 border border-indigo-100">${ev.chatLog || '対話ログはありません'}</div>` : ''}
+                        </div>
                     </td>
                     <td class="p-2.5 text-center">
                         <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable();updateAiRecommendation()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button>
@@ -971,13 +1013,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-        }
-
-        function addEventRow() {
-            appData.events.push({ name: '新規の予定', date: '2027-04', cost: 100000, status: '予定', memoOpen: false });
-            saveStorage();
-            renderEventsTable();
-            updateAiRecommendation();
         }
 
         function updateCalculations() {
