@@ -63,14 +63,14 @@
             </div>
             <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                 <nav class="flex flex-wrap gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
-                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3 py-2 rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-xs">ホーム</button>
-                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">毎月入力</button>
-                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">月別グラフ・履歴</button>
-                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">今後の予定</button>
-                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">各種設定・NISA</button>
-                    <button onclick="switchTab('memo')" id="btn-tab-memo" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">手続きメモ</button>
+                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3 py-2 rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-xs cursor-pointer">ホーム</button>
+                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">毎月入力</button>
+                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">月別グラフ・履歴</button>
+                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">今後の予定</button>
+                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">各種設定・NISA</button>
+                    <button onclick="switchTab('memo')" id="btn-tab-memo" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">手続きメモ</button>
                 </nav>
-                <button onclick="window.print()" class="no-print bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm hover:shadow active:scale-95 flex items-center gap-1.5">
+                <button onclick="window.print()" class="no-print bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm hover:shadow active:scale-95 flex items-center gap-1.5 cursor-pointer">
                     <span>🖨️</span> 印刷
                 </button>
             </div>
@@ -85,7 +85,7 @@
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl shadow-slate-900/10 border border-slate-800 bg-cover bg-center transition-all">
                 <div id="hero-overlay" class="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px]"></div>
                 <div class="absolute right-4 top-4 z-20 no-print flex gap-2">
-                    <button onclick="syncCloudData()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl backdrop-blur-md transition shadow flex items-center gap-1">
+                    <button onclick="syncCloudData()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl backdrop-blur-md transition shadow flex items-center gap-1 cursor-pointer">
                         <span>🔄</span> 端末同期
                     </button>
                     <label class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
@@ -155,7 +155,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 transition cursor-pointer shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
-                        <button onclick="addNewMonthByDropdown()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm hover:shadow flex items-center gap-1">
+                        <button onclick="addNewMonthByDropdown()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm hover:shadow flex items-center gap-1 cursor-pointer">
                             <span>＋</span> 月を追加
                         </button>
                     </div>
@@ -173,7 +173,7 @@
                         <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-amber-500"></span> 支出の円グラフ・内訳金額
                         </h3>
-                        <select id="pie-month-selector" onchange="renderPieChart()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
+                        <select id="pie-month-selector" onchange="renderPieChart()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer"></select>
                     </div>
                     
                     <div class="relative h-64 flex items-center justify-center">
@@ -217,7 +217,7 @@
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
                         <p class="text-xs text-slate-500 mt-0.5">人生の大きなイベントの時期と予算を計画・管理できます。</p>
                     </div>
-                    <button onclick="addNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5">
+                    <button onclick="addNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                         <span>＋</span> 予定を追加
                     </button>
                 </div>
@@ -363,7 +363,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_clean_v1');
+            const saved = localStorage.getItem('lifeplan_data_clean_v2');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -377,7 +377,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_clean_v1', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_clean_v2', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -426,17 +426,25 @@
         }
 
         function switchTab(tabId) {
-            ['dashboard', 'input', 'charts', 'events', 'nisa', 'memo'].forEach(id => {
-                document.getElementById('tab-' + id).classList.add('hidden');
-                document.getElementById('btn-tab-' + id)?.classList.remove('bg-white', 'text-indigo-600', 'shadow-xs');
-                document.getElementById('btn-tab-' + id)?.classList.add('text-slate-600');
+            const tabs = ['dashboard', 'input', 'charts', 'events', 'nisa', 'memo'];
+            tabs.forEach(id => {
+                const tabEl = document.getElementById('tab-' + id);
+                const btnEl = document.getElementById('btn-tab-' + id);
+                if (tabEl) tabEl.classList.add('hidden');
+                if (btnEl) {
+                    btnEl.classList.remove('bg-white', 'text-indigo-600', 'shadow-xs');
+                    btnEl.classList.add('text-slate-600');
+                }
             });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            const activeTab = document.getElementById('tab-' + tabId);
             const activeBtn = document.getElementById('btn-tab-' + tabId);
+            if (activeTab) activeTab.classList.remove('hidden');
             if (activeBtn) {
                 activeBtn.classList.remove('text-slate-600');
                 activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-xs');
             }
+
             if (tabId === 'dashboard') {
                 renderCharts();
             } else if (tabId === 'charts') {
@@ -447,6 +455,7 @@
 
         function updateMonthSelector() {
             const selector = document.getElementById('month-selector');
+            if (!selector) return;
             selector.innerHTML = '';
             appData.monthly.forEach((m, idx) => {
                 const opt = document.createElement('option');
@@ -499,6 +508,7 @@
 
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
+            if (!container) return;
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
 
@@ -513,13 +523,13 @@
                 <div class="glass-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">年月</label>
-                        <select onchange="updateMonthField('month', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <select onchange="updateMonthField('month', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer">
                             ${generateDateOptions(m.month)}
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">区分</label>
-                        <select onchange="updateMonthField('type', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <select onchange="updateMonthField('type', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
                             <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
                         </select>
@@ -529,7 +539,7 @@
                         <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
-                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3 py-1.5 rounded-lg font-semibold transition border border-rose-200">削除</button>
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3 py-1.5 rounded-lg font-semibold transition border border-rose-200 cursor-pointer">削除</button>
                     </div>
                 </div>
 
@@ -664,6 +674,7 @@
 
         function renderHistoryTable() {
             const tbody = document.getElementById('history-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             appData.monthly.forEach((m, idx) => {
                 const totalInc = (m.rIncome || 0) + (m.hIncome || 0);
@@ -682,7 +693,7 @@
                     <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
-                        <button onclick="jumpToMonth(${idx})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-indigo-200">編集</button>
+                        <button onclick="jumpToMonth(${idx})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-indigo-200 cursor-pointer">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -698,6 +709,7 @@
 
         function updatePieSelector() {
             const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
             selector.innerHTML = '';
             appData.monthly.forEach((m, idx) => {
                 const opt = document.createElement('option');
@@ -708,11 +720,15 @@
         }
 
         function renderPieChart() {
-            const idx = Number(document.getElementById('pie-month-selector').value) || 0;
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            const idx = Number(selector.value) || 0;
             const m = appData.monthly[idx];
             if (!m) return;
 
-            const ctx = document.getElementById('expensePieChart').getContext('2d');
+            const chartEl = document.getElementById('expensePieChart');
+            if (!chartEl) return;
+            const ctx = chartEl.getContext('2d');
             if (pieChart) pieChart.destroy();
 
             const dataValues = [
@@ -750,6 +766,7 @@
             });
 
             const listContainer = document.getElementById('expense-breakdown-list');
+            if (!listContainer) return;
             listContainer.innerHTML = '';
 
             labels.forEach((label, i) => {
@@ -787,6 +804,7 @@
 
         function renderEventsTable() {
             const tbody = document.getElementById('events-table-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
@@ -796,7 +814,7 @@
                         <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none cursor-pointer">
                             ${generateDateOptions(ev.date)}
                         </select>
                     </td>
@@ -810,7 +828,7 @@
                         <input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5 text-center">
-                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button>
+                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200 cursor-pointer">削除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -827,55 +845,66 @@
                             (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
                 const surplus = inc - exp;
 
-                document.getElementById('kpi-current-saving').innerText = '¥' + appData.settings.currentSaving.toLocaleString();
-                document.getElementById('kpi-monthly-income').innerText = '¥' + inc.toLocaleString();
-                document.getElementById('kpi-monthly-expense').innerText = '¥' + exp.toLocaleString();
-                document.getElementById('kpi-monthly-surplus').innerText = '¥' + surplus.toLocaleString();
+                const curSaveEl = document.getElementById('kpi-current-saving');
+                const incEl = document.getElementById('kpi-monthly-income');
+                const expEl = document.getElementById('kpi-monthly-expense');
+                const surEl = document.getElementById('kpi-monthly-surplus');
+
+                if (curSaveEl) curSaveEl.innerText = '¥' + appData.settings.currentSaving.toLocaleString();
+                if (incEl) incEl.innerText = '¥' + inc.toLocaleString();
+                if (expEl) expEl.innerText = '¥' + exp.toLocaleString();
+                if (surEl) surEl.innerText = '¥' + surplus.toLocaleString();
             }
         }
 
         function renderCharts() {
-            const ctx1 = document.getElementById('cashFlowChart').getContext('2d');
-            if (cashChart) cashChart.destroy();
-            cashChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: ['2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033', '2034', '2035', '2036'],
-                    datasets: [{
-                        label: '現金残高 (万円)',
-                        data: [300, 240, 280, 250, 310, 350, 400, 450, 320, 400, 480],
-                        borderColor: '#0284c7',
-                        backgroundColor: 'rgba(2, 132, 199, 0.08)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.35,
-                        pointBackgroundColor: '#0284c7',
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            const chart1El = document.getElementById('cashFlowChart');
+            if (chart1El) {
+                const ctx1 = chart1El.getContext('2d');
+                if (cashChart) cashChart.destroy();
+                cashChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033', '2034', '2035', '2036'],
+                        datasets: [{
+                            label: '現金残高 (万円)',
+                            data: [300, 240, 280, 250, 310, 350, 400, 450, 320, 400, 480],
+                            borderColor: '#0284c7',
+                            backgroundColor: 'rgba(2, 132, 199, 0.08)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#0284c7',
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
 
-            const ctx2 = document.getElementById('nisaChart').getContext('2d');
-            if (nisaChart) nisaChart.destroy();
-            nisaChart = new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: ['現在', '5年後', '10年後', '20年後', '38年後'],
-                    datasets: [{
-                        label: 'NISA資産予測 (万円)',
-                        data: [0, 180, 410, 985, 2500],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.35,
-                        pointBackgroundColor: '#10b981',
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            const chart2El = document.getElementById('nisaChart');
+            if (chart2El) {
+                const ctx2 = chart2El.getContext('2d');
+                if (nisaChart) nisaChart.destroy();
+                nisaChart = new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: ['現在', '5年後', '10年後', '20年後', '38年後'],
+                        datasets: [{
+                            label: 'NISA資産予測 (万円)',
+                            data: [0, 180, 410, 985, 2500],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.35,
+                            pointBackgroundColor: '#10b981',
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
         }
 
         window.onload = function() {
