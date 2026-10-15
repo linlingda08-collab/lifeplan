@@ -4,14 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ライフプラン</title>
-    <!-- Web App / iPhone Home Screen Title -->
     <meta name="apple-mobile-web-app-title" content="ライフプラン">
     <meta name="application-name" content="ライフプラン">
-    <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts: Noto Sans JP -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -20,37 +16,16 @@
             color: #334155;
         }
         @media print {
-            body {
-                background-color: white;
-                color: black;
-                font-size: 11pt;
-            }
-            .no-print {
-                display: none !important;
-            }
-            .print-container {
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-            }
-            @page {
-                size: A4 portrait;
-                margin: 10mm;
-            }
-        }
-        .table-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-        .table-scroll::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 3px;
+            body { background-color: white; color: black; font-size: 11pt; }
+            .no-print { display: none !important; }
+            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+            @page { size: A4 portrait; margin: 10mm; }
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header / Navigation (No Print) -->
+    <!-- Header / Navigation -->
     <header class="no-print bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
             <div class="flex items-center space-x-3">
@@ -61,13 +36,14 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2 mt-2 sm:mt-0">
-                <nav class="flex space-x-1 bg-slate-100 p-1 rounded-lg text-sm font-medium">
+                <nav class="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-lg text-sm font-medium">
                     <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3 py-1.5 rounded-md transition bg-white text-indigo-600 shadow-xs">ダッシュボード</button>
                     <button onclick="switchTab('input')" id="btn-tab-input" class="px-3 py-1.5 rounded-md transition text-slate-600 hover:text-slate-900">毎月入力</button>
+                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3 py-1.5 rounded-md transition text-slate-600 hover:text-slate-900">月別グラフ・履歴</button>
                     <button onclick="switchTab('events')" id="btn-tab-events" class="px-3 py-1.5 rounded-md transition text-slate-600 hover:text-slate-900">イベント管理</button>
                     <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3 py-1.5 rounded-md transition text-slate-600 hover:text-slate-900">NISA設定</button>
                 </nav>
-                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center shadow-xs">
+                <button onclick="window.print()" class="no-print bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center shadow-xs">
                     🖨️ 印刷
                 </button>
             </div>
@@ -75,11 +51,10 @@
     </header>
 
     <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 print-container">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 print-container space-y-6">
 
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            
             <div class="bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-500 rounded-2xl p-6 text-white shadow-md">
                 <div class="text-center max-w-2xl mx-auto">
                     <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider">Official Infographic Report</span>
@@ -125,43 +100,64 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: MONTHLY INPUT ================= -->
+        <!-- ================= TAB 2: MONTHLY INPUT (Card-based for iPad/Phone) ================= -->
         <div id="tab-input" class="hidden space-y-6">
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-                    <h2 class="font-bold text-lg text-slate-800">毎月の収支入力表</h2>
-                    <button onclick="addMonthRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded-lg font-medium transition">＋ 月を追加する</button>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                    <div>
+                        <h2 class="font-bold text-lg text-slate-800">毎月の収支入力（iPad最適化版）</h2>
+                        <p class="text-xs text-slate-500">対象の月を選択して、それぞれの項目を入力・編集してください。</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select id="month-selector" onchange="selectMonthCard(this.value)" class="border border-slate-300 rounded-lg p-2 text-sm bg-slate-50 font-medium"></select>
+                        <button onclick="addMonthRow()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-2 rounded-lg font-medium transition whitespace-nowrap">＋ 新しい月を追加</button>
+                    </div>
                 </div>
-                <div class="table-scroll overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse min-w-[1300px]">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200 text-center">
-                                <th class="p-2 border-r">年月</th>
-                                <th class="p-2 border-r">区分</th>
-                                <th class="p-2 border-r">ゲストA収入</th>
-                                <th class="p-2 border-r">ゲストB収入</th>
-                                <th class="p-2 border-r">2人手取り</th>
-                                <th class="p-2 border-r">食費</th>
-                                <th class="p-2 border-r">住居費</th>
-                                <th class="p-2 border-r">水道ガス電気</th>
-                                <th class="p-2 border-r">生活用品</th>
-                                <th class="p-2 border-r">交通費等</th>
-                                <th class="p-2 border-r">お小遣い・他</th>
-                                <th class="p-2 border-r bg-amber-100 font-bold">生活費合計</th>
-                                <th class="p-2 border-r bg-emerald-100 font-bold">現金貯金(自動)</th>
-                                <th class="p-2 border-r">NISA</th>
-                                <th class="p-2 border-r">臨時収入</th>
-                                <th class="p-2 border-r">臨時支出</th>
-                                <th class="p-2">メモ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="monthly-table-body" class="divide-y divide-slate-200"></tbody>
-                    </table>
+
+                <!-- Selected Month Card Editor -->
+                <div id="month-editor-container" class="space-y-6 border-t border-slate-100 pt-6">
+                    <!-- Dynamic form injected by JS -->
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 3: EVENTS ================= -->
+        <!-- ================= TAB 3: CHARTS & HISTORY ================= -->
+        <div id="tab-charts" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Pie Chart Card -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800">支出の円グラフ内訳</h3>
+                        <select id="pie-month-selector" onchange="renderPieChart()" class="border border-slate-300 rounded-lg p-1.5 text-xs bg-slate-50 font-medium"></select>
+                    </div>
+                    <div class="relative flex-grow h-80 flex items-center justify-center">
+                        <canvas id="expensePieChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- History List Card -->
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col">
+                    <h3 class="font-bold text-slate-800 mb-4">過去の収支履歴一覧</h3>
+                    <div class="overflow-x-auto flex-grow max-h-80">
+                        <table class="w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 border-b text-slate-700">
+                                    <th class="p-2">年月</th>
+                                    <th class="p-2">区分</th>
+                                    <th class="p-2 text-right">手取り合計</th>
+                                    <th class="p-2 text-right">生活費合計</th>
+                                    <th class="p-2 text-right">貯金余力</th>
+                                    <th class="p-2 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body" class="divide-y divide-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 4: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
                 <div class="flex justify-between items-center mb-4">
@@ -184,7 +180,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: NISA SETTINGS ================= -->
+        <!-- ================= TAB 5: NISA SETTINGS ================= -->
         <div id="tab-nisa" class="hidden space-y-6">
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs max-w-xl mx-auto">
                 <h2 class="font-bold text-lg text-slate-800 mb-4">NISA・前提条件の設定</h2>
@@ -216,8 +212,22 @@
         let appData = {
             settings: { age: 27, monthlyNisa: 20000, years: 38, currentSaving: 2000000 },
             monthly: [
-                { month: '2027-04', type: '想定', rIncome: 200000, hIncome: 195000, food: 35000, house: 75000, utility: 20000, goods: 15000, hTrans: 15000, rTrans: 10000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, extraExp: 0, nisa: 20000, bonus: 0, extraInc: 0, memo: '初期想定値' },
-                { month: '2027-05', type: '想定', rIncome: 200000, hIncome: 195000, food: 35000, house: 75000, utility: 20000, goods: 15000, hTrans: 15000, rTrans: 10000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, extraExp: 0, nisa: 20000, bonus: 0, extraInc: 0, memo: '' }
+                { 
+                    month: '2027-04', type: '想定', 
+                    rIncome: 200000, hIncome: 195000, 
+                    food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
+                    utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
+                    rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
+                    nisa: 20000, bonus: 0, extraInc: 0, memo: '初期想定値' 
+                },
+                { 
+                    month: '2027-05', type: '想定', 
+                    rIncome: 200000, hIncome: 195000, 
+                    food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
+                    utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
+                    rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
+                    nisa: 20000, bonus: 0, extraInc: 0, memo: '' 
+                }
             ],
             events: [
                 { name: 'ライフイベント1', date: '2027-12', cost: 2100000, status: '予定', memo: '' },
@@ -227,21 +237,26 @@
 
         let cashChart = null;
         let nisaChart = null;
+        let pieChart = null;
+        let currentEditingIndex = 0;
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v6');
+            const saved = localStorage.getItem('lifeplan_data_v7');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             syncSettingsToUI();
-            renderMonthlyTable();
+            updateMonthSelector();
+            renderMonthEditor();
+            renderHistoryTable();
             renderEventsTable();
             updateCalculations();
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v6', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_v7', JSON.stringify(appData));
             updateCalculations();
+            renderHistoryTable();
         }
 
         function syncSettingsToUI() {
@@ -260,7 +275,7 @@
         }
 
         function switchTab(tabId) {
-            ['dashboard', 'input', 'events', 'nisa'].forEach(id => {
+            ['dashboard', 'input', 'charts', 'events', 'nisa'].forEach(id => {
                 document.getElementById('tab-' + id).classList.add('hidden');
                 document.getElementById('btn-tab-' + id)?.classList.remove('bg-white', 'text-indigo-600', 'shadow-xs');
                 document.getElementById('btn-tab-' + id)?.classList.add('text-slate-600');
@@ -273,65 +288,294 @@
             }
             if (tabId === 'dashboard') {
                 renderCharts();
+            } else if (tabId === 'charts') {
+                updatePieSelector();
+                renderPieChart();
             }
         }
 
-        function renderMonthlyTable() {
-            const tbody = document.getElementById('monthly-table-body');
+        function updateMonthSelector() {
+            const selector = document.getElementById('month-selector');
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                if (idx === currentEditingIndex) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        function selectMonthCard(index) {
+            currentEditingIndex = Number(index);
+            renderMonthEditor();
+        }
+
+        function addMonthRow() {
+            const last = appData.monthly[appData.monthly.length - 1] || { 
+                rIncome: 200000, hIncome: 195000, food: 35000, rTrans: 10000, hTrans: 15000, 
+                house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, 
+                rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
+                nisa: 20000, bonus: 0, extraInc: 0, memo: '' 
+            };
+            appData.monthly.push({ ...last, month: '2027-new', memo: '' });
+            currentEditingIndex = appData.monthly.length - 1;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function deleteMonth(index) {
+            if (appData.monthly.length <= 1) {
+                alert('これ以上削除できません。');
+                return;
+            }
+            appData.monthly.splice(index, 1);
+            currentEditingIndex = Math.max(0, index - 1);
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function renderMonthEditor() {
+            const container = document.getElementById('month-editor-container');
+            const m = appData.monthly[currentEditingIndex];
+            if (!m) return;
+
+            const totalInc = (m.rIncome || 0) + (m.hIncome || 0);
+            const totalExp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
+                             (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
+                             (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
+                             (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
+            const autoSaving = totalInc - totalExp;
+
+            container.innerHTML = `
+                <!-- Basic Meta Info -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">年月 (例: 2027-04)</label>
+                        <input type="text" value="${m.month}" onchange="updateMonthField('month', this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">区分</label>
+                        <select onchange="updateMonthField('type', this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm">
+                            <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">メモ</label>
+                        <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm">
+                    </div>
+                    <div class="flex justify-end sm:justify-start items-end">
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3 py-2 rounded-lg font-medium transition border border-rose-200">🗑️ この月を削除</button>
+                    </div>
+                </div>
+
+                <!-- Summary Badge -->
+                <div class="grid grid-cols-3 gap-3 bg-indigo-50/60 p-4 rounded-xl border border-indigo-100 text-center">
+                    <div>
+                        <p class="text-xs text-indigo-600 font-medium">2人手取り合計</p>
+                        <p class="text-lg font-bold text-indigo-700">¥${totalInc.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-amber-600 font-medium">生活費合計</p>
+                        <p class="text-lg font-bold text-amber-700">¥${totalExp.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-emerald-600 font-medium">現金貯金余力</p>
+                        <p class="text-lg font-bold text-emerald-700">¥${autoSaving.toLocaleString()}</p>
+                    </div>
+                </div>
+
+                <!-- Detailed Inputs Grid (Optimized for iPad Touch) -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-sm text-slate-700 border-l-4 border-indigo-600 pl-2">収入項目</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-sm font-medium">ゲストA収入 (円)</span>
+                            <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-36 bg-slate-50 border border-slate-300 rounded-lg p-2 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-sm font-medium">ゲストB収入 (円)</span>
+                            <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-36 bg-slate-50 border border-slate-300 rounded-lg p-2 text-right text-sm">
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-sm text-slate-700 border-l-4 border-amber-500 pl-2 pt-2">支出項目（詳細）</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🍚 食費</span>
+                            <input type="number" value="${m.food}" onchange="updateMonthField('food', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🚆 ゲストA交通費</span>
+                            <input type="number" value="${m.rTrans}" onchange="updateMonthField('rTrans', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🚆 ゲストB交通費</span>
+                            <input type="number" value="${m.hTrans}" onchange="updateMonthField('hTrans', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🏠 住居費(管理費込)</span>
+                            <input type="number" value="${m.house}" onchange="updateMonthField('house', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🛒 生活用品</span>
+                            <input type="number" value="${m.goods}" onchange="updateMonthField('goods', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">⚡ 水道ガス電気</span>
+                            <input type="number" value="${m.utility}" onchange="updateMonthField('utility', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🎓 ゲストA奨学金</span>
+                            <input type="number" value="${m.rLoan}" onchange="updateMonthField('rLoan', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🐾 ぽん費</span>
+                            <input type="number" value="${m.pon}" onchange="updateMonthField('pon', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">➕ 県民共済</span>
+                            <input type="number" value="${m.kenmin}" onchange="updateMonthField('kenmin', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">📖 ゲストAサブスク</span>
+                            <input type="number" value="${m.rSub}" onchange="updateMonthField('rSub', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">💵 ゲストAお小遣い</span>
+                            <input type="number" value="${m.rPocket}" onchange="updateMonthField('rPocket', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">💵 ゲストBお小遣い</span>
+                            <input type="number" value="${m.hPocket}" onchange="updateMonthField('hPocket', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">💇 ゲストB美容代</span>
+                            <input type="number" value="${m.hHair}" onchange="updateMonthField('hHair', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">📞 ゲストA通信費</span>
+                            <input type="number" value="${m.rComm}" onchange="updateMonthField('rComm', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">📞 ゲストB通信費</span>
+                            <input type="number" value="${m.hComm}" onchange="updateMonthField('hComm', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-sm text-slate-700 border-l-4 border-emerald-500 pl-2 pt-2">積立・その他</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🌟 NISA積立</span>
+                            <input type="number" value="${m.nisa || 0}" onchange="updateMonthField('nisa', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">🎁 臨時収入</span>
+                            <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-slate-200 flex justify-between items-center">
+                            <span class="text-xs font-medium">📦 ボーナス・他</span>
+                            <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-sm">
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateMonthField(field, value) {
+            appData.monthly[currentEditingIndex][field] = value;
+            saveStorage();
+            updateMonthSelector();
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
             tbody.innerHTML = '';
-            appData.monthly.forEach((row, index) => {
-                const totalInc = (row.rIncome || 0) + (row.hIncome || 0);
-                const totalExp = (row.food || 0) + (row.house || 0) + (row.utility || 0) + (row.goods || 0) + 
-                                 (row.hTrans || 0) + (row.rTrans || 0) + (row.rLoan || 0) + (row.pon || 0) + 
-                                 (row.kenmin || 0) + (row.rSub || 0) + (row.rPocket || 0) + (row.hPocket || 0) + 
-                                 (row.hHair || 0) + (row.rComm || 0) + (row.hComm || 0) + (row.extraExp || 0);
-                const autoSaving = totalInc - totalExp;
+            appData.monthly.forEach((m, idx) => {
+                const totalInc = (m.rIncome || 0) + (m.hIncome || 0);
+                const totalExp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
+                                 (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
+                                 (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
+                                 (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
+                const surplus = totalInc - totalExp;
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
                 tr.innerHTML = `
-                    <td class="p-1 border-r"><input type="text" value="${row.month}" onchange="updateMonthly(${index}, 'month', this.value)" class="w-20 p-1 border rounded bg-slate-50 text-center"></td>
-                    <td class="p-1 border-r">
-                        <select onchange="updateMonthly(${index}, 'type', this.value)" class="w-16 p-1 border rounded bg-slate-50 text-center">
-                            <option value="想定" ${row.type==='想定'?'selected':''}>想定</option>
-                            <option value="実績" ${row.type==='実績'?'selected':''}>実績</option>
-                        </select>
+                    <td class="p-2 font-medium">${m.month}</td>
+                    <td class="p-2"><span class="px-2 py-0.5 rounded text-[10px] ${m.type==='実績'?'bg-emerald-100 text-emerald-800':'bg-sky-100 text-sky-800'}">${m.type}</span></td>
+                    <td class="p-2 text-right font-medium text-indigo-600">¥${totalInc.toLocaleString()}</td>
+                    <td class="p-2 text-right font-medium text-amber-600">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-2 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
+                    <td class="p-2 text-center">
+                        <button onclick="jumpToMonth(${idx})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2 py-1 rounded text-xs font-medium">編集</button>
                     </td>
-                    <td class="p-1 border-r"><input type="number" value="${row.rIncome}" onchange="updateMonthly(${index}, 'rIncome', this.value)" class="w-20 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.hIncome}" onchange="updateMonthly(${index}, 'hIncome', this.value)" class="w-20 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r font-bold text-indigo-600 text-right bg-indigo-50/50">¥${totalInc.toLocaleString()}</td>
-                    <td class="p-1 border-r"><input type="number" value="${row.food}" onchange="updateMonthly(${index}, 'food', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.house}" onchange="updateMonthly(${index}, 'house', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.utility}" onchange="updateMonthly(${index}, 'utility', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.goods}" onchange="updateMonthly(${index}, 'goods', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.hTrans}" onchange="updateMonthly(${index}, 'hTrans', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.rPocket}" onchange="updateMonthly(${index}, 'rPocket', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r font-bold text-amber-600 text-right bg-amber-50/50">¥${totalExp.toLocaleString()}</td>
-                    <td class="p-1 border-r font-bold text-emerald-700 text-right bg-emerald-50/50">¥${autoSaving.toLocaleString()}</td>
-                    <td class="p-1 border-r"><input type="number" value="${row.nisa}" onchange="updateMonthly(${index}, 'nisa', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.bonus}" onchange="updateMonthly(${index}, 'bonus', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1 border-r"><input type="number" value="${row.extraInc}" onchange="updateMonthly(${index}, 'extraInc', this.value)" class="w-16 p-1 border rounded text-right"></td>
-                    <td class="p-1"><input type="text" value="${row.memo}" onchange="updateMonthly(${index}, 'memo', this.value)" class="w-24 p-1 border rounded"></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function updateMonthly(index, field, value) {
-            if (field === 'month' || field === 'type' || field === 'memo') {
-                appData.monthly[index][field] = value;
-            } else {
-                appData.monthly[index][field] = Number(value) || 0;
-            }
-            saveStorage();
-            renderMonthlyTable();
+        function jumpToMonth(idx) {
+            currentEditingIndex = idx;
+            switchTab('input');
+            updateMonthSelector();
+            renderMonthEditor();
         }
 
-        function addMonthRow() {
-            const last = appData.monthly[appData.monthly.length - 1] || { rIncome: 200000, hIncome: 195000, food: 35000, house: 75000, utility: 20000, goods: 15000, hTrans: 15000, rTrans: 10000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, extraExp: 0, nisa: 20000, bonus: 0, extraInc: 0, memo: '' };
-            appData.monthly.push({ ...last, month: '2027-supp', memo: '' });
-            saveStorage();
-            renderMonthlyTable();
+        function updatePieSelector() {
+            const selector = document.getElementById('pie-month-selector');
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                selector.appendChild(opt);
+            });
+        }
+
+        function renderPieChart() {
+            const idx = Number(document.getElementById('pie-month-selector').value) || 0;
+            const m = appData.monthly[idx];
+            if (!m) return;
+
+            const ctx = document.getElementById('expensePieChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+
+            const dataValues = [
+                m.food || 0, m.rTrans || 0, m.hTrans || 0, m.house || 0, m.goods || 0, 
+                m.utility || 0, m.rLoan || 0, m.pon || 0, m.kenmin || 0, m.rSub || 0, 
+                m.rPocket || 0, m.hPocket || 0, m.hHair || 0, m.rComm || 0, m.hComm || 0
+            ];
+            const labels = [
+                '食費', 'ゲストA交通費', 'ゲストB交通費', '住居費', '生活用品', 
+                '水道ガス電気', 'ゲストA奨学金', 'ぽん費', '県民共済', 'ゲストAサブスク', 
+                'ゲストAお小遣い', 'ゲストBお小遣い', 'ゲストB美容代', 'ゲストA通信費', 'ゲストB通信費'
+            ];
+
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: [
+                            '#f59e0b', '#3b82f6', '#60a5fa', '#8b5cf6', '#ec4899', 
+                            '#10b981', '#6366f1', '#14b8a6', '#f43f5e', '#a855f7', 
+                            '#3b82f6', '#ec4899', '#f43f5e', '#f97316', '#fb923c'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    }
+                }
+            });
         }
 
         function renderEventsTable() {
@@ -340,12 +584,12 @@
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="p-2"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full p-1 border rounded"></td>
-                    <td class="p-2"><input type="text" value="${ev.date}" onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-24 p-1 border rounded"></td>
-                    <td class="p-2"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 p-1 border rounded"></td>
-                    <td class="p-2"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 p-1 border rounded"></td>
-                    <td class="p-2"><input type="text" value="${ev.memo}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full p-1 border rounded"></td>
-                    <td class="p-2"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-600 font-bold">削除</button></td>
+                    <td class="p-2"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full p-1 border rounded text-xs"></td>
+                    <td class="p-2"><input type="text" value="${ev.date}" onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-24 p-1 border rounded text-xs"></td>
+                    <td class="p-2"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 p-1 border rounded text-xs"></td>
+                    <td class="p-2"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 p-1 border rounded text-xs"></td>
+                    <td class="p-2"><input type="text" value="${ev.memo}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full p-1 border rounded text-xs"></td>
+                    <td class="p-2"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-600 font-bold text-xs">削除</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -361,7 +605,10 @@
             if (appData.monthly.length > 0) {
                 const m = appData.monthly[0];
                 const inc = (m.rIncome || 0) + (m.hIncome || 0);
-                const exp = (m.food || 0) + (m.house || 0) + (m.utility || 0) + (m.goods || 0) + (m.hTrans || 0) + (m.rTrans || 0) + (m.rLoan || 0) + (m.pon || 0) + (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0) + (m.extraExp || 0);
+                const exp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
+                            (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
+                            (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
+                            (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
                 const surplus = inc - exp;
 
                 document.getElementById('kpi-current-saving').innerText = '¥' + appData.settings.currentSaving.toLocaleString();
@@ -372,7 +619,6 @@
         }
 
         function renderCharts() {
-            // Cash Flow Chart
             const ctx1 = document.getElementById('cashFlowChart').getContext('2d');
             if (cashChart) cashChart.destroy();
             cashChart = new Chart(ctx1, {
@@ -391,7 +637,6 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // NISA Chart
             const ctx2 = document.getElementById('nisaChart').getContext('2d');
             if (nisaChart) nisaChart.destroy();
             nisaChart = new Chart(ctx2, {
