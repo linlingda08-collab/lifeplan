@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>夫婦のライフプラン</title>
-    <!-- icon.png を指定 -->
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png">
     <meta name="apple-mobile-web-app-title" content="ライフプラン">
@@ -64,12 +63,12 @@
             </div>
             <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                 <nav class="flex flex-wrap gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
-                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3.5 py-2 rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-xs">ダッシュボード</button>
-                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-3.5 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">毎月入力</button>
-                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3.5 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">月別グラフ・履歴</button>
-                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-3.5 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">大きな予定</button>
-                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3.5 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">NISA設定</button>
-                    <button onclick="switchTab('memo')" id="btn-tab-memo" class="px-3.5 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">手続きメモ</button>
+                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3 py-2 rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-xs">ホーム</button>
+                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">毎月入力</button>
+                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">月別グラフ・履歴</button>
+                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">今後の予定</button>
+                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">NISA設定</button>
+                    <button onclick="switchTab('memo')" id="btn-tab-memo" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">手続きメモ</button>
                 </nav>
                 <button onclick="window.print()" class="no-print bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm hover:shadow active:scale-95 flex items-center gap-1.5">
                     <span>🖨️</span> 印刷
@@ -81,16 +80,29 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 print-container space-y-6">
 
-        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <!-- ================= TAB 1: HOME (旧ダッシュボード) ================= -->
         <div id="tab-dashboard" class="space-y-6">
             <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl shadow-slate-900/10 border border-slate-800">
                 <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/20 text-indigo-200 border border-indigo-400/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Official Life Plan Report
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> AI Financial Intelligence
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-slate-300">2026年末 貯金300万円を目指して</h2>
-                    <p class="text-slate-300 text-xs sm:text-sm font-normal">緊急用予備資金200万円を確保しつつ、無理のない積立とライフプランを実現</p>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-slate-300">ライフプラン・逆算シミュレーション</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm font-normal">「今後の予定」の費用と時期から、AIが最適な必要貯金額を自動算出します</p>
+                </div>
+            </div>
+
+            <!-- AI Goal Recommendation Banner -->
+            <div class="glass-card p-6 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/80 via-white to-sky-50/80 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-indigo-900 text-sm flex items-center gap-2">
+                        <span>🤖</span> AI逆算アドバイス & 目標設定
+                    </h3>
+                    <span id="ai-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">自動計算中</span>
+                </div>
+                <div id="ai-goal-recommendation" class="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                    <!-- JSで動的生成 -->
                 </div>
             </div>
 
@@ -141,6 +153,14 @@
 
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
         <div id="tab-input" class="hidden space-y-6">
+            <!-- AI Advice banner in input tab -->
+            <div class="glass-card p-4 rounded-xl border border-indigo-200 bg-indigo-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="text-xs text-indigo-900">
+                    <span class="font-bold">💡 AI目標アドバイス:</span> <span id="input-ai-summary">今後の予定から逆算して毎月の目標貯金額を計算中...</span>
+                </div>
+                <button onclick="switchTab('dashboard')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition shrink-0">ホームで詳細を見る</button>
+            </div>
+
             <div class="glass-card p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-slate-200/80 gap-3">
                     <div>
@@ -205,16 +225,28 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS (大きな予定) ================= -->
+        <!-- ================= TAB 4: EVENTS (今後の予定 - AI相場試算付き) ================= -->
         <div id="tab-events" class="hidden space-y-6">
-            <div class="glass-card p-6 rounded-2xl space-y-4">
-                <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+            <div class="glass-card p-6 rounded-2xl space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-200 gap-3">
                     <div>
-                        <h2 class="font-bold text-lg text-slate-900 tracking-tight">大きな予定・ライフイベント</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">結婚、結婚式、新婚旅行、車購入や引越しなどの予定と費用[cite: 5]</p>
+                        <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">イベント名を入力して「AI相場を試算」ボタンを押すと、AIが適切な費用相場を提案してくれます。</p>
                     </div>
                     <button onclick="addEventRow()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm">＋ 予定を追加</button>
                 </div>
+
+                <!-- AI Advice Box for Events -->
+                <div id="ai-event-advisor-box" class="glass-card-sm p-4 rounded-xl border border-sky-200 bg-gradient-to-r from-sky-50/70 to-indigo-50/70 space-y-2 hidden">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
+                            <span>✨</span> AI相場アドバイザーからの提案
+                        </h4>
+                        <button onclick="closeAiAdvisor()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">×</button>
+                    </div>
+                    <p id="ai-event-advisor-text" class="text-xs text-slate-700 leading-relaxed"></p>
+                </div>
+
                 <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
                     <table class="w-full text-xs text-left border-collapse">
                         <thead>
@@ -223,7 +255,7 @@
                                 <th class="p-3">予定時期</th>
                                 <th class="p-3">予定費用 (円)</th>
                                 <th class="p-3">ステータス</th>
-                                <th class="p-3">メモ</th>
+                                <th class="p-3 text-center">AI相場試算</th>
                                 <th class="p-3 w-16 text-center">操作</th>
                             </tr>
                         </thead>
@@ -243,59 +275,59 @@
                         <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">毎月のNISA積立額 (円)[cite: 5]</label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">毎月のNISA積立額 (円)</label>
                         <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
-                        <p class="text-[11px] text-slate-500 mt-1">※無理なく始めるなら月3万円、余裕があれば月5万円[cite: 5]</p>
+                        <p class="text-[11px] text-slate-500 mt-1">※無理なく始めるなら月3万円、余裕があれば月5万円</p>
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">運用期間 (年)[cite: 5]</label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">運用期間 (年)</label>
                         <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">緊急用予備現金残高 (円)[cite: 5]</label>
+                        <label class="block font-semibold text-slate-700 mb-1.5">緊急用予備現金残高 (円)</label>
                         <input type="number" id="setting-current-saving" value="2000000" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 6: PROCEDURE MEMO (手続きメモ) ================= -->
+        <!-- ================= TAB 6: PROCEDURE MEMO ================= -->
         <div id="tab-memo" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div>
                     <h2 class="font-bold text-lg text-slate-900 tracking-tight">結婚・引越し手続きチェックメモ</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">婚姻届や引越し前後に必要な主な手続きの要点です[cite: 5]。</p>
+                    <p class="text-xs text-slate-500 mt-0.5">婚姻届や引越し前後に必要な主な手続きの要点です。</p>
                 </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div class="glass-card-sm p-4 rounded-xl space-y-2">
                         <h3 class="font-bold text-indigo-600 text-sm flex items-center gap-1.5">🏛️ 役所での手続き</h3>
                         <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>婚姻届・転入届：同日に手続きできる場合があります（要事前確認）[cite: 5]。</li>
-                            <li>マイナンバーカード：住所・氏名変更が必要（カード持参）[cite: 5]。</li>
-                            <li>住民票の住所と本籍は別情報（戸籍等を確認して正確に記入）[cite: 5]。</li>
+                            <li>婚姻届・転入届：同日に手続きできる場合があります（要事前確認）。</li>
+                            <li>マイナンバーカード：住所・氏名変更が必要（カード持参）。</li>
+                            <li>住民票の住所と本籍は別情報（戸籍等を確認して正確に記入）。</li>
                         </ul>
                     </div>
                     <div class="glass-card-sm p-4 rounded-xl space-y-2">
                         <h3 class="font-bold text-amber-600 text-sm flex items-center gap-1.5">🏢 勤務先・社会保険</h3>
                         <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>会社員の健康保険・厚生年金：勤務先へ氏名・住所変更を確認（市役所での年金加入手続きが不要な場合が多い）[cite: 5]。</li>
-                            <li>転出届のオンライン申請可否や必要書類は自治体の最新案内を確認[cite: 5]。</li>
+                            <li>会社員の健康保険・厚生年金：勤務先へ氏名・住所変更を確認（市役所での年金加入手続きが不要な場合が多い）。</li>
+                            <li>転出届のオンライン申請可否や必要書類は自治体の最新案内を確認。</li>
                         </ul>
                     </div>
                     <div class="glass-card-sm p-4 rounded-xl space-y-2">
                         <h3 class="font-bold text-emerald-600 text-sm flex items-center gap-1.5">💳 銀行口座・その他</h3>
                         <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>銀行口座：結婚後、銀行所定の方法で氏名変更[cite: 5]。</li>
-                            <li>印鑑登録：必要な場合のみ、新住所の自治体ルールを確認[cite: 5]。</li>
+                            <li>銀行口座：結婚後、銀行所定の方法で氏名変更。</li>
+                            <li>印鑑登録：必要な場合のみ、新住所の自治体ルールを確認。</li>
                         </ul>
                     </div>
                     <div class="glass-card-sm p-4 rounded-xl space-y-2">
                         <h3 class="font-bold text-sky-600 text-sm flex items-center gap-1.5">💡 次にやることのアクション</h3>
                         <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>① 毎月の収入・支出を実額で確認する[cite: 5]。</li>
-                            <li>② 結婚式・旅行・車・引越しの見積もりを取る[cite: 5]。</li>
-                            <li>③ 緊急用の現金200万円を確保する[cite: 5]。</li>
+                            <li>① 毎月の収入・支出を実額で確認する。</li>
+                            <li>② 結婚式・旅行・車・引越しの見積もりを取る。</li>
+                            <li>③ 緊急用の現金200万円を確保する。</li>
                         </ul>
                     </div>
                 </div>
@@ -327,10 +359,10 @@
                 }
             ],
             events: [
-                { name: '結婚手続き', date: '2026-10', cost: 50000, status: '予定', memo: '婚姻届・引越し' },
-                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', memo: '前撮り20万、式200万、旅行4万想定[cite: 5]' },
-                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', memo: '車200万、引越し家具50万想定[cite: 5]' },
-                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', memo: '余力資金から活用' }
+                { name: '結婚手続き', date: '2026-10', cost: 50000, status: '予定' },
+                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定' },
+                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討' },
+                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来' }
             ]
         };
 
@@ -346,7 +378,7 @@
         ];
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v8');
+            const saved = localStorage.getItem('lifeplan_data_v9');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -359,7 +391,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v8', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_v9', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -393,10 +425,72 @@
             }
             if (tabId === 'dashboard') {
                 renderCharts();
+                updateAiRecommendation();
             } else if (tabId === 'charts') {
                 updatePieSelector();
                 renderPieChart();
             }
+        }
+
+        function updateAiRecommendation() {
+            const container = document.getElementById('ai-goal-recommendation');
+            const inputSummary = document.getElementById('input-ai-summary');
+            
+            // Calculate total events cost
+            let totalEventCost = appData.events.reduce((sum, ev) => sum + (Number(ev.cost) || 0), 0);
+            
+            // Monthly surplus from first month
+            let surplus = 90000;
+            if (appData.monthly.length > 0) {
+                const m = appData.monthly[0];
+                const inc = (m.rIncome || 0) + (m.hIncome || 0);
+                const exp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
+                            (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
+                            (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
+                            (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
+                surplus = inc - exp;
+            }
+
+            const targetSaving2026 = 3000000;
+            
+            let html = `
+                現在登録されている「今後の予定」の総額は <strong>¥${totalEventCost.toLocaleString()}</strong> です。<br>
+                2026年末の貯金目標（300万円）および緊急用予備資金（200万円）を確保しつつイベント費用に備えるため、現在の毎月の貯金余力（約¥${surplus.toLocaleString()}）をしっかり維持または月3〜5万円のNISA積立と両立していく計画が推奨されます。<br>
+                <span class="text-indigo-700 font-semibold">💡 AIアドバイス:</span> 定期的に「今後の予定」の時期と費用を見直し、大きな出費の半年前から現金の蓄えを厚くする意識を持ちましょう！
+            `;
+            container.innerHTML = html;
+            if (inputSummary) {
+                inputSummary.innerText = `今後の予定総額 ¥${totalEventCost.toLocaleString()} に向け、毎月の貯金余力（約¥${surplus.toLocaleString()}）を活用した積立を継続中。`;
+            }
+        }
+
+        function triggerAiEstimate(index) {
+            const ev = appData.events[index];
+            if (!ev) return;
+            
+            let advice = "";
+            const name = ev.name.toLowerCase();
+            
+            if (name.includes('結婚') || name.includes('式') || name.includes('前撮り')) {
+                advice = `「${ev.name}」のAI相場試算：前撮りは約20万円、結婚式はご祝儀相場を考慮した自己負担で約180万〜200万円、新婚旅行を含めると合計で約220万〜250万円が一般的な目安となります。`;
+            } else if (name.includes('車') || name.includes('中古車')) {
+                advice = `「${ev.name}」のAI相場試算：中古車の購入費用として約170万〜200万円に加え、初期の諸費用・車検・保険料として＋10〜20万円を見ておくと安心です。`;
+            } else if (name.includes('引越し') || name.includes('家具')) {
+                advice = `「${ev.name}」のAI相場試算：賃貸の敷金・礼金・仲介手数料および引っ越し業者費用、新規の家電・家具買い替えを含めると約40万〜60万円が目安となります。`;
+            } else if (name.includes('住宅') || name.includes('家')) {
+                advice = `「${ev.name}」のAI相場試算：頭金や諸費用（物件価格の5〜10%）として、将来的に500万〜800万円程度のまとまった現金を確保しておく計画をおすすめします。`;
+            } else {
+                advice = `「${ev.name}」のAI相場試算：一般的な類似イベントの相場データを分析中。時期（${ev.date}）までのスパンを考慮し、まずは無理のない範囲で10万〜50万円の予算設定から検討するのがおすすめです。`;
+            }
+
+            const box = document.getElementById('ai-event-advisor-box');
+            const text = document.getElementById('ai-event-advisor-text');
+            text.innerText = advice;
+            box.classList.remove('hidden');
+        }
+
+        function closeAiAdvisor() {
+            document.getElementById('ai-event-advisor-box').classList.add('hidden');
         }
 
         function updateMonthSelector() {
@@ -729,21 +823,26 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/80 transition";
                 tr.innerHTML = `
-                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5"><input type="text" value="${ev.date}" onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-24 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage();updateAiRecommendation()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.date}" onchange="appData.events[${index}].date=this.value;saveStorage();updateAiRecommendation()" class="w-24 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
+                    <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage();updateAiRecommendation()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5"><input type="text" value="${ev.memo}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button></td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="triggerAiEstimate(${index})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-sky-200 flex items-center gap-1 mx-auto">
+                            <span>✨</span> AI相場試算
+                        </button>
+                    </td>
+                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable();updateAiRecommendation()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button></td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
         function addEventRow() {
-            appData.events.push({ name: '新規の予定', date: '2031-01', cost: 100000, status: '予定', memo: '' });
+            appData.events.push({ name: '新規の予定', date: '2031-01', cost: 100000, status: '予定' });
             saveStorage();
             renderEventsTable();
+            updateAiRecommendation();
         }
 
         function updateCalculations() {
@@ -761,6 +860,7 @@
                 document.getElementById('kpi-monthly-expense').innerText = '¥' + exp.toLocaleString();
                 document.getElementById('kpi-monthly-surplus').innerText = '¥' + surplus.toLocaleString();
             }
+            updateAiRecommendation();
         }
 
         function renderCharts() {
