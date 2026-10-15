@@ -123,7 +123,6 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 2036年以降も横スクロールで確認できる推移グラフ -->
                 <div class="lg:col-span-2 glass-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-[#3d312a] text-xs sm:text-sm flex items-center gap-2">
@@ -358,23 +357,9 @@
                     rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)',
                     bucketAllocations: { '家の口座': 60000, 'ゆとり費': 30000 }
-                },
-                { 
-                    month: '2026-12', type: '想定', 
-                    rIncome: 200000, hIncome: 195000, 
-                    food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
-                    utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
-                    rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '2026年末目標300万円',
-                    bucketAllocations: { '家の口座': 60000, 'ゆとり費': 30000 }
                 }
             ],
-            events: [
-                { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', memo: '婚姻届と役所手続き費用' },
-                { name: '結婚式・新婚旅行', date: '2027-12', cost: 2500000, status: '予定', memo: '結婚式（自己負担額シミュレーション）\n50人規模での結婚式費用について、自己負担額は 2500000円です。予定時期：2027年12月' },
-                { name: '中古車購入', date: '2029-05', cost: 2300000, status: '検討', memo: '中古車購入と初期費用' },
-                { name: '住宅購入', date: '2034-04', cost: 5500000, status: '将来', memo: '頭金および諸費用想定' }
-            ]
+            events: [] // デフォルトは何も予定がない状態からスタート
         };
 
         let cashChart = null;
@@ -403,12 +388,13 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v5');
+            const saved = localStorage.getItem('lifeplan_data_earth_v6');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             if (!appData.savingBuckets) appData.savingBuckets = ['家の口座', 'ゆとり費'];
             if (!appData.settings.headerIcon) appData.settings.headerIcon = '🌰';
+            if (!appData.events) appData.events = [];
             
             appData.monthly.forEach(m => {
                 if (!m.bucketAllocations) {
@@ -429,7 +415,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v5', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v6', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -485,7 +471,11 @@
             const container = document.getElementById('qrcode-container');
             if (!container) return;
             container.innerHTML = '';
-            const jsonStr = JSON.stringify(appData);
+            
+            // 軽量化のため背景画像のBase64を除外した最小構成でQRコードを生成
+            const exportObj = JSON.parse(JSON.stringify(appData));
+            exportObj.settings.heroBg = ''; 
+            const jsonStr = JSON.stringify(exportObj);
             
             try {
                 new QRCode(container, {
@@ -497,7 +487,7 @@
                     correctLevel: QRCode.CorrectLevel.L
                 });
             } catch(e) {
-                container.innerHTML = `<p class="text-xs text-rose-500">QR生成エラー</p>`;
+                container.innerHTML = `<p class="text-xs text-rose-500 text-center py-4">データ量が多いためQR生成できません。<br>下の「テキストでコピー」をご利用ください。</p>`;
             }
         }
 
@@ -1154,6 +1144,12 @@
 
             tbody.innerHTML = '';
             cardList.innerHTML = '';
+
+            if (appData.events.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs text-[#7d6b5d]">予定はまだ登録されていません。「＋ 追加」または「🤖 Gemini回答から自動反映」から追加できます。</td></tr>`;
+                cardList.innerHTML = `<div class="glass-card-sm p-6 text-center text-xs text-[#7d6b5d] rounded-2xl">予定はまだ登録されていません。「＋ 追加」または「🤖 Gemini回答から自動反映」から追加できます。</div>`;
+                return;
+            }
 
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
