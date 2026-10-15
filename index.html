@@ -294,14 +294,20 @@
             <div class="glass-card p-6 rounded-2xl max-w-xl mx-auto space-y-5">
                 <h2 class="font-bold text-lg text-slate-900 tracking-tight pb-3 border-b border-slate-200">各種設定・NISA設定</h2>
                 
-                <!-- Gemini API Key Input -->
-                <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-sky-50 border border-indigo-200 space-y-2">
+                <!-- Gemini API Key Input with Save Button -->
+                <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-50 to-sky-50 border border-indigo-200 space-y-3">
                     <label class="block font-bold text-indigo-900 text-xs flex items-center gap-1.5">
                         <span>🔑</span> Gemini APIキー (無料)
                     </label>
-                    <input type="password" id="setting-gemini-key" placeholder="AI Studioで取得したAPIキーを入力..." onchange="saveSettings()" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                    <div class="flex gap-2">
+                        <input type="password" id="setting-gemini-key" placeholder="AI Studioで取得したAPIキーを入力..." class="flex-grow bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none transition">
+                        <button onclick="saveApiKeyExplicit()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shrink-0 shadow-sm">
+                            🔑 キーを保存
+                        </button>
+                    </div>
+                    <p id="api-key-status" class="text-[11px] text-emerald-700 font-semibold hidden">✅ APIキーが正常に保存されました！</p>
                     <p class="text-[11px] text-slate-500 leading-normal">
-                        ※Google AI Studioで無料発行したキーを貼ると、AI相場対話が本物のGemini AIになり、自然な会話が可能になります。
+                        ※Google AI Studioで無料発行したキーを入力し、<strong>「キーを保存」ボタン</strong>を押して反映させてください。
                     </p>
                 </div>
 
@@ -408,7 +414,7 @@
             eventName: '',
             eventDate: '2027-04',
             cost: 1000000,
-            history: [] // {role: 'user' | 'model', parts: [{text: ''}]}
+            history: []
         };
 
         const categoryColors = [
@@ -432,7 +438,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v15');
+            const saved = localStorage.getItem('lifeplan_data_v16');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -446,7 +452,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v15', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_v16', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -470,8 +476,20 @@
             appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
             appData.settings.years = Number(document.getElementById('setting-years').value);
             appData.settings.currentSaving = Number(document.getElementById('setting-current-saving').value);
-            appData.settings.geminiApiKey = document.getElementById('setting-gemini-key').value.trim();
             saveStorage();
+        }
+
+        // Explicit API Key Save Function with Visual Confirmation
+        function saveApiKeyExplicit() {
+            const keyVal = document.getElementById('setting-gemini-key').value.trim();
+            appData.settings.geminiApiKey = keyVal;
+            saveStorage();
+            
+            const statusEl = document.getElementById('api-key-status');
+            statusEl.classList.remove('hidden');
+            setTimeout(() => {
+                statusEl.classList.add('hidden');
+            }, 4000);
         }
 
         function changeHeroBackground(event) {
@@ -552,7 +570,7 @@
 
             const key = appData.settings.geminiApiKey;
             if (!key) {
-                alert('Gemini APIキーが未設定です。「各種設定・NISA」タブでGoogle AI Studioの無料キーを設定すると、本物のAIと対話できるようになります。');
+                alert('Gemini APIキーが未設定です。「各種設定・NISA」タブでGoogle AI Studioの無料キーを入力し、「🔑 キーを保存」ボタンを押してください。');
             }
 
             if (targetIndex !== null && appData.events[targetIndex]) {
@@ -596,15 +614,13 @@
 
             const apiKey = appData.settings.geminiApiKey;
             if (!apiKey) {
-                // Fallback offline simulator response if key is missing
                 setTimeout(() => {
-                    addAiMessage('【APIキー未設定モード】「各種設定」タブでGemini APIキーを設定すると、本物のAIが文章の意味や根拠を理解して回答します！');
+                    addAiMessage('【APIキー未設定】「各種設定・NISA」タブにてAPIキーを入力し、「🔑 キーを保存」ボタンを押してください。');
                     renderChatHistory();
                 }, 400);
                 return;
             }
 
-            // Real Gemini API Call
             const btn = document.getElementById('btn-send-chat');
             btn.disabled = true;
             btn.innerHTML = '<span>考え中...</span>';
@@ -615,7 +631,7 @@
 あなたの役割:
 1. 一般的な平均相場や具体的な内訳の根拠（前撮り〇万、式場代〇万など）を親身かつわかりやすく説明してください。
 2. ユーザーが納得して「OK」「決定」「これでいい」などの意思表示をするまで、丁寧に質問や提案を重ねてください。
-3. ユーザーの入力から、イベント名・予定金額（〇〇万円）・時期を読み取り、会話文の最後に必ず 【決定情報: イベント名=〇〇, 金額=〇〇円, 時期=YYYY-MM】 という隠しタグを含めて回答してください（例: 【決定情報: イベント名=結婚式, 金額=2500000円, 時期=2027-11】）。`;
+3. ユーザーの入力から、イベント名・予定金額（〇〇万円）・時期を読み取り、会話文の最後に必ず 【決定情報: イベント名=〇〇, 金額=〇〇円, 時期=YYYY-MM】 という隠しタグを含めて回答してください。`;
 
                 const contents = [
                     { role: 'user', parts: [{ text: systemPrompt }] },
@@ -635,13 +651,12 @@
                 if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
                     let aiText = data.candidates[0].content.parts[0].text;
                     
-                    // Parse hidden info tag
                     const match = aiText.match(/【決定情報:\s*イベント名=(.+?),\s*金額=(\d+)円,\s*時期=(.+?)】/);
                     if (match) {
                         currentChatState.eventName = match[1].trim();
                         currentChatState.cost = parseInt(match[2], 10);
                         currentChatState.eventDate = match[3].trim();
-                        aiText = aiText.replace(/【決定情報:.+?】/g, ''); // Remove tag from bubble display
+                        aiText = aiText.replace(/【決定情報:\s*イベント名=(.+?),\s*金額=(\d+)円,\s*時期=(.+?)】/g, '');
                     }
 
                     addAiMessage(aiText);
