@@ -17,26 +17,26 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            color: #0f172a;
+            background: linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%);
+            color: #2c2421;
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+            border: 1px solid rgba(228, 218, 208, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(60, 45, 35, 0.04), 0 8px 10px -6px rgba(60, 45, 35, 0.02);
         }
         .glass-card-sm {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #e7dfd5;
+            box-shadow: 0 1px 3px 0 rgba(60, 45, 35, 0.02);
         }
         .custom-scrollbar::-webkit-scrollbar {
             height: 6px;
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
+            background-color: #d6ccc2;
             border-radius: 9999px;
         }
         @media print {
@@ -47,30 +47,29 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased selection:bg-[#a3704c] selection:text-white">
 
     <!-- Header / Navigation -->
-    <header class="no-print bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 transition-all">
+    <header class="no-print bg-[#fbf7f4]/90 backdrop-blur-md border-b border-[#e7dfd5] sticky top-0 z-50 transition-all">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-500/20">
-                    💍
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-[#8c6d53] via-[#a3704c] to-[#c29b7a] flex items-center justify-center text-white font-bold text-lg shadow-md shadow-[#a3704c]/20">
+                    🌰
                 </div>
                 <div>
-                    <h1 class="text-base font-bold text-slate-900 tracking-tight leading-tight">夫婦のライフプラン</h1>
-                    <p class="text-[11px] font-medium text-slate-500">お金の計画と未来のシミュレーション</p>
+                    <h1 class="text-base font-bold text-[#3d312a] tracking-tight leading-tight">夫婦のライフプラン</h1>
+                    <p class="text-[11px] font-medium text-[#7d6b5d]">お金の計画と未来のシミュレーション</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2 mt-2 sm:mt-0">
-                <nav class="flex flex-wrap gap-1 bg-slate-100/80 p-1 rounded-xl text-xs font-semibold">
-                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3 py-2 rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-xs cursor-pointer">ホーム</button>
-                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">毎月入力</button>
-                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">月別グラフ・履歴</button>
-                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">今後の予定</button>
-                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">各種設定・NISA</button>
-                    <button onclick="switchTab('memo')" id="btn-tab-memo" class="px-3 py-2 rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900 cursor-pointer">手続きメモ</button>
+                <nav class="flex flex-wrap gap-1 bg-[#eae0d5]/80 p-1 rounded-xl text-xs font-semibold">
+                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-3 py-2 rounded-lg transition-all duration-200 bg-white text-[#8c6d53] shadow-xs cursor-pointer">ホーム</button>
+                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-3 py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">毎月入力</button>
+                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-3 py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">月別グラフ・履歴</button>
+                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-3 py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">今後の予定</button>
+                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-3 py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">NISA設定</button>
                 </nav>
-                <button onclick="window.print()" class="no-print bg-slate-900 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm hover:shadow active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <button onclick="window.print()" class="no-print bg-[#5c4a3d] hover:bg-[#4a3b30] text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1.5 cursor-pointer">
                     <span>🖨️</span> 印刷
                 </button>
             </div>
@@ -82,10 +81,10 @@
 
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            <div id="hero-banner" class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl shadow-slate-900/10 border border-slate-800 bg-cover bg-center transition-all">
-                <div id="hero-overlay" class="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px]"></div>
+            <div id="hero-banner" class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#4a3b30] via-[#5c4a3d] to-[#3d312a] p-8 text-white shadow-xl shadow-[#3d312a]/10 border border-[#6b5b4f] bg-cover bg-center transition-all">
+                <div id="hero-overlay" class="absolute inset-0 bg-[#2c2421]/60 backdrop-blur-[2px]"></div>
                 <div class="absolute right-4 top-4 z-20 no-print flex gap-2">
-                    <button onclick="syncCloudData()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl backdrop-blur-md transition shadow flex items-center gap-1 cursor-pointer">
+                    <button onclick="syncCloudData()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl backdrop-blur-md transition shadow flex items-center gap-1 cursor-pointer">
                         <span>🔄</span> 端末同期
                     </button>
                     <label class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
@@ -94,38 +93,39 @@
                     </label>
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 安定稼働中
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-[#a3704c]/30 text-[#f4ede6] border border-[#c29b7a]/40 backdrop-blur-sm uppercase tracking-wider">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#8fb996]"></span> アースカラー・自然な家計管理
                     </span>
                     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-slate-200 text-xs sm:text-sm font-normal drop-shadow">夫婦でお金を計画・管理するシンプル家計アプリ</p>
+                    <p class="text-[#e7dfd5] text-xs sm:text-sm font-normal drop-shadow">温かみのあるアースカラーで未来の資産をデザイン</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="glass-card p-5 rounded-2xl">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">緊急用予備現金</p>
-                    <p id="kpi-current-saving" class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mt-1.5">¥2,000,000</p>
+                    <p class="text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">銀行口座</p>
+                    <p id="kpi-current-saving" class="text-xl sm:text-2xl font-bold text-[#3d312a] tracking-tight mt-1.5">¥2,000,000</p>
                 </div>
                 <div class="glass-card p-5 rounded-2xl">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">毎月の手取り合計想定</p>
-                    <p id="kpi-monthly-income" class="text-xl sm:text-2xl font-bold text-indigo-600 tracking-tight mt-1.5">¥395,000</p>
+                    <p class="text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">今月の手取り</p>
+                    <p id="kpi-monthly-income" class="text-xl sm:text-2xl font-bold text-[#8c6d53] tracking-tight mt-1.5">¥395,000</p>
                 </div>
                 <div class="glass-card p-5 rounded-2xl">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">毎月の生活費合計想定</p>
-                    <p id="kpi-monthly-expense" class="text-xl sm:text-2xl font-bold text-amber-600 tracking-tight mt-1.5">¥305,000</p>
+                    <p class="text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">今月の生活費</p>
+                    <p id="kpi-monthly-expense" class="text-xl sm:text-2xl font-bold text-[#b87d4b] tracking-tight mt-1.5">¥305,000</p>
                 </div>
                 <div class="glass-card p-5 rounded-2xl">
-                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">毎月の貯金余力</p>
-                    <p id="kpi-monthly-surplus" class="text-xl sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥90,000</p>
+                    <p class="text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">今月の貯金</p>
+                    <p id="kpi-monthly-surplus" class="text-xl sm:text-2xl font-bold text-[#5e7862] tracking-tight mt-1.5">¥90,000</p>
+                    <div id="home-bucket-breakdown" class="mt-2 space-y-1 text-[11px] text-[#6b5b4f] pt-2 border-t border-[#e7dfd5]"></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-sky-500"></span> 現金残高の推移グラフ (2026〜2036年)
+                        <h3 class="font-bold text-[#3d312a] text-sm flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#8c6d53]"></span> 現金残高の推移グラフ (2026〜2036年)
                         </h3>
                     </div>
                     <div class="relative flex-grow h-72">
@@ -134,8 +134,8 @@
                 </div>
                 <div class="glass-card p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> NISA積立シミュレーション
+                        <h3 class="font-bold text-[#3d312a] text-sm flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#5e7862]"></span> NISA積立シミュレーション
                         </h3>
                     </div>
                     <div class="relative flex-grow h-60">
@@ -148,14 +148,14 @@
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
         <div id="tab-input" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-slate-200/80 gap-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-[#e7dfd5] gap-3">
                     <div>
-                        <h2 class="font-bold text-lg text-slate-900 tracking-tight">毎月の収支入力</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">セレクトボックスから月を選択して自由に入力・管理できます。</p>
+                        <h2 class="font-bold text-lg text-[#3d312a] tracking-tight">毎月の収支・貯金割り振り入力</h2>
+                        <p class="text-xs text-[#7d6b5d] mt-0.5">セレクトボックスから月を選択し、収入・生活費および貯金の割り振り先を設定できます。</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <select id="month-selector" onchange="selectMonthCard(this.value)" class="bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 transition cursor-pointer shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
-                        <button onclick="addNewMonthByDropdown()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm hover:shadow flex items-center gap-1 cursor-pointer">
+                        <select id="month-selector" onchange="selectMonthCard(this.value)" class="bg-[#fbf7f4] hover:bg-[#eae0d5] border border-[#d6ccc2] rounded-xl px-3 py-2 text-xs font-semibold text-[#3d312a] transition cursor-pointer shadow-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></select>
+                        <button onclick="addNewMonthByDropdown()" class="bg-[#8c6d53] hover:bg-[#785d46] active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm flex items-center gap-1 cursor-pointer">
                             <span>＋</span> 月を追加
                         </button>
                     </div>
@@ -170,10 +170,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="glass-card p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center">
-                        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> 支出の円グラフ・内訳金額
+                        <h3 class="font-bold text-[#3d312a] text-sm flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#b87d4b]"></span> 支出の円グラフ・内訳金額
                         </h3>
-                        <select id="pie-month-selector" onchange="renderPieChart()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer"></select>
+                        <select id="pie-month-selector" onchange="renderPieChart()" class="bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none cursor-pointer"></select>
                     </div>
                     
                     <div class="relative h-64 flex items-center justify-center">
@@ -181,51 +181,73 @@
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">項目の詳細金額リスト</h4>
+                        <h4 class="text-xs font-bold text-[#6b5b4f] uppercase tracking-wider mb-2">項目の詳細金額リスト</h4>
                         <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                     </div>
                 </div>
 
                 <div class="glass-card p-6 rounded-2xl flex flex-col">
-                    <h3 class="font-bold text-slate-900 text-sm mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span> 過去の収支履歴一覧
+                    <h3 class="font-bold text-[#3d312a] text-sm mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#8c6d53]"></span> 過去の収支履歴一覧
                     </h3>
-                    <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-xl border border-slate-200">
+                    <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-xl border border-[#e7dfd5]">
                         <table class="w-full text-xs text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-100/80 text-slate-600 font-semibold border-b border-slate-200">
+                                <tr class="bg-[#eae0d5]/80 text-[#6b5b4f] font-semibold border-b border-[#e7dfd5]">
                                     <th class="p-3">年月</th>
                                     <th class="p-3">区分</th>
                                     <th class="p-3 text-right">手取り合計</th>
                                     <th class="p-3 text-right">生活費合計</th>
-                                    <th class="p-3 text-right">貯金余力</th>
+                                    <th class="p-3 text-right">貯金</th>
                                     <th class="p-3 text-center">操作</th>
                                 </tr>
                             </thead>
-                            <tbody id="history-table-body" class="divide-y divide-slate-200/70 bg-white"></tbody>
+                            <tbody id="history-table-body" class="divide-y divide-[#e7dfd5] bg-white"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS ================= -->
+        <!-- ================= TAB 4: EVENTS (Gemini コピペ自動解析機能付き) ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-200 gap-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-[#e7dfd5] gap-3">
                     <div>
-                        <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">人生の大きなイベントの時期と予算を計画・管理できます。</p>
+                        <h2 class="font-bold text-lg text-[#3d312a] tracking-tight">今後の予定（ライフイベント）</h2>
+                        <p class="text-xs text-[#7d6b5d] mt-0.5">Geminiの回答を貼り付けて自動で予定を反映するか、手動で追加できます。</p>
                     </div>
-                    <button onclick="addNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                        <span>＋</span> 予定を追加
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="toggleAiParserBox()" class="bg-[#a3704c] hover:bg-[#8c5e3e] active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <span>🤖</span> Geminiの回答を貼り付けて自動反映
+                        </button>
+                        <button onclick="addNewEvent()" class="bg-[#5c4a3d] hover:bg-[#4a3b30] active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                            <span>＋</span> 予定を追加
+                        </button>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
+                <!-- AI Parser Box (Hidden by default) -->
+                <div id="ai-parser-box" class="glass-card p-5 rounded-2xl border border-[#c29b7a] bg-gradient-to-r from-[#fbf7f4] to-[#f4ede6] space-y-3 hidden shadow-lg">
+                    <div class="flex items-center justify-between pb-2 border-b border-[#e7dfd5]">
+                        <h4 class="font-bold text-xs text-[#5c4a3d] flex items-center gap-1.5">
+                            <span>✨</span> Gemini回答の自動解析（コピペ窓）
+                        </h4>
+                        <button onclick="toggleAiParserBox()" class="text-[#7d6b5d] hover:text-[#3d312a] text-xs font-bold">×</s
+                    </div>
+                    <p class="text-xs text-[#6b5b4f]">Geminiから受け取った回答文（例：「2027年11月の結婚式、費用は2200000円です」など）を以下に貼り付けてください。自動でイベント名・時期・費用を抽出します。</p>
+                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full bg-white border border-[#d6ccc2] rounded-xl p-3 text-xs text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></textarea>
+                    <div class="flex justify-end">
+                        <button onclick="parseAiTextAndAddEvent()" class="bg-[#5e7862] hover:bg-[#4c6250] text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow cursor-pointer">
+                            📥 解析して今後の予定に追加する
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-[#e7dfd5]">
                     <table class="w-full text-xs text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-100/80 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr class="bg-[#eae0d5]/80 text-[#6b5b4f] font-semibold border-b border-[#e7dfd5]">
                                 <th class="p-3">イベント名</th>
                                 <th class="p-3">予定時期</th>
                                 <th class="p-3">予定費用 (円)</th>
@@ -234,72 +256,33 @@
                                 <th class="p-3 w-20 text-center">操作</th>
                             </tr>
                         </thead>
-                        <tbody id="events-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+                        <tbody id="events-table-body" class="divide-y divide-[#e7dfd5] bg-white"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ================= TAB 5: SETTINGS & NISA ================= -->
+        <!-- ================= TAB 5: NISA SETTINGS ================= -->
         <div id="tab-nisa" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl max-w-xl mx-auto space-y-5">
-                <h2 class="font-bold text-lg text-slate-900 tracking-tight pb-3 border-b border-slate-200">各種設定・NISA設定</h2>
+                <h2 class="font-bold text-lg text-[#3d312a] tracking-tight pb-3 border-b border-[#e7dfd5]">NISA設定</h2>
                 
                 <div class="space-y-4 text-xs sm:text-sm">
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">現在の年齢</label>
-                        <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
+                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">現在の年齢</label>
+                        <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">毎月のNISA積立額 (円)</label>
-                        <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
+                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">毎月のNISA積立額 (円)</label>
+                        <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">運用期間 (年)</label>
-                        <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
+                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">運用期間 (年)</label>
+                        <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1.5">緊急用予備現金残高 (円)</label>
-                        <input type="number" id="setting-current-saving" value="2000000" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 6: PROCEDURE MEMO ================= -->
-        <div id="tab-memo" class="hidden space-y-6">
-            <div class="glass-card p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
-                <div>
-                    <h2 class="font-bold text-lg text-slate-900 tracking-tight">結婚・引越し手続きチェックメモ</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">婚姻届や引越し前後に必要な主な手続きの要点です。</p>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div class="glass-card-sm p-4 rounded-xl space-y-2">
-                        <h3 class="font-bold text-indigo-600 text-sm flex items-center gap-1.5">🏛️ 役所での手続き</h3>
-                        <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>婚姻届・転入届：同日に手続きできる場合があります。</li>
-                            <li>マイナンバーカード：住所・氏名変更が必要。</li>
-                        </ul>
-                    </div>
-                    <div class="glass-card-sm p-4 rounded-xl space-y-2">
-                        <h3 class="font-bold text-amber-600 text-sm flex items-center gap-1.5">🏢 勤務先・社会保険</h3>
-                        <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>会社員の健康保険・厚生年金：勤務先へ氏名・住所変更を確認。</li>
-                        </ul>
-                    </div>
-                    <div class="glass-card-sm p-4 rounded-xl space-y-2">
-                        <h3 class="font-bold text-emerald-600 text-sm flex items-center gap-1.5">💳 銀行口座・その他</h3>
-                        <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>銀行口座：結婚後、銀行所定の方法で氏名変更。</li>
-                        </ul>
-                    </div>
-                    <div class="glass-card-sm p-4 rounded-xl space-y-2">
-                        <h3 class="font-bold text-sky-600 text-sm flex items-center gap-1.5">💡 アクション</h3>
-                        <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
-                            <li>① 毎月の収入・支出を確認する。</li>
-                            <li>② 今後のイベント予定と予算を整理する。</li>
-                        </ul>
+                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">銀行口座残高 (円)</label>
+                        <input type="number" id="setting-current-saving" value="2000000" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                 </div>
             </div>
@@ -311,6 +294,8 @@
     <script>
         let appData = {
             settings: { age: 27, monthlyNisa: 30000, years: 38, currentSaving: 2000000, heroBg: '' },
+            // ユーザーが自由に追加・削除できる貯金バケット名のリスト（グローバル保持）
+            savingBuckets: ['家の口座', 'ゆとり費'],
             monthly: [
                 { 
                     month: '2026-11', type: '想定', 
@@ -318,7 +303,9 @@
                     food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
                     utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
                     rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)'
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)',
+                    // 各バケットへの割り振り額（例: 家の口座に6万円、ゆとり費に3万円）
+                    bucketAllocations: { '家の口座': 60000, 'ゆとり費': 30000 }
                 },
                 { 
                     month: '2026-12', type: '想定', 
@@ -326,7 +313,8 @@
                     food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
                     utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
                     rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '2026年末目標300万円'
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '2026年末目標300万円',
+                    bucketAllocations: { '家の口座': 60000, 'ゆとり費': 30000 }
                 }
             ],
             events: [
@@ -342,10 +330,11 @@
         let pieChart = null;
         let currentEditingIndex = 0;
 
-        const categoryColors = [
-            '#f59e0b', '#3b82f6', '#60a5fa', '#8b5cf6', '#ec4899', 
-            '#10b981', '#6366f1', '#14b8a6', '#f43f5e', '#a855f7', 
-            '#2563eb', '#db2777', '#e11d48', '#ea580c', '#f97316'
+        // アースカラー同系色グラデーション（円グラフ用パレット）
+        const earthToneColors = [
+            '#a3704c', '#b87d4b', '#c29b7a', '#d4b59d', '#5e7862', 
+            '#738f77', '#8fb996', '#8c6d53', '#a3856d', '#bc9f8b', 
+            '#6b5b4f', '#827164', '#99887b', '#4a3b30', '#5c4a3d'
         ];
 
         function generateDateOptions(selectedVal) {
@@ -363,10 +352,20 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_clean_v2');
+            const saved = localStorage.getItem('lifeplan_data_earth_v1');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
+            if (!appData.savingBuckets) appData.savingBuckets = ['家の口座', 'ゆとり費'];
+            
+            // 各月にbucketAllocationsがなければ初期化
+            appData.monthly.forEach(m => {
+                if (!m.bucketAllocations) {
+                    m.bucketAllocations = {};
+                    appData.savingBuckets.forEach(b => m.bucketAllocations[b] = 0);
+                }
+            });
+
             syncSettingsToUI();
             applyHeroBackground();
             updateMonthSelector();
@@ -377,7 +376,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_clean_v2', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v1', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -421,19 +420,19 @@
             const overlay = document.getElementById('hero-overlay');
             if (appData.settings.heroBg) {
                 banner.style.backgroundImage = `url('${appData.settings.heroBg}')`;
-                overlay.className = "absolute inset-0 bg-slate-950/70 backdrop-blur-[2px]";
+                overlay.className = "absolute inset-0 bg-[#2c2421]/70 backdrop-blur-[2px]";
             }
         }
 
         function switchTab(tabId) {
-            const tabs = ['dashboard', 'input', 'charts', 'events', 'nisa', 'memo'];
+            const tabs = ['dashboard', 'input', 'charts', 'events', 'nisa'];
             tabs.forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
                 const btnEl = document.getElementById('btn-tab-' + id);
                 if (tabEl) tabEl.classList.add('hidden');
                 if (btnEl) {
-                    btnEl.classList.remove('bg-white', 'text-indigo-600', 'shadow-xs');
-                    btnEl.classList.add('text-slate-600');
+                    btnEl.classList.remove('bg-white', 'text-[#8c6d53]', 'shadow-xs');
+                    btnEl.classList.add('text-[#6b5b4f]');
                 }
             });
 
@@ -441,12 +440,13 @@
             const activeBtn = document.getElementById('btn-tab-' + tabId);
             if (activeTab) activeTab.classList.remove('hidden');
             if (activeBtn) {
-                activeBtn.classList.remove('text-slate-600');
-                activeBtn.classList.add('bg-white', 'text-indigo-600', 'shadow-xs');
+                activeBtn.classList.remove('text-[#6b5b4f]');
+                activeBtn.classList.add('bg-white', 'text-[#8c6d53]', 'shadow-xs');
             }
 
             if (tabId === 'dashboard') {
                 renderCharts();
+                updateCalculations();
             } else if (tabId === 'charts') {
                 updatePieSelector();
                 renderPieChart();
@@ -485,9 +485,13 @@
                 rIncome: 200000, hIncome: 195000, food: 35000, rTrans: 10000, hTrans: 15000, 
                 house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, 
                 rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                nisa: 30000, bonus: 0, extraInc: 0, memo: '' 
+                nisa: 30000, bonus: 0, extraInc: 0, memo: '', bucketAllocations: {} 
             };
-            appData.monthly.push({ ...last, month: newMonth, memo: '' });
+            
+            let newAllocations = {};
+            appData.savingBuckets.forEach(b => newAllocations[b] = last.bucketAllocations?.[b] || 0);
+
+            appData.monthly.push({ ...last, month: newMonth, memo: '', bucketAllocations: newAllocations });
             currentEditingIndex = appData.monthly.length - 1;
             saveStorage();
             updateMonthSelector();
@@ -506,6 +510,41 @@
             renderMonthEditor();
         }
 
+        // 貯金バケットの追加
+        function addSavingBucket() {
+            const inputEl = document.getElementById('new-bucket-name');
+            const name = inputEl.value.trim();
+            if (!name) return;
+            if (appData.savingBuckets.includes(name)) {
+                alert('すでに存在する名前です。');
+                return;
+            }
+            appData.savingBuckets.push(name);
+            appData.monthly.forEach(m => {
+                if (!m.bucketAllocations) m.bucketAllocations = {};
+                m.bucketAllocations[name] = 0;
+            });
+            inputEl.value = '';
+            saveStorage();
+            renderMonthEditor();
+        }
+
+        // 貯金バケットの削除（手動削除）
+        function removeSavingBucket(bucketName) {
+            if (appData.savingBuckets.length <= 1) {
+                alert('貯金項目は最低1つ必要です。');
+                return;
+            }
+            if (confirm(`「${bucketName}」を削除しますか？`)) {
+                appData.savingBuckets = appData.savingBuckets.filter(b => b !== bucketName);
+                appData.monthly.forEach(m => {
+                    if (m.bucketAllocations) delete m.bucketAllocations[bucketName];
+                });
+                saveStorage();
+                renderMonthEditor();
+            }
+        }
+
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
             if (!container) return;
@@ -519,146 +558,186 @@
                              (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
             const autoSaving = totalInc - totalExp;
 
+            // バケット割り振りの合計計算
+            if (!m.bucketAllocations) m.bucketAllocations = {};
+            let allocatedSum = 0;
+            appData.savingBuckets.forEach(b => {
+                if (m.bucketAllocations[b] === undefined) m.bucketAllocations[b] = 0;
+                allocatedSum += Number(m.bucketAllocations[b]);
+            });
+
+            let bucketsHtml = '';
+            appData.savingBuckets.forEach(b => {
+                bucketsHtml += `
+                    <div class="glass-card-sm p-3 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-xs text-[#3d312a]">📌 ${b}</span>
+                            <button onclick="removeSavingBucket('${b}')" class="text-rose-500 hover:text-rose-700 text-[10px] cursor-pointer">×</button>
+                        </div>
+                        <input type="number" value="${m.bucketAllocations[b]}" onchange="updateBucketAllocation('${b}', Number(this.value))" class="w-28 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                    </div>
+                `;
+            });
+
             container.innerHTML = `
                 <div class="glass-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">年月</label>
-                        <select onchange="updateMonthField('month', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer">
+                        <label class="block text-[11px] font-semibold text-[#7d6b5d] uppercase tracking-wider mb-1">年月</label>
+                        <select onchange="updateMonthField('month', this.value)" class="w-full bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none cursor-pointer">
                             ${generateDateOptions(m.month)}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">区分</label>
-                        <select onchange="updateMonthField('type', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none cursor-pointer">
+                        <label class="block text-[11px] font-semibold text-[#7d6b5d] uppercase tracking-wider mb-1">区分</label>
+                        <select onchange="updateMonthField('type', this.value)" class="w-full bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none cursor-pointer">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
                             <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">メモ</label>
-                        <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <label class="block text-[11px] font-semibold text-[#7d6b5d] uppercase tracking-wider mb-1">メモ</label>
+                        <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
                         <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs px-3 py-1.5 rounded-lg font-semibold transition border border-rose-200 cursor-pointer">削除</button>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 bg-gradient-to-r from-indigo-50/70 via-slate-50 to-emerald-50/70 p-4 rounded-xl border border-indigo-100/80 text-center">
+                <div class="grid grid-cols-3 gap-3 bg-gradient-to-r from-[#f4ede6] via-[#eae0d5]/60 to-[#f4ede6] p-4 rounded-xl border border-[#d6ccc2] text-center">
                     <div>
-                        <p class="text-[11px] font-semibold text-indigo-600 uppercase tracking-wider">手取り合計</p>
-                        <p class="text-base sm:text-lg font-bold text-indigo-900 mt-0.5">¥${totalInc.toLocaleString()}</p>
+                        <p class="text-[11px] font-semibold text-[#8c6d53] uppercase tracking-wider">手取り合計</p>
+                        <p class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${totalInc.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">生活費合計</p>
-                        <p class="text-base sm:text-lg font-bold text-amber-900 mt-0.5">¥${totalExp.toLocaleString()}</p>
+                        <p class="text-[11px] font-semibold text-[#b87d4b] uppercase tracking-wider">生活費合計</p>
+                        <p class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">貯金余力</p>
-                        <p class="text-base sm:text-lg font-bold text-emerald-900 mt-0.5">¥${autoSaving.toLocaleString()}</p>
+                        <p class="text-[11px] font-semibold text-[#5e7862] uppercase tracking-wider">今月の貯金</p>
+                        <p class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${autoSaving.toLocaleString()}</p>
+                    </div>
+                </div>
+
+                <!-- 貯金割り振りセクション -->
+                <div class="glass-card-sm p-4 rounded-xl space-y-3 border border-[#d6ccc2]">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h3 class="font-bold text-xs text-[#3d312a] uppercase tracking-wider flex items-center gap-1.5">
+                                <span>💰</span> 貯金の割り振り管理（合計割り振り: ¥${allocatedSum.toLocaleString()} / 貯金: ¥${autoSaving.toLocaleString()}）
+                            </h3>
+                            <p class="text-[11px] text-[#7d6b5d]">目的に応じて自由に口座や費目を追加し、今月の貯金を割り振れます。</p>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <input type="text" id="new-bucket-name" placeholder="新しい貯金先名..." class="bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1 text-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
+                            <button onclick="addSavingBucket()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                        ${bucketsHtml}
                     </div>
                 </div>
 
                 <div class="space-y-5">
                     <div class="space-y-3">
-                        <h3 class="font-bold text-xs text-slate-700 tracking-wider uppercase flex items-center gap-1.5">
-                            <span class="w-1.5 h-3 bg-indigo-600 rounded-full"></span> 収入項目
+                        <h3 class="font-bold text-xs text-[#6b5b4f] tracking-wider uppercase flex items-center gap-1.5">
+                            <span class="w-1.5 h-3 bg-[#8c6d53] rounded-full"></span> 収入項目
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">ゲストA収入 (円)</span>
-                                <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-32 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">ゲストA収入 (円)</span>
+                                <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-32 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">ゲストB収入 (円)</span>
-                                <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-32 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">ゲストB収入 (円)</span>
+                                <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-32 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <h3 class="font-bold text-xs text-slate-700 tracking-wider uppercase flex items-center gap-1.5 pt-2">
-                            <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span> 支出項目（詳細）
+                        <h3 class="font-bold text-xs text-[#6b5b4f] tracking-wider uppercase flex items-center gap-1.5 pt-2">
+                            <span class="w-1.5 h-3 bg-[#b87d4b] rounded-full"></span> 支出項目（詳細）
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🍚 食費</span>
-                                <input type="number" value="${m.food}" onchange="updateMonthField('food', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🍚 食費</span>
+                                <input type="number" value="${m.food}" onchange="updateMonthField('food', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🚆 ゲストA交通費</span>
-                                <input type="number" value="${m.rTrans}" onchange="updateMonthField('rTrans', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🚆 ゲストA交通費</span>
+                                <input type="number" value="${m.rTrans}" onchange="updateMonthField('rTrans', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🚆 ゲストB交通費</span>
-                                <input type="number" value="${m.hTrans}" onchange="updateMonthField('hTrans', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🚆 ゲストB交通費</span>
+                                <input type="number" value="${m.hTrans}" onchange="updateMonthField('hTrans', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🏠 住居費(管理費込)</span>
-                                <input type="number" value="${m.house}" onchange="updateMonthField('house', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🏠 住居費(管理費込)</span>
+                                <input type="number" value="${m.house}" onchange="updateMonthField('house', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🛒 生活用品</span>
-                                <input type="number" value="${m.goods}" onchange="updateMonthField('goods', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🛒 生活用品</span>
+                                <input type="number" value="${m.goods}" onchange="updateMonthField('goods', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">⚡ 水道ガス電気</span>
-                                <input type="number" value="${m.utility}" onchange="updateMonthField('utility', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">⚡ 水道ガス電気</span>
+                                <input type="number" value="${m.utility}" onchange="updateMonthField('utility', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🎓 ゲストA奨学金</span>
-                                <input type="number" value="${m.rLoan}" onchange="updateMonthField('rLoan', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🎓 ゲストA奨学金</span>
+                                <input type="number" value="${m.rLoan}" onchange="updateMonthField('rLoan', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🐾 ぽん費</span>
-                                <input type="number" value="${m.pon}" onchange="updateMonthField('pon', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🐾 ぽん費</span>
+                                <input type="number" value="${m.pon}" onchange="updateMonthField('pon', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">➕ 県民共済</span>
-                                <input type="number" value="${m.kenmin}" onchange="updateMonthField('kenmin', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">➕ 県民共済</span>
+                                <input type="number" value="${m.kenmin}" onchange="updateMonthField('kenmin', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">📖 ゲストAサブスク</span>
-                                <input type="number" value="${m.rSub}" onchange="updateMonthField('rSub', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">📖 ゲストAサブスク</span>
+                                <input type="number" value="${m.rSub}" onchange="updateMonthField('rSub', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">💵 ゲストAお小遣い</span>
-                                <input type="number" value="${m.rPocket}" onchange="updateMonthField('rPocket', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">💵 ゲストAお小遣い</span>
+                                <input type="number" value="${m.rPocket}" onchange="updateMonthField('rPocket', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">💵 ゲストBお小遣い</span>
-                                <input type="number" value="${m.hPocket}" onchange="updateMonthField('hPocket', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">💵 ゲストBお小遣い</span>
+                                <input type="number" value="${m.hPocket}" onchange="updateMonthField('hPocket', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">💇 ゲストB美容代</span>
-                                <input type="number" value="${m.hHair}" onchange="updateMonthField('hHair', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">💇 ゲストB美容代</span>
+                                <input type="number" value="${m.hHair}" onchange="updateMonthField('hHair', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">📞 ゲストA通信費</span>
-                                <input type="number" value="${m.rComm}" onchange="updateMonthField('rComm', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">📞 ゲストA通信費</span>
+                                <input type="number" value="${m.rComm}" onchange="updateMonthField('rComm', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">📞 ゲストB通信費</span>
-                                <input type="number" value="${m.hComm}" onchange="updateMonthField('hComm', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">📞 ゲストB通信費</span>
+                                <input type="number" value="${m.hComm}" onchange="updateMonthField('hComm', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                         </div>
                     </div>
 
                     <div class="space-y-3">
-                        <h3 class="font-bold text-xs text-slate-700 tracking-wider uppercase flex items-center gap-1.5 pt-2">
-                            <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span> 積立・その他
+                        <h3 class="font-bold text-xs text-[#6b5b4f] tracking-wider uppercase flex items-center gap-1.5 pt-2">
+                            <span class="w-1.5 h-3 bg-[#5e7862] rounded-full"></span> 積立・その他
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🌟 NISA積立</span>
-                                <input type="number" value="${m.nisa || 0}" onchange="updateMonthField('nisa', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🌟 NISA積立</span>
+                                <input type="number" value="${m.nisa || 0}" onchange="updateMonthField('nisa', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">🎁 臨時収入</span>
-                                <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">🎁 臨時収入</span>
+                                <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-slate-700">📦 ボーナス・他</span>
-                                <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                                <span class="text-xs font-semibold text-[#3d312a]">📦 ボーナス・他</span>
+                                <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
                             </div>
                         </div>
                     </div>
@@ -670,6 +749,16 @@
             appData.monthly[currentEditingIndex][field] = value;
             saveStorage();
             updateMonthSelector();
+            updateCalculations();
+        }
+
+        function updateBucketAllocation(bucketName, value) {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.bucketAllocations) m.bucketAllocations = {};
+            m.bucketAllocations[bucketName] = value;
+            saveStorage();
+            updateCalculations();
+            renderMonthEditor();
         }
 
         function renderHistoryTable() {
@@ -685,15 +774,15 @@
                 const surplus = totalInc - totalExp;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition font-medium";
+                tr.className = "hover:bg-[#f4ede6]/50 transition font-medium";
                 tr.innerHTML = `
-                    <td class="p-3 font-semibold text-slate-800">${m.month}</td>
-                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-100 text-emerald-800 border border-emerald-200':'bg-sky-100 text-sky-800 border border-sky-200'}">${m.type}</span></td>
-                    <td class="p-3 text-right font-semibold text-indigo-600">¥${totalInc.toLocaleString()}</td>
-                    <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
-                    <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 font-semibold text-[#3d312a]">${m.month}</td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-[#5e7862]/20 text-[#3a4d3d] border border-[#5e7862]/30':'bg-[#8c6d53]/20 text-[#5c4a3d] border border-[#8c6d53]/30'}">${m.type}</span></td>
+                    <td class="p-3 text-right font-semibold text-[#8c6d53]">¥${totalInc.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold text-[#b87d4b]">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold text-[#5e7862]">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
-                        <button onclick="jumpToMonth(${idx})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-indigo-200 cursor-pointer">編集</button>
+                        <button onclick="jumpToMonth(${idx})" class="bg-[#eae0d5] hover:bg-[#d6ccc2] text-[#5c4a3d] px-2.5 py-1 rounded-lg text-xs font-semibold transition border border-[#d6ccc2] cursor-pointer">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -750,7 +839,7 @@
                     labels: labels,
                     datasets: [{
                         data: dataValues,
-                        backgroundColor: categoryColors,
+                        backgroundColor: earthToneColors,
                         borderWidth: 2,
                         borderColor: '#ffffff'
                     }]
@@ -773,18 +862,18 @@
                 const val = dataValues[i];
                 if (val > 0) {
                     const percentage = totalExp > 0 ? ((val / totalExp) * 100).toFixed(1) : 0;
-                    const color = categoryColors[i];
+                    const color = earthToneColors[i];
 
                     const item = document.createElement('div');
-                    item.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200/60 text-xs";
+                    item.className = "flex items-center justify-between p-2 rounded-xl bg-white border border-[#e7dfd5] text-xs";
                     item.innerHTML = `
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${color};"></span>
-                            <span class="font-semibold text-slate-700">${label}</span>
+                            <span class="font-semibold text-[#3d312a]">${label}</span>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="text-slate-500 text-[11px]">${percentage}%</span>
-                            <span class="font-bold text-slate-900">¥${val.toLocaleString()}</span>
+                            <span class="text-[#7d6b5d] text-[11px]">${percentage}%</span>
+                            <span class="font-bold text-[#3d312a]">¥${val.toLocaleString()}</span>
                         </div>
                     `;
                     listContainer.appendChild(item);
@@ -792,8 +881,65 @@
             });
 
             if (totalExp === 0) {
-                listContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">支出データがありません</p>`;
+                listContainer.innerHTML = `<p class="text-xs text-[#7d6b5d] text-center py-4">支出データがありません</p>`;
             }
+        }
+
+        // Geminiの回答テキストを解析して今後の予定を追加する関数
+        function toggleAiParserBox() {
+            const box = document.getElementById('ai-parser-box');
+            if (box) box.classList.toggle('hidden');
+        }
+
+        function parseAiTextAndAddEvent() {
+            const rawText = document.getElementById('ai-raw-text').value;
+            if (!rawText.trim()) {
+                alert('Geminiの回答テキストを貼り付けてください。');
+                return;
+            }
+
+            // 金額抽出（「2,200,000円」や「220万円」などをキャッチ）
+            let cost = 500000;
+            const yenMatch = rawText.match(/([\d,]+)\s*円/);
+            const manMatch = rawText.match(/([\d,.]+)\s*万/);
+            if (yenMatch) {
+                cost = parseInt(yenMatch[1].replace(/,/g, ''), 10);
+            } else if (manMatch) {
+                cost = parseFloat(manMatch[1].replace(/,/g, '')) * 10000;
+            }
+
+            // 時期抽出（「2027年11月」や「2027-11」）
+            let date = '2027-11';
+            const dateMatch = rawText.match(/(\d{4})年\s*(\d{1,2})月/);
+            const isoDateMatch = rawText.match(/(\d{4})-(\d{2})/);
+            if (dateMatch) {
+                const y = dateMatch[1];
+                const m = String(dateMatch[2]).padStart(2, '0');
+                date = `${y}-${m}`;
+            } else if (isoDateMatch) {
+                date = isoDateMatch[0];
+            }
+
+            // イベント名（最初の行やキーワードから簡易抽出、デフォルトは「AI提案イベント」）
+            let name = 'AI提案イベント';
+            const lines = rawText.split('\n').filter(l => l.trim().length > 0);
+            if (lines.length > 0 && lines[0].length < 30) {
+                name = lines[0].replace(/【|】|#/g, '').trim();
+            }
+
+            appData.events.push({
+                name: name,
+                date: date,
+                cost: cost,
+                status: '予定',
+                memo: `Gemini回答自動解析: ${rawText.slice(0, 50)}...`
+            });
+
+            saveStorage();
+            renderEventsTable();
+            document.getElementById('ai-raw-text').value = '';
+            toggleAiParserBox();
+            alert(`🎉 Geminiの回答を解析し、「${name}」（¥${cost.toLocaleString()} / 時期: ${date}）を今後の予定に追加しました！`);
         }
 
         function addNewEvent() {
@@ -808,24 +954,24 @@
             tbody.innerHTML = '';
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition align-top";
+                tr.className = "hover:bg-[#f4ede6]/50 transition align-top";
                 tr.innerHTML = `
                     <td class="p-2.5">
-                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none cursor-pointer">
+                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none cursor-pointer">
                             ${generateDateOptions(ev.date)}
                         </select>
                     </td>
                     <td class="p-2.5">
-                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5 text-center">
                         <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200 cursor-pointer">削除</button>
@@ -837,7 +983,8 @@
 
         function updateCalculations() {
             if (appData.monthly.length > 0) {
-                const m = appData.monthly[0];
+                // 現在選択中または最新の月データを取得
+                const m = appData.monthly[currentEditingIndex] || appData.monthly[0];
                 const inc = (m.rIncome || 0) + (m.hIncome || 0);
                 const exp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
                             (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
@@ -849,11 +996,23 @@
                 const incEl = document.getElementById('kpi-monthly-income');
                 const expEl = document.getElementById('kpi-monthly-expense');
                 const surEl = document.getElementById('kpi-monthly-surplus');
+                const homeBucketEl = document.getElementById('home-bucket-breakdown');
 
                 if (curSaveEl) curSaveEl.innerText = '¥' + appData.settings.currentSaving.toLocaleString();
                 if (incEl) incEl.innerText = '¥' + inc.toLocaleString();
                 if (expEl) expEl.innerText = '¥' + exp.toLocaleString();
                 if (surEl) surEl.innerText = '¥' + surplus.toLocaleString();
+
+                // ホーム画面の貯金バケット内訳表示
+                if (homeBucketEl && m.bucketAllocations) {
+                    let bHtml = '';
+                    let allocatedTotal = 0;
+                    for (let [bName, bVal] of Object.entries(m.bucketAllocations)) {
+                        allocatedTotal += Number(bVal) || 0;
+                        bHtml += `<div class="flex justify-between"><span>・${bName}:</span><span class="font-bold">¥${Number(bVal).toLocaleString()}</span></div>`;
+                    }
+                    homeBucketEl.innerHTML = bHtml || '<span class="text-[10px] text-[#7d6b5d]">割り振りなし</span>';
+                }
             }
         }
 
@@ -869,12 +1028,12 @@
                         datasets: [{
                             label: '現金残高 (万円)',
                             data: [300, 240, 280, 250, 310, 350, 400, 450, 320, 400, 480],
-                            borderColor: '#0284c7',
-                            backgroundColor: 'rgba(2, 132, 199, 0.08)',
+                            borderColor: '#8c6d53',
+                            backgroundColor: 'rgba(140, 109, 83, 0.08)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.35,
-                            pointBackgroundColor: '#0284c7',
+                            pointBackgroundColor: '#8c6d53',
                             pointHoverRadius: 6
                         }]
                     },
@@ -893,12 +1052,12 @@
                         datasets: [{
                             label: 'NISA資産予測 (万円)',
                             data: [0, 180, 410, 985, 2500],
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                            borderColor: '#5e7862',
+                            backgroundColor: 'rgba(94, 120, 98, 0.08)',
                             borderWidth: 3,
                             fill: true,
                             tension: 0.35,
-                            pointBackgroundColor: '#10b981',
+                            pointBackgroundColor: '#5e7862',
                             pointHoverRadius: 6
                         }]
                     },
