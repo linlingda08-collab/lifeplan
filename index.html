@@ -80,16 +80,23 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 print-container space-y-6">
 
-        <!-- ================= TAB 1: HOME (旧ダッシュボード) ================= -->
+        <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl shadow-slate-900/10 border border-slate-800">
-                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/20 text-indigo-200 border border-indigo-400/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> AI Financial Intelligence
+            <!-- Hero Banner with Custom Background Support -->
+            <div id="hero-banner" class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 text-white shadow-xl shadow-slate-900/10 border border-slate-800 bg-cover bg-center transition-all">
+                <div id="hero-overlay" class="absolute inset-0 bg-slate-950/60 backdrop-blur-[2px]"></div>
+                <div class="absolute right-4 top-4 z-20 no-print">
+                    <label class="bg-white/20 hover:bg-white/30 text-white text-[11px] font-semibold px-3 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
+                        <span>📷</span> 背景画像を変更
+                        <input type="file" accept="image/*" onchange="changeHeroBackground(event)" class="hidden">
+                    </label>
+                </div>
+                <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 backdrop-blur-sm uppercase tracking-wider">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Optimal AI Financial Plan
                     </span>
-                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-100 to-slate-300">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-slate-300 text-xs sm:text-sm font-normal">「今後の予定」の費用と時期から、AIが最適な必要貯金額を自動算出します</p>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
+                    <p class="text-slate-200 text-xs sm:text-sm font-normal drop-shadow">「今後の予定」の最適解と毎月の貯金目標をリアルタイム算出</p>
                 </div>
             </div>
 
@@ -97,9 +104,9 @@
             <div class="glass-card p-6 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/80 via-white to-sky-50/80 space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-indigo-900 text-sm flex items-center gap-2">
-                        <span>🤖</span> AI逆算アドバイス & 目標設定
+                        <span>🤖</span> AIリアルタイム最適解アドバイス
                     </h3>
-                    <span id="ai-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">自動計算中</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">最新データ連動中</span>
                 </div>
                 <div id="ai-goal-recommendation" class="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
                     <!-- JSで動的生成 -->
@@ -153,10 +160,9 @@
 
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
         <div id="tab-input" class="hidden space-y-6">
-            <!-- AI Advice banner in input tab -->
             <div class="glass-card p-4 rounded-xl border border-indigo-200 bg-indigo-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div class="text-xs text-indigo-900">
-                    <span class="font-bold">💡 AI目標アドバイス:</span> <span id="input-ai-summary">今後の予定から逆算して毎月の目標貯金額を計算中...</span>
+                    <span class="font-bold">💡 最適解AIアドバイス:</span> <span id="input-ai-summary">家計データを解析中...</span>
                 </div>
                 <button onclick="switchTab('dashboard')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition shrink-0">ホームで詳細を見る</button>
             </div>
@@ -165,7 +171,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-slate-200/80 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">毎月の収支入力</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">対象月を選択して、実額や想定金額を入力・調整してください。</p>
+                        <p class="text-xs text-slate-500 mt-0.5">来月（2026年11月）以降の収支を入力・調整してください。</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 transition cursor-pointer shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
@@ -225,26 +231,28 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS (今後の予定 - AI相場試算付き) ================= -->
+        <!-- ================= TAB 4: EVENTS (今後の予定 - 対話型AI相場ウィザード付き) ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-200 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">イベント名を入力して「AI相場を試算」ボタンを押すと、AIが適切な費用相場を提案してくれます。</p>
+                        <p class="text-xs text-slate-500 mt-0.5">予定時期をタップで選択し、AI相場アドバイザーとの対話を通じて最適な費用を決定できます。</p>
                     </div>
                     <button onclick="addEventRow()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm">＋ 予定を追加</button>
                 </div>
 
-                <!-- AI Advice Box for Events -->
-                <div id="ai-event-advisor-box" class="glass-card-sm p-4 rounded-xl border border-sky-200 bg-gradient-to-r from-sky-50/70 to-indigo-50/70 space-y-2 hidden">
-                    <div class="flex items-center justify-between">
+                <!-- Interactive AI Wizard Modal / Box -->
+                <div id="ai-wizard-box" class="glass-card-sm p-5 rounded-2xl border border-indigo-300 bg-gradient-to-r from-indigo-50/90 to-sky-50/90 space-y-4 hidden shadow-md">
+                    <div class="flex items-center justify-between pb-2 border-b border-indigo-100">
                         <h4 class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
-                            <span>✨</span> AI相場アドバイザーからの提案
+                            <span>🤖</span> 対話型AI相場アドバイザー (<span id="wizard-event-name">結婚式</span>)
                         </h4>
-                        <button onclick="closeAiAdvisor()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">×</button>
+                        <button onclick="closeAiWizard()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">× 閉じる</button>
                     </div>
-                    <p id="ai-event-advisor-text" class="text-xs text-slate-700 leading-relaxed"></p>
+                    <div id="wizard-content" class="space-y-3 text-xs text-slate-700">
+                        <!-- Dynamically injected questions/steps -->
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
@@ -252,10 +260,10 @@
                         <thead>
                             <tr class="bg-slate-100/80 text-slate-600 font-semibold border-b border-slate-200">
                                 <th class="p-3">イベント名</th>
-                                <th class="p-3">予定時期</th>
+                                <th class="p-3">予定時期 (選択式)</th>
                                 <th class="p-3">予定費用 (円)</th>
                                 <th class="p-3">ステータス</th>
-                                <th class="p-3 text-center">AI相場試算</th>
+                                <th class="p-3 text-center">AI相場対話・試算</th>
                                 <th class="p-3 w-16 text-center">操作</th>
                             </tr>
                         </thead>
@@ -339,30 +347,30 @@
     <!-- App Logic -->
     <script>
         let appData = {
-            settings: { age: 27, monthlyNisa: 30000, years: 38, currentSaving: 2000000 },
+            settings: { age: 27, monthlyNisa: 30000, years: 38, currentSaving: 2000000, heroBg: '' },
             monthly: [
                 { 
-                    month: '2026-04', type: '想定', 
+                    month: '2026-11', type: '想定', 
                     rIncome: 200000, hIncome: 195000, 
                     food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
                     utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
                     rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '2026年想定開始' 
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)'
                 },
                 { 
-                    month: '2026-05', type: '想定', 
+                    month: '2026-12', type: '想定', 
                     rIncome: 200000, hIncome: 195000, 
                     food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
                     utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
                     rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '' 
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '2026年末目標300万円'
                 }
             ],
             events: [
-                { name: '結婚手続き', date: '2026-10', cost: 50000, status: '予定' },
-                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定' },
-                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討' },
-                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来' }
+                { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', memoOpen: false },
+                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', memoOpen: false },
+                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', memoOpen: false },
+                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', memoOpen: false }
             ]
         };
 
@@ -370,6 +378,7 @@
         let nisaChart = null;
         let pieChart = null;
         let currentEditingIndex = 0;
+        let activeWizardIndex = null;
 
         const categoryColors = [
             '#f59e0b', '#3b82f6', '#60a5fa', '#8b5cf6', '#ec4899', 
@@ -377,12 +386,26 @@
             '#2563eb', '#db2777', '#e11d48', '#ea580c', '#f97316'
         ];
 
+        // Date options for select dropdowns (2026 to 2040)
+        function generateDateOptions(selectedVal) {
+            let opts = '';
+            for (let y = 2026; y <= 2040; y++) {
+                for (let m = 1; m <= 12; m++) {
+                    const mm = String(m).padStart(2, '0');
+                    const val = `${y}-${mm}`;
+                    opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                }
+            }
+            return opts;
+        }
+
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v9');
+            const saved = localStorage.getItem('lifeplan_data_v10');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             syncSettingsToUI();
+            applyHeroBackground();
             updateMonthSelector();
             renderMonthEditor();
             renderHistoryTable();
@@ -391,7 +414,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v9', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_v10', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -409,6 +432,28 @@
             appData.settings.years = Number(document.getElementById('setting-years').value);
             appData.settings.currentSaving = Number(document.getElementById('setting-current-saving').value);
             saveStorage();
+        }
+
+        function changeHeroBackground(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData.settings.heroBg = e.target.result;
+                    saveStorage();
+                    applyHeroBackground();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyHeroBackground() {
+            const banner = document.getElementById('hero-banner');
+            const overlay = document.getElementById('hero-overlay');
+            if (appData.settings.heroBg) {
+                banner.style.backgroundImage = `url('${appData.settings.heroBg}')`;
+                overlay.className = "absolute inset-0 bg-slate-950/70 backdrop-blur-[2px]";
+            }
         }
 
         function switchTab(tabId) {
@@ -436,10 +481,8 @@
             const container = document.getElementById('ai-goal-recommendation');
             const inputSummary = document.getElementById('input-ai-summary');
             
-            // Calculate total events cost
             let totalEventCost = appData.events.reduce((sum, ev) => sum + (Number(ev.cost) || 0), 0);
             
-            // Monthly surplus from first month
             let surplus = 90000;
             if (appData.monthly.length > 0) {
                 const m = appData.monthly[0];
@@ -451,46 +494,102 @@
                 surplus = inc - exp;
             }
 
-            const targetSaving2026 = 3000000;
-            
             let html = `
-                現在登録されている「今後の予定」の総額は <strong>¥${totalEventCost.toLocaleString()}</strong> です。<br>
-                2026年末の貯金目標（300万円）および緊急用予備資金（200万円）を確保しつつイベント費用に備えるため、現在の毎月の貯金余力（約¥${surplus.toLocaleString()}）をしっかり維持または月3〜5万円のNISA積立と両立していく計画が推奨されます。<br>
-                <span class="text-indigo-700 font-semibold">💡 AIアドバイス:</span> 定期的に「今後の予定」の時期と費用を見直し、大きな出費の半年前から現金の蓄えを厚くする意識を持ちましょう！
+                現在設定されている「今後の予定」の総額は <strong>¥${totalEventCost.toLocaleString()}</strong> です。<br>
+                2026年11月の運用スタートから2026年末までの貯金300万円目標に対し、現在の毎月の貯金余力（約¥${surplus.toLocaleString()}）から最適な積立ペースが維持されています。<br>
+                <span class="text-indigo-700 font-semibold">💡 AI最適解:</span> 大きな予定の直前6ヶ月間は支出を引き締め、緊急用予備現金200万円を死守しながら計画的に資金を配分しましょう！
             `;
             container.innerHTML = html;
             if (inputSummary) {
-                inputSummary.innerText = `今後の予定総額 ¥${totalEventCost.toLocaleString()} に向け、毎月の貯金余力（約¥${surplus.toLocaleString()}）を活用した積立を継続中。`;
+                inputSummary.innerText = `今後の予定総額 ¥${totalEventCost.toLocaleString()} に向け、毎月の貯金余力（約¥${surplus.toLocaleString()}）を活用した最適な積立を更新中。`;
             }
         }
 
-        function triggerAiEstimate(index) {
+        // Interactive AI Wizard for Events
+        function openAiWizard(index) {
+            activeWizardIndex = index;
             const ev = appData.events[index];
-            if (!ev) return;
-            
-            let advice = "";
-            const name = ev.name.toLowerCase();
-            
-            if (name.includes('結婚') || name.includes('式') || name.includes('前撮り')) {
-                advice = `「${ev.name}」のAI相場試算：前撮りは約20万円、結婚式はご祝儀相場を考慮した自己負担で約180万〜200万円、新婚旅行を含めると合計で約220万〜250万円が一般的な目安となります。`;
-            } else if (name.includes('車') || name.includes('中古車')) {
-                advice = `「${ev.name}」のAI相場試算：中古車の購入費用として約170万〜200万円に加え、初期の諸費用・車検・保険料として＋10〜20万円を見ておくと安心です。`;
-            } else if (name.includes('引越し') || name.includes('家具')) {
-                advice = `「${ev.name}」のAI相場試算：賃貸の敷金・礼金・仲介手数料および引っ越し業者費用、新規の家電・家具買い替えを含めると約40万〜60万円が目安となります。`;
-            } else if (name.includes('住宅') || name.includes('家')) {
-                advice = `「${ev.name}」のAI相場試算：頭金や諸費用（物件価格の5〜10%）として、将来的に500万〜800万円程度のまとまった現金を確保しておく計画をおすすめします。`;
-            } else {
-                advice = `「${ev.name}」のAI相場試算：一般的な類似イベントの相場データを分析中。時期（${ev.date}）までのスパンを考慮し、まずは無理のない範囲で10万〜50万円の予算設定から検討するのがおすすめです。`;
-            }
-
-            const box = document.getElementById('ai-event-advisor-box');
-            const text = document.getElementById('ai-event-advisor-text');
-            text.innerText = advice;
+            document.getElementById('wizard-event-name').innerText = ev.name;
+            const box = document.getElementById('ai-wizard-box');
             box.classList.remove('hidden');
+
+            const content = document.getElementById('wizard-content');
+            content.innerHTML = `
+                <p class="font-semibold text-slate-800">ステップ1: イベントの規模やご希望を教えてください</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 py-2">
+                    <button onclick="wizardStep2('standard')" class="p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left transition shadow-xs">
+                        <p class="font-bold text-indigo-600">標準プラン</p>
+                        <p class="text-[11px] text-slate-500">一般的な平均相場</p>
+                    </button>
+                    <button onclick="wizardStep2('economy')" class="p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left transition shadow-xs">
+                        <p class="font-bold text-emerald-600">節約・コンパクト</p>
+                        <p class="text-[11px] text-slate-500">コストを抑えた設計</p>
+                    </button>
+                    <button onclick="wizardStep2('luxury')" class="p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-slate-200 text-left transition shadow-xs">
+                        <p class="font-bold text-amber-600">こだわり・豪華</p>
+                        <p class="text-[11px] text-slate-500">充実のプレミアム</p>
+                    </button>
+                </div>
+            `;
         }
 
-        function closeAiAdvisor() {
-            document.getElementById('ai-event-advisor-box').classList.add('hidden');
+        function wizardStep2(type) {
+            const ev = appData.events[activeWizardIndex];
+            let suggestedCost = 2000000;
+            let details = "";
+            const name = ev.name.toLowerCase();
+
+            if (name.includes('結婚') || name.includes('式')) {
+                if (type === 'economy') { suggestedCost = 1200000; details = "自己負担少なめ・家族婚やフォト婚中心のプラン"; }
+                else if (type === 'luxury') { suggestedCost = 3000000; details = "ゲスト多数・新婚旅行豪華プラン"; }
+                else { suggestedCost = 2000000; details = "前撮り＋式＋国内新婚旅行の標準バランスプラン"; }
+            } else if (name.includes('車') || name.includes('中古車')) {
+                if (type === 'economy') { suggestedCost = 1200000; details = "コンパクトカー・諸経費込み"; }
+                else if (type === 'luxury') { suggestedCost = 2800000; details = "SUV・最新装備充実モデル"; }
+                else { suggestedCost = 2000000; details = "人気中古車＋車検・初期保険料込み"; }
+            } else if (name.includes('引越し') || name.includes('家具')) {
+                if (type === 'economy') { suggestedCost = 300000; details = "引っ越し費用＋最低限の家具家電"; }
+                else if (type === 'luxury') { suggestedCost = 800000; details = "新居の家具家電を新調するプレミアムプラン"; }
+                else { suggestedCost = 500000; details = "敷金礼金＋引越し＋主要家具"; }
+            } else {
+                if (type === 'economy') { suggestedCost = 100000; details = "ミニマム予算"; }
+                else if (type === 'luxury') { suggestedCost = 1000000; details = "ゆとりを持った充実予算"; }
+                else { suggestedCost = 300000; details = "標準想定予算"; }
+            }
+
+            const content = document.getElementById('wizard-content');
+            content.innerHTML = `
+                <div class="p-3 bg-white rounded-xl border border-indigo-200 space-y-2">
+                    <p class="font-bold text-indigo-900">✨ AI相場試算結果 (${details})</p>
+                    <p class="text-lg font-extrabold text-indigo-600">¥${suggestedCost.toLocaleString()}</p>
+                    <p class="text-[11px] text-slate-500">こちらの金額を予定費用として適用しますか？</p>
+                    <div class="flex gap-2 pt-2">
+                        <button onclick="applyWizardCost(${suggestedCost})" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition">この金額で決定する</button>
+                        <button onclick="closeAiWizard()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-2 rounded-xl font-semibold transition">キャンセル</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyWizardCost(cost) {
+            if (activeWizardIndex !== null) {
+                appData.events[activeWizardIndex].cost = cost;
+                saveStorage();
+                renderEventsTable();
+                updateAiRecommendation();
+            }
+            closeAiWizard();
+        }
+
+        function closeAiWizard() {
+            document.getElementById('ai-wizard-box').classList.add('hidden');
+            activeWizardIndex = null;
+        }
+
+        function toggleEventMemo(index) {
+            appData.events[index].memoOpen = !appData.events[index].memoOpen;
+            saveStorage();
+            renderEventsTable();
         }
 
         function updateMonthSelector() {
@@ -697,6 +796,7 @@
             appData.monthly[currentEditingIndex][field] = value;
             saveStorage();
             updateMonthSelector();
+            updateAiRecommendation();
         }
 
         function renderHistoryTable() {
@@ -821,25 +921,37 @@
             tbody.innerHTML = '';
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50/80 transition";
+                tr.className = "hover:bg-slate-50/80 transition align-top";
                 tr.innerHTML = `
-                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage();updateAiRecommendation()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5"><input type="text" value="${ev.date}" onchange="appData.events[${index}].date=this.value;saveStorage();updateAiRecommendation()" class="w-24 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage();updateAiRecommendation()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
-                    <td class="p-2.5"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none"></td>
+                    <td class="p-2.5">
+                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage();updateAiRecommendation()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                    </td>
+                    <td class="p-2.5">
+                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                            ${generateDateOptions(ev.date)}
+                        </select>
+                    </td>
+                    <td class="p-2.5">
+                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage();updateAiRecommendation()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                    </td>
+                    <td class="p-2.5">
+                        <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                    </td>
                     <td class="p-2.5 text-center">
-                        <button onclick="triggerAiEstimate(${index})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-sky-200 flex items-center gap-1 mx-auto">
-                            <span>✨</span> AI相場試算
+                        <button onclick="openAiWizard(${index})" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition border border-sky-200 flex items-center gap-1 mx-auto">
+                            <span>🤖</span> AI相場対話
                         </button>
                     </td>
-                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable();updateAiRecommendation()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button></td>
+                    <td class="p-2.5 text-center">
+                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable();updateAiRecommendation()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
         function addEventRow() {
-            appData.events.push({ name: '新規の予定', date: '2031-01', cost: 100000, status: '予定' });
+            appData.events.push({ name: '新規の予定', date: '2027-04', cost: 100000, status: '予定', memoOpen: false });
             saveStorage();
             renderEventsTable();
             updateAiRecommendation();
