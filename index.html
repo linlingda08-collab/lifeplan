@@ -94,23 +94,11 @@
                     </label>
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> 完全無料・エラーなし安心設計
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 backdrop-blur-sm uppercase tracking-wider">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 安定稼働中
                     </span>
                     <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-slate-200 text-xs sm:text-sm font-normal drop-shadow">WEB版AI（ChatGPT / Gemini）連携型対話アプリ</p>
-                </div>
-            </div>
-
-            <div class="glass-card p-6 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/80 via-white to-sky-50/80 space-y-3">
-                <div class="flex items-center justify-between">
-                    <h3 class="font-bold text-indigo-900 text-sm flex items-center gap-2">
-                        <span>💡</span> 家計プラン最適解アドバイス
-                    </h3>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">常時同期中</span>
-                </div>
-                <div id="ai-goal-recommendation" class="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
-                    <!-- JSで動的生成 -->
+                    <p class="text-slate-200 text-xs sm:text-sm font-normal drop-shadow">夫婦でお金を計画・管理するシンプル家計アプリ</p>
                 </div>
             </div>
 
@@ -159,18 +147,11 @@
 
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
         <div id="tab-input" class="hidden space-y-6">
-            <div class="glass-card p-4 rounded-xl border border-indigo-200 bg-indigo-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div class="text-xs text-indigo-900">
-                    <span class="font-bold">💡 最適解アドバイス:</span> <span id="input-ai-summary">家計データを解析中...</span>
-                </div>
-                <button onclick="switchTab('dashboard')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition shrink-0">ホームで詳細を見る</button>
-            </div>
-
             <div class="glass-card p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-slate-200/80 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">毎月の収支入力</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">無限セレクトボックスから選択して入力・管理できます。</p>
+                        <p class="text-xs text-slate-500 mt-0.5">セレクトボックスから月を選択して自由に入力・管理できます。</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 transition cursor-pointer shadow-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
@@ -228,37 +209,17 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS (WEB版AIテンプレートコピー方式) ================= -->
+        <!-- ================= TAB 4: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-200 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">ボタンひとつで「WEB版AIに相談するためのプロンプト」をコピーできます。無料のChatGPTやGeminiに貼り付けてじっくり相談しましょう！</p>
+                        <p class="text-xs text-slate-500 mt-0.5">人生の大きなイベントの時期と予算を計画・管理できます。</p>
                     </div>
-                    <button onclick="openPromptModal()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5">
-                        <span>🤖</span> ＋ AI相談用テンプレートを作成
+                    <button onclick="addNewEvent()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5">
+                        <span>＋</span> 予定を追加
                     </button>
-                </div>
-
-                <!-- AI Prompt Helper Box -->
-                <div id="ai-prompt-box" class="glass-card p-5 rounded-2xl border border-indigo-300 bg-gradient-to-r from-indigo-50/95 to-sky-50/95 space-y-3 hidden shadow-xl">
-                    <div class="flex items-center justify-between pb-2 border-b border-indigo-200">
-                        <h4 class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
-                            <span>📋</span> WEB版AI（ChatGPT / Gemini）用 相談プロンプトジェネレーター
-                        </h4>
-                        <button onclick="document.getElementById('ai-prompt-box').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-xs font-bold">× 閉じる</button>
-                    </div>
-                    <p class="text-xs text-slate-700">以下のボタンを押して文章をコピーし、お使いの無料AIチャット画面に貼り付けてご相談ください。</p>
-                    <div class="space-y-2">
-                        <textarea id="ai-generated-prompt" rows="4" readonly class="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs font-mono text-slate-800 focus:outline-none"></textarea>
-                        <div class="flex justify-between items-center">
-                            <span id="copy-success-msg" class="text-[11px] text-emerald-700 font-semibold hidden">✅ コピーしました！AIに貼り付けてください</span>
-                            <button onclick="copyPromptToClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow ml-auto flex items-center gap-1">
-                                <span>📋 相談文章をコピーする</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200">
@@ -269,8 +230,8 @@
                                 <th class="p-3">予定時期</th>
                                 <th class="p-3">予定費用 (円)</th>
                                 <th class="p-3">ステータス</th>
-                                <th class="p-3 text-center">相談メモ</th>
-                                <th class="p-3 w-32 text-center">操作</th>
+                                <th class="p-3">メモ</th>
+                                <th class="p-3 w-20 text-center">操作</th>
                             </tr>
                         </thead>
                         <tbody id="events-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
@@ -284,16 +245,7 @@
             <div class="glass-card p-6 rounded-2xl max-w-xl mx-auto space-y-5">
                 <h2 class="font-bold text-lg text-slate-900 tracking-tight pb-3 border-b border-slate-200">各種設定・NISA設定</h2>
                 
-                <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-sky-50 border border-emerald-200 space-y-2">
-                    <h3 class="font-bold text-emerald-900 text-xs flex items-center gap-1.5">
-                        <span>✨</span> AI連携についてのご案内
-                    </h3>
-                    <p class="text-xs text-slate-700 leading-normal">
-                        当アプリは完全無料・エラーフリーでお使いいただくため、煩わしいAPIキー設定を廃止し、**「WEB版AIへのテンプレートコピー方式」**を採用しています。追加の料金や制限の心配は一切ありません！
-                    </p>
-                </div>
-
-                <div class="space-y-4 text-xs sm:text-sm pt-2">
+                <div class="space-y-4 text-xs sm:text-sm">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1.5">現在の年齢</label>
                         <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition">
@@ -346,7 +298,7 @@
                         <h3 class="font-bold text-sky-600 text-sm flex items-center gap-1.5">💡 アクション</h3>
                         <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
                             <li>① 毎月の収入・支出を確認する。</li>
-                            <li>② イベントの相場や見積もりをWEB版AIと相談して決める。</li>
+                            <li>② 今後のイベント予定と予算を整理する。</li>
                         </ul>
                     </div>
                 </div>
@@ -378,10 +330,10 @@
                 }
             ],
             events: [
-                { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', chatLog: '標準的な婚姻届と役所手続き費用。', memoOpen: false },
-                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', chatLog: '前撮り・式・旅行を含めたバランス標準プラン。', memoOpen: false },
-                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', chatLog: '中古車購入と新居の初期費用込み。', memoOpen: false },
-                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', chatLog: '将来の住宅購入頭金および諸費用想定。', memoOpen: false }
+                { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', memo: '婚姻届と役所手続き費用' },
+                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', memo: '式場・衣装・旅行費込み' },
+                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', memo: '中古車購入と初期費用' },
+                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', memo: '頭金および諸費用想定' }
             ]
         };
 
@@ -411,7 +363,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v18');
+            const saved = localStorage.getItem('lifeplan_data_clean_v1');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -425,7 +377,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v18', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_clean_v1', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -487,73 +439,10 @@
             }
             if (tabId === 'dashboard') {
                 renderCharts();
-                updateAiRecommendation();
             } else if (tabId === 'charts') {
                 updatePieSelector();
                 renderPieChart();
             }
-        }
-
-        function updateAiRecommendation() {
-            const container = document.getElementById('ai-goal-recommendation');
-            const inputSummary = document.getElementById('input-ai-summary');
-            
-            let totalEventCost = appData.events.reduce((sum, ev) => sum + (Number(ev.cost) || 0), 0);
-            
-            let surplus = 90000;
-            if (appData.monthly.length > 0) {
-                const m = appData.monthly[0];
-                const inc = (m.rIncome || 0) + (m.hIncome || 0);
-                const exp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
-                            (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
-                            (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
-                            (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
-                surplus = inc - exp;
-            }
-
-            let html = `
-                登録されている「今後の予定」の総額は <strong>¥${totalEventCost.toLocaleString()}</strong> です。<br>
-                毎月の貯金余力（約¥${surplus.toLocaleString()}）を活用して、無理のないスケジュールで準備を進めましょう！<br>
-                <span class="text-indigo-700 font-semibold">💡 アドバイス:</span> 予定の相場や内訳を詳しく調べたいときは「🤖 AI相談用テンプレートを作成」をご活用ください。
-            `;
-            container.innerHTML = html;
-            if (inputSummary) {
-                inputSummary.innerText = `今後の予定総額 ¥${totalEventCost.toLocaleString()} に向け、毎月の貯金余力（約¥${surplus.toLocaleString()}）で堅実運用中。`;
-            }
-        }
-
-        // ================= TEMPLATE COPY LOGIC =================
-        function openPromptModal(eventName = "結婚式・新婚旅行", eventDate = "2027-11") {
-            const promptText = `あなたは優秀なファイナンシャルプランナーです。
-以下のライフイベントについて、一般的な平均相場と具体的な内訳（何にいくらかかるか）を分かりやすく教えてください。
-
-【相談内容】
-・イベント名: ${eventName}
-・予定時期: ${eventDate}
-・目的: 夫婦のライフプランにおさめるための適正予算の算出
-
-私が納得して「OK」と言うまで、何度でも親身に相談に乗ってください。`;
-
-            document.getElementById('ai-generated-prompt').value = promptText;
-            document.getElementById('ai-prompt-box').classList.remove('hidden');
-            document.getElementById('copy-success-msg').classList.add('hidden');
-        }
-
-        function copyPromptToClipboard() {
-            const textarea = document.getElementById('ai-generated-prompt');
-            textarea.select();
-            textarea.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                const msg = document.getElementById('copy-success-msg');
-                msg.classList.remove('hidden');
-                setTimeout(() => msg.classList.add('hidden'), 3000);
-            });
-        }
-
-        function toggleEventAccordion(index) {
-            appData.events[index].memoOpen = !appData.events[index].memoOpen;
-            saveStorage();
-            renderEventsTable();
         }
 
         function updateMonthSelector() {
@@ -771,7 +660,6 @@
             appData.monthly[currentEditingIndex][field] = value;
             saveStorage();
             updateMonthSelector();
-            updateAiRecommendation();
         }
 
         function renderHistoryTable() {
@@ -891,6 +779,12 @@
             }
         }
 
+        function addNewEvent() {
+            appData.events.push({ name: '新しいイベント', date: '2027-04', cost: 100000, status: '予定', memo: '' });
+            saveStorage();
+            renderEventsTable();
+        }
+
         function renderEventsTable() {
             const tbody = document.getElementById('events-table-body');
             tbody.innerHTML = '';
@@ -899,7 +793,7 @@
                 tr.className = "hover:bg-slate-50/80 transition align-top";
                 tr.innerHTML = `
                     <td class="p-2.5">
-                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage();updateAiRecommendation()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
                         <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
@@ -907,22 +801,16 @@
                         </select>
                     </td>
                     <td class="p-2.5">
-                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage();updateAiRecommendation()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
+                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
                         <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <div class="space-y-1">
-                            <button onclick="toggleEventAccordion(${index})" class="text-indigo-600 hover:text-indigo-800 text-[11px] font-bold flex items-center gap-1">
-                                <span>💬</span> ${ev.memoOpen ? 'メモを閉じる ▲' : '相談メモを見る ▼'}
-                            </button>
-                            ${ev.memoOpen ? `<div class="p-2 bg-indigo-50/70 rounded-lg text-[11px] text-slate-700 border border-indigo-100"><input type="text" value="${ev.chatLog \vert{}\vert{} ''}" onchange="appData.events[${index}].chatLog=this.value;saveStorage()" class="w-full bg-white border border-slate-200 rounded p-1 text-[11px]"></div>` : ''}
-                        </div>
+                        <input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none">
                     </td>
-                    <td class="p-2.5 text-center flex gap-1 justify-center">
-                        <button onclick="openPromptModal('${ev.name}', '${ev.date}')" class="bg-sky-50 hover:bg-sky-100 text-sky-700 px-2 py-1 rounded-lg text-xs font-semibold transition border border-sky-200">📋 コピー</button>
-                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable();updateAiRecommendation()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button>
+                    <td class="p-2.5 text-center">
+                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200">削除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -944,7 +832,6 @@
                 document.getElementById('kpi-monthly-expense').innerText = '¥' + exp.toLocaleString();
                 document.getElementById('kpi-monthly-surplus').innerText = '¥' + surplus.toLocaleString();
             }
-            updateAiRecommendation();
         }
 
         function renderCharts() {
