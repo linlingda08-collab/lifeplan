@@ -228,13 +228,13 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS (今後の予定 - 対話型AIチャット機能付き) ================= -->
+        <!-- ================= TAB 4: EVENTS (今後の予定 - OKが出るまで対話継続するAI相場アドバイザー) ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="glass-card p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-slate-200 gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-slate-900 tracking-tight">今後の予定（ライフイベント）</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">AIと納得がいくまで何回でも会話しながら予定・時期・費用を一緒に決めることができます。</p>
+                        <p class="text-xs text-slate-500 mt-0.5">AIが相場や内訳を教えながら、あなたが「OK」と言うまで丁寧に質問を重ねてプランを組み立てます。</p>
                     </div>
                     <button onclick="startAiChatWizard()" class="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs px-4 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1.5">
                         <span>🤖</span> ＋ 予定をAIと相談して追加
@@ -245,7 +245,7 @@
                 <div id="ai-chat-box" class="glass-card p-5 rounded-2xl border border-indigo-300 bg-gradient-to-r from-indigo-50/95 to-sky-50/95 space-y-4 hidden shadow-xl">
                     <div class="flex items-center justify-between pb-2 border-b border-indigo-200">
                         <h4 class="font-bold text-xs text-indigo-900 flex items-center gap-1.5">
-                            <span>🤖</span> AIライフプランコンシェルジュ（対話中）
+                            <span>🤖</span> AI相場アドバイザー（納得いくまで対話セッション）
                         </h4>
                         <button onclick="closeAiChatWizard()" class="text-slate-400 hover:text-slate-700 text-xs font-bold">× 相談を終了</button>
                     </div>
@@ -258,12 +258,12 @@
                     <!-- Input / Decision controls -->
                     <div class="pt-2 space-y-2">
                         <div class="flex gap-2">
-                            <input type="text" id="chat-user-input" placeholder="AIに返信・質問・条件を伝える（例：ゲスト50人、新婚旅行込で予算250万にしたい）..." onkeypress="if(event.key==='Enter') sendUserChatMessage()" class="flex-grow bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-xs">
+                            <input type="text" id="chat-user-input" placeholder="返信する（例：ゲスト50人想定で頼む、もっと安くしたい、OK！ など）..." onkeypress="if(event.key==='Enter') sendUserChatMessage()" class="flex-grow bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-xs">
                             <button onclick="sendUserChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition shrink-0">送信</button>
                         </div>
                         <div id="ai-chat-confirm-area" class="hidden text-right">
                             <button onclick="finalizeEventFromChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow">
-                                ✨ 現在の決定内容を予定一覧に反映する
+                                ✨ OK！この内容で一覧に反映する
                             </button>
                         </div>
                     </div>
@@ -344,7 +344,7 @@
                         <h3 class="font-bold text-sky-600 text-sm flex items-center gap-1.5">💡 アクション</h3>
                         <ul class="space-y-1.5 text-slate-700 list-disc list-inside">
                             <li>① 毎月の収入・支出を確認する。</li>
-                            <li>② イベントの見積もりや相場をAIと相談する。</li>
+                            <li>② イベントの相場や見積もりをAIと相談して決める。</li>
                         </ul>
                     </div>
                 </div>
@@ -390,10 +390,10 @@
 
         // Interactive Multi-turn Chat State
         let currentChatState = {
-            activeTargetIndex: null, // null for new, number for editing existing
+            activeTargetIndex: null,
             eventName: '',
             eventDate: '2027-04',
-            cost: 100000,
+            cost: 1000000,
             history: []
         };
 
@@ -418,7 +418,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_v13');
+            const saved = localStorage.getItem('lifeplan_data_v14');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -432,7 +432,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_v13', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_v14', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -520,8 +520,8 @@
 
             let html = `
                 登録されている「今後の予定」の総額は <strong>¥${totalEventCost.toLocaleString()}</strong> です。<br>
-                AIチャット相談で決定した費用・時期に合わせ、毎月の貯金余力（約¥${surplus.toLocaleString()}）で最適な準備が進められています。<br>
-                <span class="text-indigo-700 font-semibold">💡 AI最適解:</span> 気になる予定があれば「🤖 AIと相談」ボタンからいつでも会話を再開・修正できます。
+                AI相場アドバイザーとの対話を通じて決定された費用・時期をもとに、毎月の貯金余力（約¥${surplus.toLocaleString()}）で最適な準備が進められています。<br>
+                <span class="text-indigo-700 font-semibold">💡 AI最適解:</span> 気になる予定の変更や再相談は「🤖 相談」ボタンからいつでも行えます。
             `;
             container.innerHTML = html;
             if (inputSummary) {
@@ -529,7 +529,7 @@
             }
         }
 
-        // ================= MULTI-TURN CHAT LOGIC =================
+        // ================= MULTI-TURN AI ADVISOR LOGIC (OK出るまで継続) =================
         function startAiChatWizard(targetIndex = null) {
             currentChatState.activeTargetIndex = targetIndex;
             currentChatState.history = [];
@@ -539,12 +539,12 @@
                 currentChatState.eventName = ev.name;
                 currentChatState.eventDate = ev.date;
                 currentChatState.cost = ev.cost;
-                addAiMessage(`「**${ev.name}**」（予定時期: ${ev.date} / 予算: ¥${ev.cost.toLocaleString()}）についての相談ですね！何でも聞いてください。（例：費用をもっと抑えるには？、内訳を詳しく教えて！など）`);
+                addAiMessage(`「**${ev.name}**」（予定時期: ${ev.date} / 現在の予算: ¥${ev.cost.toLocaleString()}）についてですね。一般的な相場や内訳の調整について、納得いくまで何でもご相談ください！`);
             } else {
                 currentChatState.eventName = '';
                 currentChatState.eventDate = '2027-11';
-                currentChatState.cost = 1000000;
-                addAiMessage('こんにちは！AIライフプランコンシェルジュです。どんな予定（イベント）をお考えですか？自由に入力して教えてください！（例：2027年秋に結婚式、中古車の買い替え、ハワイ新婚旅行 など）');
+                currentChatState.cost = 1500000;
+                addAiMessage('こんにちは！AI相場アドバイザーです。新しく追加したい**予定（イベント名）**を教えてください。相場が分からなくても、私がおおよその金額をご案内しながら一緒に決めていきます！');
             }
 
             document.getElementById('ai-chat-box').classList.remove('hidden');
@@ -573,58 +573,70 @@
             inputEl.value = '';
             renderChatHistory();
 
-            // Intelligent Conversational Engine Response
+            // Check if user says OK / Done
+            const lower = text.toLowerCase();
+            if (lower.includes('ok') || lower.includes('オーケー') || lower.includes('決定') || lower.includes('これでいい') || lower.includes('大丈夫')) {
+                setTimeout(() => {
+                    addAiMessage('かしこまりました！それでは下の「✨ OK！この内容で一覧に反映する」ボタンを押して保存してくださいね！');
+                    renderChatHistory();
+                }, 400);
+                return;
+            }
+
             setTimeout(() => {
                 respondToUserChat(text);
                 renderChatHistory();
-            }, 400);
+            }, 500);
         }
 
         function respondToUserChat(userText) {
             const lower = userText.toLowerCase();
 
-            // Extract Numbers or Money if mentioned
+            // Extract numbers if specified
             const numMatch = userText.match(/(\d+)\s*万/);
             if (numMatch) {
                 currentChatState.cost = parseInt(numMatch[1], 10) * 10000;
             }
 
-            // Extract Year/Date if mentioned
+            // Extract Year if specified
             const yearMatch = userText.match(/(20\d\d)年/);
             if (yearMatch) {
                 currentChatState.eventDate = `${yearMatch[1]}-04`;
             }
 
             if (!currentChatState.eventName) {
-                currentChatState.eventName = userText.replace(/20\d\d年/g, '').replace(/\d+万/g, '').trim() || '新しいイベント';
-                if (lower.includes('結婚式') || lower.includes('式')) {
+                currentChatState.eventName = userText.replace(/20\d\d年/g, '').replace(/\d+万/g, '').trim() || '新規イベント';
+                
+                if (lower.includes('結婚') || lower.includes('式') || lower.includes('前撮り')) {
                     currentChatState.cost = 2200000;
-                    addAiMessage(`「**${currentChatState.eventName}**」ですね！挙式・披露宴の相場はご祝儀相場を考慮した自己負担で約180万〜250万円ほどです。人数や希望のスタイル（家族婚・大人数・前撮り・旅行込など）を教えていただけますか？`);
-                } else if (lower.includes('車') || lower.includes('カー')) {
-                    currentChatState.cost = 2000000;
-                    addAiMessage(`「**${currentChatState.eventName}**」ですね！車両本体価格＋初期諸費用で約150万〜250万円が目安になります。車種や新車/中古車のご希望はありますか？`);
-                } else if (lower.includes('旅行') || lower.includes('ハワイ')) {
-                    currentChatState.cost = 600000;
-                    addAiMessage(`「**${currentChatState.eventName}**」ですね！行先や日数によりますが、新婚旅行ならお二人で約50万〜80万円が相場です。ご希望の時期やお部屋のグレードは？`);
+                    addAiMessage(`「**${currentChatState.eventName}**」ですね！一般的な相場としては、前撮りが約20万〜30万円、結婚式（ご祝儀相場考慮）が約150万〜200万円、新婚旅行が約50万〜80万円ほどで、トータルで約220万〜300万円が目安になります。<br><br>何人くらいを想定していますか？あるいは「こだわりたいポイント」や「費用を抑えたい希望」などはありますか？（納得いくまで質問を続けます！）`);
+                } else if (lower.includes('車') || lower.includes('中古')) {
+                    currentChatState.cost = 1800000;
+                    addAiMessage(`「**${currentChatState.eventName}**」ですね！中古車の一般的な購入相場は、車検や諸費用込みで約120万〜200万円が目安です。<br><br>普通車・軽自動車のご希望や、新車にするかなどのこだわりはありますか？`);
+                } else if (lower.includes('引越し') || lower.includes('家具') || lower.includes('家電')) {
+                    currentChatState.cost = 500000;
+                    addAiMessage(`「**${currentChatState.eventName}**」ですね！賃貸の敷金礼金・仲介手数料および引っ越し業者、主要な家具家電の買い替えを含めると約40万〜70万円が目安になります。<br><br>新居のエリアや、新しく買い替えたい大きな家具などはありますか？`);
+                } else if (lower.includes('住宅') || lower.includes('家') || lower.includes('マイホーム')) {
+                    currentChatState.cost = 5500000;
+                    addAiMessage(`「**${currentChatState.eventName}**」ですね！住宅購入の頭金および諸費用（物件価格の5〜10%）として、一般的に500万〜800万円の現金を確保する方が多いです。<br><br>マンションか一戸建てか、あるいは検討している時期はいつ頃をイメージされていますか？`);
                 } else {
-                    addAiMessage(`「**${currentChatState.eventName}**」ですね！想定しているご予算（〇〇万円）や時期（〇〇年〇月頃）がありましたら教えてください。一緒に最適な計画を立てましょう！`);
+                    currentChatState.cost = 1000000;
+                    addAiMessage(`「**${currentChatState.eventName}**」ですね！一般的な類似イベントの相場を現在分析中です。時期や大まかな規模感について、他に希望はありますか？`);
                 }
                 return;
             }
 
-            // Subsequent turns: Deepening consultation
-            if (lower.includes('抑えたい') || lower.includes('安く') || lower.includes('節約')) {
-                currentChatState.cost = Math.max(100000, Math.round(currentChatState.cost * 0.75));
-                addAiMessage(`コストを賢く抑える工夫ですね！時期をオフシーズンにずらしたり、ペーパーアイテムやオプションを見直すことで**約¥${currentChatState.cost.toLocaleString()}**まで調整可能です。こちらでいかがでしょうか？`);
-            } else if (lower.includes('こだわり') || lower.includes('豪華') || lower.includes('高く')) {
-                currentChatState.cost = Math.round(currentChatState.cost * 1.3);
-                addAiMessage(`ワンランク上のこだわりプランですね！衣装や食事、お部屋のグレードを高めて**約¥${currentChatState.cost.toLocaleString()}**での試算となります。`);
-            } else if (lower.includes('内訳') || lower.includes('詳しく')) {
-                const mainCost = Math.round(currentChatState.cost * 0.7);
-                const subCost = currentChatState.cost - mainCost;
-                addAiMessage(`現在の想定（総額 ¥${currentChatState.cost.toLocaleString()}）の内訳目安です：<br>・メイン費用: 約¥${mainCost.toLocaleString()}<br>・オプション・諸経費・予備費: 約¥${subCost.toLocaleString()}<br>気になるところは変更できますよ！`);
+            // Continuous dialogue turns (keeps asking until user says OK)
+            if (lower.includes('安く') || lower.includes('抑えたい') || lower.includes('予算オーバー')) {
+                currentChatState.cost = Math.max(50000, Math.round(currentChatState.cost * 0.8));
+                addAiMessage(`なるべく費用を抑える方向ですね！プランを見直して **¥${currentChatState.cost.toLocaleString()}** に再調整しました。<br><br>この金額なら家計の貯金ペースにも優しくなりますが、他に削れそうな部分や気になるところはありますか？（納得できたら「OK」と教えてくださいね！）`);
+            } else if (lower.includes('豪華') || lower.includes('こだわり') || lower.includes('良くしたい')) {
+                currentChatState.cost = Math.round(currentChatState.cost * 1.25);
+                addAiMessage(`こだわりを反映して、予算を **¥${currentChatState.cost.toLocaleString()}** にアップグレードしました！<br><br>ほかに追加したいオプションや、時期の微調整はありますか？`);
+            } else if (lower.includes('時期') || lower.includes('いつ')) {
+                addAiMessage(`予定時期は現在 **${currentChatState.eventDate}** に設定されています。変更したい場合は「2027年10月」のように教えてください。`);
             } else {
-                addAiMessage(`承知いたしました！ご要望を反映して費用を **¥${currentChatState.cost.toLocaleString()}**（時期: ${currentChatState.eventDate}）としてセットしました。この金額でよろしければ、下の「決定」ボタンを押してくださいね！他にご質問もいつでもどうぞ。`);
+                addAiMessage(`なるほど、承知いたしました！現在の試算は **¥${currentChatState.cost.toLocaleString()}**（時期: ${currentChatState.eventDate}）となっております。<br><br>ほかに追加で聞いておきたいことや調整したい事項はありますか？（満足したら「OK」や「これで決定」とおっしゃってください！）`);
             }
         }
 
@@ -642,28 +654,26 @@
 
         function finalizeEventFromChat() {
             if (!currentChatState.eventName) {
-                alert('会話でイベント名を教えてください。');
+                alert('会話でイベント名を決めてください。');
                 return;
             }
 
-            const lastAiMsg = [...currentChatState.history].reverse().find(m => m.sender === 'ai')?.text || 'AIとの対話で決定';
+            const lastAiMsg = [...currentChatState.history].reverse().find(m => m.sender === 'ai')?.text || 'AI対話による決定';
 
             if (currentChatState.activeTargetIndex !== null && appData.events[currentChatState.activeTargetIndex]) {
-                // Update existing
                 const ev = appData.events[currentChatState.activeTargetIndex];
                 ev.name = currentChatState.eventName;
                 ev.date = currentChatState.eventDate;
                 ev.cost = currentChatState.cost;
-                ev.chatLog = `AI対話メモ: ${lastAiMsg.replace(/<br>/g, ' ')}`;
+                ev.chatLog = `AI相場相談メモ: ${lastAiMsg.replace(/<br>/g, ' ')}`;
                 ev.memoOpen = true;
             } else {
-                // Add new
                 appData.events.push({
                     name: currentChatState.eventName,
                     date: currentChatState.eventDate,
                     cost: currentChatState.cost,
                     status: '予定',
-                    chatLog: `AI対話メモ: ${lastAiMsg.replace(/<br>/g, ' ')}`,
+                    chatLog: `AI相場相談メモ: ${lastAiMsg.replace(/<br>/g, ' ')}`,
                     memoOpen: true
                 });
             }
@@ -672,7 +682,7 @@
             renderEventsTable();
             updateAiRecommendation();
             closeAiChatWizard();
-            alert(`🎉 「${currentChatState.eventName}」（¥${currentChatState.cost.toLocaleString()}）を決定して予定一覧に反映しました！`);
+            alert(`🎉 「${currentChatState.eventName}」（¥${currentChatState.cost.toLocaleString()}）を予定一覧に反映しました！`);
         }
 
         function toggleEventAccordion(index) {
