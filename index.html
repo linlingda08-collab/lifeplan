@@ -171,7 +171,7 @@
                 <div class="glass-card p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center">
                         <h3 class="font-bold text-[#3d312a] text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-[#b87d4b]"></span> 支出の円グラフ・内訳金額
+                            <span class="w-2 h-2 rounded-full bg-[#b87d4b]"></span> 支出の円グラフ・内訳金額 (高い順)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl px-3 py-1.5 text-xs font-semibold text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none cursor-pointer"></select>
                     </div>
@@ -181,7 +181,7 @@
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold text-[#6b5b4f] uppercase tracking-wider mb-2">項目の詳細金額リスト</h4>
+                        <h4 class="text-xs font-bold text-[#6b5b4f] uppercase tracking-wider mb-2">項目の詳細金額リスト（高い順）</h4>
                         <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                     </div>
                 </div>
@@ -211,7 +211,7 @@
 
         <!-- ================= TAB 4: EVENTS (Gemini コピペ自動解析機能付き) ================= -->
         <div id="tab-events" class="hidden space-y-6">
-            <div class="glass-card p-6 rounded-2xl space-y-6">
+            <div class="glass-card p-6 rounded-2xl space-y-6" onclick="event.stopPropagation()">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-[#e7dfd5] gap-3">
                     <div>
                         <h2 class="font-bold text-lg text-[#3d312a] tracking-tight">今後の予定（ライフイベント）</h2>
@@ -228,15 +228,15 @@
                 </div>
 
                 <!-- AI Parser Box (Hidden by default) -->
-                <div id="ai-parser-box" class="glass-card p-5 rounded-2xl border border-[#c29b7a] bg-gradient-to-r from-[#fbf7f4] to-[#f4ede6] space-y-3 hidden shadow-lg">
+                <div id="ai-parser-box" class="glass-card p-5 rounded-2xl border border-[#c29b7a] bg-gradient-to-r from-[#fbf7f4] to-[#f4ede6] space-y-3 hidden shadow-lg" onclick="event.stopPropagation()">
                     <div class="flex items-center justify-between pb-2 border-b border-[#e7dfd5]">
                         <h4 class="font-bold text-xs text-[#5c4a3d] flex items-center gap-1.5">
                             <span>✨</span> Gemini回答の自動解析（コピペ窓）
                         </h4>
-                        <button onclick="toggleAiParserBox()" class="text-[#7d6b5d] hover:text-[#3d312a] text-xs font-bold">×</s
+                        <button onclick="toggleAiParserBox()" class="text-[#7d6b5d] hover:text-[#3d312a] text-xs font-bold cursor-pointer">×</button>
                     </div>
-                    <p class="text-xs text-[#6b5b4f]">Geminiから受け取った回答文（例：「2027年11月の結婚式、費用は2200000円です」など）を以下に貼り付けてください。自動でイベント名・時期・費用を抽出します。</p>
-                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full bg-white border border-[#d6ccc2] rounded-xl p-3 text-xs text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></textarea>
+                    <p class="text-xs text-[#6b5b4f]">Geminiから受け取った回答文（例：「2027年12月の結婚式、実質的な自己負担額は2500000円です」など）を以下に貼り付けてください。自動でイベント名・時期・費用を抽出します。</p>
+                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full bg-white border border-[#d6ccc2] rounded-xl p-3 text-xs text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none" onclick="event.stopPropagation()"></textarea>
                     <div class="flex justify-end">
                         <button onclick="parseAiTextAndAddEvent()" class="bg-[#5e7862] hover:bg-[#4c6250] text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow cursor-pointer">
                             📥 解析して今後の予定に追加する
@@ -294,7 +294,6 @@
     <script>
         let appData = {
             settings: { age: 27, monthlyNisa: 30000, years: 38, currentSaving: 2000000, heroBg: '' },
-            // ユーザーが自由に追加・削除できる貯金バケット名のリスト（グローバル保持）
             savingBuckets: ['家の口座', 'ゆとり費'],
             monthly: [
                 { 
@@ -304,7 +303,6 @@
                     utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
                     rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)',
-                    // 各バケットへの割り振り額（例: 家の口座に6万円、ゆとり費に3万円）
                     bucketAllocations: { '家の口座': 60000, 'ゆとり費': 30000 }
                 },
                 { 
@@ -319,7 +317,7 @@
             ],
             events: [
                 { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', memo: '婚姻届と役所手続き費用' },
-                { name: '前撮り・結婚式・新婚旅行', date: '2027-11', cost: 2200000, status: '予定', memo: '式場・衣装・旅行費込み' },
+                { name: '結婚式・新婚旅行', date: '2027-12', cost: 2500000, status: '予定', memo: '実質自己負担額想定' },
                 { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', memo: '中古車購入と初期費用' },
                 { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', memo: '頭金および諸費用想定' }
             ]
@@ -330,7 +328,6 @@
         let pieChart = null;
         let currentEditingIndex = 0;
 
-        // アースカラー同系色グラデーション（円グラフ用パレット）
         const earthToneColors = [
             '#a3704c', '#b87d4b', '#c29b7a', '#d4b59d', '#5e7862', 
             '#738f77', '#8fb996', '#8c6d53', '#a3856d', '#bc9f8b', 
@@ -352,13 +349,12 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v1');
+            const saved = localStorage.getItem('lifeplan_data_earth_v2');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             if (!appData.savingBuckets) appData.savingBuckets = ['家の口座', 'ゆとり費'];
             
-            // 各月にbucketAllocationsがなければ初期化
             appData.monthly.forEach(m => {
                 if (!m.bucketAllocations) {
                     m.bucketAllocations = {};
@@ -376,7 +372,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v1', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v2', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -510,7 +506,6 @@
             renderMonthEditor();
         }
 
-        // 貯金バケットの追加
         function addSavingBucket() {
             const inputEl = document.getElementById('new-bucket-name');
             const name = inputEl.value.trim();
@@ -529,7 +524,6 @@
             renderMonthEditor();
         }
 
-        // 貯金バケットの削除（手動削除）
         function removeSavingBucket(bucketName) {
             if (appData.savingBuckets.length <= 1) {
                 alert('貯金項目は最低1つ必要です。');
@@ -558,13 +552,16 @@
                              (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
             const autoSaving = totalInc - totalExp;
 
-            // バケット割り振りの合計計算
             if (!m.bucketAllocations) m.bucketAllocations = {};
             let allocatedSum = 0;
             appData.savingBuckets.forEach(b => {
                 if (m.bucketAllocations[b] === undefined) m.bucketAllocations[b] = 0;
                 allocatedSum += Number(m.bucketAllocations[b]);
             });
+
+            // 超過エラー判定
+            let isOverAllocated = allocatedSum > autoSaving;
+            let overDiff = allocatedSum - autoSaving;
 
             let bucketsHtml = '';
             appData.savingBuckets.forEach(b => {
@@ -606,24 +603,24 @@
                 <div class="grid grid-cols-3 gap-3 bg-gradient-to-r from-[#f4ede6] via-[#eae0d5]/60 to-[#f4ede6] p-4 rounded-xl border border-[#d6ccc2] text-center">
                     <div>
                         <p class="text-[11px] font-semibold text-[#8c6d53] uppercase tracking-wider">手取り合計</p>
-                        <p class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${totalInc.toLocaleString()}</p>
+                        <p id="editor-total-income" class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${totalInc.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold text-[#b87d4b] uppercase tracking-wider">生活費合計</p>
-                        <p class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${totalExp.toLocaleString()}</p>
+                        <p id="editor-total-expense" class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold text-[#5e7862] uppercase tracking-wider">今月の貯金</p>
-                        <p class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${autoSaving.toLocaleString()}</p>
+                        <p id="editor-auto-saving" class="text-base sm:text-lg font-bold text-[#3d312a] mt-0.5">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
                 <!-- 貯金割り振りセクション -->
-                <div class="glass-card-sm p-4 rounded-xl space-y-3 border border-[#d6ccc2]">
+                <div class="glass-card-sm p-4 rounded-xl space-y-3 border ${isOverAllocated ? 'border-rose-400 bg-rose-50/40' : 'border-[#d6ccc2]'}">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <h3 class="font-bold text-xs text-[#3d312a] uppercase tracking-wider flex items-center gap-1.5">
-                                <span>💰</span> 貯金の割り振り管理（合計割り振り: ¥${allocatedSum.toLocaleString()} / 貯金: ¥${autoSaving.toLocaleString()}）
+                                <span>💰</span> 貯金の割り振り管理（合計割り振り: <span id="allocated-sum-text" class="${isOverAllocated ? 'text-rose-600 font-extrabold' : ''}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
                             </h3>
                             <p class="text-[11px] text-[#7d6b5d]">目的に応じて自由に口座や費目を追加し、今月の貯金を割り振れます。</p>
                         </div>
@@ -632,6 +629,14 @@
                             <button onclick="addSavingBucket()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
                         </div>
                     </div>
+                    
+                    ${isOverAllocated ? `
+                        <div class="p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-300 flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>割り振り額が今月の貯金額を <strong>¥${overDiff.toLocaleString()}</strong> 超過しています！各項目の金額を調整してください。</span>
+                        </div>
+                    ` : ''}
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
                         ${bucketsHtml}
                     </div>
@@ -749,6 +754,7 @@
             appData.monthly[currentEditingIndex][field] = value;
             saveStorage();
             updateMonthSelector();
+            renderMonthEditor();
             updateCalculations();
         }
 
@@ -808,6 +814,7 @@
             });
         }
 
+        // 金額が高い順にソートして円グラフ・リストを描画
         function renderPieChart() {
             const selector = document.getElementById('pie-month-selector');
             if (!selector) return;
@@ -820,17 +827,29 @@
             const ctx = chartEl.getContext('2d');
             if (pieChart) pieChart.destroy();
 
-            const dataValues = [
-                m.food || 0, m.rTrans || 0, m.hTrans || 0, m.house || 0, m.goods || 0, 
-                m.utility || 0, m.rLoan || 0, m.pon || 0, m.kenmin || 0, m.rSub || 0, 
-                m.rPocket || 0, m.hPocket || 0, m.hHair || 0, m.rComm || 0, m.hComm || 0
-            ];
-            const labels = [
-                '食費', 'ゲストA交通費', 'ゲストB交通費', '住居費', '生活用品', 
-                '水道ガス電気', 'ゲストA奨学金', 'ぽん費', '県民共済', 'ゲストAサブスク', 
-                'ゲストAお小遣い', 'ゲストBお小遣い', 'ゲストB美容代', 'ゲストA通信費', 'ゲストB通信費'
+            const rawItems = [
+                { label: '食費', val: m.food || 0 },
+                { label: 'ゲストA交通費', val: m.rTrans || 0 },
+                { label: 'ゲストB交通費', val: m.hTrans || 0 },
+                { label: '住居費', val: m.house || 0 },
+                { label: '生活用品', val: m.goods || 0 },
+                { label: '水道ガス電気', val: m.utility || 0 },
+                { label: 'ゲストA奨学金', val: m.rLoan || 0 },
+                { label: 'ぽん費', val: m.pon || 0 },
+                { label: '県民共済', val: m.kenmin || 0 },
+                { label: 'ゲストAサブスク', val: m.rSub || 0 },
+                { label: 'ゲストAお小遣い', val: m.rPocket || 0 },
+                { label: 'ゲストBお小遣い', val: m.hPocket || 0 },
+                { label: 'ゲストB美容代', val: m.hHair || 0 },
+                { label: 'ゲストA通信費', val: m.rComm || 0 },
+                { label: 'ゲストB通信費', val: m.hComm || 0 }
             ];
 
+            // 金額が高い順（降順）にソート
+            rawItems.sort((a, b) => b.val - a.val);
+
+            const labels = rawItems.map(item => item.label);
+            const dataValues = rawItems.map(item => item.val);
             const totalExp = dataValues.reduce((a, b) => a + b, 0);
 
             pieChart = new Chart(ctx, {
@@ -858,25 +877,24 @@
             if (!listContainer) return;
             listContainer.innerHTML = '';
 
-            labels.forEach((label, i) => {
-                const val = dataValues[i];
-                if (val > 0) {
-                    const percentage = totalExp > 0 ? ((val / totalExp) * 100).toFixed(1) : 0;
-                    const color = earthToneColors[i];
+            rawItems.forEach((item, i) => {
+                if (item.val > 0) {
+                    const percentage = totalExp > 0 ? ((item.val / totalExp) * 100).toFixed(1) : 0;
+                    const color = earthToneColors[i % earthToneColors.length];
 
-                    const item = document.createElement('div');
-                    item.className = "flex items-center justify-between p-2 rounded-xl bg-white border border-[#e7dfd5] text-xs";
-                    item.innerHTML = `
+                    const el = document.createElement('div');
+                    el.className = "flex items-center justify-between p-2 rounded-xl bg-white border border-[#e7dfd5] text-xs";
+                    el.innerHTML = `
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${color};"></span>
-                            <span class="font-semibold text-[#3d312a]">${label}</span>
+                            <span class="font-semibold text-[#3d312a]">${item.label}</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <span class="text-[#7d6b5d] text-[11px]">${percentage}%</span>
-                            <span class="font-bold text-[#3d312a]">¥${val.toLocaleString()}</span>
+                            <span class="font-bold text-[#3d312a]">¥${item.val.toLocaleString()}</span>
                         </div>
                     `;
-                    listContainer.appendChild(item);
+                    listContainer.appendChild(el);
                 }
             });
 
@@ -885,7 +903,6 @@
             }
         }
 
-        // Geminiの回答テキストを解析して今後の予定を追加する関数
         function toggleAiParserBox() {
             const box = document.getElementById('ai-parser-box');
             if (box) box.classList.toggle('hidden');
@@ -898,7 +915,6 @@
                 return;
             }
 
-            // 金額抽出（「2,200,000円」や「220万円」などをキャッチ）
             let cost = 500000;
             const yenMatch = rawText.match(/([\d,]+)\s*円/);
             const manMatch = rawText.match(/([\d,.]+)\s*万/);
@@ -908,19 +924,20 @@
                 cost = parseFloat(manMatch[1].replace(/,/g, '')) * 10000;
             }
 
-            // 時期抽出（「2027年11月」や「2027-11」）
-            let date = '2027-11';
+            let date = '2027-12';
             const dateMatch = rawText.match(/(\d{4})年\s*(\d{1,2})月/);
             const isoDateMatch = rawText.match(/(\d{4})-(\d{2})/);
+            const dotDateMatch = rawText.match(/(\d{4})\.(\d{2})/);
             if (dateMatch) {
                 const y = dateMatch[1];
                 const m = String(dateMatch[2]).padStart(2, '0');
                 date = `${y}-${m}`;
             } else if (isoDateMatch) {
                 date = isoDateMatch[0];
+            } else if (dotDateMatch) {
+                date = `${dotDateMatch[1]}-${dotDateMatch[2]}`;
             }
 
-            // イベント名（最初の行やキーワードから簡易抽出、デフォルトは「AI提案イベント」）
             let name = 'AI提案イベント';
             const lines = rawText.split('\n').filter(l => l.trim().length > 0);
             if (lines.length > 0 && lines[0].length < 30) {
@@ -983,7 +1000,6 @@
 
         function updateCalculations() {
             if (appData.monthly.length > 0) {
-                // 現在選択中または最新の月データを取得
                 const m = appData.monthly[currentEditingIndex] || appData.monthly[0];
                 const inc = (m.rIncome || 0) + (m.hIncome || 0);
                 const exp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
@@ -1003,12 +1019,9 @@
                 if (expEl) expEl.innerText = '¥' + exp.toLocaleString();
                 if (surEl) surEl.innerText = '¥' + surplus.toLocaleString();
 
-                // ホーム画面の貯金バケット内訳表示
                 if (homeBucketEl && m.bucketAllocations) {
                     let bHtml = '';
-                    let allocatedTotal = 0;
                     for (let [bName, bVal] of Object.entries(m.bucketAllocations)) {
-                        allocatedTotal += Number(bVal) || 0;
                         bHtml += `<div class="flex justify-between"><span>・${bName}:</span><span class="font-bold">¥${Number(bVal).toLocaleString()}</span></div>`;
                     }
                     homeBucketEl.innerHTML = bHtml || '<span class="text-[10px] text-[#7d6b5d]">割り振りなし</span>';
