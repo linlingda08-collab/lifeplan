@@ -227,7 +227,7 @@
                     </div>
                 </div>
 
-                <!-- AI Parser Box (Hidden by default) -->
+                <!-- AI Parser Box -->
                 <div id="ai-parser-box" class="glass-card p-5 rounded-2xl border border-[#c29b7a] bg-gradient-to-r from-[#fbf7f4] to-[#f4ede6] space-y-3 hidden shadow-lg" onclick="event.stopPropagation()">
                     <div class="flex items-center justify-between pb-2 border-b border-[#e7dfd5]">
                         <h4 class="font-bold text-xs text-[#5c4a3d] flex items-center gap-1.5">
@@ -235,7 +235,7 @@
                         </h4>
                         <button onclick="toggleAiParserBox()" class="text-[#7d6b5d] hover:text-[#3d312a] text-xs font-bold cursor-pointer">×</button>
                     </div>
-                    <p class="text-xs text-[#6b5b4f]">Geminiから受け取った回答文（例：「2027年12月の結婚式、実質的な自己負担額は2500000円です」など）を以下に貼り付けてください。自動でイベント名・時期・費用を抽出します。</p>
+                    <p class="text-xs text-[#6b5b4f]">Geminiから受け取った回答文を以下に貼り付けてください。名詞のイベント名・時期・費用を抽出します。</p>
                     <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full bg-white border border-[#d6ccc2] rounded-xl p-3 text-xs text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none" onclick="event.stopPropagation()"></textarea>
                     <div class="flex justify-end">
                         <button onclick="parseAiTextAndAddEvent()" class="bg-[#5e7862] hover:bg-[#4c6250] text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow cursor-pointer">
@@ -248,11 +248,11 @@
                     <table class="w-full text-xs text-left border-collapse">
                         <thead>
                             <tr class="bg-[#eae0d5]/80 text-[#6b5b4f] font-semibold border-b border-[#e7dfd5]">
-                                <th class="p-3">イベント名</th>
-                                <th class="p-3">予定時期</th>
-                                <th class="p-3">予定費用 (円)</th>
-                                <th class="p-3">ステータス</th>
-                                <th class="p-3">メモ</th>
+                                <th class="p-3 w-44">イベント名 (簡潔な名詞)</th>
+                                <th class="p-3 w-32">予定時期</th>
+                                <th class="p-3 w-32">予定費用 (円)</th>
+                                <th class="p-3 w-24">ステータス</th>
+                                <th class="p-3">メモ (AI全文保持・再評価)</th>
                                 <th class="p-3 w-20 text-center">操作</th>
                             </tr>
                         </thead>
@@ -317,9 +317,9 @@
             ],
             events: [
                 { name: '結婚手続き', date: '2026-11', cost: 50000, status: '予定', memo: '婚姻届と役所手続き費用' },
-                { name: '結婚式・新婚旅行', date: '2027-12', cost: 2500000, status: '予定', memo: '実質自己負担額想定' },
-                { name: '中古車購入・引越し', date: '2029-05', cost: 2300000, status: '検討', memo: '中古車購入と初期費用' },
-                { name: '住宅購入検討', date: '2034-04', cost: 5500000, status: '将来', memo: '頭金および諸費用想定' }
+                { name: '結婚式・新婚旅行', date: '2027-12', cost: 2500000, status: '予定', memo: '結婚式（自己負担額シミュレーション）\n50人規模での結婚式費用について、自己負担額は 2500000円です。予定時期：2027年12月' },
+                { name: '中古車購入', date: '2029-05', cost: 2300000, status: '検討', memo: '中古車購入と初期費用' },
+                { name: '住宅購入', date: '2034-04', cost: 5500000, status: '将来', memo: '頭金および諸費用想定' }
             ]
         };
 
@@ -349,7 +349,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v2');
+            const saved = localStorage.getItem('lifeplan_data_earth_v3');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -372,7 +372,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v2', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v3', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -559,7 +559,6 @@
                 allocatedSum += Number(m.bucketAllocations[b]);
             });
 
-            // 超過エラー判定
             let isOverAllocated = allocatedSum > autoSaving;
             let overDiff = allocatedSum - autoSaving;
 
@@ -814,7 +813,6 @@
             });
         }
 
-        // 金額が高い順にソートして円グラフ・リストを描画
         function renderPieChart() {
             const selector = document.getElementById('pie-month-selector');
             if (!selector) return;
@@ -845,7 +843,6 @@
                 { label: 'ゲストB通信費', val: m.hComm || 0 }
             ];
 
-            // 金額が高い順（降順）にソート
             rawItems.sort((a, b) => b.val - a.val);
 
             const labels = rawItems.map(item => item.label);
@@ -908,16 +905,11 @@
             if (box) box.classList.toggle('hidden');
         }
 
-        function parseAiTextAndAddEvent() {
-            const rawText = document.getElementById('ai-raw-text').value;
-            if (!rawText.trim()) {
-                alert('Geminiの回答テキストを貼り付けてください。');
-                return;
-            }
-
-            let cost = 500000;
-            const yenMatch = rawText.match(/([\d,]+)\s*円/);
-            const manMatch = rawText.match(/([\d,.]+)\s*万/);
+        // 文章解析用の汎用関数（名詞抽出ロジックを含む）
+        function parseTextToEventObject(text) {
+            let cost = 0;
+            const yenMatch = text.match(/([\d,]+)\s*円/);
+            const manMatch = text.match(/([\d,.]+)\s*万/);
             if (yenMatch) {
                 cost = parseInt(yenMatch[1].replace(/,/g, ''), 10);
             } else if (manMatch) {
@@ -925,9 +917,9 @@
             }
 
             let date = '2027-12';
-            const dateMatch = rawText.match(/(\d{4})年\s*(\d{1,2})月/);
-            const isoDateMatch = rawText.match(/(\d{4})-(\d{2})/);
-            const dotDateMatch = rawText.match(/(\d{4})\.(\d{2})/);
+            const dateMatch = text.match(/(\d{4})年\s*(\d{1,2})月/);
+            const isoDateMatch = text.match(/(\d{4})-(\d{2})/);
+            const dotDateMatch = text.match(/(\d{4})\.(\d{2})/);
             if (dateMatch) {
                 const y = dateMatch[1];
                 const m = String(dateMatch[2]).padStart(2, '0');
@@ -938,25 +930,65 @@
                 date = `${dotDateMatch[1]}-${dotDateMatch[2]}`;
             }
 
-            let name = 'AI提案イベント';
-            const lines = rawText.split('\n').filter(l => l.trim().length > 0);
-            if (lines.length > 0 && lines[0].length < 30) {
-                name = lines[0].replace(/【|】|#/g, '').trim();
+            // イベント名の名詞抽出処理
+            let nameParts = [];
+            if (text.includes('結婚式') || text.includes('挙式') || text.includes('披露宴')) nameParts.push('結婚式');
+            if (text.includes('新婚旅行') || text.includes('ハネムーン')) nameParts.push('新婚旅行');
+            if (text.includes('車') || text.includes('マイカー') || text.includes('自動車')) nameParts.push('車購入');
+            if (text.includes('引越し') || text.includes('引っ越し')) nameParts.push('引越し');
+            if (text.includes('住宅') || text.includes('マイホーム') || text.includes('家')) nameParts.push('住宅購入');
+            if (text.includes('出産') || text.includes('育児')) nameParts.push('出産・育児');
+            if (text.includes('旅行') && !nameParts.includes('新婚旅行')) nameParts.push('旅行');
+
+            let name = nameParts.length > 0 ? nameParts.join('・') : '';
+            if (!name) {
+                const firstLine = text.split('\n').filter(l => l.trim().length > 0)[0] || '予定イベント';
+                name = firstLine.replace(/【|】|#|🔑|💰|📌|・/g, '').trim().slice(0, 15);
             }
 
+            return { name, date, cost };
+        }
+
+        function parseAiTextAndAddEvent() {
+            const rawText = document.getElementById('ai-raw-text').value;
+            if (!rawText.trim()) {
+                alert('Geminiの回答テキストを貼り付けてください。');
+                return;
+            }
+
+            const parsed = parseTextToEventObject(rawText);
+
             appData.events.push({
-                name: name,
-                date: date,
-                cost: cost,
+                name: parsed.name,
+                date: parsed.date,
+                cost: parsed.cost,
                 status: '予定',
-                memo: `Gemini回答自動解析: ${rawText.slice(0, 50)}...`
+                memo: rawText // 全文を保持
             });
 
             saveStorage();
             renderEventsTable();
             document.getElementById('ai-raw-text').value = '';
             toggleAiParserBox();
-            alert(`🎉 Geminiの回答を解析し、「${name}」（¥${cost.toLocaleString()} / 時期: ${date}）を今後の予定に追加しました！`);
+            alert(`🎉 Geminiの回答を解析し、「${parsed.name}」（¥${parsed.cost.toLocaleString()} / 時期: ${parsed.date}）を今後の予定に追加しました！`);
+        }
+
+        // メモ欄の内容からイベントを再解析・更新する関数
+        function reparseEventFromMemo(index) {
+            const memoText = appData.events[index].memo;
+            if (!memoText || !memoText.trim()) {
+                alert('メモ欄にテキストが入力されていません。');
+                return;
+            }
+
+            const parsed = parseTextToEventObject(memoText);
+            appData.events[index].name = parsed.name;
+            appData.events[index].date = parsed.date;
+            appData.events[index].cost = parsed.cost;
+
+            saveStorage();
+            renderEventsTable();
+            alert(`🔄 メモの文章から再解析し、「${parsed.name}」（¥${parsed.cost.toLocaleString()} / 時期: ${parsed.date}）に更新しました！`);
         }
 
         function addNewEvent() {
@@ -974,24 +1006,29 @@
                 tr.className = "hover:bg-[#f4ede6]/50 transition align-top";
                 tr.innerHTML = `
                     <td class="p-2.5">
-                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none cursor-pointer">
+                        <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none cursor-pointer">
                             ${generateDateOptions(ev.date)}
                         </select>
                     </td>
                     <td class="p-2.5">
-                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-28 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                        <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-semibold text-right focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
                     <td class="p-2.5">
-                        <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-20 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                        <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium text-center focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
                     </td>
-                    <td class="p-2.5">
-                        <input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-xs font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                    <td class="p-2.5 space-y-1.5">
+                        <textarea rows="3" onchange="appData.events[${index}].memo=this.value;saveStorage()" placeholder="貼り付けテキスト・メモ..." class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-2 text-[11px] text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none custom-scrollbar">${ev.memo || ''}</textarea>
+                        <div class="flex justify-end">
+                            <button onclick="reparseEventFromMemo(${index})" class="bg-[#8c6d53] hover:bg-[#785d46] text-white text-[10px] font-bold px-2.5 py-1 rounded-lg transition shadow-xs flex items-center gap-1 cursor-pointer">
+                                🔄 メモから再解析
+                            </button>
+                        </div>
                     </td>
                     <td class="p-2.5 text-center">
-                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-semibold transition border border-rose-200 cursor-pointer">削除</button>
+                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition border border-rose-200 cursor-pointer">削除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
