@@ -192,7 +192,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">毎月の収支計算</h2>
-                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していないと確定できません。</p>
+                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していると確定できます。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer focus:outline-none"></select>
@@ -324,7 +324,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: ACCOUNTS (独立) ================= -->
+        <!-- ================= TAB 6: ACCOUNTS ================= -->
         <div id="tab-accounts" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -342,7 +342,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 7: NISA (独立) ================= -->
+        <!-- ================= TAB 7: NISA ================= -->
         <div id="tab-nisa" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -461,7 +461,6 @@
 
     <!-- App Logic -->
     <script>
-        // 固定の最新保存キー（アップデートでも変化させない）
         const STORAGE_KEY = 'lifeplan_master_data';
 
         let appData = {
@@ -477,7 +476,6 @@
                 currentTheme: 'earth'
             },
             customThemes: [],
-            // デフォルト口座から「生活用」を削除
             bankAccounts: ['貯金用(三菱UFJ銀行)', 'ゆとり用(イオン銀行)'],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
@@ -667,7 +665,6 @@
         }
 
         function loadStorage() {
-            // 固定キーで優先読み込み。旧バージョンのキーが存在する場合は引き継ぐ
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
                 saved = localStorage.getItem('lifeplan_data_earth_v25');
@@ -680,7 +677,6 @@
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = ['貯金用(三菱UFJ銀行)', 'ゆとり用(イオン銀行)'];
             } else {
-                // 口座から「生活用(三井住友銀行)」を除外
                 appData.bankAccounts = appData.bankAccounts.filter(b => !b.includes('生活用'));
             }
 
@@ -958,7 +954,6 @@
             appData.expenseCategories.forEach(cat => totalExp += Number(m.expenses[cat.id] || 0));
             
             const nisaAmt = Number(m.nisa || 0);
-            // 今月の貯金（余剰金）＝ 手取り － 生活費 － NISA積立額
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             if (!m.bankAllocations) m.bankAllocations = {};
@@ -1028,16 +1023,19 @@
                         <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金 (余剰現金)</p>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
                         <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
-                <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-600 bg-emerald-500/10' : 'border-rose-500 bg-rose-500/10'}">
+                <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-600 bg-emerald-500/5' : 'border-rose-500 bg-rose-500/10'}">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                                <span>💰</span> 口座割り振りチェック（割り振り合計: <span class="${isMatched ? 'text-emerald-600' : 'text-rose-500 font-extrabold'}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
+                                <span>💰</span> 口座割り振りチェック 
+                                <span class="text-xs font-bold ${isMatched ? 'text-emerald-600 bg-emerald-500/20 px-2 py-0.5 rounded-md' : 'text-rose-500 bg-rose-500/20 px-2 py-0.5 rounded-md'}">
+                                    (割り振り計: ¥${allocatedSum.toLocaleString()} / 貯金: ¥${autoSaving.toLocaleString()})
+                                </span>
                             </h3>
                         </div>
                     </div>
@@ -1048,7 +1046,7 @@
                             <span>今月の貯金額（¥${autoSaving.toLocaleString()}）と口座割り振りの合計額（¥${allocatedSum.toLocaleString()}）が一致していません！ぴったり一致させてください。</span>
                         </div>
                     ` : `
-                        <div class="p-2 bg-emerald-500/20 text-emerald-600 text-xs font-bold rounded-xl flex items-center gap-2">
+                        <div class="p-2.5 bg-emerald-500/20 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-2">
                             <span>✅</span> 貯金額と口座割り振りの金額がぴったり一致しています！
                         </div>
                     `}
