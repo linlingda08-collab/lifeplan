@@ -212,7 +212,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（完全同系色グラデーション）
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（金額順アコーディオン・同系色グラデーション）
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -335,7 +335,7 @@
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
                     <div id="bank-accounts-manager" class="space-y-2 pt-1"></div>
                     <div class="flex gap-2 pt-2">
-                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名 (例: 楽天銀行)..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
+                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
                         <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
                     </div>
                 </div>
@@ -474,7 +474,7 @@
                 currentTheme: 'earth'
             },
             customThemes: [],
-            bankAccounts: [],
+            bankAccounts: ['貯金用(三菱UFJ銀行)', '生活用(三井住友銀行)', 'ゆとり用(イオン銀行)'],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
                 { id: 'rTrans', name: '🚆 ゲストA交通費' },
@@ -498,7 +498,7 @@
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: {} 
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, '生活用(三井住友銀行)': 100000, 'ゆとり用(イオン銀行)': 20000 } 
                 }
             ],
             events: []
@@ -600,6 +600,7 @@
             alert('🎉 オリジナル淡色テーマを保存・適用しました！');
         }
 
+        // 絵文字のみに反応するバリデーション付き支出追加フロー
         function startAddingExpense() {
             const nameInput = document.getElementById('new-expense-raw-name');
             const rawName = nameInput.value.trim();
@@ -608,20 +609,18 @@
                 return;
             }
 
-            const emojis = ['🍚', '🚆', '🏠', '🛒', '⚡', '🎓', '🐾', '➕', '📖', '💵', '💇', '📞', '☕', '👗', '💊', '✈️'];
-            let emojiChoice = prompt(`「${rawName}」に合わせる絵文字を選んでください（番号または直接入力）:\n` + emojis.map((e, i) => `${i+1}:${e}`).join(' '), '🍚');
+            let emojiInput = prompt('絵文字を入力してください。');
+            if (!emojiInput || !emojiInput.trim()) return;
             
-            let selectedEmoji = '🏷️';
-            if (emojiChoice) {
-                let idx = parseInt(emojiChoice, 10);
-                if (!isNaN(idx) && idx >= 1 && idx <= emojis.length) {
-                    selectedEmoji = emojis[idx - 1];
-                } else {
-                    selectedEmoji = emojiChoice.trim();
-                }
+            let emoji = emojiInput.trim();
+            // 絵文字が入力されているかどうかの判定（簡易絵文字チェッカー）
+            const emojiRegex = /(\p{Extended_Pictographic}|\p{Emoji_Component})/u;
+            if (!emojiRegex.test(emoji)) {
+                alert('❌ 絵文字を入力してください。');
+                return;
             }
 
-            const formattedName = `${selectedEmoji} ${rawName}`;
+            const formattedName = `${emoji} ${rawName}`;
             const id = 'exp_' + Date.now();
             appData.expenseCategories.push({ id, name: formattedName });
             appData.monthly.forEach(m => {
@@ -666,11 +665,13 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v24');
+            const saved = localStorage.getItem('lifeplan_data_earth_v25');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
-            if (!appData.bankAccounts) appData.bankAccounts = [];
+            if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
+                appData.bankAccounts = ['貯金用(三菱UFJ銀行)', '生活用(三井住友銀行)', 'ゆとり用(イオン銀行)'];
+            }
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
             if (!appData.customThemes) appData.customThemes = [];
 
@@ -689,7 +690,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v24', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v25', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
             renderCharts();
@@ -1070,11 +1071,11 @@
                     <div class="space-y-3">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2">
                             <h3 class="font-bold text-xs tracking-wider uppercase flex items-center gap-1.5">
-                                <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span> 支出項目（2段階追加フロー）
+                                <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span> 支出項目追加
                             </h3>
                             <div class="flex gap-2 w-full sm:w-auto">
-                                <input type="text" id="new-expense-raw-name" placeholder="項目名を入力 (例: カフェ)..." class="theme-card-sm border rounded-lg px-2.5 py-1 text-xs focus:outline-none">
-                                <button onclick="startAddingExpense()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加に進む</button>
+                                <input type="text" id="new-expense-raw-name" placeholder="項目名を入力..." class="theme-card-sm border rounded-lg px-2.5 py-1 text-xs focus:outline-none">
+                                <button onclick="startAddingExpense()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -1162,7 +1163,7 @@
             });
         }
 
-        // ================= 完全同系色のみで構成する美しい円グラフパレット生成 =================
+        // ================= 【案B】金額順アコーディオン・同系色グラデーションパレット生成 =================
         function hexToRgb(hex) {
             let num = parseInt(hex.replace("#",""), 16);
             return { r: (num >> 16), g: (num >> 8 & 0x00FF), b: (num & 0x0000FF) };
@@ -1214,17 +1215,17 @@
             return { r: r * 255, g: g * 255, b: b * 255 };
         }
 
-        // 色相（Hue）を一切変えず、明度と彩度だけの段階変化ですべてを同系色グラデーションにする
-        function generateStrictMonochromePalette(baseHex, count) {
+        // 金額の大きい順（上位）に最も濃い色を置き、順に明度差を大きく広げた同系色グラデーション配列を作成
+        function generateAccordionMonochromePalette(baseHex, count) {
             let rgb = hexToRgb(baseHex);
             let hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
             let palette = [];
 
             for (let i = 0; i < count; i++) {
-                // 色相(h)は固定。明度(l)と彩度(s)のみを段階的に変化させて美しい単一系統のグラデーションを作成
-                let factor = i / Math.max(count - 1, 1);
-                let newL = 30 + (factor * 45); // 30%（濃）から75%（淡）の間で滑らかに変化
-                let newS = Math.min(100, Math.max(25, hsl.s + ((i % 2 === 0 ? 5 : -5))));
+                let factor = count > 1 ? (i / (count - 1)) : 0;
+                // 上位（i=0）ほど濃く（明度低）、下位ほど淡く（明度高）しつつ、明度差を大きく広げる
+                let newL = 25 + (factor * 58); // 25%〜83%の広い範囲でグラデーション
+                let newS = Math.min(100, Math.max(25, hsl.s));
 
                 let newRgb = hslToRgb(hsl.h, newS, newL);
                 palette.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
@@ -1253,11 +1254,11 @@
                 rawItems.push({ label: cat.name, val });
                 totalExp += val;
             });
+            // 金額の高い順にソート
             rawItems.sort((a, b) => b.val - a.val);
 
-            // 完全に選択されたテーマカラーのみの同系色グラデーションパレットを適用
             const baseHex = activePrimary.startsWith('#') ? activePrimary : '#8c6d53';
-            const dynamicPalette = generateStrictMonochromePalette(baseHex, Math.max(rawItems.length, 5));
+            const dynamicPalette = generateAccordionMonochromePalette(baseHex, Math.max(rawItems.length, 5));
 
             pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
