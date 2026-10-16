@@ -60,7 +60,6 @@
                     <h1 class="text-sm sm:text-base font-bold text-[#3d312a] tracking-tight leading-tight">ライフプラン</h1>
                 </div>
             </div>
-            <!-- Hidden file input for header icon image upload -->
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-1.5 sm:space-x-2">
@@ -68,6 +67,7 @@
                     <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 bg-white text-[#8c6d53] shadow-xs cursor-pointer">ホーム</button>
                     <button onclick="switchTab('input')" id="btn-tab-input" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">毎月入力</button>
                     <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">グラフ</button>
+                    <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">推移設定</button>
                     <button onclick="switchTab('events')" id="btn-tab-events" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">予定</button>
                     <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">口座・NISA</button>
                 </nav>
@@ -96,10 +96,10 @@
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-2 sm:py-4">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-[#a3704c]/30 text-[#f4ede6] border border-[#c29b7a]/40 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[#8fb996]"></span> アースカラー・自然な家計管理
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#8fb996]"></span> 2026年11月(10/26スタート)・イベント費用連動グラフ
                     </span>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-[#e7dfd5] text-xs sm:text-sm font-normal drop-shadow">温かみのあるアースカラーで未来の資産をデザイン</p>
+                    <p class="text-[#e7dfd5] text-xs sm:text-sm font-normal drop-shadow">現金残高の推移と、予定されているイベント費用の必要額を同時に可視化</p>
                 </div>
             </div>
 
@@ -137,11 +137,11 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- 2036年以降も横スクロールで確認できる推移グラフ -->
+                <!-- 現金残高の推移 ＆ イベント費用複合グラフ -->
                 <div class="lg:col-span-2 glass-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-[#3d312a] text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-[#8c6d53]"></span> 現金残高の推移グラフ (2026年〜長期予測)
+                            <span class="w-2 h-2 rounded-full bg-[#8c6d53]"></span> 現金残高の推移 ＆ イベント必要費用 (複合グラフ)
                         </h3>
                         <span class="text-[10px] text-[#7d6b5d]">👉 横スクロール可能</span>
                     </div>
@@ -169,8 +169,8 @@
             <div class="glass-card p-4 sm:p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-[#e7dfd5] gap-3">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">毎月の収支・口座振り分け入力</h2>
-                        <p class="text-xs text-[#7d6b5d] mt-0.5">月を選択し、収入・支出（項目追加可能）および銀行口座への貯金割り振りを設定できます。</p>
+                        <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">毎月の収支・口座振り分け入力（実績・想定）</h2>
+                        <p class="text-xs text-[#7d6b5d] mt-0.5">ここで「実績」として入力された数値は、推移グラフの未来予測に自動反映されます。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="flex-grow sm:flex-initial bg-[#fbf7f4] hover:bg-[#eae0d5] border border-[#d6ccc2] rounded-xl px-3 py-2 text-xs font-semibold text-[#3d312a] transition cursor-pointer shadow-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></select>
@@ -228,13 +228,49 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS ================= -->
+        <!-- ================= TAB 4: SIMULATION & GRAPH SETTINGS ================= -->
+        <div id="tab-simulation" class="hidden space-y-6">
+            <div class="glass-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
+                <div class="border-b border-[#e7dfd5] pb-3">
+                    <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">推移グラフ設定・初期資産</h2>
+                    <p class="text-xs text-[#7d6b5d] mt-0.5">スタート時点（2026年11月）の初期現金残高や、標準の毎月貯金額などを自由に変更できます。</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                    <div class="glass-card-sm p-4 rounded-xl space-y-2">
+                        <label class="block font-semibold text-[#6b5b4f]">スタート時点の初期現金総額 (円)</label>
+                        <input type="number" id="sim-start-cash" value="3000000" onchange="saveSimulationSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 font-semibold text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                        <p class="text-[10px] text-[#7d6b5d]">2026年11月開始時点の銀行口座総資産のベースとなります。</p>
+                    </div>
+                    <div class="glass-card-sm p-4 rounded-xl space-y-2">
+                        <label class="block font-semibold text-[#6b5b4f]">将来の標準毎月貯金額 (円)</label>
+                        <input type="number" id="sim-default-monthly-save" value="50000" onchange="saveSimulationSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 font-semibold text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                        <p class="text-[10px] text-[#7d6b5d]">「毎月入力」にデータがない将来の月に適用される標準の毎月貯金ペースです。</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center justify-between pb-2 border-b border-[#e7dfd5]">
+                        <h3 class="font-bold text-xs text-[#5c4a3d] flex items-center gap-1.5">
+                            <span>📊</span> グラフ描画の仕組みについて
+                        </h3>
+                    </div>
+                    <p class="text-xs text-[#6b5b4f] leading-relaxed">
+                        ・<strong>2026年11月（スタート）</strong>の残高を起点に計算が始まります。<br>
+                        ・折れ線グラフで「現金残高の推移」を、棒グラフで「その月に必要なイベント費用」を同時に表示します。<br>
+                        ・「予定」タブで追加・変更したイベント費用がリアルタイムに棒グラフに反映されます。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="glass-card p-4 sm:p-6 rounded-2xl space-y-6" onclick="event.stopPropagation()">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-[#e7dfd5] gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">今後の予定（ライフイベント）</h2>
-                        <p class="text-xs text-[#7d6b5d] mt-0.5">Geminiの回答を貼り付けて自動で予定を反映するか、手動で追加できます。</p>
+                        <p class="text-xs text-[#7d6b5d] mt-0.5">登録したイベントの時期と費用は、いつでも自由に変更でき、ホームの複合グラフに自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                         <button onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial bg-[#a3704c] hover:bg-[#8c5e3e] active:scale-95 text-white text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
@@ -282,7 +318,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: ACCOUNTS & NISA ================= -->
+        <!-- ================= TAB 6: ACCOUNTS & NISA ================= -->
         <div id="tab-nisa" class="hidden space-y-6">
             <div class="glass-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-[#e7dfd5] pb-3">
@@ -374,7 +410,9 @@
                 years: 38, 
                 heroBg: '', 
                 headerIcon: '🌰',
-                headerIconType: 'emoji' // 'emoji' or 'image'
+                headerIconType: 'emoji',
+                startCash: 3000000,
+                defaultMonthlySave: 50000
             },
             bankAccounts: [],
             expenseCategories: [
@@ -399,7 +437,7 @@
                     month: '2026-11', type: '想定', 
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)',
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
                     bankAllocations: {} 
                 }
             ],
@@ -440,7 +478,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v13');
+            const saved = localStorage.getItem('lifeplan_data_earth_v15');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -459,6 +497,8 @@
             }
             if (!appData.settings.headerIcon) appData.settings.headerIcon = '🌰';
             if (!appData.settings.headerIconType) appData.settings.headerIconType = 'emoji';
+            if (appData.settings.startCash === undefined) appData.settings.startCash = 3000000;
+            if (appData.settings.defaultMonthlySave === undefined) appData.settings.defaultMonthlySave = 50000;
             if (!appData.events) appData.events = [];
             
             appData.monthly.forEach(m => {
@@ -494,7 +534,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v13', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v15', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
             renderCharts();
@@ -598,6 +638,11 @@
             document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa;
             document.getElementById('setting-years').value = appData.settings.years;
             
+            const startCashEl = document.getElementById('sim-start-cash');
+            const defaultSaveEl = document.getElementById('sim-default-monthly-save');
+            if (startCashEl) startCashEl.value = appData.settings.startCash;
+            if (defaultSaveEl) defaultSaveEl.value = appData.settings.defaultMonthlySave;
+
             const realNisaEl = document.getElementById('nisa-real-accumulated');
             if (realNisaEl) {
                 realNisaEl.innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
@@ -608,6 +653,12 @@
             appData.settings.age = Number(document.getElementById('setting-age').value);
             appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
             appData.settings.years = Number(document.getElementById('setting-years').value);
+            saveStorage();
+        }
+
+        function saveSimulationSettings() {
+            appData.settings.startCash = Number(document.getElementById('sim-start-cash').value);
+            appData.settings.defaultMonthlySave = Number(document.getElementById('sim-default-monthly-save').value);
             saveStorage();
         }
 
@@ -749,7 +800,7 @@
         }
 
         function switchTab(tabId) {
-            const tabs = ['dashboard', 'input', 'charts', 'events', 'nisa'];
+            const tabs = ['dashboard', 'input', 'charts', 'simulation', 'events', 'nisa'];
             tabs.forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
                 const btnEl = document.getElementById('btn-tab-' + id);
@@ -774,6 +825,8 @@
             } else if (tabId === 'charts') {
                 updatePieSelector();
                 renderPieChart();
+            } else if (tabId === 'simulation') {
+                syncSettingsToUI();
             } else if (tabId === 'nisa') {
                 syncSettingsToUI();
                 renderBankAccountsManager();
@@ -920,7 +973,7 @@
                         <label class="block text-[11px] font-semibold text-[#7d6b5d] uppercase tracking-wider mb-1">区分</label>
                         <select onchange="updateMonthField('type', this.value)" class="w-full bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none cursor-pointer">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
-                            <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (グラフに反映)</option>
                         </select>
                     </div>
                     <div>
@@ -1361,7 +1414,6 @@
                 }
                 const surplus = inc - exp;
 
-                // 各銀行口座のトータル累積額を計算
                 let bankTotals = {};
                 appData.bankAccounts.forEach(b => bankTotals[b] = 0);
                 
@@ -1377,6 +1429,9 @@
 
                 let totalBankAssets = 0;
                 for (let amt of Object.values(bankTotals)) totalBankAssets += amt;
+                if (totalBankAssets === 0) {
+                    totalBankAssets = appData.settings.startCash || 3000000;
+                }
 
                 const curSaveEl = document.getElementById('kpi-current-saving');
                 const incEl = document.getElementById('kpi-monthly-income');
@@ -1397,10 +1452,9 @@
                     for (let [bName, bVal] of Object.entries(bankTotals)) {
                         bHtml += `<div class="flex justify-between"><span>・${bName}:</span><span class="font-bold">¥${bVal.toLocaleString()}</span></div>`;
                     }
-                    homeBankEl.innerHTML = bHtml || '<span class="text-[10px] text-[#7d6b5d]">口座が未登録です</span>';
+                    homeBankEl.innerHTML = bHtml || '<span class="text-[10px] text-[#7d6b5d]">初期設定額: ¥' + (appData.settings.startCash||3000000).toLocaleString() + '</span>';
                 }
 
-                // 直近2ヶ月の情報を取得・表示（現在の編集月より前の1ヶ月分＋現在の月）
                 let recentMonths = [];
                 if (appData.monthly.length > 0) {
                     let curIdx = currentEditingIndex;
@@ -1443,28 +1497,104 @@
             }
         }
 
+        // ================= 複合グラフ（現金推移 折れ線 ＆ イベント費用 棒グラフ） =================
         function renderCharts() {
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 const ctx1 = chart1El.getContext('2d');
                 if (cashChart) cashChart.destroy();
+
+                let labels = [];
+                let balanceDataValues = [];
+                let eventCostDataValues = [];
+
+                let startCash = Number(appData.settings.startCash || 3000000);
+                let defaultSave = Number(appData.settings.defaultMonthlySave || 50000);
+
+                let currentYear = 2026;
+                let currentMonth = 11; // 2026年11月スタート
+                let runningBalance = startCash;
+
+                // 2026年11月から今後60ヶ月（5年間分）の月次データを自動生成
+                for (let i = 0; i < 60; i++) {
+                    const mm = String(currentMonth).padStart(2, '0');
+                    const yyyymm = `${currentYear}-${mm}`;
+                    labels.push(`${currentYear}年${currentMonth}月`);
+
+                    // 1. 毎月入力のデータ取得
+                    let matchedMonth = appData.monthly.find(m => m.month === yyyymm);
+                    let monthlySaving = defaultSave;
+
+                    if (matchedMonth) {
+                        let inc = (matchedMonth.rIncome || 0) + (matchedMonth.hIncome || 0);
+                        let exp = 0;
+                        if (matchedMonth.expenses) {
+                            for (let v of Object.values(matchedMonth.expenses)) exp += Number(v || 0);
+                        }
+                        monthlySaving = inc - exp;
+                    }
+
+                    // 2. イベント費用の取得
+                    let eventCostThisMonth = 0;
+                    appData.events.forEach(ev => {
+                        if (ev.date === yyyymm) {
+                            eventCostThisMonth += Number(ev.cost || 0);
+                        }
+                    });
+
+                    runningBalance += monthlySaving - eventCostThisMonth;
+                    balanceDataValues.push(Math.round(runningBalance / 10000)); // 万円
+                    eventCostDataValues.push(Math.round(eventCostThisMonth / 10000)); // 万円
+
+                    currentMonth++;
+                    if (currentMonth > 12) {
+                        currentMonth = 1;
+                        currentYear++;
+                    }
+                }
+
                 cashChart = new Chart(ctx1, {
-                    type: 'line',
+                    type: 'bar', // ベースをバー（棒グラフ）にしつつ折れ線を混在させる
                     data: {
-                        labels: ['2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033', '2034', '2035', '2036', '2037', '2038', '2039', '2040', '2045', '2050'],
-                        datasets: [{
-                            label: '現金残高 (万円)',
-                            data: [300, 240, 280, 250, 310, 350, 400, 450, 320, 400, 480, 530, 590, 650, 720, 950, 1200],
-                            borderColor: '#8c6d53',
-                            backgroundColor: 'rgba(140, 109, 83, 0.08)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.35,
-                            pointBackgroundColor: '#8c6d53',
-                            pointHoverRadius: 6
-                        }]
+                        labels: labels,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: '現金残高 (万円)',
+                                data: balanceDataValues,
+                                borderColor: '#8c6d53',
+                                backgroundColor: 'rgba(140, 109, 83, 0.08)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.35,
+                                pointBackgroundColor: '#8c6d53',
+                                pointHoverRadius: 6,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'bar',
+                                label: 'イベント費用 (万円)',
+                                data: eventCostDataValues,
+                                backgroundColor: '#b87d4b',
+                                borderRadius: 4,
+                                yAxisID: 'y'
+                            }
+                        ]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                ticks: {
+                                    callback: function(value) { return value + '万円'; }
+                                }
+                            }
+                        }
+                    }
                 });
             }
 
@@ -1480,15 +1610,15 @@
                 nisaChart = new Chart(ctx2, {
                     type: 'line',
                     data: {
-                        labels: ['現在(実績)', '5年後', '10年後', '20年後', '38年後'],
+                        labels: ['現在(実績)', '1年後', '3年後', '5年後', '10年後'],
                         datasets: [{
                             label: 'NISA資産予測 (万円)',
                             data: [
                                 Math.round(curNisaMan), 
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 1 * 1.05), 
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 3 * 1.1), 
                                 Math.round(curNisaMan + monthlyNisaMan * 12 * 5 * 1.15), 
-                                Math.round(curNisaMan + monthlyNisaMan * 12 * 10 * 1.35), 
-                                Math.round(curNisaMan + monthlyNisaMan * 12 * 20 * 1.8), 
-                                Math.round(curNisaMan + monthlyNisaMan * 12 * 38 * 2.5)
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 10 * 1.35)
                             ],
                             borderColor: '#5e7862',
                             backgroundColor: 'rgba(94, 120, 98, 0.08)',
