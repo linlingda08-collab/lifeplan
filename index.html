@@ -122,10 +122,10 @@
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-2 sm:py-4">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-white/20 text-white border border-white/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2026年11月(10/26スタート)・完全版
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2026年11月(10/26スタート)・完全同系色グラデーション版
                     </span>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">全タブ動作確認済み・淡色テーマ連動版</p>
+                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">テーマカラー連動のスマートな同系色グラデーション円グラフ</p>
                 </div>
             </div>
 
@@ -215,7 +215,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（同系グラデーション連動）
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（同系色グラデーション連動）
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -607,7 +607,6 @@
                 return;
             }
 
-            // 絵文字選択モーダルを表示または簡易プロンプトで絵文字選択
             const emojis = ['🍚', '🚆', '🏠', '🛒', '⚡', '🎓', '🐾', '➕', '📖', '💵', '💇', '📞', '☕', '👗', '💊', '✈️'];
             let emojiChoice = prompt(`「${rawName}」に合わせる絵文字を選んでください（番号または直接入力）:\n` + emojis.map((e, i) => `${i+1}:${e}`).join(' '), '🍚');
             
@@ -666,7 +665,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v22');
+            const saved = localStorage.getItem('lifeplan_data_earth_v23');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -689,7 +688,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v22', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v23', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
             renderCharts();
@@ -1160,7 +1159,79 @@
             });
         }
 
-        // ================= 円グラフ (選択テーマカラー基調の同系グラデーション連動) =================
+        // ================= 色被りしないスマートな同系色グラデーションパレット生成 =================
+        function hexToRgb(hex) {
+            let num = parseInt(hex.replace("#",""), 16);
+            return { r: (num >> 16), g: (num >> 8 & 0x00FF), b: (num & 0x0000FF) };
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0;
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch(max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: h * 360, s: s * 100, l: l * 100 };
+        }
+
+        function hslToRgb(h, s, l) {
+            h /= 360; s /= 100; l /= 100;
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                let hue2rgb = function(p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                let p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+
+        // テーマカラーを起点に、色相と明度を巧みにずらして絶対に色がかぶらない美しい同系グラデーション配列を作る
+        function generateHarmoniousPalette(baseHex, count) {
+            let rgb = hexToRgb(baseHex);
+            let hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            let palette = [];
+
+            for (let i = 0; i < count; i++) {
+                // 色相を少しずつずらしつつ（±20度以内）、明度や彩度をきれいに段階変化させて重複を防ぐ
+                let hueShift = (i * (35 / Math.max(count, 1))) - 15;
+                let newH = (hsl.h + hueShift + 360) % 360;
+                
+                // 項目ごとに見やすいように明度と彩度を綺麗に分散
+                let newS = Math.min(100, Math.max(30, hsl.s + (i % 2 === 0 ? 10 : -10)));
+                let newL = Math.min(78, Math.max(32, 45 + ((i % 4) * 8) - (i * 1.5)));
+
+                let newRgb = hslToRgb(newH, newS, newL);
+                palette.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
+            }
+            return palette;
+        }
+
         function renderPieChart() {
             const selector = document.getElementById('pie-month-selector');
             if (!selector) return;
@@ -1184,17 +1255,9 @@
             });
             rawItems.sort((a, b) => b.val - a.val);
 
-            // 選択されたテーマカラーを基準に、美しく調色された同系トーンのグラデーションパレットを生成
+            // 選択されたテーマカラー（紫なら紫系、青なら青系）をベースにした色かぶりなしの同系グラデーション
             const baseHex = activePrimary.startsWith('#') ? activePrimary : '#8c6d53';
-            const dynamicPalette = [
-                baseHex, 
-                shadeColor(baseHex, 20), 
-                shadeColor(baseHex, 40), 
-                shadeColor(baseHex, -20), 
-                shadeColor(baseHex, -40),
-                '#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#8b5cf6', 
-                '#14b8a6', '#f43f5e', '#84cc16', '#6366f1', '#06b6d4'
-            ];
+            const dynamicPalette = generateHarmoniousPalette(baseHex, Math.max(rawItems.length, 5));
 
             pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
@@ -1242,16 +1305,6 @@
                     }
                 });
             }
-        }
-
-        // カラーコードの明度を調整して同系グラデーションを作る補助関数
-        function shadeColor(color, percent) {
-            let num = parseInt(color.replace("#",""), 16);
-            let amt = Math.round(2.55 * percent);
-            let R = (num >> 16) + amt;
-            let G = (num >> 8 & 0x00FF) + amt;
-            let B = (num & 0x0000FF) + amt;
-            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
         }
 
         function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
