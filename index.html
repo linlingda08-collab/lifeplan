@@ -94,8 +94,9 @@
                     <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">グラフ</button>
                     <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">推移設定</button>
                     <button onclick="switchTab('events')" id="btn-tab-events" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">予定</button>
-                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">口座・NISA</button>
-                    <button onclick="switchTab('theme')" id="btn-tab-theme" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">🎨 カラーテーマ</button>
+                    <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">口座</button>
+                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">NISA</button>
+                    <button onclick="switchTab('theme')" id="btn-tab-theme" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">🎨 テーマ</button>
                 </nav>
                 <button onclick="openSyncModal()" class="theme-primary-bg px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
                     <span>🔄</span> <span class="hidden sm:inline">同期</span>
@@ -120,12 +121,8 @@
                         <input type="file" id="hero-bg-input" accept="image/*" onchange="changeHeroBackground(event)" class="hidden">
                     </label>
                 </div>
-                <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-2 sm:py-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-white/20 text-white border border-white/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2026年11月(10/26スタート)・完全同系色グラデーション版
-                    </span>
-                    <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">テーマカラー連動のスマートな同系色グラデーション円グラフ</p>
+                <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4 sm:py-6">
+                    <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプランシミュレーション</h2>
                 </div>
             </div>
 
@@ -215,7 +212,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（同系色グラデーション連動）
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（完全同系色グラデーション）
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -327,27 +324,33 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: ACCOUNTS & NISA ================= -->
-        <div id="tab-nisa" class="hidden space-y-6">
+        <!-- ================= TAB 6: ACCOUNTS (独立) ================= -->
+        <div id="tab-accounts" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">口座・NISA管理</h2>
-                    <p class="text-xs opacity-70 mt-0.5">銀行口座（お金の置き場所）の管理やNISAシミュレーション設定を行います。</p>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座（お金の置き場所）の管理</h2>
+                    <p class="text-xs opacity-70 mt-0.5">資産を管理する銀行口座や財布の追加・名前変更を行います。</p>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>🏦</span> 銀行口座（お金の置き場所）の管理
-                    </h3>
                     <div id="bank-accounts-manager" class="space-y-2 pt-1"></div>
                     <div class="flex gap-2 pt-2">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名 (例: 楽天銀行)..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
                         <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 7: NISA (独立) ================= -->
+        <div id="tab-nisa" class="hidden space-y-6">
+            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
+                <div class="border-b border-current/10 pb-3">
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">NISA管理・シミュレーション</h2>
+                    <p class="text-xs opacity-70 mt-0.5">NISAの積立設定や運用期間、資産推移の確認を行います。</p>
+                </div>
                 
                 <div class="space-y-4 text-xs sm:text-sm pt-2">
-                    <h3 class="font-bold text-xs">📈 NISA基本設定</h3>
                     <div>
                         <label class="block font-semibold opacity-80 mb-1.5">現在の年齢</label>
                         <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
@@ -370,7 +373,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 7: FULL APP THEMES & BUILDER ================= -->
+        <!-- ================= TAB 8: FULL APP THEMES & BUILDER ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -506,7 +509,6 @@
         let pieChart = null;
         let currentEditingIndex = 0;
 
-        // 全10種類のプリセットテーマ（背景はすべて上品で淡いニュアンスカラー）
         const presetThemes = {
             earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46' },
             midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155' },
@@ -598,7 +600,6 @@
             alert('🎉 オリジナル淡色テーマを保存・適用しました！');
         }
 
-        // 支出項目の追加：①名称入力後、②絵文字選択へ進む2段階フロー
         function startAddingExpense() {
             const nameInput = document.getElementById('new-expense-raw-name');
             const rawName = nameInput.value.trim();
@@ -665,7 +666,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v23');
+            const saved = localStorage.getItem('lifeplan_data_earth_v24');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -688,7 +689,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v23', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v24', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
             renderCharts();
@@ -855,7 +856,7 @@
         }
 
         function switchTab(tabId) {
-            ['dashboard', 'input', 'charts', 'simulation', 'events', 'nisa', 'theme'].forEach(id => {
+            ['dashboard', 'input', 'charts', 'simulation', 'events', 'accounts', 'nisa', 'theme'].forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
                 const btnEl = document.getElementById('btn-tab-' + id);
                 if (tabEl) tabEl.classList.add('hidden');
@@ -877,6 +878,8 @@
             if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
             else if (tabId === 'simulation') { syncSettingsToUI(); }
+            else if (tabId === 'nisa') { syncSettingsToUI(); }
+            else if (tabId === 'accounts') { renderBankAccountsManager(); }
             else if (tabId === 'theme') { renderPresetThemesSelector(); }
         }
 
@@ -950,7 +953,7 @@
 
             let banksHtml = '';
             if (appData.bankAccounts.length === 0) {
-                banksHtml = `<p class="text-xs opacity-70 col-span-full text-center py-2">銀行口座が登録されていません。「口座・NISA」タブから口座を追加してください。</p>`;
+                banksHtml = `<p class="text-xs opacity-70 col-span-full text-center py-2">銀行口座が登録されていません。「口座」タブから口座を追加してください。</p>`;
             } else {
                 appData.bankAccounts.forEach(b => {
                     banksHtml += `
@@ -1159,7 +1162,7 @@
             });
         }
 
-        // ================= 色被りしないスマートな同系色グラデーションパレット生成 =================
+        // ================= 完全同系色のみで構成する美しい円グラフパレット生成 =================
         function hexToRgb(hex) {
             let num = parseInt(hex.replace("#",""), 16);
             return { r: (num >> 16), g: (num >> 8 & 0x00FF), b: (num & 0x0000FF) };
@@ -1211,22 +1214,19 @@
             return { r: r * 255, g: g * 255, b: b * 255 };
         }
 
-        // テーマカラーを起点に、色相と明度を巧みにずらして絶対に色がかぶらない美しい同系グラデーション配列を作る
-        function generateHarmoniousPalette(baseHex, count) {
+        // 色相（Hue）を一切変えず、明度と彩度だけの段階変化ですべてを同系色グラデーションにする
+        function generateStrictMonochromePalette(baseHex, count) {
             let rgb = hexToRgb(baseHex);
             let hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
             let palette = [];
 
             for (let i = 0; i < count; i++) {
-                // 色相を少しずつずらしつつ（±20度以内）、明度や彩度をきれいに段階変化させて重複を防ぐ
-                let hueShift = (i * (35 / Math.max(count, 1))) - 15;
-                let newH = (hsl.h + hueShift + 360) % 360;
-                
-                // 項目ごとに見やすいように明度と彩度を綺麗に分散
-                let newS = Math.min(100, Math.max(30, hsl.s + (i % 2 === 0 ? 10 : -10)));
-                let newL = Math.min(78, Math.max(32, 45 + ((i % 4) * 8) - (i * 1.5)));
+                // 色相(h)は固定。明度(l)と彩度(s)のみを段階的に変化させて美しい単一系統のグラデーションを作成
+                let factor = i / Math.max(count - 1, 1);
+                let newL = 30 + (factor * 45); // 30%（濃）から75%（淡）の間で滑らかに変化
+                let newS = Math.min(100, Math.max(25, hsl.s + ((i % 2 === 0 ? 5 : -5))));
 
-                let newRgb = hslToRgb(newH, newS, newL);
+                let newRgb = hslToRgb(hsl.h, newS, newL);
                 palette.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
             }
             return palette;
@@ -1255,9 +1255,9 @@
             });
             rawItems.sort((a, b) => b.val - a.val);
 
-            // 選択されたテーマカラー（紫なら紫系、青なら青系）をベースにした色かぶりなしの同系グラデーション
+            // 完全に選択されたテーマカラーのみの同系色グラデーションパレットを適用
             const baseHex = activePrimary.startsWith('#') ? activePrimary : '#8c6d53';
-            const dynamicPalette = generateHarmoniousPalette(baseHex, Math.max(rawItems.length, 5));
+            const dynamicPalette = generateStrictMonochromePalette(baseHex, Math.max(rawItems.length, 5));
 
             pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
