@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for image export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
@@ -189,7 +191,7 @@
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
         <div id="tab-input" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">毎月の収支計算</h2>
                         <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していると確定できます。</p>
@@ -202,7 +204,17 @@
                     </div>
                 </div>
 
-                <div id="month-editor-container" class="space-y-6"></div>
+                <!-- 1枚の画像として書き出すエリア -->
+                <div id="monthly-export-card" class="space-y-6 p-4 sm:p-6 rounded-2xl theme-card border">
+                    <div id="month-editor-container" class="space-y-6"></div>
+                </div>
+
+                <!-- 画像書き出しボタン -->
+                <div class="flex justify-end no-print pt-2">
+                    <button onclick="exportMonthlyCardAsImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <span>📸</span> この月の収支を1枚の画像として保存
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -329,13 +341,14 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理</h2>
-                    <p class="text-xs opacity-70 mt-0.5">資産を管理する銀行口座や財布の追加・名前変更を行います。</p>
+                    <p class="text-xs opacity-70 mt-0.5">資産を管理する銀行口座や財布の追加・初期残高の設定を行います。</p>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <div id="bank-accounts-manager" class="space-y-2 pt-1"></div>
-                    <div class="flex gap-2 pt-2">
+                    <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
+                    <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
+                        <input type="number" id="new-bank-account-balance" placeholder="初期残高(円)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
                         <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
                     </div>
                 </div>
@@ -476,7 +489,10 @@
                 currentTheme: 'earth'
             },
             customThemes: [],
-            bankAccounts: ['貯金用(三菱UFJ銀行)', 'ゆとり用(イオン銀行)'],
+            bankAccounts: [
+                { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
+                { name: 'ゆとり用(イオン銀行)', initialBalance: 0 }
+            ],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
                 { id: 'rTrans', name: '🚆 ゲストA交通費' },
@@ -500,7 +516,8 @@
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000 } 
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000 },
+                    transfers: [] // 口座間移動データ: [{from: 'ゆとり用(イオン銀行)', to: '貯金用(三菱UFJ銀行)', amount: 20000}]
                 }
             ],
             events: []
@@ -523,6 +540,18 @@
             lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
+
+        function getAccountNames() {
+            return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
+        }
+
+        function getAccountInitialBalance(accName) {
+            const found = appData.bankAccounts.find(acc => (typeof acc === 'object' && acc.name === accName) || acc === accName);
+            if (found && typeof found === 'object' && found.initialBalance !== undefined) {
+                return Number(found.initialBalance) || 0;
+            }
+            return 0;
+        }
 
         function applyTheme(themeKey) {
             appData.settings.currentTheme = themeKey;
@@ -675,9 +704,19 @@
             }
             
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
-                appData.bankAccounts = ['貯金用(三菱UFJ銀行)', 'ゆとり用(イオン銀行)'];
+                appData.bankAccounts = [
+                    { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
+                    { name: 'ゆとり用(イオン銀行)', initialBalance: 0 }
+                ];
             } else {
-                appData.bankAccounts = appData.bankAccounts.filter(b => !b.includes('生活用'));
+                appData.bankAccounts = appData.bankAccounts.map(acc => {
+                    if (typeof acc === 'string') {
+                        if (acc.includes('貯金用')) return { name: acc, initialBalance: 3000000 };
+                        return { name: acc, initialBalance: 0 };
+                    }
+                    return acc;
+                });
+                appData.bankAccounts = appData.bankAccounts.filter(acc => !acc.name.includes('生活用'));
             }
 
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
@@ -807,34 +846,60 @@
                 return;
             }
             appData.bankAccounts.forEach((acc, i) => {
+                const name = typeof acc === 'string' ? acc : acc.name;
+                const balance = typeof acc === 'object' && acc.initialBalance !== undefined ? acc.initialBalance : 0;
                 const div = document.createElement('div');
-                div.className = "flex items-center justify-between theme-card-sm p-2.5 rounded-xl border text-xs font-semibold gap-2";
+                div.className = "flex flex-col sm:flex-row items-center justify-between theme-card-sm p-3 rounded-xl border text-xs font-semibold gap-2";
                 div.innerHTML = `
-                    <div class="flex items-center gap-2 flex-grow">
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-grow">
                         <span>🏦</span>
-                        <input type="text" value="${acc}" onchange="renameBankAccount(${i}, this.value)" class="flex-grow theme-card-sm rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none border">
+                        <input type="text" value="${name}" onchange="updateBankAccountName(${i}, this.value)" class="flex-grow theme-card-sm rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none border">
                     </div>
-                    <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0">削除</button>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <span class="opacity-70 text-[11px]">初期残高:</span>
+                        <input type="number" value="${balance}" onchange="updateBankAccountBalance(${i}, Number(this.value))" class="w-28 theme-card-sm rounded-lg px-2 py-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        <span class="opacity-70 text-[11px]">円</span>
+                        <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2">削除</button>
+                    </div>
                 `;
                 container.appendChild(div);
             });
         }
 
         function addNewBankAccount() {
-            const input = document.getElementById('new-bank-account-name');
-            const name = input.value.trim();
+            const nameInput = document.getElementById('new-bank-account-name');
+            const balanceInput = document.getElementById('new-bank-account-balance');
+            const name = nameInput.value.trim();
+            const initialBalance = Number(balanceInput.value) || 0;
             if (!name) return;
-            appData.bankAccounts.push(name);
-            input.value = '';
+            
+            appData.bankAccounts.push({ name, initialBalance });
+            nameInput.value = '';
+            balanceInput.value = '';
             saveStorage();
             renderBankAccountsManager();
             updateCalculations();
         }
 
-        function renameBankAccount(index, newName) {
-            appData.bankAccounts[index] = newName.trim();
+        function updateBankAccountName(index, newName) {
+            if (typeof appData.bankAccounts[index] === 'string') {
+                appData.bankAccounts[index] = { name: newName.trim(), initialBalance: 0 };
+            } else {
+                appData.bankAccounts[index].name = newName.trim();
+            }
             saveStorage();
             renderBankAccountsManager();
+        }
+
+        function updateBankAccountBalance(index, newBalance) {
+            if (typeof appData.bankAccounts[index] === 'string') {
+                appData.bankAccounts[index] = { name: appData.bankAccounts[index], initialBalance: newBalance };
+            } else {
+                appData.bankAccounts[index].initialBalance = newBalance;
+            }
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
         }
 
         function removeBankAccount(index) {
@@ -912,25 +977,46 @@
 
         function addNewMonthByDropdown() {
             let lastMonthStr = "2026-11";
-            if (appData.monthly.length > 0) lastMonthStr = appData.monthly[appData.monthly.length - 1].month;
+            let lastMonthData = null;
+            if (appData.monthly.length > 0) {
+                lastMonthData = appData.monthly[appData.monthly.length - 1];
+                lastMonthStr = lastMonthData.month;
+            }
+
             let [y, m] = lastMonthStr.split('-').map(Number);
             m += 1;
             if (m > 12) { m = 1; y++; }
             const newMonth = `${y}-${String(m).padStart(2, '0')}`;
 
             let newExpenses = {};
-            appData.expenseCategories.forEach(cat => newExpenses[cat.id] = 0);
+            appData.expenseCategories.forEach(cat => {
+                newExpenses[cat.id] = lastMonthData && lastMonthData.expenses ? (lastMonthData.expenses[cat.id] || 0) : 0;
+            });
+
             let newBankAllocs = {};
-            appData.bankAccounts.forEach(b => newBankAllocs[b] = 0);
+            getAccountNames().forEach(b => {
+                newBankAllocs[b] = lastMonthData && lastMonthData.bankAllocations ? (lastMonthData.bankAllocations[b] || 0) : 0;
+            });
 
             appData.monthly.push({ 
-                month: newMonth, type: '想定', rIncome: 200000, hIncome: 195000, 
-                expenses: newExpenses, nisa: 30000, bonus: 0, extraInc: 0, memo: '', bankAllocations: newBankAllocs 
+                month: newMonth, 
+                type: '想定', 
+                rIncome: lastMonthData ? (lastMonthData.rIncome || 0) : 200000, 
+                hIncome: lastMonthData ? (lastMonthData.hIncome || 0) : 195000, 
+                expenses: newExpenses, 
+                nisa: lastMonthData && lastMonthData.nisa !== undefined ? lastMonthData.nisa : 30000, 
+                bonus: 0, 
+                extraInc: 0, 
+                memo: '', 
+                bankAllocations: newBankAllocs,
+                transfers: []
             });
+
             currentEditingIndex = appData.monthly.length - 1;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
+            alert(`🎉 ${newMonth} のデータを追加しました（先月の数値を自動引き継ぎました）！`);
         }
 
         function deleteMonth(index) {
@@ -940,6 +1026,38 @@
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
+        }
+
+        // 口座間移動の追加・削除用関数
+        function addTransferRow() {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.transfers) m.transfers = [];
+            const accNames = getAccountNames();
+            if (accNames.length < 2) {
+                alert('口座が2つ以上登録されている必要があります。');
+                return;
+            }
+            m.transfers.push({ from: accNames[0], to: accNames[1], amount: 10000 });
+            saveStorage();
+            renderMonthEditor();
+        }
+
+        function updateTransferField(tIdx, field, val) {
+            const m = appData.monthly[currentEditingIndex];
+            if (m.transfers && m.transfers[tIdx]) {
+                m.transfers[tIdx][field] = val;
+                saveStorage();
+                renderMonthEditor();
+            }
+        }
+
+        function removeTransferRow(tIdx) {
+            const m = appData.monthly[currentEditingIndex];
+            if (m.transfers) {
+                m.transfers.splice(tIdx, 1);
+                saveStorage();
+                renderMonthEditor();
+            }
         }
 
         function renderMonthEditor() {
@@ -957,16 +1075,29 @@
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             if (!m.bankAllocations) m.bankAllocations = {};
+            if (!m.transfers) m.transfers = [];
+
+            // 口座間移動による増減を各口座の割り当てに反映してチェックする
+            let effectiveAllocations = {};
+            getAccountNames().forEach(b => effectiveAllocations[b] = Number(m.bankAllocations[b] || 0));
+
+            m.transfers.forEach(tr => {
+                let amt = Number(tr.amount || 0);
+                if (effectiveAllocations[tr.from] !== undefined) effectiveAllocations[tr.from] -= amt;
+                if (effectiveAllocations[tr.to] !== undefined) effectiveAllocations[tr.to] += amt;
+            });
+
             let allocatedSum = 0;
-            appData.bankAccounts.forEach(b => allocatedSum += Number(m.bankAllocations[b] || 0));
+            getAccountNames().forEach(b => allocatedSum += effectiveAllocations[b]);
 
             const isMatched = (allocatedSum === autoSaving);
 
             let banksHtml = '';
-            if (appData.bankAccounts.length === 0) {
+            const accountNames = getAccountNames();
+            if (accountNames.length === 0) {
                 banksHtml = `<p class="text-xs opacity-70 col-span-full text-center py-2">銀行口座が登録されていません。「口座」タブから口座を追加してください。</p>`;
             } else {
-                appData.bankAccounts.forEach(b => {
+                accountNames.forEach(b => {
                     banksHtml += `
                         <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
                             <span class="font-semibold text-xs">🏦 ${b}</span>
@@ -976,12 +1107,36 @@
                 });
             }
 
+            // 口座間移動UI
+            let transfersHtml = '';
+            m.transfers.forEach((tr, tIdx) => {
+                let opts = '';
+                accountNames.forEach(acc => {
+                    opts += `<option value="${acc}" ${acc===tr.from?'selected':''}>${acc}</option>`;
+                });
+                let optsTo = '';
+                accountNames.forEach(acc => {
+                    optsTo += `<option value="${acc}" ${acc===tr.to?'selected':''}>${acc}</option>`;
+                });
+
+                transfersHtml += `
+                    <div class="flex items-center gap-2 theme-card-sm p-2.5 rounded-xl border text-xs">
+                        <select onchange="updateTransferField(${tIdx}, 'from', this.value)" class="theme-card-sm rounded-lg p-1 border font-semibold">${opts}</select>
+                        <span>➔</span>
+                        <select onchange="updateTransferField(${tIdx}, 'to', this.value)" class="theme-card-sm rounded-lg p-1 border font-semibold">${optsTo}</select>
+                        <input type="number" value="${tr.amount}" onchange="updateTransferField(${tIdx}, 'amount', Number(this.value))" class="w-24 theme-card-sm rounded-lg p-1 text-right font-semibold border" placeholder="金額">
+                        <span class="text-[10px]">円</span>
+                        <button onclick="removeTransferRow(${tIdx})" class="text-rose-500 font-bold ml-auto cursor-pointer">×</button>
+                    </div>
+                `;
+            });
+
             let expensesHtml = '';
             appData.expenseCategories.forEach(cat => {
                 expensesHtml += `
                     <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between gap-2 border">
                         <div class="flex items-center gap-1.5 truncate">
-                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0">×</button>
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print">×</button>
                             <span class="text-xs font-semibold truncate">${cat.name}</span>
                         </div>
                         <input type="number" value="${m.expenses[cat.id] || 0}" onchange="updateExpenseField('${cat.id}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
@@ -990,7 +1145,7 @@
             });
 
             container.innerHTML = `
-                <div class="theme-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border">
+                <div class="theme-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print">
                     <div>
                         <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">年月</label>
                         <select onchange="updateMonthField('month', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
@@ -1011,6 +1166,10 @@
                     <div class="flex justify-end sm:justify-start items-end">
                         <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition border border-rose-500/30 cursor-pointer">削除</button>
                     </div>
+                </div>
+
+                <div class="text-center font-bold text-sm sm:text-base pb-2 border-b border-current/10">
+                    📅 ${m.month} の収支計算 (${m.type})
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 theme-card-sm p-4 rounded-xl border text-center">
@@ -1054,6 +1213,17 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
                         ${banksHtml}
                     </div>
+
+                    <!-- 口座間移動セクション -->
+                    <div class="pt-3 border-t border-current/10 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold opacity-80">🔄 口座間のお金移動（任意・収支に影響しません）</span>
+                            <button onclick="addTransferRow()" class="no-print text-[11px] theme-primary-bg px-2.5 py-1 rounded-lg font-semibold cursor-pointer">＋ 移動を追加</button>
+                        </div>
+                        <div class="space-y-1.5">
+                            ${transfersHtml}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-5">
@@ -1088,7 +1258,7 @@
                                 <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-amber-500 rounded-full"></span> 支出項目</span>
                                 <span class="text-xs text-amber-600 font-bold">合計: ¥${totalExp.toLocaleString()}</span>
                             </h3>
-                            <div class="flex gap-2 w-full sm:w-auto">
+                            <div class="flex gap-2 w-full sm:w-auto no-print">
                                 <input type="text" id="new-expense-raw-name" placeholder="項目名を入力..." class="theme-card-sm border rounded-lg px-2.5 py-1 text-xs focus:outline-none">
                                 <button onclick="startAddingExpense()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
                             </div>
@@ -1112,6 +1282,31 @@
                     </div>
                 </div>
             `;
+        }
+
+        // 毎月入力を1枚の画像として出力する関数
+        function exportMonthlyCardAsImage() {
+            const targetElement = document.getElementById('monthly-export-card');
+            if (!targetElement) return;
+
+            // 一時的に影やスタイルを調整して綺麗にキャプチャ
+            alert('📸 画像を生成しています。少々お待ちください...');
+
+            html2canvas(targetElement, {
+                scale: 2, // 高解像度化
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                const imageURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                const currentMonth = appData.monthly[currentEditingIndex].month || 'monthly';
+                link.download = `ライフプラン_${currentMonth}収支.png`;
+                link.href = imageURL;
+                link.click();
+            }).catch(err => {
+                console.error(err);
+                alert('❌ 画像の生成に失敗しました。');
+            });
         }
 
         function updateMonthField(field, value) {
@@ -1391,21 +1586,39 @@
                 const nisaAmt = Number(m.nisa || 0);
                 const surplus = inc - exp - nisaAmt;
 
-                let bankTotals = {};
-                appData.bankAccounts.forEach(b => bankTotals[b] = 0);
+                let savingAccountName = '貯金用(三菱UFJ銀行)';
+                const foundSavingAcc = appData.bankAccounts.find(acc => {
+                    const name = typeof acc === 'string' ? acc : acc.name;
+                    return name.includes('貯金用');
+                });
+                if (foundSavingAcc) {
+                    savingAccountName = typeof foundSavingAcc === 'string' ? foundSavingAcc : foundSavingAcc.name;
+                }
+
+                let savingAccountInitial = getAccountInitialBalance(savingAccountName);
+                if (savingAccountInitial === 0 && appData.bankAccounts.length > 0) {
+                    savingAccountInitial = Number(appData.settings.startCash || 3000000);
+                }
+
+                let savingAccountAllocatedTotal = 0;
                 appData.monthly.forEach(monthItem => {
-                    if (monthItem.bankAllocations) {
-                        for (let [bName, amt] of Object.entries(monthItem.bankAllocations)) {
-                            if (bankTotals[bName] !== undefined) bankTotals[bName] += Number(amt || 0);
-                        }
+                    let effAllocs = {};
+                    getAccountNames().forEach(b => effAllocs[b] = Number(monthItem.bankAllocations?.[b] || 0));
+                    if (monthItem.transfers) {
+                        monthItem.transfers.forEach(tr => {
+                            let amt = Number(tr.amount || 0);
+                            if (effAllocs[tr.from] !== undefined) effAllocs[tr.from] -= amt;
+                            if (effAllocs[tr.to] !== undefined) effAllocs[tr.to] += amt;
+                        });
+                    }
+                    if (effAllocs[savingAccountName] !== undefined) {
+                        savingAccountAllocatedTotal += Number(effAllocs[savingAccountName] || 0);
                     }
                 });
 
-                let totalBankAssets = 0;
-                for (let amt of Object.values(bankTotals)) totalBankAssets += amt;
-                if (totalBankAssets === 0) totalBankAssets = appData.settings.startCash || 3000000;
+                let totalSavingAsset = savingAccountInitial + savingAccountAllocatedTotal;
 
-                document.getElementById('kpi-current-saving').innerText = '¥' + totalBankAssets.toLocaleString();
+                document.getElementById('kpi-current-saving').innerText = '¥' + totalSavingAsset.toLocaleString();
                 document.getElementById('kpi-monthly-income').innerText = '¥' + inc.toLocaleString();
                 document.getElementById('kpi-monthly-expense').innerText = '¥' + exp.toLocaleString();
                 document.getElementById('kpi-monthly-surplus').innerText = '¥' + surplus.toLocaleString();
@@ -1425,6 +1638,9 @@
                     expHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${eSum.toLocaleString()}</span></div>`;
                 });
                 document.getElementById('home-expense-recent').innerHTML = expHtml;
+
+                let bankBreakdownHtml = `<div class="flex justify-between"><span>・${savingAccountName}:</span><span class="font-bold">¥${totalSavingAsset.toLocaleString()}</span></div>`;
+                document.getElementById('home-bank-breakdown').innerHTML = bankBreakdownHtml;
             }
         }
 
@@ -1437,7 +1653,19 @@
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventData = [];
-                let runningBalance = Number(appData.settings.startCash || 3000000);
+                
+                let savingAccountName = '貯金用(三菱UFJ銀行)';
+                const foundSavingAcc = appData.bankAccounts.find(acc => {
+                    const name = typeof acc === 'string' ? acc : acc.name;
+                    return name.includes('貯金用');
+                });
+                if (foundSavingAcc) {
+                    savingAccountName = typeof foundSavingAcc === 'string' ? foundSavingAcc : foundSavingAcc.name;
+                }
+
+                let runningBalance = getAccountInitialBalance(savingAccountName);
+                if (runningBalance === 0) runningBalance = Number(appData.settings.startCash || 3000000);
+
                 let defaultSave = Number(appData.settings.defaultMonthlySave || 50000);
                 let y = 2026, m = 11;
 
@@ -1449,11 +1677,25 @@
                     let matched = appData.monthly.find(item => item.month === yyyymm);
                     let saving = defaultSave;
                     if (matched) {
-                        let inc = (matched.rIncome || 0) + (matched.hIncome || 0) + (matched.bonus || 0) + (matched.extraInc || 0);
-                        let exp = 0;
-                        if (matched.expenses) for (let v of Object.values(matched.expenses)) exp += Number(v || 0);
-                        let nisa = Number(matched.nisa || 0);
-                        saving = inc - exp - nisa;
+                        let effAllocs = {};
+                        getAccountNames().forEach(b => effAllocs[b] = Number(matched.bankAllocations?.[b] || 0));
+                        if (matched.transfers) {
+                            matched.transfers.forEach(tr => {
+                                let amt = Number(tr.amount || 0);
+                                if (effAllocs[tr.from] !== undefined) effAllocs[tr.from] -= amt;
+                                if (effAllocs[tr.to] !== undefined) effAllocs[tr.to] += amt;
+                            });
+                        }
+
+                        if (effAllocs[savingAccountName] !== undefined) {
+                            saving = Number(effAllocs[savingAccountName] || 0);
+                        } else {
+                            let inc = (matched.rIncome || 0) + (matched.hIncome || 0) + (matched.bonus || 0) + (matched.extraInc || 0);
+                            let exp = 0;
+                            if (matched.expenses) for (let v of Object.values(matched.expenses)) exp += Number(v || 0);
+                            let nisa = Number(matched.nisa || 0);
+                            saving = inc - exp - nisa;
+                        }
                     }
 
                     let evCost = 0;
@@ -1471,7 +1713,7 @@
                     data: {
                         labels: labels,
                         datasets: [
-                            { type: 'line', label: '現金残高 (万円)', data: balanceData, borderColor: activePrimary, backgroundColor: activePrimary + '20', borderWidth: 3, fill: true, tension: 0.35 },
+                            { type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: activePrimary, backgroundColor: activePrimary + '20', borderWidth: 3, fill: true, tension: 0.35 },
                             { type: 'bar', label: 'イベント費用 (万円)', data: eventData, backgroundColor: '#f59e0b', borderRadius: 4 }
                         ]
                     },
