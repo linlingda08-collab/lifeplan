@@ -53,13 +53,16 @@
     <header class="no-print bg-[#fbf7f4]/90 backdrop-blur-md border-b border-[#e7dfd5] sticky top-0 z-50 transition-all">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
-                <div onclick="changeHeaderIcon()" id="header-icon-box" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-[#8c6d53] via-[#a3704c] to-[#c29b7a] flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md shadow-[#a3704c]/20 cursor-pointer hover:scale-105 transition" title="タップしてアイコン変更">
+                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-[#8c6d53] via-[#a3704c] to-[#c29b7a] flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md shadow-[#a3704c]/20 cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更（絵文字または画像）">
                     <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
                     <h1 class="text-sm sm:text-base font-bold text-[#3d312a] tracking-tight leading-tight">ライフプラン</h1>
                 </div>
             </div>
+            <!-- Hidden file input for header icon image upload -->
+            <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
+
             <div class="flex items-center space-x-1.5 sm:space-x-2">
                 <nav class="flex flex-wrap gap-1 bg-[#eae0d5]/80 p-1 rounded-xl text-[11px] sm:text-xs font-semibold">
                     <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 bg-white text-[#8c6d53] shadow-xs cursor-pointer">ホーム</button>
@@ -285,8 +288,8 @@
                         <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">銀行口座残高 (円)</label>
-                        <input type="number" id="setting-current-saving" value="2000000" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
+                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">NISA現在の積立総額・評価額 (円)</label>
+                        <input type="number" id="setting-current-nisa" value="500000" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition" placeholder="これまでのNISA積立総額">
                     </div>
                 </div>
             </div>
@@ -332,7 +335,16 @@
     <!-- App Logic -->
     <script>
         let appData = {
-            settings: { age: 27, monthlyNisa: 30000, years: 38, currentSaving: 2000000, heroBg: '', headerIcon: '🌰' },
+            settings: { 
+                age: 27, 
+                monthlyNisa: 30000, 
+                years: 38, 
+                currentSaving: 2000000, 
+                currentNisa: 500000, 
+                heroBg: '', 
+                headerIcon: '🌰',
+                headerIconType: 'emoji' // 'emoji' or 'image'
+            },
             savingBuckets: ['家の口座', 'ゆとり費'],
             monthly: [
                 { 
@@ -374,12 +386,14 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v8');
+            const saved = localStorage.getItem('lifeplan_data_earth_v9');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             if (!appData.savingBuckets) appData.savingBuckets = ['家の口座', 'ゆとり費'];
             if (!appData.settings.headerIcon) appData.settings.headerIcon = '🌰';
+            if (!appData.settings.headerIconType) appData.settings.headerIconType = 'emoji';
+            if (appData.settings.currentNisa === undefined) appData.settings.currentNisa = 500000;
             if (!appData.events) appData.events = [];
             
             appData.monthly.forEach(m => {
@@ -401,24 +415,50 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v8', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v9', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
+            renderCharts();
         }
 
-        function changeHeaderIcon() {
-            const newIcon = prompt('ヘッダーに表示するアイコン（絵文字など）を入力してください:', appData.settings.headerIcon || '🌰');
-            if (newIcon !== null && newIcon.trim() !== '') {
-                appData.settings.headerIcon = newIcon.trim();
-                saveStorage();
-                applyHeaderIcon();
+        function promptHeaderIcon() {
+            const choice = confirm('アイコンを画像に変更しますか？\n[OK]画像を選択 / [キャンセル]絵文字を入力');
+            if (choice) {
+                document.getElementById('header-icon-file-input').click();
+            } else {
+                const newIcon = prompt('ヘッダーに表示する絵文字を入力してください:', appData.settings.headerIconType === 'emoji' ? appData.settings.headerIcon : '🌰');
+                if (newIcon !== null && newIcon.trim() !== '') {
+                    appData.settings.headerIcon = newIcon.trim();
+                    appData.settings.headerIconType = 'emoji';
+                    saveStorage();
+                    applyHeaderIcon();
+                }
+            }
+        }
+
+        function changeHeaderIconImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData.settings.headerIcon = e.target.result;
+                    appData.settings.headerIconType = 'image';
+                    saveStorage();
+                    applyHeaderIcon();
+                };
+                reader.readAsDataURL(file);
             }
         }
 
         function applyHeaderIcon() {
-            const iconSpan = document.getElementById('header-icon-text');
-            if (iconSpan) {
-                iconSpan.innerText = appData.settings.headerIcon || '🌰';
+            const box = document.getElementById('header-icon-box');
+            if (!box) return;
+            if (appData.settings.headerIconType === 'image' && appData.settings.headerIcon.startsWith('data:')) {
+                box.innerHTML = '';
+                box.style.backgroundImage = `url('${appData.settings.headerIcon}')`;
+            } else {
+                box.style.backgroundImage = 'none';
+                box.innerHTML = `<span id="header-icon-text">${appData.settings.headerIcon || '🌰'}</span>`;
             }
         }
 
@@ -478,14 +518,14 @@
             document.getElementById('setting-age').value = appData.settings.age;
             document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa;
             document.getElementById('setting-years').value = appData.settings.years;
-            document.getElementById('setting-current-saving').value = appData.settings.currentSaving;
+            document.getElementById('setting-current-nisa').value = appData.settings.currentNisa !== undefined ? appData.settings.currentNisa : 500000;
         }
 
         function saveSettings() {
             appData.settings.age = Number(document.getElementById('setting-age').value);
             appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
             appData.settings.years = Number(document.getElementById('setting-years').value);
-            appData.settings.currentSaving = Number(document.getElementById('setting-current-saving').value);
+            appData.settings.currentNisa = Number(document.getElementById('setting-current-nisa').value);
             saveStorage();
         }
 
@@ -1225,13 +1265,23 @@
             if (chart2El) {
                 const ctx2 = chart2El.getContext('2d');
                 if (nisaChart) nisaChart.destroy();
+                
+                const curNisaMan = (appData.settings.currentNisa || 500000) / 10000;
+                const monthlyNisaMan = (appData.settings.monthlyNisa || 30000) / 10000;
+                
                 nisaChart = new Chart(ctx2, {
                     type: 'line',
                     data: {
                         labels: ['現在', '5年後', '10年後', '20年後', '38年後'],
                         datasets: [{
                             label: 'NISA資産予測 (万円)',
-                            data: [0, 180, 410, 985, 2500],
+                            data: [
+                                Math.round(curNisaMan), 
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 5 * 1.15), 
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 10 * 1.35), 
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 20 * 1.8), 
+                                Math.round(curNisaMan + monthlyNisaMan * 12 * 38 * 2.5)
+                            ],
                             borderColor: '#5e7862',
                             backgroundColor: 'rgba(94, 120, 98, 0.08)',
                             borderWidth: 3,
