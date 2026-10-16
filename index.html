@@ -69,7 +69,7 @@
                     <button onclick="switchTab('input')" id="btn-tab-input" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">毎月入力</button>
                     <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">グラフ</button>
                     <button onclick="switchTab('events')" id="btn-tab-events" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">予定</button>
-                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">NISA</button>
+                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">設定・NISA</button>
                 </nav>
                 <button onclick="openSyncModal()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
                     <span>🔄</span> <span class="hidden sm:inline">同期</span>
@@ -103,22 +103,26 @@
                 </div>
             </div>
 
+            <!-- KPI Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <div class="glass-card p-4 sm:p-5 rounded-2xl">
-                    <p class="text-[11px] sm:text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">銀行口座</p>
-                    <p id="kpi-current-saving" class="text-lg sm:text-2xl font-bold text-[#3d312a] tracking-tight mt-1.5">¥2,000,000</p>
+                <div class="glass-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <p class="text-[11px] sm:text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">銀行口座総資産</p>
+                        <p id="kpi-current-saving" class="text-lg sm:text-2xl font-bold text-[#3d312a] tracking-tight mt-1">¥0</p>
+                    </div>
+                    <div id="home-bank-breakdown" class="mt-2 space-y-0.5 text-[11px] text-[#6b5b4f] pt-2 border-t border-[#e7dfd5]"></div>
                 </div>
                 <div class="glass-card p-4 sm:p-5 rounded-2xl">
                     <p class="text-[11px] sm:text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">今月の手取り</p>
-                    <p id="kpi-monthly-income" class="text-lg sm:text-2xl font-bold text-[#8c6d53] tracking-tight mt-1.5">¥395,000</p>
+                    <p id="kpi-monthly-income" class="text-lg sm:text-2xl font-bold text-[#8c6d53] tracking-tight mt-1.5">¥0</p>
                 </div>
                 <div class="glass-card p-4 sm:p-5 rounded-2xl">
                     <p class="text-[11px] sm:text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">今月の生活費</p>
-                    <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-[#b87d4b] tracking-tight mt-1.5">¥305,000</p>
+                    <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-[#b87d4b] tracking-tight mt-1.5">¥0</p>
                 </div>
                 <div class="glass-card p-4 sm:p-5 rounded-2xl">
                     <p class="text-[11px] sm:text-xs font-semibold text-[#7d6b5d] uppercase tracking-wider">今月の貯金</p>
-                    <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-[#5e7862] tracking-tight mt-1.5">¥90,000</p>
+                    <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-[#5e7862] tracking-tight mt-1.5">¥0</p>
                     <div id="home-bucket-breakdown" class="mt-2 space-y-1 text-[11px] text-[#6b5b4f] pt-2 border-t border-[#e7dfd5]"></div>
                 </div>
             </div>
@@ -141,7 +145,7 @@
                 <div class="glass-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-[#3d312a] text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-[#5e7862]"></span> NISA積立シミュレーション (毎月入力連動)
+                            <span class="w-2 h-2 rounded-full bg-[#5e7862]"></span> NISA積立シミュレーション
                         </h3>
                     </div>
                     <div class="relative flex-grow h-56 sm:h-60">
@@ -156,8 +160,8 @@
             <div class="glass-card p-4 sm:p-6 rounded-2xl space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-[#e7dfd5] gap-3">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">毎月の収支・貯金割り振り入力</h2>
-                        <p class="text-xs text-[#7d6b5d] mt-0.5">月を選択し、収入・生活費および貯金の割り振り先を設定できます。NISA積立額を変更すると、自動で全合計に反映されます。</p>
+                        <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">毎月の収支・口座振り分け入力</h2>
+                        <p class="text-xs text-[#7d6b5d] mt-0.5">月を選択し、収入・支出（項目追加可能）および銀行口座への貯金割り振りを設定できます。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="flex-grow sm:flex-initial bg-[#fbf7f4] hover:bg-[#eae0d5] border border-[#d6ccc2] rounded-xl px-3 py-2 text-xs font-semibold text-[#3d312a] transition cursor-pointer shadow-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></select>
@@ -269,21 +273,35 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: NISA SETTINGS ================= -->
+        <!-- ================= TAB 5: NISA & SETTINGS ================= -->
         <div id="tab-nisa" class="hidden space-y-6">
-            <div class="glass-card p-5 sm:p-6 rounded-2xl max-w-xl mx-auto space-y-5">
+            <div class="glass-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-[#e7dfd5] pb-3">
-                    <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">NISA基本設定</h2>
-                    <p class="text-xs text-[#7d6b5d] mt-0.5">※毎月の入力タブでの累積積立額をもとに、0円スタートからの成長シミュレーションを算出します。</p>
+                    <h2 class="font-bold text-base sm:text-lg text-[#3d312a] tracking-tight">アプリ設定・NISA管理</h2>
+                    <p class="text-xs text-[#7d6b5d] mt-0.5">銀行口座（お金の置き場所）の管理や、NISAのシミュレーション設定を行います。</p>
+                </div>
+
+                <!-- 銀行口座マスター管理 -->
+                <div class="space-y-3 bg-[#f4ede6] p-4 rounded-2xl border border-[#d6ccc2]">
+                    <h3 class="font-bold text-xs text-[#5c4a3d] flex items-center gap-1.5">
+                        <span>🏦</span> 銀行口座（お金の置き場所）の管理
+                    </h3>
+                    <p class="text-[11px] text-[#7d6b5d]">ホーム画面に個別に表示され、毎月の貯金割り当て先になる口座を自由に追加・削除できます。</p>
+                    <div id="bank-accounts-manager" class="space-y-2 pt-1"></div>
+                    <div class="flex gap-2 pt-2">
+                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名 (例: 楽天銀行)..." class="flex-grow bg-white border border-[#d6ccc2] rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
+                        <button onclick="addNewBankAccount()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
+                    </div>
                 </div>
                 
-                <div class="space-y-4 text-xs sm:text-sm">
+                <div class="space-y-4 text-xs sm:text-sm pt-2">
+                    <h3 class="font-bold text-xs text-[#5c4a3d]">📈 NISA基本設定</h3>
                     <div>
                         <label class="block font-semibold text-[#6b5b4f] mb-1.5">現在の年齢</label>
                         <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
-                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">デフォルトの毎月NISA積立標準額 (円)</label>
+                        <label class="block font-semibold text-[#6b5b4f] mb-1.5">毎月のNISA積立標準額 (円)</label>
                         <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full bg-[#fbf7f4] border border-[#d6ccc2] rounded-xl p-2.5 text-sm font-medium focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none transition">
                     </div>
                     <div>
@@ -295,11 +313,7 @@
                             <span>📊 現在のNISAリアル累積積立元本:</span>
                             <span id="nisa-real-accumulated" class="text-sm font-extrabold text-[#5e7862]">¥0</span>
                         </div>
-                        <p class="text-[11px] text-[#7d6b5d]">「毎月入力」タブに記録されている各月の「🌟 NISA積立」の数値を自動合計した金額です。今月減額（例: 1万円）した場合もリアルタイムで連動します。</p>
-                    </div>
-                    <div class="p-3 bg-[#eae0d5]/60 rounded-xl border border-[#d6ccc2] text-[11px] text-[#6b5b4f]">
-                        <span class="font-bold">🗓️ 毎月の自動振替ルール:</span><br>
-                        積立日は「毎月26日」に実行されます。（※26日が土日祝日の場合は、直前の平日営業日に前倒し振替と判定します）
+                        <p class="text-[11px] text-[#7d6b5d]">「毎月入力」タブに記録されている各月の「🌟 NISA積立」の数値を自動合計した金額です。</p>
                     </div>
                 </div>
             </div>
@@ -349,24 +363,38 @@
                 age: 27, 
                 monthlyNisa: 30000, 
                 years: 38, 
-                currentSaving: 2000000, 
                 heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji' // 'emoji' or 'image'
             },
-            savingBuckets: ['家の口座', 'ゆとり費'],
+            bankAccounts: ['住信SBIネット銀行', '楽天銀行', '現金'],
+            expenseCategories: [
+                { id: 'food', name: '🍚 食費' },
+                { id: 'rTrans', name: '🚆 ゲストA交通費' },
+                { id: 'hTrans', name: '🚆 ゲストB交通費' },
+                { id: 'house', name: '🏠 住居費(管理費込)' },
+                { id: 'goods', name: '🛒 生活用品' },
+                { id: 'utility', name: '⚡ 水道ガス電気' },
+                { id: 'rLoan', name: '🎓 ゲストA奨学金' },
+                { id: 'pon', name: '🐾 ぽん費' },
+                { id: 'kenmin', name: '➕ 県民共済' },
+                { id: 'rSub', name: '📖 ゲストAサブスク' },
+                { id: 'rPocket', name: '💵 ゲストAお小遣い' },
+                { id: 'hPocket', name: '💵 ゲストBお小遣い' },
+                { id: 'hHair', name: '💇 ゲストB美容代' },
+                { id: 'rComm', name: '📞 ゲストA通信費' },
+                { id: 'hComm', name: '📞 ゲストB通信費' }
+            ],
             monthly: [
                 { 
                     month: '2026-11', type: '想定', 
                     rIncome: 200000, hIncome: 195000, 
-                    food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, 
-                    utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, 
-                    rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
+                    expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月)',
-                    bucketAllocations: { '家の口座': 60000, 'ゆとり費': 30000 }
+                    bankAllocations: { '住信SBIネット銀行': 60000, '楽天銀行': 30000, '現金': 0 }
                 }
             ],
-            events: [] // デフォルトは空の状態でスタート
+            events: []
         };
 
         let cashChart = null;
@@ -380,19 +408,6 @@
             '#6b5b4f', '#827164', '#99887b', '#4a3b30', '#5c4a3d'
         ];
 
-        // 26日振替日の判定（土日祝の場合は直前の金曜など平日営業日に前倒し）
-        function getNisaExecutionDate(year, month) {
-            let targetDate = new Date(year, month - 1, 26);
-            let dayOfWeek = targetDate.getDay(); // 0: 日曜, 6: 土曜
-            if (dayOfWeek === 6) { // 土曜なら前日の金曜（25日）
-                targetDate.setDate(25);
-            } else if (dayOfWeek === 0) { // 日曜なら2日前の金曜（24日）
-                targetDate.setDate(24);
-            }
-            return targetDate;
-        }
-
-        // 月入力タブの実際の「NISA積立」の合計値をリアルタイム計算
         function calculateRealAccumulatedNisa() {
             let total = 0;
             appData.monthly.forEach(m => {
@@ -416,20 +431,46 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v10');
+            const saved = localStorage.getItem('lifeplan_data_earth_v11');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
-            if (!appData.savingBuckets) appData.savingBuckets = ['家の口座', 'ゆとり費'];
+            if (!appData.bankAccounts) appData.bankAccounts = ['住信SBIネット銀行', '楽天銀行', '現金'];
+            if (!appData.expenseCategories) {
+                appData.expenseCategories = [
+                    { id: 'food', name: '🍚 食費' }, { id: 'rTrans', name: '🚆 ゲストA交通費' },
+                    { id: 'hTrans', name: '🚆 ゲストB交通費' }, { id: 'house', name: '🏠 住居費(管理費込)' },
+                    { id: 'goods', name: '🛒 生活用品' }, { id: 'utility', name: '⚡ 水道ガス電気' },
+                    { id: 'rLoan', name: '🎓 ゲストA奨学金' }, { id: 'pon', name: '🐾 ぽん費' },
+                    { id: 'kenmin', name: '➕ 県民共済' }, { id: 'rSub', name: '📖 ゲストAサブスク' },
+                    { id: 'rPocket', name: '💵 ゲストAお小遣い' }, { id: 'hPocket', name: '💵 ゲストBお小遣い' },
+                    { id: 'hHair', name: '💇 ゲストB美容代' }, { id: 'rComm', name: '📞 ゲストA通信費' },
+                    { id: 'hComm', name: '📞 ゲストB通信費' }
+                ];
+            }
             if (!appData.settings.headerIcon) appData.settings.headerIcon = '🌰';
             if (!appData.settings.headerIconType) appData.settings.headerIconType = 'emoji';
             if (!appData.events) appData.events = [];
             
+            // 移行データの正規化
             appData.monthly.forEach(m => {
-                if (!m.bucketAllocations) {
-                    m.bucketAllocations = {};
-                    appData.savingBuckets.forEach(b => m.bucketAllocations[b] = 0);
+                if (!m.expenses) {
+                    m.expenses = {
+                        food: m.food || 0, rTrans: m.rTrans || 0, hTrans: m.hTrans || 0,
+                        house: m.house || 0, goods: m.goods || 0, utility: m.utility || 0,
+                        rLoan: m.rLoan || 0, pon: m.pon || 0, kenmin: m.kenmin || 0,
+                        rSub: m.rSub || 0, rPocket: m.rPocket || 0, hPocket: m.hPocket || 0,
+                        hHair: m.hHair || 0, rComm: m.rComm || 0, hComm: m.hComm || 0
+                    };
                 }
+                appData.expenseCategories.forEach(cat => {
+                    if (m.expenses[cat.id] === undefined) m.expenses[cat.id] = 0;
+                });
+
+                if (!m.bankAllocations) m.bankAllocations = {};
+                appData.bankAccounts.forEach(b => {
+                    if (m.bankAllocations[b] === undefined) m.bankAllocations[b] = 0;
+                });
             });
 
             syncSettingsToUI();
@@ -439,12 +480,13 @@
             renderMonthEditor();
             renderHistoryTable();
             renderEventsTable();
+            renderBankAccountsManager();
             updateCalculations();
             renderCharts();
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v10', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v11', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
             renderCharts();
@@ -561,6 +603,89 @@
             saveStorage();
         }
 
+        // 銀行口座マスター管理
+        function renderBankAccountsManager() {
+            const container = document.getElementById('bank-accounts-manager');
+            if (!container) return;
+            container.innerHTML = '';
+            appData.bankAccounts.forEach((acc, i) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-white p-2.5 rounded-xl border border-[#d6ccc2] text-xs font-semibold text-[#3d312a]";
+                div.innerHTML = `
+                    <span>🏦 ${acc}</span>
+                    <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer">削除</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewBankAccount() {
+            const input = document.getElementById('new-bank-account-name');
+            const name = input.value.trim();
+            if (!name) return;
+            if (appData.bankAccounts.includes(name)) {
+                alert('すでに存在する口座名です。');
+                return;
+            }
+            appData.bankAccounts.push(name);
+            appData.monthly.forEach(m => {
+                if (!m.bankAllocations) m.bankAllocations = {};
+                m.bankAllocations[name] = 0;
+            });
+            input.value = '';
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function removeBankAccount(index) {
+            if (appData.bankAccounts.length <= 1) {
+                alert('銀行口座は最低1つ必要です。');
+                return;
+            }
+            const targetName = appData.bankAccounts[index];
+            if (confirm(`「${targetName}」を削除しますか？`)) {
+                appData.bankAccounts.splice(index, 1);
+                appData.monthly.forEach(m => {
+                    if (m.bankAllocations) delete m.bankAllocations[targetName];
+                });
+                saveStorage();
+                renderBankAccountsManager();
+                updateCalculations();
+            }
+        }
+
+        // 支出項目の追加・削除
+        function addNewExpenseCategory() {
+            const input = document.getElementById('new-expense-name');
+            const name = input.value.trim();
+            if (!name) return;
+            const id = 'exp_' + Date.now();
+            appData.expenseCategories.push({ id, name });
+            appData.monthly.forEach(m => {
+                if (!m.expenses) m.expenses = {};
+                m.expenses[id] = 0;
+            });
+            input.value = '';
+            saveStorage();
+            renderMonthEditor();
+        }
+
+        function removeExpenseCategory(catId) {
+            if (appData.expenseCategories.length <= 1) {
+                alert('支出項目は最低1つ必要です。');
+                return;
+            }
+            if (confirm('この支出項目を削除しますか？（来月以降の記録からも削除されます）')) {
+                appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
+                appData.monthly.forEach(m => {
+                    if (m.expenses) delete m.expenses[catId];
+                });
+                saveStorage();
+                renderMonthEditor();
+            }
+        }
+
         function changeHeroBackground(event) {
             const file = event.target.files[0];
             if (file) {
@@ -611,6 +736,7 @@
                 renderPieChart();
             } else if (tabId === 'nisa') {
                 syncSettingsToUI();
+                renderBankAccountsManager();
             }
         }
 
@@ -643,16 +769,32 @@
             const newMonth = `${y}-${String(m).padStart(2, '0')}`;
 
             const last = appData.monthly[appData.monthly.length - 1] || { 
-                rIncome: 200000, hIncome: 195000, food: 35000, rTrans: 10000, hTrans: 15000, 
-                house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, 
-                rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0, 
-                nisa: appData.settings.monthlyNisa || 30000, bonus: 0, extraInc: 0, memo: '', bucketAllocations: {} 
+                rIncome: 200000, hIncome: 195000, expenses: {}, nisa: appData.settings.monthlyNisa || 30000, bonus: 0, extraInc: 0, memo: '', bankAllocations: {} 
             };
             
-            let newAllocations = {};
-            appData.savingBuckets.forEach(b => newAllocations[b] = last.bucketAllocations?.[b] || 0);
+            let newExpenses = {};
+            appData.expenseCategories.forEach(cat => {
+                newExpenses[cat.id] = last.expenses?.[cat.id] || 0;
+            });
 
-            appData.monthly.push({ ...last, month: newMonth, memo: '', bucketAllocations: newAllocations });
+            let newBankAllocs = {};
+            appData.bankAccounts.forEach(b => {
+                newBankAllocs[b] = last.bankAllocations?.[b] || 0;
+            });
+
+            appData.monthly.push({ 
+                month: newMonth, 
+                type: '想定', 
+                rIncome: last.rIncome || 200000, 
+                hIncome: last.hIncome || 195000, 
+                expenses: newExpenses, 
+                nisa: last.nisa || 30000, 
+                bonus: 0, 
+                extraInc: 0, 
+                memo: '', 
+                bankAllocations: newBankAllocs 
+            });
+
             currentEditingIndex = appData.monthly.length - 1;
             saveStorage();
             updateMonthSelector();
@@ -671,39 +813,6 @@
             renderMonthEditor();
         }
 
-        function addSavingBucket() {
-            const inputEl = document.getElementById('new-bucket-name');
-            const name = inputEl.value.trim();
-            if (!name) return;
-            if (appData.savingBuckets.includes(name)) {
-                alert('すでに存在する名前です。');
-                return;
-            }
-            appData.savingBuckets.push(name);
-            appData.monthly.forEach(m => {
-                if (!m.bucketAllocations) m.bucketAllocations = {};
-                m.bucketAllocations[name] = 0;
-            });
-            inputEl.value = '';
-            saveStorage();
-            renderMonthEditor();
-        }
-
-        function removeSavingBucket(bucketName) {
-            if (appData.savingBuckets.length <= 1) {
-                alert('貯金項目は最低1つ必要です。');
-                return;
-            }
-            if (confirm(`「${bucketName}」を削除しますか？`)) {
-                appData.savingBuckets = appData.savingBuckets.filter(b => b !== bucketName);
-                appData.monthly.forEach(m => {
-                    if (m.bucketAllocations) delete m.bucketAllocations[bucketName];
-                });
-                saveStorage();
-                renderMonthEditor();
-            }
-        }
-
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
             if (!container) return;
@@ -711,31 +820,48 @@
             if (!m) return;
 
             const totalInc = (m.rIncome || 0) + (m.hIncome || 0);
-            const totalExp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
-                             (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
-                             (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
-                             (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
+            
+            let totalExp = 0;
+            if (!m.expenses) m.expenses = {};
+            appData.expenseCategories.forEach(cat => {
+                if (m.expenses[cat.id] === undefined) m.expenses[cat.id] = 0;
+                totalExp += Number(m.expenses[cat.id]);
+            });
+            
             const autoSaving = totalInc - totalExp;
 
-            if (!m.bucketAllocations) m.bucketAllocations = {};
+            if (!m.bankAllocations) m.bankAllocations = {};
             let allocatedSum = 0;
-            appData.savingBuckets.forEach(b => {
-                if (m.bucketAllocations[b] === undefined) m.bucketAllocations[b] = 0;
-                allocatedSum += Number(m.bucketAllocations[b]);
+            appData.bankAccounts.forEach(b => {
+                if (m.bankAllocations[b] === undefined) m.bankAllocations[b] = 0;
+                allocatedSum += Number(m.bankAllocations[b]);
             });
 
             let isOverAllocated = allocatedSum > autoSaving;
             let overDiff = allocatedSum - autoSaving;
 
-            let bucketsHtml = '';
-            appData.savingBuckets.forEach(b => {
-                bucketsHtml += `
+            // 銀行口座への割り振りHTML
+            let banksHtml = '';
+            appData.bankAccounts.forEach(b => {
+                banksHtml += `
                     <div class="glass-card-sm p-3 rounded-xl flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="font-semibold text-xs text-[#3d312a]">📌 ${b}</span>
-                            <button onclick="removeSavingBucket('${b}')" class="text-rose-500 hover:text-rose-700 text-[10px] cursor-pointer">×</button>
+                        <span class="font-semibold text-xs text-[#3d312a]">🏦 ${b}</span>
+                        <input type="number" value="${m.bankAllocations[b] || 0}" onchange="updateBankAllocation('${b}', Number(this.value))" class="w-28 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                    </div>
+                `;
+            });
+
+            // 支出項目カードHTML
+            let expensesHtml = '';
+            appData.expenseCategories.forEach(cat => {
+                const val = m.expenses[cat.id] || 0;
+                expensesHtml += `
+                    <div class="glass-card-sm p-3 rounded-xl flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 truncate">
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0" title="削除">×</button>
+                            <span class="text-xs font-semibold text-[#3d312a] truncate">${cat.name}</span>
                         </div>
-                        <input type="number" value="${m.bucketAllocations[b]}" onchange="updateBucketAllocation('${b}', Number(this.value))" class="w-28 bg-[#fbf7f4] border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:bg-white focus:outline-none">
+                        <input type="number" value="${val}" onchange="updateExpenseField('${cat.id}', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none shrink-0">
                     </div>
                 `;
             });
@@ -783,13 +909,9 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <h3 class="font-bold text-xs text-[#3d312a] uppercase tracking-wider flex items-center gap-1.5">
-                                <span>💰</span> 貯金の割り振り管理（合計割り振り: <span class="${isOverAllocated ? 'text-rose-600 font-extrabold' : ''}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
+                                <span>💰</span> 銀行口座への貯金割り振り（合計: <span class="${isOverAllocated ? 'text-rose-600 font-extrabold' : ''}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
                             </h3>
-                            <p class="text-[11px] text-[#7d6b5d]">目的に応じて自由に口座や費目を追加し、今月の貯金を割り振れます。</p>
-                        </div>
-                        <div class="flex gap-2 w-full sm:w-auto">
-                            <input type="text" id="new-bucket-name" placeholder="新しい貯金先名..." class="bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1 text-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            <button onclick="addSavingBucket()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
+                            <p class="text-[11px] text-[#7d6b5d]">今月の貯金をどの銀行口座（または現金）に振り分けるかを管理します。</p>
                         </div>
                     </div>
                     
@@ -801,7 +923,7 @@
                     ` : ''}
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
-                        ${bucketsHtml}
+                        ${banksHtml}
                     </div>
                 </div>
 
@@ -823,70 +945,17 @@
                     </div>
 
                     <div class="space-y-3">
-                        <h3 class="font-bold text-xs text-[#6b5b4f] tracking-wider uppercase flex items-center gap-1.5 pt-2">
-                            <span class="w-1.5 h-3 bg-[#b87d4b] rounded-full"></span> 支出項目（詳細）
-                        </h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🍚 食費</span>
-                                <input type="number" value="${m.food}" onchange="updateMonthField('food', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2">
+                            <h3 class="font-bold text-xs text-[#6b5b4f] tracking-wider uppercase flex items-center gap-1.5">
+                                <span class="w-1.5 h-3 bg-[#b87d4b] rounded-full"></span> 支出項目（自由に追加・削除可能）
+                            </h3>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <input type="text" id="new-expense-name" placeholder="新しい支出項目名..." class="bg-white border border-[#d6ccc2] rounded-lg px-2.5 py-1 text-xs focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
+                                <button onclick="addNewExpenseCategory()" class="bg-[#b87d4b] hover:bg-[#a26d3e] text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
                             </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🚆 ゲストA交通費</span>
-                                <input type="number" value="${m.rTrans}" onchange="updateMonthField('rTrans', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🚆 ゲストB交通費</span>
-                                <input type="number" value="${m.hTrans}" onchange="updateMonthField('hTrans', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🏠 住居費(管理費込)</span>
-                                <input type="number" value="${m.house}" onchange="updateMonthField('house', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🛒 生活用品</span>
-                                <input type="number" value="${m.goods}" onchange="updateMonthField('goods', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">⚡ 水道ガス電気</span>
-                                <input type="number" value="${m.utility}" onchange="updateMonthField('utility', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🎓 ゲストA奨学金</span>
-                                <input type="number" value="${m.rLoan}" onchange="updateMonthField('rLoan', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">🐾 ぽん費</span>
-                                <input type="number" value="${m.pon}" onchange="updateMonthField('pon', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">➕ 県民共済</span>
-                                <input type="number" value="${m.kenmin}" onchange="updateMonthField('kenmin', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">📖 ゲストAサブスク</span>
-                                <input type="number" value="${m.rSub}" onchange="updateMonthField('rSub', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">💵 ゲストAお小遣い</span>
-                                <input type="number" value="${m.rPocket}" onchange="updateMonthField('rPocket', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">💵 ゲストBお小遣い</span>
-                                <input type="number" value="${m.hPocket}" onchange="updateMonthField('hPocket', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">💇 ゲストB美容代</span>
-                                <input type="number" value="${m.hHair}" onchange="updateMonthField('hHair', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">📞 ゲストA通信費</span>
-                                <input type="number" value="${m.rComm}" onchange="updateMonthField('rComm', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
-                            <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
-                                <span class="text-xs font-semibold text-[#3d312a]">📞 ゲストB通信費</span>
-                                <input type="number" value="${m.hComm}" onchange="updateMonthField('hComm', Number(this.value))" class="w-28 bg-white border border-[#d6ccc2] rounded-lg p-1.5 text-right text-xs font-semibold focus:ring-2 focus:ring-[#a3704c] focus:outline-none">
-                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                            ${expensesHtml}
                         </div>
                     </div>
 
@@ -896,7 +965,7 @@
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center bg-[#5e7862]/10 border border-[#5e7862]/30">
-                                <span class="text-xs font-bold text-[#3d312a]">🌟 今月のNISA積立 (自由調整)</span>
+                                <span class="text-xs font-bold text-[#3d312a]">🌟 今月のNISA積立</span>
                                 <input type="number" value="${m.nisa !== undefined ? m.nisa : 30000}" onchange="updateMonthField('nisa', Number(this.value))" class="w-28 bg-white border border-[#5e7862] rounded-lg p-1.5 text-right text-xs font-bold focus:ring-2 focus:ring-[#5e7862] focus:outline-none">
                             </div>
                             <div class="glass-card-sm p-3 rounded-xl flex justify-between items-center">
@@ -922,13 +991,21 @@
             syncSettingsToUI();
         }
 
-        function updateBucketAllocation(bucketName, value) {
+        function updateExpenseField(catId, value) {
             const m = appData.monthly[currentEditingIndex];
-            if (!m.bucketAllocations) m.bucketAllocations = {};
-            m.bucketAllocations[bucketName] = value;
+            if (!m.expenses) m.expenses = {};
+            m.expenses[catId] = value;
             saveStorage();
             updateCalculations();
             renderMonthEditor();
+        }
+
+        function updateBankAllocation(bankName, value) {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.bankAllocations) m.bankAllocations = {};
+            m.bankAllocations[bankName] = value;
+            saveStorage();
+            updateCalculations();
         }
 
         function renderHistoryTable() {
@@ -937,10 +1014,10 @@
             tbody.innerHTML = '';
             appData.monthly.forEach((m, idx) => {
                 const totalInc = (m.rIncome || 0) + (m.hIncome || 0);
-                const totalExp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
-                                 (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
-                                 (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
-                                 (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
+                let totalExp = 0;
+                if (m.expenses) {
+                    for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
+                }
                 const surplus = totalInc - totalExp;
 
                 const tr = document.createElement('tr');
@@ -990,29 +1067,20 @@
             const ctx = chartEl.getContext('2d');
             if (pieChart) pieChart.destroy();
 
-            const rawItems = [
-                { label: '食費', val: m.food || 0 },
-                { label: 'ゲストA交通費', val: m.rTrans || 0 },
-                { label: 'ゲストB交通費', val: m.hTrans || 0 },
-                { label: '住居費', val: m.house || 0 },
-                { label: '生活用品', val: m.goods || 0 },
-                { label: '水道ガス電気', val: m.utility || 0 },
-                { label: 'ゲストA奨学金', val: m.rLoan || 0 },
-                { label: 'ぽん費', val: m.pon || 0 },
-                { label: '県民共済', val: m.kenmin || 0 },
-                { label: 'ゲストAサブスク', val: m.rSub || 0 },
-                { label: 'ゲストAお小遣い', val: m.rPocket || 0 },
-                { label: 'ゲストBお小遣い', val: m.hPocket || 0 },
-                { label: 'ゲストB美容代', val: m.hHair || 0 },
-                { label: 'ゲストA通信費', val: m.rComm || 0 },
-                { label: 'ゲストB通信費', val: m.hComm || 0 }
-            ];
+            let rawItems = [];
+            let totalExp = 0;
+            if (m.expenses) {
+                appData.expenseCategories.forEach(cat => {
+                    const val = Number(m.expenses[cat.id] || 0);
+                    rawItems.push({ label: cat.name, val });
+                    totalExp += val;
+                });
+            }
 
             rawItems.sort((a, b) => b.val - a.val);
 
             const labels = rawItems.map(item => item.label);
             const dataValues = rawItems.map(item => item.val);
-            const totalExp = dataValues.reduce((a, b) => a + b, 0);
 
             pieChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -1244,29 +1312,56 @@
             if (appData.monthly.length > 0) {
                 const m = appData.monthly[currentEditingIndex] || appData.monthly[0];
                 const inc = (m.rIncome || 0) + (m.hIncome || 0);
-                const exp = (m.food || 0) + (m.rTrans || 0) + (m.hTrans || 0) + (m.house || 0) + 
-                            (m.goods || 0) + (m.utility || 0) + (m.rLoan || 0) + (m.pon || 0) + 
-                            (m.kenmin || 0) + (m.rSub || 0) + (m.rPocket || 0) + (m.hPocket || 0) + 
-                            (m.hHair || 0) + (m.rComm || 0) + (m.hComm || 0);
+                
+                let exp = 0;
+                if (m.expenses) {
+                    for (let v of Object.values(m.expenses)) exp += Number(v || 0);
+                }
                 const surplus = inc - exp;
+
+                // 各銀行口座のトータル累積額を計算（全月の割り振りの合計）
+                let bankTotals = {};
+                appData.bankAccounts.forEach(b => bankTotals[b] = 0);
+                
+                appData.monthly.forEach(monthItem => {
+                    if (monthItem.bankAllocations) {
+                        for (let [bName, amt] of Object.entries(monthItem.bankAllocations)) {
+                            if (bankTotals[bName] !== undefined) {
+                                bankTotals[bName] += Number(amt || 0);
+                            }
+                        }
+                    }
+                });
+
+                let totalBankAssets = 0;
+                for (let amt of Object.values(bankTotals)) totalBankAssets += amt;
 
                 const curSaveEl = document.getElementById('kpi-current-saving');
                 const incEl = document.getElementById('kpi-monthly-income');
                 const expEl = document.getElementById('kpi-monthly-expense');
                 const surEl = document.getElementById('kpi-monthly-surplus');
+                const homeBankEl = document.getElementById('home-bank-breakdown');
                 const homeBucketEl = document.getElementById('home-bucket-breakdown');
 
-                if (curSaveEl) curSaveEl.innerText = '¥' + appData.settings.currentSaving.toLocaleString();
+                if (curSaveEl) curSaveEl.innerText = '¥' + totalBankAssets.toLocaleString();
                 if (incEl) incEl.innerText = '¥' + inc.toLocaleString();
                 if (expEl) expEl.innerText = '¥' + exp.toLocaleString();
                 if (surEl) surEl.innerText = '¥' + surplus.toLocaleString();
 
-                if (homeBucketEl && m.bucketAllocations) {
+                if (homeBankEl) {
                     let bHtml = '';
-                    for (let [bName, bVal] of Object.entries(m.bucketAllocations)) {
-                        bHtml += `<div class="flex justify-between"><span>・${bName}:</span><span class="font-bold">¥${Number(bVal).toLocaleString()}</span></div>`;
+                    for (let [bName, bVal] of Object.entries(bankTotals)) {
+                        bHtml += `<div class="flex justify-between"><span>・${bName}:</span><span class="font-bold">¥${bVal.toLocaleString()}</span></div>`;
                     }
-                    homeBucketEl.innerHTML = bHtml || '<span class="text-[10px] text-[#7d6b5d]">割り振りなし</span>';
+                    homeBankEl.innerHTML = bHtml || '<span class="text-[10px] text-[#7d6b5d]">口座なし</span>';
+                }
+
+                if (homeBucketEl && m.bankAllocations) {
+                    let bkHtml = '';
+                    for (let [bName, bVal] of Object.entries(m.bankAllocations)) {
+                        bkHtml += `<div class="flex justify-between"><span>・${bName}:</span><span class="font-bold">¥${Number(bVal).toLocaleString()}</span></div>`;
+                    }
+                    homeBucketEl.innerHTML = bkHtml || '<span class="text-[10px] text-[#7d6b5d]">割り振りなし</span>';
                 }
             }
         }
@@ -1301,11 +1396,8 @@
                 const ctx2 = chart2El.getContext('2d');
                 if (nisaChart) nisaChart.destroy();
                 
-                // 過去・現在のリアル累積積立額（0円スタートベース）
                 const realAccumulated = calculateRealAccumulatedNisa();
                 const curNisaMan = realAccumulated / 10000;
-                
-                // 未来の標準積立額（設定画面の値）
                 const monthlyNisaMan = (appData.settings.monthlyNisa || 30000) / 10000;
                 
                 nisaChart = new Chart(ctx2, {
