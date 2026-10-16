@@ -12,8 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- QRCode.js for QR Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -70,7 +68,7 @@
                     <button onclick="switchTab('events')" id="btn-tab-events" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">予定</button>
                     <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 text-[#6b5b4f] hover:text-[#3d312a] cursor-pointer">NISA</button>
                 </nav>
-                <button onclick="openSyncModal()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="QRコードで端末間同期">
+                <button onclick="openSyncModal()" class="bg-[#8c6d53] hover:bg-[#785d46] text-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="デバイス間同期">
                     <span>🔄</span> <span class="hidden sm:inline">同期</span>
                 </button>
                 <button onclick="window.print()" class="no-print bg-[#5c4a3d] hover:bg-[#4a3b30] text-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer">
@@ -123,6 +121,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 2036年以降も横スクロールで確認できる推移グラフ -->
                 <div class="lg:col-span-2 glass-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-[#3d312a] text-xs sm:text-sm flex items-center gap-2">
@@ -295,46 +294,36 @@
 
     </main>
 
-    <!-- ================= QR SYNC MODAL ================= -->
+    <!-- ================= SYNC MODAL (Clipboard & File Sync) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="glass-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-[#e7dfd5]">
                 <h3 class="font-bold text-base text-[#3d312a] flex items-center gap-2">
-                    <span>🔄</span> 端末間データ同期（QRコード）
+                    <span>🔄</span> 端末間データ同期（コピー＆ペースト）
                 </h3>
                 <button onclick="closeSyncModal()" class="text-[#7d6b5d] hover:text-[#3d312a] font-bold text-base cursor-pointer">×</button>
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm">
-                <p class="text-[#6b5b4f]">iPhoneで変更した最新データを、別の端末（iPadなど）のカメラでQRコードを読み取って一瞬で同期できます。</p>
+                <p class="text-[#6b5b4f]">iPhoneで「データをコピー」し、iPadの入力欄に「ペースト（貼り付け）」して反映させることで、容量制限なしで一瞬で同期できます。</p>
 
-                <div class="flex gap-2 border-b border-[#e7dfd5] pb-2">
-                    <button onclick="switchSyncTab('export')" id="btn-sync-export" class="flex-1 py-2 rounded-xl font-bold text-xs bg-[#8c6d53] text-white transition cursor-pointer">📤 データをQRで送信</button>
-                    <button onclick="switchSyncTab('import')" id="btn-sync-import" class="flex-1 py-2 rounded-xl font-bold text-xs bg-[#eae0d5] text-[#6b5b4f] transition cursor-pointer">📥 データをインポート</button>
+                <div class="space-y-3 bg-[#f4ede6] p-4 rounded-2xl border border-[#d6ccc2]">
+                    <h4 class="font-bold text-xs text-[#5c4a3d]">1️⃣ 送信側（iPhoneなど）の操作</h4>
+                    <button onclick="copyDataText()" class="w-full bg-[#8c6d53] hover:bg-[#785d46] text-white text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>📋</span> 全データをクリップボードにコピー
+                    </button>
                 </div>
 
-                <!-- Export View -->
-                <div id="sync-view-export" class="space-y-4 text-center">
-                    <p class="text-xs text-[#7d6b5d]">このQRコードを別の端末のカメラでスキャンしてください。</p>
-                    <div id="qrcode-container" class="bg-white p-4 rounded-2xl inline-block border border-[#e7dfd5] shadow-xs"></div>
-                    <div>
-                        <button onclick="copyDataText()" class="bg-[#5c4a3d] hover:bg-[#4a3b30] text-white text-xs font-semibold px-4 py-2 rounded-xl transition cursor-pointer">
-                            📋 同期コードをテキストでコピー
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Import View -->
-                <div id="sync-view-import" class="space-y-4 hidden">
-                    <p class="text-xs text-[#7d6b5d]">同期コード（JSON文字列）を以下に貼り付けるか、テキストファイルを選択してデータを上書き同期できます。</p>
-                    <textarea id="import-data-textarea" rows="5" placeholder="ここに同期コードを貼り付け..." class="w-full bg-white border border-[#d6ccc2] rounded-xl p-3 text-xs text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></textarea>
+                <div class="space-y-3 bg-[#f4ede6] p-4 rounded-2xl border border-[#d6ccc2]">
+                    <h4 class="font-bold text-xs text-[#5c4a3d]">2️⃣ 受信側（iPadなど）の操作</h4>
+                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト（貼り付け）..." class="w-full bg-white border border-[#d6ccc2] rounded-xl p-3 text-xs text-[#3d312a] focus:ring-2 focus:ring-[#a3704c] focus:outline-none"></textarea>
                     
-                    <div class="flex flex-col sm:flex-row gap-2 justify-between items-center">
-                        <label class="bg-[#eae0d5] hover:bg-[#d6ccc2] text-[#5c4a3d] text-xs font-semibold px-4 py-2.5 rounded-xl cursor-pointer transition w-full sm:w-auto text-center">
-                            📁 ファイルから読み込む
+                    <div class="flex flex-col sm:flex-row gap-2 justify-between items-center pt-1">
+                        <label class="bg-[#eae0d5] hover:bg-[#d6ccc2] text-[#5c4a3d] text-xs font-semibold px-3 py-2 rounded-xl cursor-pointer transition w-full sm:w-auto text-center">
+                            📁 ファイルから読込
                             <input type="file" accept=".json" onchange="importDataFromFile(event)" class="hidden">
                         </label>
-                        <button onclick="applyImportedData()" class="bg-[#5e7862] hover:bg-[#4c6250] text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full sm:w-auto">
+                        <button onclick="applyImportedData()" class="bg-[#5e7862] hover:bg-[#4c6250] text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow cursor-pointer w-full sm:w-auto">
                             ✅ データを反映して同期する
                         </button>
                     </div>
@@ -388,7 +377,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v6');
+            const saved = localStorage.getItem('lifeplan_data_earth_v7');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -415,7 +404,7 @@
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v6', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v7', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
         }
@@ -439,7 +428,6 @@
         function openSyncModal() {
             const modal = document.getElementById('sync-modal');
             if (modal) modal.classList.remove('hidden');
-            generateQRCode();
         }
 
         function closeSyncModal() {
@@ -447,54 +435,16 @@
             if (modal) modal.classList.add('hidden');
         }
 
-        function switchSyncTab(tab) {
-            const expView = document.getElementById('sync-view-export');
-            const impView = document.getElementById('sync-view-import');
-            const btnExp = document.getElementById('btn-sync-export');
-            const btnImp = document.getElementById('btn-sync-import');
-
-            if (tab === 'export') {
-                expView.classList.remove('hidden');
-                impView.classList.add('hidden');
-                btnExp.className = "flex-1 py-2 rounded-xl font-bold text-xs bg-[#8c6d53] text-white transition cursor-pointer";
-                btnImp.className = "flex-1 py-2 rounded-xl font-bold text-xs bg-[#eae0d5] text-[#6b5b4f] transition cursor-pointer";
-                generateQRCode();
-            } else {
-                expView.classList.add('hidden');
-                impView.classList.remove('hidden');
-                btnImp.className = "flex-1 py-2 rounded-xl font-bold text-xs bg-[#8c6d53] text-white transition cursor-pointer";
-                btnExp.className = "flex-1 py-2 rounded-xl font-bold text-xs bg-[#eae0d5] text-[#6b5b4f] transition cursor-pointer";
-            }
-        }
-
-        function generateQRCode() {
-            const container = document.getElementById('qrcode-container');
-            if (!container) return;
-            container.innerHTML = '';
-            
-            // 軽量化のため背景画像のBase64を除外した最小構成でQRコードを生成
-            const exportObj = JSON.parse(JSON.stringify(appData));
-            exportObj.settings.heroBg = ''; 
-            const jsonStr = JSON.stringify(exportObj);
-            
-            try {
-                new QRCode(container, {
-                    text: jsonStr,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#3d312a",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.L
-                });
-            } catch(e) {
-                container.innerHTML = `<p class="text-xs text-rose-500 text-center py-4">データ量が多いためQR生成できません。<br>下の「テキストでコピー」をご利用ください。</p>`;
-            }
-        }
-
         function copyDataText() {
             const jsonStr = JSON.stringify(appData);
             navigator.clipboard.writeText(jsonStr).then(() => {
-                alert('📋 同期コードをクリップボードにコピーしました！');
+                alert('📋 全データをクリップボードにコピーしました！\niPad側で同期モーダルを開き、入力欄にペーストしてください。');
+            }).catch(err => {
+                // フォールバック
+                const textarea = document.getElementById('import-data-textarea');
+                textarea.value = jsonStr;
+                textarea.select();
+                alert('コピーに失敗しました。下の欄にテキストを表示しましたので手動でコピーしてください。');
             });
         }
 
