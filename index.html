@@ -40,7 +40,7 @@
         }
 
         .theme-card-sm {
-            background: rgba(255, 255, 255, 0.15) !important;
+            background: rgba(255, 255, 255, 0.25) !important;
             border: 1px solid var(--app-card-border) !important;
             color: var(--app-text) !important;
         }
@@ -114,7 +114,7 @@
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl bg-cover bg-center transition-all">
-                <div id="hero-overlay" class="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
+                <div id="hero-overlay" class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
                 <div class="absolute right-3 top-3 z-20 no-print flex gap-2">
                     <label class="bg-white/20 hover:bg-white/30 text-white text-[10px] sm:text-[11px] font-semibold px-2.5 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
                         <span>📷</span> 背景変更
@@ -123,10 +123,10 @@
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-2 sm:py-4">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-white/20 text-white border border-white/30 backdrop-blur-sm uppercase tracking-wider">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2026年11月(10/26スタート)・グラフ一式連動版
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2026年11月(10/26スタート)・淡色ベース連動版
                     </span>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">選んだテーマに合わせてグラフや背景が一式すべて連動します</p>
+                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">全10種類の淡いニュアンスカラーテーマ＆カスタマイズ対応</p>
                 </div>
             </div>
 
@@ -151,14 +151,14 @@
                 <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                     <div>
                         <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費</p>
-                        <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-amber-500 tracking-tight mt-1">¥0</p>
+                        <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥0</p>
                     </div>
                     <div id="home-expense-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
                 </div>
 
                 <div class="theme-card p-4 sm:p-5 rounded-2xl">
                     <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                    <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-emerald-500 tracking-tight mt-1.5">¥0</p>
+                    <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥0</p>
                     <div id="home-bucket-breakdown" class="mt-2 space-y-1 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
                 </div>
             </div>
@@ -180,7 +180,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> NISA積立シミュレーション
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> NISA積立シミュレーション
                         </h3>
                     </div>
                     <div class="relative flex-grow h-56 sm:h-60">
@@ -216,7 +216,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> 支出の円グラフ（高い順）
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の円グラフ（高い順）
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -364,7 +364,7 @@
                     <div class="p-4 theme-card-sm rounded-2xl space-y-2 border">
                         <div class="flex justify-between items-center text-xs font-bold">
                             <span>📊 現在のNISAリアル累積積立元本:</span>
-                            <span id="nisa-real-accumulated" class="text-sm font-extrabold text-emerald-500">¥0</span>
+                            <span id="nisa-real-accumulated" class="text-sm font-extrabold text-emerald-600">¥0</span>
                         </div>
                     </div>
                 </div>
@@ -375,42 +375,42 @@
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ（10種類 ＋ 自作ビルダー）</h2>
-                    <p class="text-xs opacity-70 mt-0.5">背景色・カード・文字色・グラフ・アクセントカラーまで、アプリ全体を一式で切り替えます。</p>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ（基本・淡色ベース全10種 ＋ 自作）</h2>
+                    <p class="text-xs opacity-70 mt-0.5">背景色はすべて上品で目に優しい「淡い色味（ニュアンスカラー）」で統一しています。</p>
                 </div>
 
                 <div class="space-y-3">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> プリセットテーマ（厳選10種）
+                        <span>✨</span> プリセットテーマ（基本・淡色ベース 10選）
                     </h3>
                     <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
 
                 <div class="space-y-3 pt-4 border-t border-current/10">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>🛠️</span> 完全自由カスタマイズ（オリジナルテーマ作成）
+                        <span>🛠️</span> 完全自由カスタマイズ（オリジナル淡色テーマ作成）
                     </h3>
                     <div class="theme-card-sm p-4 rounded-xl space-y-4 border">
                         <div>
                             <label class="block text-[11px] font-semibold opacity-80 mb-1">テーマ名</label>
-                            <input type="text" id="custom-theme-name" placeholder="例: マイフェイバリット" class="w-full theme-card-sm rounded-xl p-2 text-xs focus:outline-none border">
+                            <input type="text" id="custom-theme-name" placeholder="例: マイ・フェイバリットパステル" class="w-full theme-card-sm rounded-xl p-2 text-xs focus:outline-none border">
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <div>
-                                <label class="block text-[10px] font-semibold opacity-80 mb-1">背景色</label>
-                                <input type="color" id="custom-theme-bg" value="#1e222a" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">背景色 (淡色推奨)</label>
+                                <input type="color" id="custom-theme-bg" value="#f4f6f8" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-semibold opacity-80 mb-1">文字メイン色</label>
-                                <input type="color" id="custom-theme-text" value="#ffffff" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                                <input type="color" id="custom-theme-text" value="#2d3748" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-semibold opacity-80 mb-1">メインアクセント</label>
-                                <input type="color" id="custom-theme-primary" value="#d4af37" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                                <input type="color" id="custom-theme-primary" value="#6b8abc" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-semibold opacity-80 mb-1">カード背景色</label>
-                                <input type="color" id="custom-theme-card" value="#282c34" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                                <input type="color" id="custom-theme-card" value="#ffffff" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
                             </div>
                         </div>
                         <div class="flex justify-end pt-1">
@@ -426,7 +426,7 @@
     </main>
 
     <!-- ================= SYNC MODAL ================= -->
-    <div id="sync-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
+    <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
@@ -507,25 +507,19 @@
         let pieChart = null;
         let currentEditingIndex = 0;
 
-        // センス抜群の10種のプリセットテーマ定義
+        // 全10種類のプリセットテーマ（背景はすべて上品で淡いニュアンスカラーに統一）
         const presetThemes = {
             earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46' },
-            midnight: { name: '🌙 ミッドナイト・ダーク', bg: 'linear-gradient(135deg, #181b20 0%, #111317 100%)', text: '#f0f2f5', cardBg: 'rgba(30, 34, 42, 0.9)', border: 'rgba(60, 66, 78, 0.8)', primary: '#d4af37', primaryHover: '#b89628' },
-            ocean: { name: '🌊 オーシャン＆スレート', bg: 'linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8' },
+            midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155' },
+            ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8' },
             sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030' },
-            forest: { name: '🌿 セージ＆フォレスト', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20' },
-            vitamin: { name: '🍊 ビタミン・フレッシュ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100' },
-            burgundy: { name: '🍷 クラシック・バーガンディ', bg: 'linear-gradient(135deg, #2b1f24 0%, #1f1418 100%)', text: '#fcefe8', cardBg: 'rgba(48, 34, 40, 0.9)', border: 'rgba(88, 60, 72, 0.8)', primary: '#c25975', primaryHover: '#a3415c' },
-            monotone: { name: '🐘 モノトーン・ミニマル', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40' },
-            lavender: { name: '🍇 モーブ＆ラベンダー', bg: 'linear-gradient(135deg, #f5f3f7 0%, #e8e3ed 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
-            mocha: { name: '☕ モカ＆ラテ', bg: 'linear-gradient(135deg, #f7f3f0 0%, #eae0d8 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
+            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20' },
+            vitamin: { name: '🍊 ペール・オレンジ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100' },
+            burgundy: { name: '🍷 淡ロゼ・ウォーム', bg: 'linear-gradient(135deg, #faf0f2 0%, #f4e1e6 100%)', text: '#3d1a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 215, 0.8)', primary: '#b85270', primaryHover: '#9a3e58' },
+            monotone: { name: '🐘 スノー・モノトーン', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40' },
+            lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
+            mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
-
-        const earthToneColors = [
-            '#a3704c', '#b87d4b', '#c29b7a', '#d4b59d', '#5e7862', 
-            '#738f77', '#8fb996', '#8c6d53', '#a3856d', '#bc9f8b', 
-            '#6b5b4f', '#827164', '#99887b', '#4a3b30', '#5c4a3d'
-        ];
 
         function applyTheme(themeKey) {
             appData.settings.currentTheme = themeKey;
@@ -546,6 +540,7 @@
 
             renderPresetThemesSelector();
             renderCharts();
+            renderPieChart();
         }
 
         function renderPresetThemesSelector() {
@@ -571,7 +566,7 @@
                         <span class="w-5 h-5 rounded-full shadow-xs shrink-0 border" style="background-color: ${t.primary};"></span>
                         <span class="text-xs">${t.name}</span>
                     </div>
-                    ${isSelected ? '<span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold">適用中</span>' : ''}
+                    ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">適用中</span>' : ''}
                 `;
                 container.appendChild(div);
             }
@@ -592,7 +587,7 @@
             const newTheme = { 
                 key, name, bg, text, 
                 cardBg: cardBg + 'f0', 
-                border: primary + '50', 
+                border: primary + '40', 
                 primary, primaryHover: primary 
             };
             
@@ -601,7 +596,7 @@
             saveStorage();
             applyTheme(key);
             document.getElementById('custom-theme-name').value = '';
-            alert('🎉 オリジナルカスタムテーマを保存・適用しました！');
+            alert('🎉 オリジナル淡色テーマを保存・適用しました！');
         }
 
         function autoDetectEmoji(inputName) {
@@ -644,7 +639,7 @@
         }
 
         function loadStorage() {
-            const saved = localStorage.getItem('lifeplan_data_earth_v19');
+            const saved = localStorage.getItem('lifeplan_data_earth_v21');
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
@@ -663,13 +658,15 @@
             renderBankAccountsManager();
             updateCalculations();
             renderCharts();
+            renderPieChart();
         }
 
         function saveStorage() {
-            localStorage.setItem('lifeplan_data_earth_v19', JSON.stringify(appData));
+            localStorage.setItem('lifeplan_data_earth_v21', JSON.stringify(appData));
             updateCalculations();
             renderHistoryTable();
             renderCharts();
+            renderPieChart();
         }
 
         function promptHeaderIcon() {
@@ -826,6 +823,7 @@
             input.value = '';
             saveStorage();
             renderMonthEditor();
+            renderPieChart();
         }
 
         function removeExpenseCategory(catId) {
@@ -836,6 +834,7 @@
             appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
             saveStorage();
             renderMonthEditor();
+            renderPieChart();
         }
 
         function changeHeroBackground(event) {
@@ -1008,19 +1007,19 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
-                        <p class="text-base sm:text-lg font-bold text-amber-500 mt-0.5">¥${totalExp.toLocaleString()}</p>
+                        <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                        <p class="text-base sm:text-lg font-bold text-emerald-500 mt-0.5">¥${autoSaving.toLocaleString()}</p>
+                        <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
-                <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-500 bg-emerald-500/10' : 'border-rose-500 bg-rose-500/10'}">
+                <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-600 bg-emerald-500/10' : 'border-rose-500 bg-rose-500/10'}">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <div>
                             <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
-                                <span>💰</span> 口座割り振りチェック（割り振り合計: <span class="${isMatched ? 'text-emerald-500' : 'text-rose-500 font-extrabold'}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
+                                <span>💰</span> 口座割り振りチェック（割り振り合計: <span class="${isMatched ? 'text-emerald-600' : 'text-rose-500 font-extrabold'}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
                             </h3>
                         </div>
                     </div>
@@ -1031,7 +1030,7 @@
                             <span>貯金額（¥${autoSaving.toLocaleString()}）と口座割り振りの合計額（¥${allocatedSum.toLocaleString()}）が一致していません！ぴったり一致させてください。</span>
                         </div>
                     ` : `
-                        <div class="p-2 bg-emerald-500/20 text-emerald-500 text-xs font-bold rounded-xl flex items-center gap-2">
+                        <div class="p-2 bg-emerald-500/20 text-emerald-600 text-xs font-bold rounded-xl flex items-center gap-2">
                             <span>✅</span> 貯金額と口座割り振りの金額がぴったり一致しています！
                         </div>
                     `}
@@ -1075,7 +1074,7 @@
 
                     <div class="space-y-3">
                         <h3 class="font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 pt-2">
-                            <span class="w-1.5 h-3 bg-emerald-500 rounded-full"></span> 積立・その他
+                            <span class="w-1.5 h-3 bg-emerald-600 rounded-full"></span> 積立・その他
                         </h3>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-emerald-500/10">
@@ -1103,6 +1102,7 @@
             saveStorage();
             updateCalculations();
             renderMonthEditor();
+            renderPieChart();
         }
 
         function updateBankAllocation(bankName, value) {
@@ -1128,10 +1128,10 @@
                 tr.className = "hover:bg-current/5 transition font-medium";
                 tr.innerHTML = `
                     <td class="p-3 font-semibold">${m.month}</td>
-                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 text-emerald-500':'bg-amber-500/20 text-amber-500'}">${m.type}</span></td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 text-emerald-600':'bg-amber-500/20 text-amber-600'}">${m.type}</span></td>
                     <td class="p-3 text-right font-semibold theme-primary-text">¥${totalInc.toLocaleString()}</td>
-                    <td class="p-3 text-right font-semibold text-amber-500">¥${totalExp.toLocaleString()}</td>
-                    <td class="p-3 text-right font-bold text-emerald-500">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
                         <button onclick="currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
                     </td>
@@ -1152,6 +1152,7 @@
             });
         }
 
+        // ================= 円グラフ (ドーナツ) 動的着せ替え連動 =================
         function renderPieChart() {
             const selector = document.getElementById('pie-month-selector');
             if (!selector) return;
@@ -1159,8 +1160,12 @@
             const m = appData.monthly[idx];
             if (!m) return;
 
-            const ctx = document.getElementById('expensePieChart').getContext('2d');
+            const ctx = document.getElementById('expensePieChart');
+            if (!ctx) return;
             if (pieChart) pieChart.destroy();
+
+            const rootStyle = getComputedStyle(document.documentElement);
+            const activePrimary = rootStyle.getPropertyValue('--app-primary').trim() || '#8c6d53';
 
             let rawItems = [];
             let totalExp = 0;
@@ -1171,28 +1176,59 @@
             });
             rawItems.sort((a, b) => b.val - a.val);
 
-            pieChart = new Chart(ctx, {
+            const baseHex = activePrimary.startsWith('#') ? activePrimary : '#8c6d53';
+            const dynamicPalette = [
+                baseHex, '#f59e0b', '#10b981', '#3b82f6', '#ec4899', 
+                '#8b5cf6', '#14b8a6', '#f43f5e', '#84cc16', '#6366f1',
+                '#eab308', '#06b6d4', '#d946ef', '#0ea5e9', '#64748b'
+            ];
+
+            pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: rawItems.map(i => i.label),
-                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: earthToneColors, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }]
+                    datasets: [{ 
+                        data: rawItems.map(i => i.val), 
+                        backgroundColor: dynamicPalette, 
+                        borderWidth: 2, 
+                        borderColor: '#ffffff' 
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '60%' }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    let percentage = totalExp > 0 ? ((value / totalExp) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ¥${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }, 
+                    cutout: '65%' 
+                }
             });
 
             const listContainer = document.getElementById('expense-breakdown-list');
-            listContainer.innerHTML = '';
-            rawItems.forEach((item, i) => {
-                if (item.val > 0) {
-                    const el = document.createElement('div');
-                    el.className = "flex items-center justify-between p-2 rounded-xl theme-card-sm border text-xs";
-                    el.innerHTML = `
-                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full" style="background-color: ${earthToneColors[i%earthToneColors.length]};"></span><span class="font-semibold">${item.label}</span></div>
-                        <span class="font-bold">¥${item.val.toLocaleString()}</span>
-                    `;
-                    listContainer.appendChild(el);
-                }
-            });
+            if (listContainer) {
+                listContainer.innerHTML = '';
+                rawItems.forEach((item, i) => {
+                    if (item.val > 0) {
+                        const el = document.createElement('div');
+                        el.className = "flex items-center justify-between p-2 rounded-xl theme-card-sm border text-xs";
+                        el.innerHTML = `
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${dynamicPalette[i%dynamicPalette.length]};"></span><span class="font-semibold">${item.label}</span></div>
+                            <span class="font-bold">¥${item.val.toLocaleString()}</span>
+                        `;
+                        listContainer.appendChild(el);
+                    }
+                });
+            }
         }
 
         function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
@@ -1298,7 +1334,7 @@
             }
         }
 
-        // ================= グラフ一式連動描画 =================
+        // ================= 複合グラフ描画 =================
         function renderCharts() {
             const chart1El = document.getElementById('cashFlowChart');
             const rootStyle = getComputedStyle(document.documentElement);
