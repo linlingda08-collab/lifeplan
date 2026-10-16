@@ -125,7 +125,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2026年11月(10/26スタート)・完全版
                     </span>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプラン・逆算シミュレーション</h2>
-                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">ボーナス・2段階支出追加・同系グラデーション円グラフ対応</p>
+                    <p class="text-white/90 text-xs sm:text-sm font-normal drop-shadow">全タブ動作確認済み・淡色テーマ連動版</p>
                 </div>
             </div>
 
@@ -266,4 +266,1185 @@
                         <label class="block font-semibold opacity-80">スタート時点の初期現金総額 (円)</label>
                         <input type="number" id="sim-start-cash" value="3000000" onchange="saveSimulationSettings()" class="w-full theme-card-sm rounded-xl p-2.5 font-semibold focus:outline-none border">
                     </div>
-                    <div class="theme-card
+                    <div class="theme-card-sm p-4 rounded-xl space-y-2 border">
+                        <label class="block font-semibold opacity-80">将来の標準毎月貯金額 (円)</label>
+                        <input type="number" id="sim-default-monthly-save" value="50000" onchange="saveSimulationSettings()" class="w-full theme-card-sm rounded-xl p-2.5 font-semibold focus:outline-none border">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 5: EVENTS ================= -->
+        <div id="tab-events" class="hidden space-y-6">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6" onclick="event.stopPropagation()">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
+                    <div>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定（ライフイベント）</h2>
+                        <p class="text-xs opacity-70 mt-0.5">登録したイベントの時期と費用は、ホームの複合グラフに自動連動します。</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span>🤖</span> Gemini回答から自動反映
+                        </button>
+                        <button onclick="addNewEvent()" class="opacity-80 hover:opacity-100 border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
+                            <span>＋</span> 追加
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Parser Box -->
+                <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 hidden shadow-lg" onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between pb-2 border-b border-current/10">
+                        <h4 class="font-bold text-xs flex items-center gap-1.5">
+                            <span>✨</span> Gemini回答の自動解析（コピペ窓）
+                        </h4>
+                        <button onclick="toggleAiParserBox()" class="opacity-70 hover:opacity-100 text-xs font-bold cursor-pointer">×</button>
+                    </div>
+                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border" onclick="event.stopPropagation()"></textarea>
+                    <div class="flex justify-end">
+                        <button onclick="parseAiTextAndAddEvent()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow cursor-pointer">
+                            📥 解析して今後の予定に追加する
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-xl sm:border sm:border-current/10">
+                    <table class="hidden sm:table w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="theme-card-sm font-semibold border-b border-current/10">
+                                <th class="p-3 w-40">イベント名</th>
+                                <th class="p-3 w-32">予定時期</th>
+                                <th class="p-3 w-32">予定費用 (円)</th>
+                                <th class="p-3 w-20">ステータス</th>
+                                <th class="p-3">メモ (AI全文保持・再評価)</th>
+                                <th class="p-3 w-16 text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table-body" class="divide-y divide-current/10"></tbody>
+                    </table>
+                    <div id="events-card-list" class="sm:hidden space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 6: ACCOUNTS & NISA ================= -->
+        <div id="tab-nisa" class="hidden space-y-6">
+            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
+                <div class="border-b border-current/10 pb-3">
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">口座・NISA管理</h2>
+                    <p class="text-xs opacity-70 mt-0.5">銀行口座（お金の置き場所）の管理やNISAシミュレーション設定を行います。</p>
+                </div>
+
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>🏦</span> 銀行口座（お金の置き場所）の管理
+                    </h3>
+                    <div id="bank-accounts-manager" class="space-y-2 pt-1"></div>
+                    <div class="flex gap-2 pt-2">
+                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名 (例: 楽天銀行)..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
+                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 text-xs sm:text-sm pt-2">
+                    <h3 class="font-bold text-xs">📈 NISA基本設定</h3>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">現在の年齢</label>
+                        <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">毎月のNISA積立標準額 (円)</label>
+                        <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">運用想定期間 (年)</label>
+                        <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div class="p-4 theme-card-sm rounded-2xl space-y-2 border">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span>📊 現在のNISAリアル累積積立元本:</span>
+                            <span id="nisa-real-accumulated" class="text-sm font-extrabold text-emerald-600">¥0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= TAB 7: FULL APP THEMES & BUILDER ================= -->
+        <div id="tab-theme" class="hidden space-y-6">
+            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
+                <div class="border-b border-current/10 pb-3">
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ（基本・淡色ベース全10種 ＋ 自作）</h2>
+                    <p class="text-xs opacity-70 mt-0.5">背景色はすべて上品で目に優しい「淡い色味（ニュアンスカラー）」で統一しています。</p>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>✨</span> プリセットテーマ（基本・淡色ベース 10選）
+                    </h3>
+                    <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-current/10">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>🛠️</span> 完全自由カスタマイズ（オリジナル淡色テーマ作成）
+                    </h3>
+                    <div class="theme-card-sm p-4 rounded-xl space-y-4 border">
+                        <div>
+                            <label class="block text-[11px] font-semibold opacity-80 mb-1">テーマ名</label>
+                            <input type="text" id="custom-theme-name" placeholder="例: マイ・フェイバリットパステル" class="w-full theme-card-sm rounded-xl p-2 text-xs focus:outline-none border">
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">背景色 (淡色推奨)</label>
+                                <input type="color" id="custom-theme-bg" value="#f4f6f8" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">文字メイン色</label>
+                                <input type="color" id="custom-theme-text" value="#2d3748" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">メインアクセント</label>
+                                <input type="color" id="custom-theme-primary" value="#6b8abc" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">カード背景色</label>
+                                <input type="color" id="custom-theme-card" value="#ffffff" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button onclick="saveCustomTheme()" class="theme-primary-bg text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
+                                💾 オリジナルテーマを保存・適用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ================= SYNC MODAL ================= -->
+    <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
+        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-current/10">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <span>🔄</span> 端末間データ同期（コピー＆ペースト）
+                </h3>
+                <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
+            </div>
+
+            <div class="space-y-4 text-xs sm:text-sm">
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
+                    <h4 class="font-bold text-xs">1️⃣ 送信側（iPhoneなど）の操作</h4>
+                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>📋</span> 全データをコピー
+                    </button>
+                    <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] focus:outline-none font-mono border"></textarea>
+                </div>
+
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
+                    <h4 class="font-bold text-xs">2️⃣ 受信側（iPadなど）の操作</h4>
+                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
+                    <div class="flex justify-end pt-1">
+                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
+                            ✅ データを反映して同期する
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Logic -->
+    <script>
+        let appData = {
+            settings: { 
+                age: 27, 
+                monthlyNisa: 30000, 
+                years: 38, 
+                heroBg: '', 
+                headerIcon: '🌰',
+                headerIconType: 'emoji',
+                startCash: 3000000,
+                defaultMonthlySave: 50000,
+                currentTheme: 'earth'
+            },
+            customThemes: [],
+            bankAccounts: [],
+            expenseCategories: [
+                { id: 'food', name: '🍚 食費' },
+                { id: 'rTrans', name: '🚆 ゲストA交通費' },
+                { id: 'hTrans', name: '🚆 ゲストB交通費' },
+                { id: 'house', name: '🏠 住居費(管理費込)' },
+                { id: 'goods', name: '🛒 生活用品' },
+                { id: 'utility', name: '⚡ 水道ガス電気' },
+                { id: 'rLoan', name: '🎓 ゲストA奨学金' },
+                { id: 'pon', name: '🐾 ぽん費' },
+                { id: 'kenmin', name: '➕ 県民共済' },
+                { id: 'rSub', name: '📖 ゲストAサブスク' },
+                { id: 'rPocket', name: '💵 ゲストAお小遣い' },
+                { id: 'hPocket', name: '💵 ゲストBお小遣い' },
+                { id: 'hHair', name: '💇 ゲストB美容代' },
+                { id: 'rComm', name: '📞 ゲストA通信費' },
+                { id: 'hComm', name: '📞 ゲストB通信費' }
+            ],
+            monthly: [
+                { 
+                    month: '2026-11', type: '想定', 
+                    rIncome: 200000, hIncome: 195000, 
+                    expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
+                    bankAllocations: {} 
+                }
+            ],
+            events: []
+        };
+
+        let cashChart = null;
+        let nisaChart = null;
+        let pieChart = null;
+        let currentEditingIndex = 0;
+
+        // 全10種類のプリセットテーマ（背景はすべて上品で淡いニュアンスカラー）
+        const presetThemes = {
+            earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46' },
+            midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155' },
+            ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8' },
+            sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030' },
+            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20' },
+            vitamin: { name: '🍊 ペール・オレンジ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100' },
+            burgundy: { name: '🍷 淡ロゼ・ウォーム', bg: 'linear-gradient(135deg, #faf0f2 0%, #f4e1e6 100%)', text: '#3d1a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 215, 0.8)', primary: '#b85270', primaryHover: '#9a3e58' },
+            monotone: { name: '🐘 スノー・モノトーン', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40' },
+            lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
+            mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
+        };
+
+        function applyTheme(themeKey) {
+            appData.settings.currentTheme = themeKey;
+            saveStorage();
+
+            let theme = presetThemes[themeKey];
+            if (!theme) {
+                theme = appData.customThemes.find(t => t.key === themeKey) || presetThemes['earth'];
+            }
+
+            const root = document.documentElement;
+            root.style.setProperty('--app-bg', theme.bg);
+            root.style.setProperty('--app-text', theme.text);
+            root.style.setProperty('--app-card-bg', theme.cardBg);
+            root.style.setProperty('--app-card-border', theme.border);
+            root.style.setProperty('--app-primary', theme.primary);
+            root.style.setProperty('--app-primary-hover', theme.primaryHover || theme.primary);
+
+            renderPresetThemesSelector();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function renderPresetThemesSelector() {
+            const container = document.getElementById('preset-themes-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const allThemes = { ...presetThemes };
+            if (appData.customThemes) {
+                appData.customThemes.forEach(ct => allThemes[ct.key] = ct);
+            }
+
+            for (let [key, t] of Object.entries(allThemes)) {
+                const isSelected = appData.settings.currentTheme === key;
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-2xl flex items-center justify-between cursor-pointer transition border ${isSelected ? 'ring-2 ring-emerald-600 font-bold shadow-md' : 'opacity-90 hover:opacity-100'}`;
+                div.style.background = t.cardBg;
+                div.style.borderColor = t.border;
+                div.style.color = t.text;
+                div.onclick = () => applyTheme(key);
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 rounded-full shadow-xs shrink-0 border" style="background-color: ${t.primary};"></span>
+                        <span class="text-xs">${t.name}</span>
+                    </div>
+                    ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">適用中</span>' : ''}
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function saveCustomTheme() {
+            const name = document.getElementById('custom-theme-name').value.trim();
+            const bg = document.getElementById('custom-theme-bg').value;
+            const text = document.getElementById('custom-theme-text').value;
+            const primary = document.getElementById('custom-theme-primary').value;
+            const cardBg = document.getElementById('custom-theme-card').value;
+            
+            if (!name) {
+                alert('テーマ名を入力してください。');
+                return;
+            }
+            const key = 'custom_' + Date.now();
+            const newTheme = { 
+                key, name, bg, text, 
+                cardBg: cardBg + 'f0', 
+                border: primary + '40', 
+                primary, primaryHover: primary 
+            };
+            
+            if (!appData.customThemes) appData.customThemes = [];
+            appData.customThemes.push(newTheme);
+            saveStorage();
+            applyTheme(key);
+            document.getElementById('custom-theme-name').value = '';
+            alert('🎉 オリジナル淡色テーマを保存・適用しました！');
+        }
+
+        // 支出項目の追加：①名称入力後、②絵文字選択へ進む2段階フロー
+        function startAddingExpense() {
+            const nameInput = document.getElementById('new-expense-raw-name');
+            const rawName = nameInput.value.trim();
+            if (!rawName) {
+                alert('追加する支出項目の名前を入力してください。');
+                return;
+            }
+
+            // 絵文字選択モーダルを表示または簡易プロンプトで絵文字選択
+            const emojis = ['🍚', '🚆', '🏠', '🛒', '⚡', '🎓', '🐾', '➕', '📖', '💵', '💇', '📞', '☕', '👗', '💊', '✈️'];
+            let emojiChoice = prompt(`「${rawName}」に合わせる絵文字を選んでください（番号または直接入力）:\n` + emojis.map((e, i) => `${i+1}:${e}`).join(' '), '🍚');
+            
+            let selectedEmoji = '🏷️';
+            if (emojiChoice) {
+                let idx = parseInt(emojiChoice, 10);
+                if (!isNaN(idx) && idx >= 1 && idx <= emojis.length) {
+                    selectedEmoji = emojis[idx - 1];
+                } else {
+                    selectedEmoji = emojiChoice.trim();
+                }
+            }
+
+            const formattedName = `${selectedEmoji} ${rawName}`;
+            const id = 'exp_' + Date.now();
+            appData.expenseCategories.push({ id, name: formattedName });
+            appData.monthly.forEach(m => {
+                if (!m.expenses) m.expenses = {};
+                m.expenses[id] = 0;
+            });
+
+            nameInput.value = '';
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+            alert(`🎉 支出項目「${formattedName}」を追加しました！`);
+        }
+
+        function removeExpenseCategory(catId) {
+            if (appData.expenseCategories.length <= 1) {
+                alert('支出項目は最低1つ必要です。');
+                return;
+            }
+            appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+        }
+
+        function calculateRealAccumulatedNisa() {
+            let total = 0;
+            appData.monthly.forEach(m => total += Number(m.nisa || 0));
+            return total;
+        }
+
+        function generateDateOptions(selectedVal) {
+            let opts = '';
+            for (let y = 2026; y <= new Date().getFullYear() + 60; y++) {
+                for (let m = 1; m <= 12; m++) {
+                    const mm = String(m).padStart(2, '0');
+                    const val = `${y}-${mm}`;
+                    opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                }
+            }
+            return opts;
+        }
+
+        function loadStorage() {
+            const saved = localStorage.getItem('lifeplan_data_earth_v22');
+            if (saved) {
+                try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
+            }
+            if (!appData.bankAccounts) appData.bankAccounts = [];
+            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
+            if (!appData.customThemes) appData.customThemes = [];
+
+            applyTheme(appData.settings.currentTheme);
+            syncSettingsToUI();
+            applyHeroBackground();
+            applyHeaderIcon();
+            updateMonthSelector();
+            renderMonthEditor();
+            renderHistoryTable();
+            renderEventsTable();
+            renderBankAccountsManager();
+            updateCalculations();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function saveStorage() {
+            localStorage.setItem('lifeplan_data_earth_v22', JSON.stringify(appData));
+            updateCalculations();
+            renderHistoryTable();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function promptHeaderIcon() {
+            const choice = confirm('アイコンを画像に変更しますか？\n[OK]画像を選択 / [キャンセル]絵文字を入力');
+            if (choice) {
+                document.getElementById('header-icon-file-input').click();
+            } else {
+                const newIcon = prompt('ヘッダーに表示する絵文字を入力してください:', appData.settings.headerIcon);
+                if (newIcon !== null && newIcon.trim() !== '') {
+                    appData.settings.headerIcon = newIcon.trim();
+                    appData.settings.headerIconType = 'emoji';
+                    saveStorage();
+                    applyHeaderIcon();
+                }
+            }
+        }
+
+        function changeHeaderIconImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData.settings.headerIcon = e.target.result;
+                    appData.settings.headerIconType = 'image';
+                    saveStorage();
+                    applyHeaderIcon();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyHeaderIcon() {
+            const box = document.getElementById('header-icon-box');
+            if (!box) return;
+            if (appData.settings.headerIconType === 'image' && appData.settings.headerIcon.startsWith('data:')) {
+                box.innerHTML = '';
+                box.style.backgroundImage = `url('${appData.settings.headerIcon}')`;
+            } else {
+                box.style.backgroundImage = 'none';
+                box.innerHTML = `<span id="header-icon-text">${appData.settings.headerIcon || '🌰'}</span>`;
+            }
+        }
+
+        function openSyncModal() {
+            document.getElementById('sync-modal').classList.remove('hidden');
+            document.getElementById('export-data-textarea').value = JSON.stringify(appData);
+        }
+
+        function closeSyncModal() {
+            document.getElementById('sync-modal').classList.add('hidden');
+        }
+
+        function copyDataText() {
+            const jsonStr = JSON.stringify(appData);
+            navigator.clipboard.writeText(jsonStr).then(() => alert('📋 全データをコピーしました！'));
+        }
+
+        function applyImportedData() {
+            const text = document.getElementById('import-data-textarea').value.trim();
+            try {
+                const parsed = JSON.parse(text);
+                if (!parsed.monthly) throw new Error();
+                appData = parsed;
+                saveStorage();
+                loadStorage();
+                closeSyncModal();
+                alert('🎉 データ同期が完了しました！');
+            } catch(e) {
+                alert('❌ データの解析に失敗しました。');
+            }
+        }
+
+        function syncSettingsToUI() {
+            document.getElementById('setting-age').value = appData.settings.age;
+            document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa;
+            document.getElementById('setting-years').value = appData.settings.years;
+            document.getElementById('sim-start-cash').value = appData.settings.startCash || 3000000;
+            document.getElementById('sim-default-monthly-save').value = appData.settings.defaultMonthlySave || 50000;
+            document.getElementById('nisa-real-accumulated').innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
+            renderPresetThemesSelector();
+        }
+
+        function saveSettings() {
+            appData.settings.age = Number(document.getElementById('setting-age').value);
+            appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
+            appData.settings.years = Number(document.getElementById('setting-years').value);
+            saveStorage();
+        }
+
+        function saveSimulationSettings() {
+            appData.settings.startCash = Number(document.getElementById('sim-start-cash').value);
+            appData.settings.defaultMonthlySave = Number(document.getElementById('sim-default-monthly-save').value);
+            saveStorage();
+        }
+
+        function renderBankAccountsManager() {
+            const container = document.getElementById('bank-accounts-manager');
+            if (!container) return;
+            container.innerHTML = '';
+            if (appData.bankAccounts.length === 0) {
+                container.innerHTML = `<p class="text-xs opacity-70 text-center py-2">口座が登録されていません。</p>`;
+                return;
+            }
+            appData.bankAccounts.forEach((acc, i) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between theme-card-sm p-2.5 rounded-xl border text-xs font-semibold gap-2";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 flex-grow">
+                        <span>🏦</span>
+                        <input type="text" value="${acc}" onchange="renameBankAccount(${i}, this.value)" class="flex-grow theme-card-sm rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none border">
+                    </div>
+                    <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0">削除</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewBankAccount() {
+            const input = document.getElementById('new-bank-account-name');
+            const name = input.value.trim();
+            if (!name) return;
+            appData.bankAccounts.push(name);
+            input.value = '';
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function renameBankAccount(index, newName) {
+            appData.bankAccounts[index] = newName.trim();
+            saveStorage();
+            renderBankAccountsManager();
+        }
+
+        function removeBankAccount(index) {
+            appData.bankAccounts.splice(index, 1);
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function changeHeroBackground(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    appData.settings.heroBg = e.target.result;
+                    saveStorage();
+                    applyHeroBackground();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyHeroBackground() {
+            const banner = document.getElementById('hero-banner');
+            if (banner && appData.settings.heroBg) {
+                banner.style.backgroundImage = `url('${appData.settings.heroBg}')`;
+            }
+        }
+
+        function switchTab(tabId) {
+            ['dashboard', 'input', 'charts', 'simulation', 'events', 'nisa', 'theme'].forEach(id => {
+                const tabEl = document.getElementById('tab-' + id);
+                const btnEl = document.getElementById('btn-tab-' + id);
+                if (tabEl) tabEl.classList.add('hidden');
+                if (btnEl) {
+                    btnEl.classList.remove('theme-primary-bg', 'shadow-xs');
+                    btnEl.classList.add('opacity-80');
+                }
+            });
+
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            const activeBtn = document.getElementById('btn-tab-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('opacity-80');
+                activeBtn.classList.add('theme-primary-bg', 'shadow-xs');
+            }
+
+            if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
+            else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
+            else if (tabId === 'simulation') { syncSettingsToUI(); }
+            else if (tabId === 'theme') { renderPresetThemesSelector(); }
+        }
+
+        function updateMonthSelector() {
+            const selector = document.getElementById('month-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                if (idx === currentEditingIndex) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        function selectMonthCard(index) {
+            currentEditingIndex = Number(index);
+            renderMonthEditor();
+        }
+
+        function addNewMonthByDropdown() {
+            let lastMonthStr = "2026-11";
+            if (appData.monthly.length > 0) lastMonthStr = appData.monthly[appData.monthly.length - 1].month;
+            let [y, m] = lastMonthStr.split('-').map(Number);
+            m += 1;
+            if (m > 12) { m = 1; y++; }
+            const newMonth = `${y}-${String(m).padStart(2, '0')}`;
+
+            let newExpenses = {};
+            appData.expenseCategories.forEach(cat => newExpenses[cat.id] = 0);
+            let newBankAllocs = {};
+            appData.bankAccounts.forEach(b => newBankAllocs[b] = 0);
+
+            appData.monthly.push({ 
+                month: newMonth, type: '想定', rIncome: 200000, hIncome: 195000, 
+                expenses: newExpenses, nisa: 30000, bonus: 0, extraInc: 0, memo: '', bankAllocations: newBankAllocs 
+            });
+            currentEditingIndex = appData.monthly.length - 1;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function deleteMonth(index) {
+            if (appData.monthly.length <= 1) return;
+            appData.monthly.splice(index, 1);
+            currentEditingIndex = Math.max(0, index - 1);
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function renderMonthEditor() {
+            const container = document.getElementById('month-editor-container');
+            if (!container) return;
+            const m = appData.monthly[currentEditingIndex];
+            if (!m) return;
+
+            const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+            let totalExp = 0;
+            if (!m.expenses) m.expenses = {};
+            appData.expenseCategories.forEach(cat => totalExp += Number(m.expenses[cat.id] || 0));
+            const autoSaving = totalInc - totalExp;
+
+            if (!m.bankAllocations) m.bankAllocations = {};
+            let allocatedSum = 0;
+            appData.bankAccounts.forEach(b => allocatedSum += Number(m.bankAllocations[b] || 0));
+
+            const isMatched = (allocatedSum === autoSaving);
+
+            let banksHtml = '';
+            if (appData.bankAccounts.length === 0) {
+                banksHtml = `<p class="text-xs opacity-70 col-span-full text-center py-2">銀行口座が登録されていません。「口座・NISA」タブから口座を追加してください。</p>`;
+            } else {
+                appData.bankAccounts.forEach(b => {
+                    banksHtml += `
+                        <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
+                            <span class="font-semibold text-xs">🏦 ${b}</span>
+                            <input type="number" value="${m.bankAllocations[b] || 0}" onchange="updateBankAllocation('${b}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        </div>
+                    `;
+                });
+            }
+
+            let expensesHtml = '';
+            appData.expenseCategories.forEach(cat => {
+                expensesHtml += `
+                    <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between gap-2 border">
+                        <div class="flex items-center gap-1.5 truncate">
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0">×</button>
+                            <span class="text-xs font-semibold truncate">${cat.name}</span>
+                        </div>
+                        <input type="number" value="${m.expenses[cat.id] || 0}" onchange="updateExpenseField('${cat.id}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="theme-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border">
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">年月</label>
+                        <select onchange="updateMonthField('month', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                            ${generateDateOptions(m.month)}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">区分</label>
+                        <select onchange="updateMonthField('type', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                            <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (グラフに反映)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">メモ</label>
+                        <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
+                    </div>
+                    <div class="flex justify-end sm:justify-start items-end">
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition border border-rose-500/30 cursor-pointer">削除</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 theme-card-sm p-4 rounded-xl border text-center">
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">総手取り（ボーナス込）</p>
+                        <p class="text-base sm:text-lg font-bold theme-primary-text mt-0.5">¥${totalInc.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
+                        <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5">¥${totalExp.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
+                        <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">¥${autoSaving.toLocaleString()}</p>
+                    </div>
+                </div>
+
+                <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-600 bg-emerald-500/10' : 'border-rose-500 bg-rose-500/10'}">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                                <span>💰</span> 口座割り振りチェック（割り振り合計: <span class="${isMatched ? 'text-emerald-600' : 'text-rose-500 font-extrabold'}">¥${allocatedSum.toLocaleString()}</span> / 貯金: ¥${autoSaving.toLocaleString()}）
+                            </h3>
+                        </div>
+                    </div>
+                    
+                    ${!isMatched ? `
+                        <div class="p-3 bg-rose-500/20 text-rose-500 text-xs font-bold rounded-xl border border-rose-500/40 flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>貯金額（¥${autoSaving.toLocaleString()}）と口座割り振りの合計額（¥${allocatedSum.toLocaleString()}）が一致していません！ぴったり一致させてください。</span>
+                        </div>
+                    ` : `
+                        <div class="p-2 bg-emerald-500/20 text-emerald-600 text-xs font-bold rounded-xl flex items-center gap-2">
+                            <span>✅</span> 貯金額と口座割り振りの金額がぴったり一致しています！
+                        </div>
+                    `}
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                        ${banksHtml}
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-xs tracking-wider uppercase flex items-center gap-1.5">
+                            <span class="w-1.5 h-3 theme-primary-bg rounded-full"></span> 収入項目 ＆ ボーナス・臨時収入
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                                <span class="text-xs font-semibold">ゲストA収入 (円)</span>
+                                <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            </div>
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                                <span class="text-xs font-semibold">ゲストB収入 (円)</span>
+                                <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            </div>
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                                <span class="text-xs font-bold">🎁 ボーナス (円)</span>
+                                <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            </div>
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                                <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
+                                <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2">
+                            <h3 class="font-bold text-xs tracking-wider uppercase flex items-center gap-1.5">
+                                <span class="w-1.5 h-3 bg-amber-500 rounded-full"></span> 支出項目（2段階追加フロー）
+                            </h3>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <input type="text" id="new-expense-raw-name" placeholder="項目名を入力 (例: カフェ)..." class="theme-card-sm border rounded-lg px-2.5 py-1 text-xs focus:outline-none">
+                                <button onclick="startAddingExpense()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加に進む</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                            ${expensesHtml}
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 pt-2">
+                            <span class="w-1.5 h-3 bg-emerald-600 rounded-full"></span> 積立・その他
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-emerald-500/10">
+                                <span class="text-xs font-bold">🌟 今月のNISA積立</span>
+                                <input type="number" value="${m.nisa !== undefined ? m.nisa : 30000}" onchange="updateMonthField('nisa', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateMonthField(field, value) {
+            appData.monthly[currentEditingIndex][field] = value;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+            updateCalculations();
+        }
+
+        function updateExpenseField(catId, value) {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.expenses) m.expenses = {};
+            m.expenses[catId] = value;
+            saveStorage();
+            updateCalculations();
+            renderMonthEditor();
+            renderPieChart();
+        }
+
+        function updateBankAllocation(bankName, value) {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.bankAllocations) m.bankAllocations = {};
+            m.bankAllocations[bankName] = value;
+            saveStorage();
+            updateCalculations();
+            renderMonthEditor();
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+                let totalExp = 0;
+                if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
+                const surplus = totalInc - totalExp;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-current/5 transition font-medium";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold">${m.month}</td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 text-emerald-600':'bg-amber-500/20 text-amber-600'}">${m.type}</span></td>
+                    <td class="p-3 text-right font-semibold theme-primary-text">¥${totalInc.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePieSelector() {
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                selector.appendChild(opt);
+            });
+        }
+
+        // ================= 円グラフ (選択テーマカラー基調の同系グラデーション連動) =================
+        function renderPieChart() {
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            const idx = Number(selector.value) || 0;
+            const m = appData.monthly[idx];
+            if (!m) return;
+
+            const ctx = document.getElementById('expensePieChart');
+            if (!ctx) return;
+            if (pieChart) pieChart.destroy();
+
+            const rootStyle = getComputedStyle(document.documentElement);
+            const activePrimary = rootStyle.getPropertyValue('--app-primary').trim() || '#8c6d53';
+
+            let rawItems = [];
+            let totalExp = 0;
+            appData.expenseCategories.forEach(cat => {
+                const val = Number(m.expenses?.[cat.id] || 0);
+                rawItems.push({ label: cat.name, val });
+                totalExp += val;
+            });
+            rawItems.sort((a, b) => b.val - a.val);
+
+            // 選択されたテーマカラーを基準に、美しく調色された同系トーンのグラデーションパレットを生成
+            const baseHex = activePrimary.startsWith('#') ? activePrimary : '#8c6d53';
+            const dynamicPalette = [
+                baseHex, 
+                shadeColor(baseHex, 20), 
+                shadeColor(baseHex, 40), 
+                shadeColor(baseHex, -20), 
+                shadeColor(baseHex, -40),
+                '#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#8b5cf6', 
+                '#14b8a6', '#f43f5e', '#84cc16', '#6366f1', '#06b6d4'
+            ];
+
+            pieChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: rawItems.map(i => i.label),
+                    datasets: [{ 
+                        data: rawItems.map(i => i.val), 
+                        backgroundColor: dynamicPalette, 
+                        borderWidth: 2, 
+                        borderColor: '#ffffff' 
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    let percentage = totalExp > 0 ? ((value / totalExp) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ¥${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }, 
+                    cutout: '65%' 
+                }
+            });
+
+            const listContainer = document.getElementById('expense-breakdown-list');
+            if (listContainer) {
+                listContainer.innerHTML = '';
+                rawItems.forEach((item, i) => {
+                    if (item.val > 0) {
+                        const el = document.createElement('div');
+                        el.className = "flex items-center justify-between p-2 rounded-xl theme-card-sm border text-xs";
+                        el.innerHTML = `
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${dynamicPalette[i%dynamicPalette.length]};"></span><span class="font-semibold">${item.label}</span></div>
+                            <span class="font-bold">¥${item.val.toLocaleString()}</span>
+                        `;
+                        listContainer.appendChild(el);
+                    }
+                });
+            }
+        }
+
+        // カラーコードの明度を調整して同系グラデーションを作る補助関数
+        function shadeColor(color, percent) {
+            let num = parseInt(color.replace("#",""), 16);
+            let amt = Math.round(2.55 * percent);
+            let R = (num >> 16) + amt;
+            let G = (num >> 8 & 0x00FF) + amt;
+            let B = (num & 0x0000FF) + amt;
+            return "#" + (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+        }
+
+        function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
+
+        function parseTextToEventObject(text) {
+            let cost = 0;
+            const yenMatch = text.match(/([\d,]+)\s*円/);
+            const manMatch = text.match(/([\d,.]+)\s*万/);
+            if (yenMatch) cost = parseInt(yenMatch[1].replace(/,/g, ''), 10);
+            else if (manMatch) cost = parseFloat(manMatch[1].replace(/,/g, '')) * 10000;
+
+            let date = '2027-12';
+            const dateMatch = text.match(/(\d{4})年\s*(\d{1,2})月/);
+            if (dateMatch) date = `${dateMatch[1]}-${String(dateMatch[2]).padStart(2, '0')}`;
+
+            let name = '予定イベント';
+            if (text.includes('結婚式')) name = '結婚式';
+            else if (text.includes('新婚旅行')) name = '新婚旅行';
+            else if (text.includes('車')) name = '車購入';
+
+            return { name, date, cost };
+        }
+
+        function parseAiTextAndAddEvent() {
+            const rawText = document.getElementById('ai-raw-text').value;
+            if (!rawText.trim()) return;
+            const parsed = parseTextToEventObject(rawText);
+            appData.events.push({ name: parsed.name, date: parsed.date, cost: parsed.cost, status: '予定', memo: rawText });
+            saveStorage();
+            renderEventsTable();
+            toggleAiParserBox();
+            alert('🎉 イベントを追加しました！');
+        }
+
+        function addNewEvent() {
+            appData.events.push({ name: '新しいイベント', date: '2027-04', cost: 100000, status: '予定', memo: '' });
+            saveStorage();
+            renderEventsTable();
+        }
+
+        function renderEventsTable() {
+            const tbody = document.getElementById('events-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (appData.events.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-70">予定はまだ登録されていません。</td></tr>`;
+                return;
+            }
+            appData.events.forEach((ev, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-current/5 transition align-top";
+                tr.innerHTML = `
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
+                    <td class="p-2.5"><select onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateDateOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
+                    <td class="p-2.5"><textarea rows="2" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-[11px]">${ev.memo || ''}</textarea></td>
+                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 px-2.5 py-1.5 rounded-lg text-xs">削除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateCalculations() {
+            if (appData.monthly.length > 0) {
+                const m = appData.monthly[currentEditingIndex] || appData.monthly[0];
+                const inc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+                let exp = 0;
+                if (m.expenses) for (let v of Object.values(m.expenses)) exp += Number(v || 0);
+                const surplus = inc - exp;
+
+                let bankTotals = {};
+                appData.bankAccounts.forEach(b => bankTotals[b] = 0);
+                appData.monthly.forEach(monthItem => {
+                    if (monthItem.bankAllocations) {
+                        for (let [bName, amt] of Object.entries(monthItem.bankAllocations)) {
+                            if (bankTotals[bName] !== undefined) bankTotals[bName] += Number(amt || 0);
+                        }
+                    }
+                });
+
+                let totalBankAssets = 0;
+                for (let amt of Object.values(bankTotals)) totalBankAssets += amt;
+                if (totalBankAssets === 0) totalBankAssets = appData.settings.startCash || 3000000;
+
+                document.getElementById('kpi-current-saving').innerText = '¥' + totalBankAssets.toLocaleString();
+                document.getElementById('kpi-monthly-income').innerText = '¥' + inc.toLocaleString();
+                document.getElementById('kpi-monthly-expense').innerText = '¥' + exp.toLocaleString();
+                document.getElementById('kpi-monthly-surplus').innerText = '¥' + surplus.toLocaleString();
+
+                let recentMonths = appData.monthly.slice(Math.max(0, currentEditingIndex - 1), currentEditingIndex + 1);
+                let incHtml = `<div class="text-[10px] font-bold opacity-70 mb-0.5">直近の推移:</div>`;
+                recentMonths.forEach(rm => {
+                    let rTotal = (rm.rIncome||0)+(rm.hIncome||0)+(rm.bonus||0)+(rm.extraInc||0);
+                    incHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${rTotal.toLocaleString()}</span></div>`;
+                });
+                document.getElementById('home-income-recent').innerHTML = incHtml;
+
+                let expHtml = `<div class="text-[10px] font-bold opacity-70 mb-0.5">直近の推移:</div>`;
+                recentMonths.forEach(rm => {
+                    let eSum = 0;
+                    if (rm.expenses) for (let v of Object.values(rm.expenses)) eSum += Number(v||0);
+                    expHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${eSum.toLocaleString()}</span></div>`;
+                });
+                document.getElementById('home-expense-recent').innerHTML = expHtml;
+            }
+        }
+
+        // ================= 複合グラフ描画 =================
+        function renderCharts() {
+            const chart1El = document.getElementById('cashFlowChart');
+            const rootStyle = getComputedStyle(document.documentElement);
+            const activePrimary = rootStyle.getPropertyValue('--app-primary').trim() || '#8c6d53';
+            const activeText = rootStyle.getPropertyValue('--app-text').trim() || '#2c2421';
+
+            if (chart1El) {
+                if (cashChart) cashChart.destroy();
+                let labels = [], balanceData = [], eventData = [];
+                let runningBalance = Number(appData.settings.startCash || 3000000);
+                let defaultSave = Number(appData.settings.defaultMonthlySave || 50000);
+                let y = 2026, m = 11;
+
+                for (let i = 0; i < 60; i++) {
+                    const mm = String(m).padStart(2, '0');
+                    const yyyymm = `${y}-${mm}`;
+                    labels.push(`${y}年${m}月`);
+
+                    let matched = appData.monthly.find(item => item.month === yyyymm);
+                    let saving = defaultSave;
+                    if (matched) {
+                        let inc = (matched.rIncome || 0) + (matched.hIncome || 0) + (matched.bonus || 0) + (matched.extraInc || 0);
+                        let exp = 0;
+                        if (matched.expenses) for (let v of Object.values(matched.expenses)) exp += Number(v || 0);
+                        saving = inc - exp;
+                    }
+
+                    let evCost = 0;
+                    appData.events.forEach(ev => { if (ev.date === yyyymm) evCost += Number(ev.cost || 0); });
+
+                    runningBalance += saving - evCost;
+                    balanceData.push(Math.round(runningBalance / 10000));
+                    eventData.push(Math.round(evCost / 10000));
+
+                    m++; if (m > 12) { m = 1; y++; }
+                }
+
+                cashChart = new Chart(chart1El.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { type: 'line', label: '現金残高 (万円)', data: balanceData, borderColor: activePrimary, backgroundColor: activePrimary + '20', borderWidth: 3, fill: true, tension: 0.35 },
+                            { type: 'bar', label: 'イベント費用 (万円)', data: eventData, backgroundColor: '#f59e0b', borderRadius: 4 }
+                        ]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: activeText } }
+                        },
+                        scales: {
+                            x: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } },
+                            y: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } }
+                        }
+                    }
+                });
+            }
+
+            const chart2El = document.getElementById('nisaChart');
+            if (chart2El) {
+                if (nisaChart) nisaChart.destroy();
+                const realAcc = calculateRealAccumulatedNisa() / 10000;
+                nisaChart = new Chart(chart2El.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['現在', '1年後', '3年後', '5年後', '10年後'],
+                        datasets: [{ label: 'NISA (万円)', data: [realAcc, realAcc+36, realAcc+110, realAcc+190, realAcc+420], borderColor: '#10b981', backgroundColor: '#10b98120', fill: true, tension: 0.35 }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: activeText } } },
+                        scales: {
+                            x: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } },
+                            y: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        window.onload = function() { loadStorage(); };
+    </script>
+</body>
+</html>
