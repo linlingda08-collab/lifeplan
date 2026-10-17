@@ -82,8 +82,8 @@
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
-                <div class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md overflow-hidden">
-                    <span>🌰</span>
+                <div id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md overflow-hidden">
+                    <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight leading-tight">ライフプラン</h1>
@@ -91,7 +91,7 @@
             </div>
 
             <div class="flex items-center space-x-2">
-                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer">
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
                     <span>🔄</span> <span>端末間直結同期</span>
                 </button>
             </div>
@@ -145,6 +145,7 @@
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 ＆ イベント必要費用
                         </h3>
+                        <span class="text-[10px] opacity-70">👉 横スクロール可能</span>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar pb-2">
                         <div class="min-w-[700px] h-64 sm:h-72 relative">
@@ -171,6 +172,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">毎月の収支計算</h2>
+                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していると確定できます。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer focus:outline-none"></select>
@@ -179,9 +181,11 @@
                         </button>
                     </div>
                 </div>
+
                 <div id="monthly-export-card" class="space-y-6 p-2 sm:p-4 rounded-2xl">
                     <div id="month-editor-container" class="space-y-6"></div>
                 </div>
+
                 <div class="flex justify-end no-print pt-2">
                     <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
                         <span>📸</span> この収支表を印刷・写真フォルダに保存 (A4最適化)
@@ -190,7 +194,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: CHARTS ================= -->
+        <!-- ================= TAB 3: CHARTS & HISTORY ================= -->
         <div id="tab-charts" class="hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
@@ -203,6 +207,7 @@
                     </div>
                     <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                 </div>
+
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <h3 class="font-bold text-xs sm:text-sm mb-4">過去の収支履歴一覧</h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-xl border border-current/10">
@@ -243,7 +248,7 @@
             <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
                 <div class="flex justify-between items-center pb-3 border-b border-current/10">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
-                    <button onclick="addNewEvent()" class="border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm cursor-pointer">＋ 追加</button>
+                    <button onclick="addNewEvent()" class="border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold cursor-pointer">＋ 追加</button>
                 </div>
                 <table class="w-full text-xs text-left border-collapse">
                     <thead>
@@ -376,7 +381,6 @@
 
         function initPeer() {
             if (peer) return;
-            // 4桁のランダムな数字をIDとして生成
             myShortId = String(Math.floor(1000 + Math.random() * 9000));
             peer = new Peer('lifeplan_' + myShortId);
 
@@ -385,7 +389,6 @@
                 if (display) display.innerText = myShortId;
             });
 
-            // 相手からのデータ受信待受
             peer.on('connection', (conn) => {
                 conn.on('data', (incomingData) => {
                     try {
@@ -413,7 +416,6 @@
             
             conn.on('open', () => {
                 statusMsg.innerText = 'データを送信中...';
-                // 現在の最新データを相手に送信
                 conn.send(appData);
                 statusMsg.innerText = '🎉 送信完了！相手のデータが更新されました。';
                 setTimeout(() => closeSyncModal(), 2000);
@@ -433,7 +435,6 @@
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        // 基本機能
         function loadStorage() {
             let saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -474,10 +475,14 @@
                     btnEl.classList.add('opacity-70', 'font-medium');
                 }
             });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.remove('hidden');
+
             const activeBtn = document.getElementById('btn-tab-' + tabId);
-            activeBtn.classList.remove('opacity-70', 'font-medium');
-            activeBtn.classList.add('theme-primary-bg', 'font-bold');
+            if (activeBtn) {
+                activeBtn.classList.remove('opacity-70', 'font-medium');
+                activeBtn.classList.add('theme-primary-bg', 'font-bold');
+            }
         }
 
         function updateMonthSelector() {
