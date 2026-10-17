@@ -81,14 +81,13 @@
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
-                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更">
+                <div id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md overflow-hidden">
                     <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight leading-tight">ライフプラン</h1>
                 </div>
             </div>
-            <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
                 <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
@@ -131,14 +130,9 @@
 
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl bg-cover bg-center transition-all">
-                <div id="hero-overlay" class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
-                <div class="absolute right-3 top-3 z-20 no-print flex gap-2">
-                    <label class="bg-white/20 hover:bg-white/30 text-white text-[10px] sm:text-[11px] font-semibold px-2.5 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
-                        <span>📷</span> 背景変更
-                        <input type="file" id="hero-bg-input" accept="image/*" onchange="changeHeroBackground(event)" class="hidden">
-                    </label>
-                </div>
+            <!-- 共通デフォルト背景（洗練されたグラデーションスタイル） -->
+            <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl transition-all bg-gradient-to-r from-amber-800/90 via-stone-700/90 to-amber-900/90">
+                <div id="hero-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4 sm:py-6">
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプランシミュレーション</h2>
                 </div>
@@ -453,7 +447,7 @@
                     <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
                     <div class="flex justify-end pt-1">
                         <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
-                            ✅ データを反映して同期する (自動適用)
+                            ✅ データを反映して同期する (一発完了)
                         </button>
                     </div>
                 </div>
@@ -479,7 +473,6 @@
                 monthlyNisa: 30000, 
                 nisaYield: '', 
                 years: 38, 
-                heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
                 startCash: 3000000,
@@ -534,43 +527,6 @@
             lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
-
-        // コピペ上限文字数オーバーを100%防ぐ極小圧縮処理
-        function compressImage(base64Str, maxWidth, maxHeight, quality, callback) {
-            if (!base64Str || !base64Str.startsWith('data:image')) {
-                callback(base64Str);
-                return;
-            }
-            const img = new Image();
-            img.src = base64Str;
-            img.onload = function() {
-                let canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
-
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height = Math.round((height * maxWidth) / width);
-                        width = maxWidth;
-                    }
-                } else {
-                    if (height > maxHeight) {
-                        width = Math.round((width * maxHeight) / height);
-                        height = maxHeight;
-                    }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                let ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                // 画像容量を約95%軽量化し、テキスト文字数を最小化
-                callback(canvas.toDataURL('image/jpeg', quality));
-            };
-            img.onerror = function() {
-                callback('');
-            };
-        }
 
         function getAccountNames() {
             return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
@@ -756,8 +712,6 @@
 
             applyTheme(appData.settings.currentTheme);
             syncSettingsToUI();
-            applyHeroBackground();
-            applyHeaderIcon();
             updateMonthSelector();
             renderMonthEditor();
             renderHistoryTable();
@@ -776,78 +730,23 @@
             renderPieChart();
         }
 
-        function promptHeaderIcon() {
-            const choice = confirm('アイコンを画像に変更しますか？\n[OK]画像を選択 / [キャンセル]絵文字を入力');
-            if (choice) {
-                document.getElementById('header-icon-file-input').click();
-            } else {
-                const newIcon = prompt('ヘッダーに表示する絵文字を入力してください:', appData.settings.headerIcon);
-                if (newIcon !== null && newIcon.trim() !== '') {
-                    appData.settings.headerIcon = newIcon.trim();
-                    appData.settings.headerIconType = 'emoji';
-                    saveStorage();
-                    applyHeaderIcon();
-                }
-            }
-        }
-
-        function changeHeaderIconImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    compressImage(e.target.result, 80, 80, 0.4, function(compressed) {
-                        appData.settings.headerIcon = compressed;
-                        appData.settings.headerIconType = 'image';
-                        saveStorage();
-                        applyHeaderIcon();
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function applyHeaderIcon() {
-            const box = document.getElementById('header-icon-box');
-            if (!box) return;
-            if (appData.settings.headerIconType === 'image' && appData.settings.headerIcon.startsWith('data:')) {
-                box.innerHTML = '';
-                box.style.backgroundImage = `url('${appData.settings.headerIcon}')`;
-            } else {
-                box.style.backgroundImage = 'none';
-                box.innerHTML = `<span id="header-icon-text">${appData.settings.headerIcon || '🌰'}</span>`;
-            }
-        }
-
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
-            // モーダルを開いた時に最新の同期用テキストを準備
-            prepareAndExportDataText();
+            // 重い画像データを含まない完全軽量なJSONを出力
+            let exportData = JSON.parse(JSON.stringify(appData));
+            delete exportData.settings.heroBg; // 画像データを除外して極小化
+            document.getElementById('export-data-textarea').value = JSON.stringify(exportData);
         }
 
         function closeSyncModal() {
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        // コピー前に画像データをリアルタイム圧縮してコピー途切れを防止
-        function prepareAndExportDataText() {
-            let exportData = JSON.parse(JSON.stringify(appData));
-            if (exportData.settings.heroBg && exportData.settings.heroBg.startsWith('data:image')) {
-                compressImage(exportData.settings.heroBg, 500, 280, 0.35, function(compressedBg) {
-                    exportData.settings.heroBg = compressedBg;
-                    document.getElementById('export-data-textarea').value = JSON.stringify(exportData);
-                });
-            } else {
-                document.getElementById('export-data-textarea').value = JSON.stringify(exportData);
-            }
-        }
-
         function copyDataText() {
             const textarea = document.getElementById('export-data-textarea');
-            const jsonStr = textarea.value;
             textarea.select();
             
-            navigator.clipboard.writeText(jsonStr).then(() => {
+            navigator.clipboard.writeText(textarea.value).then(() => {
                 alert('📋 全同期コードをコピーしました！\n受信側(iPad等)のペースト枠に貼り付けてください。');
             }).catch(() => {
                 alert('📋 テキストエリア内の文字列をすべて選択して手動でコピーしてください。');
@@ -872,7 +771,7 @@
                 // 画面強制リロードで完全に状態同期
                 location.reload();
             } catch(e) {
-                alert('❌ 同期コードの読み込みに失敗しました。\nコピーしたテキストが途中で切れている可能性があります。送信側(iPhone)でもう一度「全同期コードをコピー」を押してからペーストしてみてください。');
+                alert('❌ 同期コードの読み込みに失敗しました。\n正しい同期コードを貼り付けてください。');
             }
         }
 
@@ -971,29 +870,6 @@
             saveStorage();
             renderBankAccountsManager();
             updateCalculations();
-        }
-
-        function changeHeroBackground(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // 背景画像を劇的に軽量圧縮 (幅500px / JPEG品質0.35)
-                    compressImage(e.target.result, 500, 280, 0.35, function(compressed) {
-                        appData.settings.heroBg = compressed;
-                        saveStorage();
-                        applyHeroBackground();
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function applyHeroBackground() {
-            const banner = document.getElementById('hero-banner');
-            if (banner && appData.settings.heroBg) {
-                banner.style.backgroundImage = `url('${appData.settings.heroBg}')`;
-            }
         }
 
         function switchTab(tabId) {
