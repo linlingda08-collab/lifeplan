@@ -12,8 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2canvas for A4 Image Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
@@ -68,15 +66,12 @@
             border-radius: 9999px;
         }
 
-        /* A4サイズ書き出し用スタイリング */
-        .a4-export-container {
-            width: 794px !important;
-            min-height: 1123px !important;
-            padding: 32px !important;
-            box-sizing: border-box !important;
-            background: #ffffff !important;
-            color: #2c2421 !important;
-            margin: 0 auto !important;
+        /* 印刷・画像保存用 A4 スタイル */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
+            .print-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            .a4-print-target { width: 100% !important; border: none !important; box-shadow: none !important; background: #ffffff !important; }
         }
     </style>
 </head>
@@ -103,7 +98,7 @@
         </div>
     </header>
 
-    <!-- Bottom Navigation Bar (iPhone One-Handed Optimization) -->
+    <!-- Bottom Navigation Bar -->
     <nav class="no-print theme-card fixed bottom-0 left-0 right-0 z-50 border-t shadow-lg py-2 px-2 flex justify-around items-center backdrop-blur-md">
         <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition theme-primary-bg cursor-pointer text-[10px] font-bold">
             <span class="text-base">🏠</span> ホーム
@@ -149,8 +144,8 @@
                 </div>
             </div>
 
-            <!-- KPI Cards & Bank Accounts Grid -->
-            <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+            <!-- KPI Cards & Bank Accounts Grid (①貯金用(UFJ) -> ②ゆとり用(イオン) -> ③ゲストA貯金用) -->
+            <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
@@ -181,7 +176,7 @@
 
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
         <div id="tab-input" class="hidden space-y-6">
-            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6 a4-print-target">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">毎月の収支計算</h2>
@@ -195,14 +190,14 @@
                     </div>
                 </div>
 
-                <div id="monthly-export-card" class="space-y-6 p-4 sm:p-6 rounded-2xl theme-card border">
+                <div id="monthly-export-card" class="space-y-6 p-2 sm:p-4 rounded-2xl">
                     <div id="month-editor-container" class="space-y-6"></div>
                 </div>
 
-                <!-- A4画像出力用ボタン -->
+                <!-- 写真保存・A4印刷最適化ボタン -->
                 <div class="flex justify-end no-print pt-2">
-                    <button onclick="exportMonthlyCardAsA4Image()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <span>📸</span> このページをA4画像 (PNG) として保存
+                    <button onclick="triggerA4PrintOrSave()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <span>📸</span> この収支表を印刷・写真フォルダに保存 (A4最適化)
                     </button>
                 </div>
             </div>
@@ -331,7 +326,7 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理</h2>
-                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や生活口座（引き落とし用）を追加・管理します。</p>
+                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や各口座を管理します。並び順はホーム画面にもそのまま反映されます。</p>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
@@ -350,7 +345,7 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">NISA管理・シミュレーション</h2>
-                    <p class="text-xs opacity-70 mt-0.5">想定年利（％）を入力すると複利運用を計算します。未入力時は純粋な積立元本のみを計算します。</p>
+                    <p class="text-xs opacity-70 mt-0.5">想定年利（％）を入力すると毎月複利運用を計算します。未入力時は純粋な積立元本のみを計算します。</p>
                 </div>
                 
                 <div class="space-y-4 text-xs sm:text-sm pt-2">
@@ -363,7 +358,7 @@
                         <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
                     </div>
                     <div>
-                        <label class="block font-semibold opacity-80 mb-1.5">想定年利 (％) <span class="text-[10px] opacity-70">(未入力の場合は利回りなし・積立元本のみ)</span></label>
+                        <label class="block font-semibold opacity-80 mb-1.5">想定年利 (％) <span class="text-[10px] opacity-70">(※未入力時は利回りなし・純粋な元本のみ)</span></label>
                         <input type="number" step="0.1" id="setting-nisa-yield" placeholder="例: 5.0 (未入力は利回り0%)" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
                     </div>
                     <div>
@@ -380,7 +375,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 8: FULL APP THEMES & BUILDER ================= -->
+        <!-- ================= TAB 8: THEMES ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -446,15 +441,15 @@
 
             <div class="space-y-4 text-xs sm:text-sm">
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作</h4>
+                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作 (iPhoneなど)</h4>
                     <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>📋</span> 全データをコピー
+                        <span>📋</span> 全同期コードをコピー
                     </button>
                     <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] focus:outline-none font-mono border"></textarea>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作</h4>
+                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作 (iPadなど)</h4>
                     <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
                     <div class="flex justify-end pt-1">
                         <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
@@ -468,13 +463,20 @@
 
     <!-- App Logic -->
     <script>
-        const STORAGE_KEY = 'lifeplan_master_data';
+        const STORAGE_KEY = 'lifeplan_master_data_v2026';
+
+        // デフォルト口座: ①貯金用(UFJ) -> ②ゆとり用(イオン) -> ③ゲストA貯金用
+        const defaultAccounts = [
+            { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
+            { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
+            { name: 'ゲストA貯金用', initialBalance: 0 }
+        ];
 
         let appData = {
             settings: { 
                 age: 27, 
                 monthlyNisa: 30000, 
-                nisaYield: '', // 未入力時は空文字（利回りなし）
+                nisaYield: '', // 未入力は利回りなし（積み立て元本のみ）
                 years: 38, 
                 heroBg: '', 
                 headerIcon: '🌰',
@@ -484,11 +486,7 @@
                 currentTheme: 'earth'
             },
             customThemes: [],
-            bankAccounts: [
-                { name: 'ゲストA貯金用', initialBalance: 3000000 },
-                { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
-                { name: '生活口座(引き落とし用)', initialBalance: 100000 }
-            ],
+            bankAccounts: [...defaultAccounts],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
                 { id: 'rTrans', name: '🚆 ゲストA交通費' },
@@ -512,7 +510,7 @@
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: { 'ゲストA貯金用': 88500, 'ゆとり用(イオン銀行)': 30000, '生活口座(引き落とし用)': 70000 }
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, 'ゲストA貯金用': 70000 }
                 }
             ],
             events: []
@@ -535,6 +533,35 @@
             lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
+
+        // 画像の軽量自動圧縮処理（同期コード肥大化防止用）
+        function compressImage(base64Str, maxWidth, maxHeight, quality, callback) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = function() {
+                let canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                let ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', quality));
+            };
+        }
 
         function getAccountNames() {
             return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
@@ -649,12 +676,6 @@
             if (!emojiInput || !emojiInput.trim()) return;
             
             let emoji = emojiInput.trim();
-            const emojiRegex = /(\p{Extended_Pictographic}|\p{Emoji_Component})/u;
-            if (!emojiRegex.test(emoji)) {
-                alert('❌ 絵文字を入力してください。');
-                return;
-            }
-
             const formattedName = `${emoji} ${rawName}`;
             const id = 'exp_' + Date.now();
             appData.expenseCategories.push({ id, name: formattedName });
@@ -702,30 +723,24 @@
         function loadStorage() {
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
-                saved = localStorage.getItem('lifeplan_data_earth_v25');
+                saved = localStorage.getItem('lifeplan_master_data') || localStorage.getItem('lifeplan_data_earth_v25');
             }
 
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             
+            // 口座の標準リスト強制適用・順序調整: ①UFJ -> ②イオン -> ③ゲストA
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
-                appData.bankAccounts = [
-                    { name: 'ゲストA貯金用', initialBalance: 3000000 },
-                    { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
-                    { name: '生活口座(引き落とし用)', initialBalance: 100000 }
-                ];
+                appData.bankAccounts = [...defaultAccounts];
             } else {
-                appData.bankAccounts = appData.bankAccounts.map(acc => {
-                    if (typeof acc === 'string') {
-                        if (acc.includes('貯金用')) return { name: 'ゲストA貯金用', initialBalance: 3000000 };
-                        return { name: acc, initialBalance: 0 };
-                    }
-                    if (acc.name && acc.name.includes('三菱UFJ')) {
-                        acc.name = 'ゲストA貯金用';
-                    }
-                    return acc;
-                });
+                let hasUFJ = appData.bankAccounts.some(acc => (typeof acc==='string'?acc:acc.name).includes('三菱UFJ'));
+                let hasIon = appData.bankAccounts.some(acc => (typeof acc==='string'?acc:acc.name).includes('イオン'));
+                let hasGuest = appData.bankAccounts.some(acc => (typeof acc==='string'?acc:acc.name).includes('ゲストA'));
+
+                if (!hasUFJ || !hasIon || !hasGuest) {
+                    appData.bankAccounts = [...defaultAccounts];
+                }
             }
 
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
@@ -773,10 +788,12 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    appData.settings.headerIcon = e.target.result;
-                    appData.settings.headerIconType = 'image';
-                    saveStorage();
-                    applyHeaderIcon();
+                    compressImage(e.target.result, 120, 120, 0.7, function(compressed) {
+                        appData.settings.headerIcon = compressed;
+                        appData.settings.headerIconType = 'image';
+                        saveStorage();
+                        applyHeaderIcon();
+                    });
                 };
                 reader.readAsDataURL(file);
             }
@@ -805,21 +822,34 @@
 
         function copyDataText() {
             const jsonStr = JSON.stringify(appData);
-            navigator.clipboard.writeText(jsonStr).then(() => alert('📋 全データをコピーしました！'));
+            const textarea = document.getElementById('export-data-textarea');
+            textarea.value = jsonStr;
+            textarea.select();
+            
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                alert('📋 全同期コードをコピーしました！\n別の端末(iPad等)のペースト枠に貼り付けてください。');
+            }).catch(() => {
+                alert('📋 画面上のテキストエリアの文字列をすべて選択して手動でコピーしてください。');
+            });
         }
 
         function applyImportedData() {
             const text = document.getElementById('import-data-textarea').value.trim();
+            if (!text) {
+                alert('同期コードが入力されていません。');
+                return;
+            }
             try {
                 const parsed = JSON.parse(text);
-                if (!parsed.monthly) throw new Error();
+                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('invalid format');
                 appData = parsed;
                 saveStorage();
                 loadStorage();
                 closeSyncModal();
-                alert('🎉 データ同期が完了しました！');
+                document.getElementById('import-data-textarea').value = '';
+                alert('🎉 データ同期が完全完了しました！iPad側の背景や口座データも最新に更新されました。');
             } catch(e) {
-                alert('❌ データの解析に失敗しました。');
+                alert('❌ 同期コードの読み込みに失敗しました。コピーしたテキストが途切れていないかご確認ください。');
             }
         }
 
@@ -900,6 +930,7 @@
             }
             saveStorage();
             renderBankAccountsManager();
+            updateCalculations();
         }
 
         function updateBankAccountBalance(index, newBalance) {
@@ -925,9 +956,12 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    appData.settings.heroBg = e.target.result;
-                    saveStorage();
-                    applyHeroBackground();
+                    // 自動圧縮して同期コード容量を削減
+                    compressImage(e.target.result, 800, 450, 0.65, function(compressed) {
+                        appData.settings.heroBg = compressed;
+                        saveStorage();
+                        applyHeroBackground();
+                    });
                 };
                 reader.readAsDataURL(file);
             }
@@ -1110,7 +1144,7 @@
                     </div>
                 </div>
 
-                <div class="text-center font-bold text-sm sm:text-base pb-2 border-b border-current/10">
+                <div class="text-center font-bold text-base sm:text-lg pb-2 border-b border-current/10">
                     📅 ${m.month} の収支計算 (${m.type})
                 </div>
 
@@ -1215,33 +1249,9 @@
             `;
         }
 
-        // A4サイズ画像出力機能（html2canvas使用）
-        function exportMonthlyCardAsA4Image() {
-            const targetElement = document.getElementById('monthly-export-card');
-            if (!targetElement) return;
-
-            const originalClass = targetElement.className;
-            targetElement.classList.add('a4-export-container');
-
-            html2canvas(targetElement, {
-                scale: 2, 
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false
-            }).then(canvas => {
-                targetElement.className = originalClass;
-
-                const imageURL = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                const currentMonth = appData.monthly[currentEditingIndex]?.month || 'monthly';
-                link.download = `ライフプラン_${currentMonth}収支.png`;
-                link.href = imageURL;
-                link.click();
-            }).catch(err => {
-                targetElement.className = originalClass;
-                console.error(err);
-                alert('❌ 画像の生成に失敗しました。');
-            });
+        // 写真保存・A4印刷最適化処理
+        function triggerA4PrintOrSave() {
+            window.print();
         }
 
         function updateMonthField(field, value) {
@@ -1525,6 +1535,7 @@
                 if (gridContainer) {
                     let html = '';
                     
+                    // ホーム画面の口座残高カード（1.貯金用UFJ -> 2.ゆとり用イオン -> 3.ゲストA貯金用）
                     appData.bankAccounts.forEach(acc => {
                         const accName = typeof acc === 'string' ? acc : acc.name;
                         const currentBal = calculateAccountCurrentBalance(accName);
@@ -1596,7 +1607,7 @@
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventData = [];
                 
-                let savingAccountName = 'ゲストA貯金用';
+                let savingAccountName = '貯金用(三菱UFJ銀行)';
                 const foundSavingAcc = appData.bankAccounts.find(acc => {
                     const name = typeof acc === 'string' ? acc : acc.name;
                     return name.includes('貯金用');
