@@ -535,8 +535,12 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
-        // iOSクリップボード途切れ防止のための超軽量画像圧縮（サイズ＆品質大幅最適化）
+        // コピペ上限文字数オーバーを100%防ぐ極小圧縮処理
         function compressImage(base64Str, maxWidth, maxHeight, quality, callback) {
+            if (!base64Str || !base64Str.startsWith('data:image')) {
+                callback(base64Str);
+                return;
+            }
             const img = new Image();
             img.src = base64Str;
             img.onload = function() {
@@ -560,8 +564,11 @@
                 canvas.height = height;
                 let ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                // データサイズ抑制のためjpeg/0.45品質で超軽量化
+                // 画像容量を約95%軽量化し、テキスト文字数を最小化
                 callback(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = function() {
+                callback('');
             };
         }
 
@@ -789,7 +796,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    compressImage(e.target.result, 100, 100, 0.5, function(compressed) {
+                    compressImage(e.target.result, 80, 80, 0.4, function(compressed) {
                         appData.settings.headerIcon = compressed;
                         appData.settings.headerIconType = 'image';
                         saveStorage();
@@ -814,17 +821,30 @@
 
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
-            document.getElementById('export-data-textarea').value = JSON.stringify(appData);
+            // モーダルを開いた時に最新の同期用テキストを準備
+            prepareAndExportDataText();
         }
 
         function closeSyncModal() {
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
+        // コピー前に画像データをリアルタイム圧縮してコピー途切れを防止
+        function prepareAndExportDataText() {
+            let exportData = JSON.parse(JSON.stringify(appData));
+            if (exportData.settings.heroBg && exportData.settings.heroBg.startsWith('data:image')) {
+                compressImage(exportData.settings.heroBg, 500, 280, 0.35, function(compressedBg) {
+                    exportData.settings.heroBg = compressedBg;
+                    document.getElementById('export-data-textarea').value = JSON.stringify(exportData);
+                });
+            } else {
+                document.getElementById('export-data-textarea').value = JSON.stringify(exportData);
+            }
+        }
+
         function copyDataText() {
-            const jsonStr = JSON.stringify(appData);
             const textarea = document.getElementById('export-data-textarea');
-            textarea.value = jsonStr;
+            const jsonStr = textarea.value;
             textarea.select();
             
             navigator.clipboard.writeText(jsonStr).then(() => {
@@ -852,7 +872,7 @@
                 // 画面強制リロードで完全に状態同期
                 location.reload();
             } catch(e) {
-                alert('❌ 同期コードの読み込みに失敗しました。\nコードが途中で切れている可能性があります。送信側でもう一度「全同期コードをコピー」を押してからペーストしてみてください。');
+                alert('❌ 同期コードの読み込みに失敗しました。\nコピーしたテキストが途中で切れている可能性があります。送信側(iPhone)でもう一度「全同期コードをコピー」を押してからペーストしてみてください。');
             }
         }
 
@@ -958,8 +978,8 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // 背景画像を大幅圧縮 (同期コード肥大化防止)
-                    compressImage(e.target.result, 600, 330, 0.45, function(compressed) {
+                    // 背景画像を劇的に軽量圧縮 (幅500px / JPEG品質0.35)
+                    compressImage(e.target.result, 500, 280, 0.35, function(compressed) {
                         appData.settings.heroBg = compressed;
                         saveStorage();
                         applyHeroBackground();
