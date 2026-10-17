@@ -14,6 +14,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- QRCode Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- jsQR (Camera QR Reader Library) -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <style id="dynamic-theme-style">
         :root {
             --app-bg: linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%);
@@ -130,7 +134,6 @@
 
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            <!-- 共通デフォルト背景（洗練されたグラデーションスタイル） -->
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl transition-all bg-gradient-to-r from-amber-800/90 via-stone-700/90 to-amber-900/90">
                 <div id="hero-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4 sm:py-6">
@@ -423,9 +426,9 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL (Text Code Copy & Paste) ================= -->
+    <!-- ================= SYNC MODAL (QR Code & Text Code Sync) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
-        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
+        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
                     <span>🔄</span> 端末間データ同期 (iPhone ⇄ iPad)
@@ -433,27 +436,57 @@
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
             </div>
 
-            <div class="space-y-4 text-xs sm:text-sm">
-                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作 (コピー元)</h4>
-                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>📋</span> 全同期コードをコピー
-                    </button>
-                    <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] font-mono border focus:outline-none"></textarea>
+            <div class="space-y-5 text-xs sm:text-sm">
+                
+                <!-- 1️⃣ QRコード同期（最速・一発同期） -->
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border bg-amber-500/5">
+                    <h4 class="font-bold text-xs flex items-center gap-1.5 text-amber-800">
+                        <span>📱</span> 1️⃣ 最も簡単！QRコードで一発同期
+                    </h4>
+                    
+                    <div class="flex flex-col items-center justify-center space-y-3 pt-1">
+                        <div id="qrcode-container" class="bg-white p-3 rounded-2xl shadow-md border flex justify-center items-center"></div>
+                        <p class="text-[11px] opacity-80 text-center">送信側(iPhone)の画面に表示されたQRコードを、受信側(iPad)のかざしカメラで読み取ってください。</p>
+                        
+                        <button onclick="startQrScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 w-full">
+                            <span>📷</span> カメラを起動してQRコードを読み取る
+                        </button>
+                    </div>
+
+                    <!-- カメラ映像表示領域（スキャン時のみ起動） -->
+                    <div id="camera-scanner-box" class="hidden space-y-2 pt-2 border-t border-current/10">
+                        <div class="relative overflow-hidden rounded-2xl border bg-black aspect-square max-w-xs mx-auto">
+                            <video id="qr-video" class="w-full h-full object-cover" playsinline></video>
+                        </div>
+                        <p class="text-[10px] text-center text-emerald-600 font-bold">枠内に相手のQRコードをかざしてください...</p>
+                        <button onclick="stopQrScanner()" class="w-full bg-stone-500 hover:bg-stone-600 text-white text-xs font-semibold py-1.5 rounded-xl cursor-pointer">カメラを閉じる</button>
+                    </div>
                 </div>
 
+                <!-- 2️⃣ テキストコピペ同期（従来方式） -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作 (ペースト先)</h4>
-                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
-                    <div class="flex justify-end pt-1">
-                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
-                            ✅ データを反映して同期する (一発完了)
+                    <h4 class="font-bold text-xs">2️⃣ 手動テキストコードで同期</h4>
+                    <div class="space-y-2">
+                        <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                            <span>📋</span> 全同期コードをコピー
+                        </button>
+                        <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] font-mono border focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-current/10">
+                        <textarea id="import-data-textarea" rows="3" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-2.5 text-xs focus:outline-none border"></textarea>
+                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow cursor-pointer w-full">
+                            ✅ データを反映して同期する
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+
+    <!-- Canvas for QR scanning (hidden) -->
+    <canvas id="qr-canvas" class="hidden"></canvas>
 
     <!-- App Logic -->
     <script>
@@ -514,6 +547,8 @@
         let nisaChart = null;
         let pieChart = null;
         let currentEditingIndex = 0;
+        let videoStream = null;
+        let scanAnimationId = null;
 
         const presetThemes = {
             earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46' },
@@ -732,13 +767,31 @@
 
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
-            // 重い画像データを含まない完全軽量なJSONを出力
             let exportData = JSON.parse(JSON.stringify(appData));
-            delete exportData.settings.heroBg; // 画像データを除外して極小化
-            document.getElementById('export-data-textarea').value = JSON.stringify(exportData);
+            delete exportData.settings.heroBg; // データ最軽量化
+            const jsonStr = JSON.stringify(exportData);
+
+            document.getElementById('export-data-textarea').value = jsonStr;
+
+            // QRコード生成（読み取りやすい最適サイズ）
+            const qrContainer = document.getElementById('qrcode-container');
+            qrContainer.innerHTML = '';
+            try {
+                new QRCode(qrContainer, {
+                    text: jsonStr,
+                    width: 180,
+                    height: 180,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            } catch(e) {
+                console.error("QR Code Generation Error:", e);
+            }
         }
 
         function closeSyncModal() {
+            stopQrScanner();
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
@@ -759,20 +812,69 @@
                 alert('同期コードが入力されていません。');
                 return;
             }
+            processImportData(text);
+        }
+
+        function processImportData(jsonStr) {
             try {
-                const parsed = JSON.parse(text);
+                const parsed = JSON.parse(jsonStr);
                 if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
                 
-                // 完全統一キーに上書き保存
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-                
                 alert('🎉 データ同期が完了しました！\n画面を自動更新して最新状態にします。');
-                
-                // 画面強制リロードで完全に状態同期
                 location.reload();
             } catch(e) {
                 alert('❌ 同期コードの読み込みに失敗しました。\n正しい同期コードを貼り付けてください。');
             }
+        }
+
+        // カメラによるQRコード読み取り開始機能
+        function startQrScanner() {
+            const box = document.getElementById('camera-scanner-box');
+            box.classList.remove('hidden');
+
+            const video = document.getElementById('qr-video');
+            const canvas = document.getElementById('qr-canvas');
+            const ctx = canvas.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(function(stream) {
+                videoStream = stream;
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true);
+                video.play();
+                scanAnimationId = requestAnimationFrame(tick);
+            }).catch(function(err) {
+                alert("📷 カメラの起動に失敗しました。カメラの使用許可をご確認ください。");
+                stopQrScanner();
+            });
+
+            function tick() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    var code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    if (code && code.data) {
+                        stopQrScanner();
+                        processImportData(code.data);
+                        return;
+                    }
+                }
+                scanAnimationId = requestAnimationFrame(tick);
+            }
+        }
+
+        function stopQrScanner() {
+            if (scanAnimationId) cancelAnimationFrame(scanAnimationId);
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+            const box = document.getElementById('camera-scanner-box');
+            if (box) box.classList.add('hidden');
         }
 
         function syncSettingsToUI() {
