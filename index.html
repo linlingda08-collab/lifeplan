@@ -81,16 +81,17 @@
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
-                <div id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md overflow-hidden">
+                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更">
                     <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
                     <h1 class="text-sm font-bold tracking-tight leading-tight">ライフプラン</h1>
                 </div>
             </div>
+            <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="データ同期">
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
                     <span>🔄</span> <span>データ同期</span>
                 </button>
             </div>
@@ -130,13 +131,20 @@
 
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl transition-all bg-gradient-to-r from-amber-800/90 via-stone-700/90 to-amber-900/90">
-                <div id="hero-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
+            <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl bg-cover bg-center transition-all">
+                <div id="hero-overlay" class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
+                <div class="absolute right-3 top-3 z-20 no-print flex gap-2">
+                    <label class="bg-white/20 hover:bg-white/30 text-white text-[10px] sm:text-[11px] font-semibold px-2.5 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
+                        <span>📷</span> 背景変更
+                        <input type="file" id="hero-bg-input" accept="image/*" onchange="changeHeroBackground(event)" class="hidden">
+                    </label>
+                </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4 sm:py-6">
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプランシミュレーション</h2>
                 </div>
             </div>
 
+            <!-- KPI Cards & Bank Accounts Grid (①貯金用(UFJ) -> ②ゆとり用(イオン) -> ③ゲストA貯金用) -->
             <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -186,6 +194,7 @@
                     <div id="month-editor-container" class="space-y-6"></div>
                 </div>
 
+                <!-- 写真保存・A4印刷最適化ボタン -->
                 <div class="flex justify-end no-print pt-2">
                     <button onclick="triggerA4PrintOrSave()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
                         <span>📸</span> この収支表を印刷・写真フォルダに保存 (A4最適化)
@@ -277,6 +286,7 @@
                     </div>
                 </div>
 
+                <!-- AI Parser Box -->
                 <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 hidden shadow-lg" onclick="event.stopPropagation()">
                     <div class="flex items-center justify-between pb-2 border-b border-current/10">
                         <h4 class="font-bold text-xs flex items-center gap-1.5">
@@ -419,9 +429,9 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL (Original Text Copy) ================= -->
+    <!-- ================= SYNC MODAL (Text Code Copy & Paste) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
-        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
                     <span>🔄</span> 端末間データ同期
@@ -430,20 +440,22 @@
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm">
-                <div class="space-y-2">
-                    <label class="block font-semibold">同期コードをコピー（送信側）</label>
-                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2 rounded-xl transition shadow cursor-pointer">
-                        📋 全同期コードをコピー
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
+                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作 (iPhoneなど)</h4>
+                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>📋</span> 全同期コードをコピー
                     </button>
-                    <textarea id="export-data-textarea" readonly rows="3" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] font-mono border focus:outline-none"></textarea>
+                    <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] focus:outline-none font-mono border"></textarea>
                 </div>
 
-                <div class="space-y-2 pt-2 border-t border-current/10">
-                    <label class="block font-semibold">同期コードを貼り付け（受信側）</label>
-                    <textarea id="import-data-textarea" rows="3" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-2.5 text-xs focus:outline-none border"></textarea>
-                    <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow cursor-pointer w-full">
-                        ✅ データを反映して同期する
-                    </button>
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
+                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作 (iPadなど)</h4>
+                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
+                    <div class="flex justify-end pt-1">
+                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
+                            ✅ データを反映して同期する
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -451,8 +463,9 @@
 
     <!-- App Logic -->
     <script>
-        const STORAGE_KEY = 'lifeplan_master_unified_data';
+        const STORAGE_KEY = 'lifeplan_master_data_v2026';
 
+        // デフォルト口座: ①貯金用(UFJ) -> ②ゆとり用(イオン) -> ③ゲストA貯金用
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
             { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
@@ -463,8 +476,9 @@
             settings: { 
                 age: 27, 
                 monthlyNisa: 30000, 
-                nisaYield: '', 
+                nisaYield: '', // 未入力は利回りなし（積み立て元本のみ）
                 years: 38, 
+                heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
                 startCash: 3000000,
@@ -520,6 +534,35 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
+        // 画像の軽量自動圧縮処理（同期コード肥大化防止用）
+        function compressImage(base64Str, maxWidth, maxHeight, quality, callback) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = function() {
+                let canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                let ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL('image/jpeg', quality));
+            };
+        }
+
         function getAccountNames() {
             return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
         }
@@ -543,19 +586,15 @@
             return initial + allocatedSum;
         }
 
-        function getCurrentThemeObj() {
-            let theme = presetThemes[appData.settings.currentTheme];
-            if (!theme && appData.customThemes) {
-                theme = appData.customThemes.find(t => t.key === appData.settings.currentTheme);
-            }
-            return theme || presetThemes['earth'];
-        }
-
         function applyTheme(themeKey) {
             appData.settings.currentTheme = themeKey;
             saveStorage();
 
-            let theme = getCurrentThemeObj();
+            let theme = presetThemes[themeKey];
+            if (!theme) {
+                theme = appData.customThemes.find(t => t.key === themeKey) || presetThemes['earth'];
+            }
+
             const root = document.documentElement;
             root.style.setProperty('--app-bg', theme.bg);
             root.style.setProperty('--app-text', theme.text);
@@ -684,15 +723,24 @@
         function loadStorage() {
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
-                saved = localStorage.getItem('lifeplan_master_data_v2026') || localStorage.getItem('lifeplan_master_data');
+                saved = localStorage.getItem('lifeplan_master_data') || localStorage.getItem('lifeplan_data_earth_v25');
             }
 
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
             
+            // 口座の標準リスト強制適用・順序調整: ①UFJ -> ②イオン -> ③ゲストA
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [...defaultAccounts];
+            } else {
+                let hasUFJ = appData.bankAccounts.some(acc => (typeof acc==='string'?acc:acc.name).includes('三菱UFJ'));
+                let hasIon = appData.bankAccounts.some(acc => (typeof acc==='string'?acc:acc.name).includes('イオン'));
+                let hasGuest = appData.bankAccounts.some(acc => (typeof acc==='string'?acc:acc.name).includes('ゲストA'));
+
+                if (!hasUFJ || !hasIon || !hasGuest) {
+                    appData.bankAccounts = [...defaultAccounts];
+                }
             }
 
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
@@ -700,6 +748,8 @@
 
             applyTheme(appData.settings.currentTheme);
             syncSettingsToUI();
+            applyHeroBackground();
+            applyHeaderIcon();
             updateMonthSelector();
             renderMonthEditor();
             renderHistoryTable();
@@ -718,6 +768,49 @@
             renderPieChart();
         }
 
+        function promptHeaderIcon() {
+            const choice = confirm('アイコンを画像に変更しますか？\n[OK]画像を選択 / [キャンセル]絵文字を入力');
+            if (choice) {
+                document.getElementById('header-icon-file-input').click();
+            } else {
+                const newIcon = prompt('ヘッダーに表示する絵文字を入力してください:', appData.settings.headerIcon);
+                if (newIcon !== null && newIcon.trim() !== '') {
+                    appData.settings.headerIcon = newIcon.trim();
+                    appData.settings.headerIconType = 'emoji';
+                    saveStorage();
+                    applyHeaderIcon();
+                }
+            }
+        }
+
+        function changeHeaderIconImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    compressImage(e.target.result, 120, 120, 0.7, function(compressed) {
+                        appData.settings.headerIcon = compressed;
+                        appData.settings.headerIconType = 'image';
+                        saveStorage();
+                        applyHeaderIcon();
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyHeaderIcon() {
+            const box = document.getElementById('header-icon-box');
+            if (!box) return;
+            if (appData.settings.headerIconType === 'image' && appData.settings.headerIcon.startsWith('data:')) {
+                box.innerHTML = '';
+                box.style.backgroundImage = `url('${appData.settings.headerIcon}')`;
+            } else {
+                box.style.backgroundImage = 'none';
+                box.innerHTML = `<span id="header-icon-text">${appData.settings.headerIcon || '🌰'}</span>`;
+            }
+        }
+
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
             document.getElementById('export-data-textarea').value = JSON.stringify(appData);
@@ -728,12 +821,15 @@
         }
 
         function copyDataText() {
+            const jsonStr = JSON.stringify(appData);
             const textarea = document.getElementById('export-data-textarea');
+            textarea.value = jsonStr;
             textarea.select();
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                alert('📋 同期コードをコピーしました！');
+            
+            navigator.clipboard.writeText(jsonStr).then(() => {
+                alert('📋 全同期コードをコピーしました！\n別の端末(iPad等)のペースト枠に貼り付けてください。');
             }).catch(() => {
-                alert('📋 テキストエリア内の文字列をすべて選択して手動でコピーしてください。');
+                alert('📋 画面上のテキストエリアの文字列をすべて選択して手動でコピーしてください。');
             });
         }
 
@@ -745,12 +841,15 @@
             }
             try {
                 const parsed = JSON.parse(text);
-                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-                alert('🎉 データ同期が完了しました！画面を更新します。');
-                location.reload();
+                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('invalid format');
+                appData = parsed;
+                saveStorage();
+                loadStorage();
+                closeSyncModal();
+                document.getElementById('import-data-textarea').value = '';
+                alert('🎉 データ同期が完全完了しました！iPad側の背景や口座データも最新に更新されました。');
             } catch(e) {
-                alert('❌ 同期コードの読み込みに失敗しました。正しいコードを貼り付けてください。');
+                alert('❌ 同期コードの読み込みに失敗しました。コピーしたテキストが途切れていないかご確認ください。');
             }
         }
 
@@ -783,6 +882,10 @@
             const container = document.getElementById('bank-accounts-manager');
             if (!container) return;
             container.innerHTML = '';
+            if (appData.bankAccounts.length === 0) {
+                container.innerHTML = `<p class="text-xs opacity-70 text-center py-2">口座が登録されていません。</p>`;
+                return;
+            }
             appData.bankAccounts.forEach((acc, i) => {
                 const name = typeof acc === 'string' ? acc : acc.name;
                 const balance = typeof acc === 'object' && acc.initialBalance !== undefined ? acc.initialBalance : 0;
@@ -810,6 +913,7 @@
             const name = nameInput.value.trim();
             const initialBalance = Number(balanceInput.value) || 0;
             if (!name) return;
+            
             appData.bankAccounts.push({ name, initialBalance });
             nameInput.value = '';
             balanceInput.value = '';
@@ -826,6 +930,7 @@
             }
             saveStorage();
             renderBankAccountsManager();
+            updateCalculations();
         }
 
         function updateBankAccountBalance(index, newBalance) {
@@ -846,6 +951,29 @@
             updateCalculations();
         }
 
+        function changeHeroBackground(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // 自動圧縮して同期コード容量を削減
+                    compressImage(e.target.result, 800, 450, 0.65, function(compressed) {
+                        appData.settings.heroBg = compressed;
+                        saveStorage();
+                        applyHeroBackground();
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function applyHeroBackground() {
+            const banner = document.getElementById('hero-banner');
+            if (banner && appData.settings.heroBg) {
+                banner.style.backgroundImage = `url('${appData.settings.heroBg}')`;
+            }
+        }
+
         function switchTab(tabId) {
             ['dashboard', 'input', 'charts', 'simulation', 'events', 'accounts', 'nisa', 'theme'].forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
@@ -856,6 +984,7 @@
                     btnEl.classList.add('opacity-70', 'font-medium');
                 }
             });
+
             const targetTab = document.getElementById('tab-' + tabId);
             if (targetTab) targetTab.classList.remove('hidden');
 
@@ -931,6 +1060,7 @@
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
+            alert(`🎉 ${newMonth} のデータを追加しました（先月の数値を自動引き継ぎました）！`);
         }
 
         function deleteMonth(index) {
@@ -963,14 +1093,19 @@
             const isMatched = (allocatedSum === autoSaving);
 
             let banksHtml = '';
-            getAccountNames().forEach(b => {
-                banksHtml += `
-                    <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
-                        <span class="font-semibold text-xs">🏦 ${b}</span>
-                        <input type="number" value="${m.bankAllocations[b] || 0}" onchange="updateBankAllocation('${b}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
-                    </div>
-                `;
-            });
+            const accountNames = getAccountNames();
+            if (accountNames.length === 0) {
+                banksHtml = `<p class="text-xs opacity-70 col-span-full text-center py-2">銀行口座が登録されていません。「口座」タブから口座を追加してください。</p>`;
+            } else {
+                accountNames.forEach(b => {
+                    banksHtml += `
+                        <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
+                            <span class="font-semibold text-xs">🏦 ${b}</span>
+                            <input type="number" value="${m.bankAllocations[b] || 0}" onchange="updateBankAllocation('${b}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        </div>
+                    `;
+                });
+            }
 
             let expensesHtml = '';
             appData.expenseCategories.forEach(cat => {
@@ -997,7 +1132,7 @@
                         <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">区分</label>
                         <select onchange="updateMonthField('type', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
-                            <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (グラフに反映)</option>
                         </select>
                     </div>
                     <div>
@@ -1005,8 +1140,12 @@
                         <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
-                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">削除</button>
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition border border-rose-500/30 cursor-pointer">削除</button>
                     </div>
+                </div>
+
+                <div class="text-center font-bold text-base sm:text-lg pb-2 border-b border-current/10">
+                    📅 ${m.month} の収支計算 (${m.type})
                 </div>
 
                 <div class="grid grid-cols-3 gap-3 theme-card-sm p-4 rounded-xl border text-center">
@@ -1025,57 +1164,102 @@
                 </div>
 
                 <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-600 bg-emerald-500/5' : 'border-rose-500 bg-rose-500/10'}">
-                    <h3 class="font-bold text-xs uppercase tracking-wider">
-                        💰 口座割り振りチェック (割り振り計: ¥${allocatedSum.toLocaleString()} / 貯金: ¥${autoSaving.toLocaleString()})
-                    </h3>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h3 class="font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                                <span>💰</span> 口座割り振りチェック 
+                                <span class="text-xs font-bold ${isMatched ? 'text-emerald-600 bg-emerald-500/20 px-2 py-0.5 rounded-md' : 'text-rose-500 bg-rose-500/20 px-2 py-0.5 rounded-md'}">
+                                    (割り振り計: ¥${allocatedSum.toLocaleString()} / 貯金: ¥${autoSaving.toLocaleString()})
+                                </span>
+                            </h3>
+                        </div>
+                    </div>
+                    
+                    ${!isMatched ? `
+                        <div class="p-3 bg-rose-500/20 text-rose-500 text-xs font-bold rounded-xl border border-rose-500/40 flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>今月の貯金額（¥${autoSaving.toLocaleString()}）と口座割り振りの合計額（¥${allocatedSum.toLocaleString()}）が一致していません！ぴったり一致させてください。</span>
+                        </div>
+                    ` : `
+                        <div class="p-2.5 bg-emerald-500/20 text-emerald-700 text-xs font-bold rounded-xl flex items-center gap-2">
+                            <span>✅</span> 貯金額と口座割り振りの金額がぴったり一致しています！
+                        </div>
+                    `}
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
                         ${banksHtml}
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
-                            <span class="text-xs font-semibold">ゲストA収入 (円)</span>
-                            <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
-                        </div>
-                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
-                            <span class="text-xs font-semibold">ゲストB収入 (円)</span>
-                            <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
-                        </div>
-                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
-                            <span class="text-xs font-bold">🎁 ボーナス (円)</span>
-                            <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
-                        </div>
-                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
-                            <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
-                            <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                <div class="space-y-5">
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-xs tracking-wider uppercase flex items-center justify-between border-b border-current/10 pb-1.5">
+                            <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 theme-primary-bg rounded-full"></span> 収入項目 ＆ ボーナス・臨時収入</span>
+                            <span class="text-xs theme-primary-text font-bold">合計: ¥${totalInc.toLocaleString()}</span>
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                                <span class="text-xs font-semibold">ゲストA収入 (円)</span>
+                                <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            </div>
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                                <span class="text-xs font-semibold">ゲストB収入 (円)</span>
+                                <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            </div>
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                                <span class="text-xs font-bold">🎁 ボーナス (円)</span>
+                                <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            </div>
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                                <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
+                                <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center pt-2 border-b border-current/10 pb-1">
-                            <span class="font-bold text-xs">支出項目</span>
-                            <div class="flex gap-2">
-                                <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-lg px-2 py-1 text-xs">
-                                <button onclick="startAddingExpense()" class="bg-amber-600 text-white text-xs px-3 py-1 rounded-lg font-bold">＋ 項目追加</button>
+                    <div class="space-y-3">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-2 border-b border-current/10 pb-1.5">
+                            <h3 class="font-bold text-xs tracking-wider uppercase flex items-center justify-between w-full sm:w-auto gap-4">
+                                <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-amber-500 rounded-full"></span> 支出項目</span>
+                                <span class="text-xs text-amber-600 font-bold">合計: ¥${totalExp.toLocaleString()}</span>
+                            </h3>
+                            <div class="flex gap-2 w-full sm:w-auto no-print">
+                                <input type="text" id="new-expense-raw-name" placeholder="項目名を入力..." class="theme-card-sm border rounded-lg px-2.5 py-1 text-xs focus:outline-none">
+                                <button onclick="startAddingExpense()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs px-3 py-1 rounded-lg font-semibold transition cursor-pointer shrink-0">＋ 項目追加</button>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
                             ${expensesHtml}
                         </div>
                     </div>
+
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-xs tracking-wider uppercase flex items-center justify-between border-b border-current/10 pb-1.5 pt-2">
+                            <span class="flex items-center gap-1.5"><span class="w-1.5 h-3 bg-emerald-600 rounded-full"></span> 積立・その他</span>
+                            <span class="text-xs text-emerald-600 font-bold">合計: ¥${nisaAmt.toLocaleString()}</span>
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-emerald-500/10">
+                                <span class="text-xs font-bold">🌟 今月のNISA積立</span>
+                                <input type="number" value="${m.nisa !== undefined ? m.nisa : 30000}" onchange="updateMonthField('nisa', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
         }
 
-        function triggerA4PrintOrSave() { window.print(); }
+        // 写真保存・A4印刷最適化処理
+        function triggerA4PrintOrSave() {
+            window.print();
+        }
 
         function updateMonthField(field, value) {
             appData.monthly[currentEditingIndex][field] = value;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
+            updateCalculations();
         }
 
         function updateExpenseField(catId, value) {
@@ -1083,6 +1267,7 @@
             if (!m.expenses) m.expenses = {};
             m.expenses[catId] = value;
             saveStorage();
+            updateCalculations();
             renderMonthEditor();
             renderPieChart();
         }
@@ -1092,6 +1277,7 @@
             if (!m.bankAllocations) m.bankAllocations = {};
             m.bankAllocations[bankName] = value;
             saveStorage();
+            updateCalculations();
             renderMonthEditor();
         }
 
@@ -1134,6 +1320,73 @@
             });
         }
 
+        function hexToRgb(hex) {
+            let num = parseInt(hex.replace("#",""), 16);
+            return { r: (num >> 16), g: (num >> 8 & 0x00FF), b: (num & 0x0000FF) };
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+        }
+
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+            if (max === min) {
+                h = s = 0;
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch(max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: h * 360, s: s * 100, l: l * 100 };
+        }
+
+        function hslToRgb(h, s, l) {
+            h /= 360; s /= 100; l /= 100;
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                let hue2rgb = function(p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                let p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            return { r: r * 255, g: g * 255, b: b * 255 };
+        }
+
+        function generateAccordionMonochromePalette(baseHex, count) {
+            let rgb = hexToRgb(baseHex);
+            let hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            let palette = [];
+
+            for (let i = 0; i < count; i++) {
+                let factor = count > 1 ? (i / (count - 1)) : 0;
+                let newL = 25 + (factor * 58);
+                let newS = Math.min(100, Math.max(25, hsl.s));
+
+                let newRgb = hslToRgb(hsl.h, newS, newL);
+                palette.push(rgbToHex(newRgb.r, newRgb.g, newRgb.b));
+            }
+            return palette;
+        }
+
         function renderPieChart() {
             const selector = document.getElementById('pie-month-selector');
             if (!selector) return;
@@ -1145,6 +1398,9 @@
             if (!ctx) return;
             if (pieChart) pieChart.destroy();
 
+            const rootStyle = getComputedStyle(document.documentElement);
+            const activePrimary = rootStyle.getPropertyValue('--app-primary').trim() || '#8c6d53';
+
             let rawItems = [];
             let totalExp = 0;
             appData.expenseCategories.forEach(cat => {
@@ -1152,24 +1408,85 @@
                 rawItems.push({ label: cat.name, val });
                 totalExp += val;
             });
+            rawItems.sort((a, b) => b.val - a.val);
 
-            const theme = getCurrentThemeObj();
+            const baseHex = activePrimary.startsWith('#') ? activePrimary : '#8c6d53';
+            const dynamicPalette = generateAccordionMonochromePalette(baseHex, Math.max(rawItems.length, 5));
+
             pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: rawItems.map(i => i.label),
-                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: [theme.primary, '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2', '#475569', '#10b981'] }]
+                    datasets: [{ 
+                        data: rawItems.map(i => i.val), 
+                        backgroundColor: dynamicPalette, 
+                        borderWidth: 2, 
+                        borderColor: '#ffffff' 
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    let percentage = totalExp > 0 ? ((value / totalExp) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ¥${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }, 
+                    cutout: '65%' 
+                }
             });
+
+            const listContainer = document.getElementById('expense-breakdown-list');
+            if (listContainer) {
+                listContainer.innerHTML = '';
+                rawItems.forEach((item, i) => {
+                    if (item.val > 0) {
+                        const el = document.createElement('div');
+                        el.className = "flex items-center justify-between p-2 rounded-xl theme-card-sm border text-xs";
+                        el.innerHTML = `
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${dynamicPalette[i%dynamicPalette.length]};"></span><span class="font-semibold">${item.label}</span></div>
+                            <span class="font-bold">¥${item.val.toLocaleString()}</span>
+                        `;
+                        listContainer.appendChild(el);
+                    }
+                });
+            }
         }
 
         function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
 
+        function parseTextToEventObject(text) {
+            let cost = 0;
+            const yenMatch = text.match(/([\d,]+)\s*円/);
+            const manMatch = text.match(/([\d,.]+)\s*万/);
+            if (yenMatch) cost = parseInt(yenMatch[1].replace(/,/g, ''), 10);
+            else if (manMatch) cost = parseFloat(manMatch[1].replace(/,/g, '')) * 10000;
+
+            let date = '2027-12';
+            const dateMatch = text.match(/(\d{4})年\s*(\d{1,2})月/);
+            if (dateMatch) date = `${dateMatch[1]}-${String(dateMatch[2]).padStart(2, '0')}`;
+
+            let name = '予定イベント';
+            if (text.includes('結婚式')) name = '結婚式';
+            else if (text.includes('新婚旅行')) name = '新婚旅行';
+            else if (text.includes('車')) name = '車購入';
+
+            return { name, date, cost };
+        }
+
         function parseAiTextAndAddEvent() {
             const rawText = document.getElementById('ai-raw-text').value;
             if (!rawText.trim()) return;
-            appData.events.push({ name: '予定イベント', date: '2027-12', cost: 100000, status: '予定', memo: rawText });
+            const parsed = parseTextToEventObject(rawText);
+            appData.events.push({ name: parsed.name, date: parsed.date, cost: parsed.cost, status: '予定', memo: rawText });
             saveStorage();
             renderEventsTable();
             toggleAiParserBox();
@@ -1192,13 +1509,14 @@
             }
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
+                tr.className = "hover:bg-current/5 transition align-top";
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
                     <td class="p-2.5"><select onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateDateOptions(ev.date)}</select></td>
                     <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
-                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs"></td>
-                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-500 font-bold text-xs">削除</button></td>
+                    <td class="p-2.5"><textarea rows="2" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-[11px]">${ev.memo || ''}</textarea></td>
+                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 px-2.5 py-1.5 rounded-lg text-xs">削除</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1210,11 +1528,14 @@
                 const inc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
                 let exp = 0;
                 if (m.expenses) for (let v of Object.values(m.expenses)) exp += Number(v || 0);
-                const surplus = inc - exp - Number(m.nisa || 0);
+                const nisaAmt = Number(m.nisa || 0);
+                const surplus = inc - exp - nisaAmt;
 
                 const gridContainer = document.getElementById('home-kpi-grid');
                 if (gridContainer) {
                     let html = '';
+                    
+                    // ホーム画面の口座残高カード（1.貯金用UFJ -> 2.ゆとり用イオン -> 3.ゲストA貯金用）
                     appData.bankAccounts.forEach(acc => {
                         const accName = typeof acc === 'string' ? acc : acc.name;
                         const currentBal = calculateAccountCurrentBalance(accName);
@@ -1233,57 +1554,173 @@
                         <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                             <div>
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り</p>
-                                <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                                <p id="kpi-monthly-income" class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
                             </div>
+                            <div id="home-income-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
                         </div>
+
                         <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                             <div>
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費</p>
-                                <p class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                                <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                             </div>
+                            <div id="home-expense-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
                         </div>
+
                         <div class="theme-card p-4 sm:p-5 rounded-2xl">
                             <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                            <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                            <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                            <div id="home-bucket-breakdown" class="mt-2 space-y-1 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
                         </div>
                     `;
+
                     gridContainer.innerHTML = html;
                 }
+
+                let recentMonths = appData.monthly.slice(Math.max(0, currentEditingIndex - 1), currentEditingIndex + 1);
+                let incHtml = `<div class="text-[10px] font-bold opacity-70 mb-0.5">直近の推移:</div>`;
+                recentMonths.forEach(rm => {
+                    let rTotal = (rm.rIncome||0)+(rm.hIncome||0)+(rm.bonus||0)+(rm.extraInc||0);
+                    incHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${rTotal.toLocaleString()}</span></div>`;
+                });
+                const incRecentEl = document.getElementById('home-income-recent');
+                if (incRecentEl) incRecentEl.innerHTML = incHtml;
+
+                let expHtml = `<div class="text-[10px] font-bold opacity-70 mb-0.5">直近の推移:</div>`;
+                recentMonths.forEach(rm => {
+                    let eSum = 0;
+                    if (rm.expenses) for (let v of Object.values(rm.expenses)) eSum += Number(v||0);
+                    expHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${eSum.toLocaleString()}</span></div>`;
+                });
+                const expRecentEl = document.getElementById('home-expense-recent');
+                if (expRecentEl) expRecentEl.innerHTML = expHtml;
             }
         }
 
         function renderCharts() {
-            const theme = getCurrentThemeObj();
             const chart1El = document.getElementById('cashFlowChart');
+            const rootStyle = getComputedStyle(document.documentElement);
+            const activePrimary = rootStyle.getPropertyValue('--app-primary').trim() || '#8c6d53';
+            const activeText = rootStyle.getPropertyValue('--app-text').trim() || '#2c2421';
+
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
-                let labels = [], balanceData = [];
-                let runningBalance = Number(appData.settings.startCash || 3000000);
-                for (let i = 0; i < 24; i++) {
-                    labels.push(`2026年${i+1}月`);
-                    balanceData.push(Math.round(runningBalance / 10000));
-                    runningBalance += 50000;
+                let labels = [], balanceData = [], eventData = [];
+                
+                let savingAccountName = '貯金用(三菱UFJ銀行)';
+                const foundSavingAcc = appData.bankAccounts.find(acc => {
+                    const name = typeof acc === 'string' ? acc : acc.name;
+                    return name.includes('貯金用');
+                });
+                if (foundSavingAcc) {
+                    savingAccountName = typeof foundSavingAcc === 'string' ? foundSavingAcc : foundSavingAcc.name;
                 }
+
+                let runningBalance = getAccountInitialBalance(savingAccountName);
+                if (runningBalance === 0) runningBalance = Number(appData.settings.startCash || 3000000);
+
+                let defaultSave = Number(appData.settings.defaultMonthlySave || 50000);
+                let y = 2026, m = 11;
+
+                for (let i = 0; i < 60; i++) {
+                    const mm = String(m).padStart(2, '0');
+                    const yyyymm = `${y}-${mm}`;
+                    labels.push(`${y}年${m}月`);
+
+                    let matched = appData.monthly.find(item => item.month === yyyymm);
+                    let saving = defaultSave;
+                    if (matched) {
+                        if (matched.bankAllocations && matched.bankAllocations[savingAccountName] !== undefined) {
+                            saving = Number(matched.bankAllocations[savingAccountName] || 0);
+                        } else {
+                            let inc = (matched.rIncome || 0) + (matched.hIncome || 0) + (matched.bonus || 0) + (matched.extraInc || 0);
+                            let exp = 0;
+                            if (matched.expenses) for (let v of Object.values(matched.expenses)) exp += Number(v || 0);
+                            let nisa = Number(matched.nisa || 0);
+                            saving = inc - exp - nisa;
+                        }
+                    }
+
+                    let evCost = 0;
+                    appData.events.forEach(ev => { if (ev.date === yyyymm) evCost += Number(ev.cost || 0); });
+
+                    runningBalance += saving - evCost;
+                    balanceData.push(Math.round(runningBalance / 10000));
+                    eventData.push(Math.round(evCost / 10000));
+
+                    m++; if (m > 12) { m = 1; y++; }
+                }
+
                 cashChart = new Chart(chart1El.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: theme.primary, backgroundColor: theme.primary + '20', borderWidth: 3, fill: true }]
+                        datasets: [
+                            { type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: activePrimary, backgroundColor: activePrimary + '20', borderWidth: 3, fill: true, tension: 0.35 },
+                            { type: 'bar', label: 'イベント費用 (万円)', data: eventData, backgroundColor: '#f59e0b', borderRadius: 4 }
+                        ]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: activeText } }
+                        },
+                        scales: {
+                            x: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } },
+                            y: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } }
+                        }
+                    }
                 });
             }
 
             const chart2El = document.getElementById('nisaChart');
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
+
+                const realAccYen = calculateRealAccumulatedNisa(); // リアル過去元本（円）
+                const monthlyNisa = Number(appData.settings.monthlyNisa || 30000); // 毎月積立標準額
+                const rawYield = appData.settings.nisaYield;
+                const annualYield = (rawYield !== undefined && rawYield !== '' && !isNaN(Number(rawYield))) ? Number(rawYield) / 100 : 0;
+                const monthlyRate = annualYield / 12;
+
+                // 複利または積立元本の計算関数（月数指定）
+                function calculateFutureNisaBalance(months) {
+                    let total = realAccYen;
+                    for (let i = 0; i < months; i++) {
+                        total = (total + monthlyNisa) * (1 + monthlyRate);
+                    }
+                    return Math.round(total / 10000); // 万円単位
+                }
+
+                const valCurrent = Math.round(realAccYen / 10000);
+                const val1Yr = calculateFutureNisaBalance(12);
+                const val3Yr = calculateFutureNisaBalance(36);
+                const val5Yr = calculateFutureNisaBalance(60);
+                const val10Yr = calculateFutureNisaBalance(120);
+
                 nisaChart = new Chart(chart2El.getContext('2d'), {
                     type: 'line',
                     data: {
-                        labels: ['現在', '1年後', '3年後', '5年後'],
-                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', backgroundColor: '#10b98120', fill: true }]
+                        labels: ['現在', '1年後', '3年後', '5年後', '10年後'],
+                        datasets: [{ 
+                            label: annualYield > 0 ? `NISA (年利${(annualYield*100).toFixed(1)}%複利)` : 'NISA (積立元本のみ)', 
+                            data: [valCurrent, val1Yr, val3Yr, val5Yr, val10Yr], 
+                            borderColor: '#10b981', 
+                            backgroundColor: '#10b98120', 
+                            fill: true, 
+                            tension: 0.35 
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: activeText } } },
+                        scales: {
+                            x: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } },
+                            y: { ticks: { color: activeText }, grid: { color: 'rgba(150,150,150,0.1)' } }
+                        }
+                    }
                 });
             }
         }
