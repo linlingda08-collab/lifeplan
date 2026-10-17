@@ -18,8 +18,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- jsQR (Camera QR Reader Library) -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-    <!-- pako (Data Compression Library for QR) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <style id="dynamic-theme-style">
         :root {
             --app-bg: linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%);
@@ -440,14 +438,14 @@
 
             <div class="space-y-5 text-xs sm:text-sm">
                 
-                <!-- 1️⃣ QRコード同期（超圧縮・一発同期） -->
+                <!-- 1️⃣ QRコード同期 -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border bg-amber-500/5">
                     <h4 class="font-bold text-xs flex items-center gap-1.5 text-amber-800">
                         <span>📱</span> 1️⃣ 最も簡単！QRコードで一発同期
                     </h4>
                     
                     <div class="flex flex-col items-center justify-center space-y-3 pt-1">
-                        <div id="qrcode-container" class="bg-white p-3 rounded-2xl shadow-md border flex justify-center items-center"></div>
+                        <div id="qrcode-container" class="bg-white p-3 rounded-2xl shadow-md border flex justify-center items-center min-h-[190px] min-w-[190px]"></div>
                         <p class="text-[11px] opacity-80 text-center">送信側(iPhone)の画面に表示されたQRコードを、受信側(iPad)のカメラで読み取ってください。</p>
                         
                         <button onclick="startQrScanner()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-2 w-full">
@@ -563,39 +561,22 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
-        // データをGzip圧縮してBase64文字列に変換（QRコード用）
-        function getCompressedExportString() {
+        // 確実でエラーを起こさないUTF-8文字エンコード処理
+        function getSafeExportString() {
             let exportData = JSON.parse(JSON.stringify(appData));
             delete exportData.settings.heroBg;
             const jsonString = JSON.stringify(exportData);
-            
-            // pakoで圧縮
-            const compressed = pako.deflate(jsonString);
-            // Uint8ArrayをBase64文字列に安全に変換
-            let binary = '';
-            const len = compressed.byteLength;
-            for (let i = 0; i < len; i++) {
-                binary += String.fromCharCode(compressed[i]);
-            }
-            return 'COMPRESSED:' + btoa(binary);
+            return encodeURIComponent(jsonString);
         }
 
-        // 圧縮コードまたは通常JSONを復元
+        // 文字列の復元処理
         function decodeImportString(str) {
             str = str.trim();
-            if (str.startsWith('COMPRESSED:')) {
-                const base64 = str.substring(11);
-                const binary = atob(base64);
-                const len = binary.length;
-                const bytes = new Uint8Array(len);
-                for (let i = 0; i < len; i++) {
-                    bytes[i] = binary.charCodeAt(i);
-                }
-                const decompressed = pako.inflate(bytes, { to: 'string' });
-                return JSON.parse(decompressed);
-            } else {
-                return JSON.parse(str);
+            let decodedStr = str;
+            if (str.includes('%')) {
+                try { decodedStr = decodeURIComponent(str); } catch(e) { decodedStr = str; }
             }
+            return JSON.parse(decodedStr);
         }
 
         function getAccountNames() {
@@ -802,24 +783,29 @@
 
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
-            const compressedStr = getCompressedExportString();
+            const safeStr = getSafeExportString();
 
-            document.getElementById('export-data-textarea').value = compressedStr;
+            document.getElementById('export-data-textarea').value = safeStr;
 
-            // 超圧縮QRコードの生成
             const qrContainer = document.getElementById('qrcode-container');
             qrContainer.innerHTML = '';
+            
             try {
+                if (typeof QRCode === 'undefined') {
+                    qrContainer.innerHTML = `<p class="text-xs text-rose-500 font-bold p-2 text-center">QRライブラリの読み込みに失敗しました。</p>`;
+                    return;
+                }
                 new QRCode(qrContainer, {
-                    text: compressedStr,
-                    width: 190,
-                    height: 190,
+                    text: safeStr,
+                    width: 180,
+                    height: 180,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.L
                 });
             } catch(e) {
-                console.error("QR Code Generation Error:", e);
+                console.error("QR Code Error:", e);
+                qrContainer.innerHTML = `<p class="text-xs text-rose-500 font-bold p-2 text-center">データサイズ制限のためQR表示ができません。<br>下の「全同期コードをコピー」をご利用ください。</p>`;
             }
         }
 
@@ -833,7 +819,7 @@
             textarea.select();
             
             navigator.clipboard.writeText(textarea.value).then(() => {
-                alert('📋 圧縮同期コードをコピーしました！\n受信側(iPad等)のペースト枠に貼り付けてください。');
+                alert('📋 同期コードをコピーしました！\n受信側(iPad等)のペースト枠に貼り付けてください。');
             }).catch(() => {
                 alert('📋 テキストエリア内の文字列をすべて選択して手動でコピーしてください。');
             });
