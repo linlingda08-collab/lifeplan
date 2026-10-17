@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas for A4 Image Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
@@ -65,11 +67,16 @@
             background-color: rgba(150, 150, 150, 0.3);
             border-radius: 9999px;
         }
-        @media print {
-            body { background: white !important; color: black !important; font-size: 11pt; padding-bottom: 0; }
-            .no-print { display: none !important; }
-            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
-            @page { size: A4 portrait; margin: 10mm; }
+
+        /* A4サイズ書き出し用スタイリング */
+        .a4-export-container {
+            width: 794px !important;
+            min-height: 1123px !important;
+            padding: 32px !important;
+            box-sizing: border-box !important;
+            background: #ffffff !important;
+            color: #2c2421 !important;
+            margin: 0 auto !important;
         }
     </style>
 </head>
@@ -90,7 +97,7 @@
 
             <div class="flex items-center space-x-2">
                 <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
-                    <span>🔄</span> <span>データ同期・バックアップ</span>
+                    <span>🔄</span> <span>データ同期</span>
                 </button>
             </div>
         </div>
@@ -192,9 +199,10 @@
                     <div id="month-editor-container" class="space-y-6"></div>
                 </div>
 
+                <!-- A4画像出力用ボタン -->
                 <div class="flex justify-end no-print pt-2">
-                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <span>🖨️</span> この月の収支を綺麗に保存・印刷 (PDF化)
+                    <button onclick="exportMonthlyCardAsA4Image()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <span>📸</span> このページをA4画像 (PNG) として保存
                     </button>
                 </div>
             </div>
@@ -342,7 +350,7 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">NISA管理・シミュレーション</h2>
-                    <p class="text-xs opacity-70 mt-0.5">NISAの積立設定や運用期間、資産推移の確認を行います。</p>
+                    <p class="text-xs opacity-70 mt-0.5">想定年利（％）を入力すると複利運用を計算します。未入力時は純粋な積立元本のみを計算します。</p>
                 </div>
                 
                 <div class="space-y-4 text-xs sm:text-sm pt-2">
@@ -353,6 +361,10 @@
                     <div>
                         <label class="block font-semibold opacity-80 mb-1.5">毎月のNISA積立標準額 (円)</label>
                         <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">想定年利 (％) <span class="text-[10px] opacity-70">(未入力の場合は利回りなし・積立元本のみ)</span></label>
+                        <input type="number" step="0.1" id="setting-nisa-yield" placeholder="例: 5.0 (未入力は利回り0%)" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
                     </div>
                     <div>
                         <label class="block font-semibold opacity-80 mb-1.5">運用想定期間 (年)</label>
@@ -422,34 +434,31 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL (File Export/Import) ================= -->
+    <!-- ================= SYNC MODAL (Text Code Copy & Paste) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>🔄</span> 端末間データ同期・バックアップ
+                    <span>🔄</span> 端末間データ同期
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm">
-                <!-- 送信側：ファイルとしてダウンロード -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">1️⃣ 旧端末（送信側）の操作</h4>
-                    <p class="text-[11px] opacity-80">現在の全データをバックアップファイル（.json）として端末にダウンロードします。</p>
-                    <button onclick="exportDataFile()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>💾</span> バックアップファイルをダウンロード
+                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作</h4>
+                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>📋</span> 全データをコピー
                     </button>
+                    <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] focus:outline-none font-mono border"></textarea>
                 </div>
 
-                <!-- 受信側：ファイルを選択してインポート -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">2️⃣ 新端末（受信側）の操作</h4>
-                    <p class="text-[11px] opacity-80">送信側で保存したファイルを選択して読み込みます。</p>
-                    <input type="file" id="import-file-input" accept=".json" class="w-full text-xs theme-card-sm rounded-xl p-2 border cursor-pointer">
+                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作</h4>
+                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
                     <div class="flex justify-end pt-1">
-                        <button onclick="importDataFile(event)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
-                            ✅ ファイルを読み込んで同期する
+                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
+                            ✅ データを反映して同期する
                         </button>
                     </div>
                 </div>
@@ -465,6 +474,7 @@
             settings: { 
                 age: 27, 
                 monthlyNisa: 30000, 
+                nisaYield: '', // 未入力時は空文字（利回りなし）
                 years: 38, 
                 heroBg: '', 
                 headerIcon: '🌰',
@@ -475,7 +485,7 @@
             },
             customThemes: [],
             bankAccounts: [
-                { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
+                { name: 'ゲストA貯金用', initialBalance: 3000000 },
                 { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
                 { name: '生活口座(引き落とし用)', initialBalance: 100000 }
             ],
@@ -502,7 +512,7 @@
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, '生活口座(引き落とし用)': 70000 }
+                    bankAllocations: { 'ゲストA貯金用': 88500, 'ゆとり用(イオン銀行)': 30000, '生活口座(引き落とし用)': 70000 }
                 }
             ],
             events: []
@@ -701,19 +711,21 @@
             
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [
-                    { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
+                    { name: 'ゲストA貯金用', initialBalance: 3000000 },
                     { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
                     { name: '生活口座(引き落とし用)', initialBalance: 100000 }
                 ];
             } else {
                 appData.bankAccounts = appData.bankAccounts.map(acc => {
                     if (typeof acc === 'string') {
-                        if (acc.includes('貯金用')) return { name: acc, initialBalance: 3000000 };
+                        if (acc.includes('貯金用')) return { name: 'ゲストA貯金用', initialBalance: 3000000 };
                         return { name: acc, initialBalance: 0 };
+                    }
+                    if (acc.name && acc.name.includes('三菱UFJ')) {
+                        acc.name = 'ゲストA貯金用';
                     }
                     return acc;
                 });
-                appData.bankAccounts = appData.bankAccounts.filter(acc => !acc.name.includes('生活用'));
             }
 
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
@@ -784,51 +796,37 @@
 
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
+            document.getElementById('export-data-textarea').value = JSON.stringify(appData);
         }
 
         function closeSyncModal() {
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        function exportDataFile() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `lifeplan_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            alert('💾 バックアップファイルをダウンロードしました！新端末でこのファイルを選択してください。');
+        function copyDataText() {
+            const jsonStr = JSON.stringify(appData);
+            navigator.clipboard.writeText(jsonStr).then(() => alert('📋 全データをコピーしました！'));
         }
 
-        function importDataFile(event) {
-            const fileInput = document.getElementById('import-file-input');
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('ファイルを選択してください。');
-                return;
+        function applyImportedData() {
+            const text = document.getElementById('import-data-textarea').value.trim();
+            try {
+                const parsed = JSON.parse(text);
+                if (!parsed.monthly) throw new Error();
+                appData = parsed;
+                saveStorage();
+                loadStorage();
+                closeSyncModal();
+                alert('🎉 データ同期が完了しました！');
+            } catch(e) {
+                alert('❌ データの解析に失敗しました。');
             }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (!parsed.monthly) throw new Error();
-                    appData = parsed;
-                    saveStorage();
-                    loadStorage();
-                    closeSyncModal();
-                    alert('🎉 データの同期・読み込みが完了しました！');
-                } catch(err) {
-                    alert('❌ ファイルの解析に失敗しました。正しいバックアップファイルを選択してください。');
-                }
-            };
-            reader.readAsText(file);
         }
 
         function syncSettingsToUI() {
             document.getElementById('setting-age').value = appData.settings.age;
             document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa;
+            document.getElementById('setting-nisa-yield').value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
             document.getElementById('setting-years').value = appData.settings.years;
             document.getElementById('sim-start-cash').value = appData.settings.startCash || 3000000;
             document.getElementById('sim-default-monthly-save').value = appData.settings.defaultMonthlySave || 50000;
@@ -839,6 +837,7 @@
         function saveSettings() {
             appData.settings.age = Number(document.getElementById('setting-age').value);
             appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
+            appData.settings.nisaYield = document.getElementById('setting-nisa-yield').value;
             appData.settings.years = Number(document.getElementById('setting-years').value);
             saveStorage();
         }
@@ -1216,6 +1215,35 @@
             `;
         }
 
+        // A4サイズ画像出力機能（html2canvas使用）
+        function exportMonthlyCardAsA4Image() {
+            const targetElement = document.getElementById('monthly-export-card');
+            if (!targetElement) return;
+
+            const originalClass = targetElement.className;
+            targetElement.classList.add('a4-export-container');
+
+            html2canvas(targetElement, {
+                scale: 2, 
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            }).then(canvas => {
+                targetElement.className = originalClass;
+
+                const imageURL = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                const currentMonth = appData.monthly[currentEditingIndex]?.month || 'monthly';
+                link.download = `ライフプラン_${currentMonth}収支.png`;
+                link.href = imageURL;
+                link.click();
+            }).catch(err => {
+                targetElement.className = originalClass;
+                console.error(err);
+                alert('❌ 画像の生成に失敗しました。');
+            });
+        }
+
         function updateMonthField(field, value) {
             appData.monthly[currentEditingIndex][field] = value;
             saveStorage();
@@ -1568,7 +1596,7 @@
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventData = [];
                 
-                let savingAccountName = '貯金用(三菱UFJ銀行)';
+                let savingAccountName = 'ゲストA貯金用';
                 const foundSavingAcc = appData.bankAccounts.find(acc => {
                     const name = typeof acc === 'string' ? acc : acc.name;
                     return name.includes('貯金用');
@@ -1638,12 +1666,40 @@
             const chart2El = document.getElementById('nisaChart');
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
-                const realAcc = calculateRealAccumulatedNisa() / 10000;
+
+                const realAccYen = calculateRealAccumulatedNisa(); // リアル過去元本（円）
+                const monthlyNisa = Number(appData.settings.monthlyNisa || 30000); // 毎月積立標準額
+                const rawYield = appData.settings.nisaYield;
+                const annualYield = (rawYield !== undefined && rawYield !== '' && !isNaN(Number(rawYield))) ? Number(rawYield) / 100 : 0;
+                const monthlyRate = annualYield / 12;
+
+                // 複利または積立元本の計算関数（月数指定）
+                function calculateFutureNisaBalance(months) {
+                    let total = realAccYen;
+                    for (let i = 0; i < months; i++) {
+                        total = (total + monthlyNisa) * (1 + monthlyRate);
+                    }
+                    return Math.round(total / 10000); // 万円単位
+                }
+
+                const valCurrent = Math.round(realAccYen / 10000);
+                const val1Yr = calculateFutureNisaBalance(12);
+                const val3Yr = calculateFutureNisaBalance(36);
+                const val5Yr = calculateFutureNisaBalance(60);
+                const val10Yr = calculateFutureNisaBalance(120);
+
                 nisaChart = new Chart(chart2El.getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: ['現在', '1年後', '3年後', '5年後', '10年後'],
-                        datasets: [{ label: 'NISA (万円)', data: [realAcc, realAcc+36, realAcc+110, realAcc+190, realAcc+420], borderColor: '#10b981', backgroundColor: '#10b98120', fill: true, tension: 0.35 }]
+                        datasets: [{ 
+                            label: annualYield > 0 ? `NISA (年利${(annualYield*100).toFixed(1)}%複利)` : 'NISA (積立元本のみ)', 
+                            data: [valCurrent, val1Yr, val3Yr, val5Yr, val10Yr], 
+                            borderColor: '#10b981', 
+                            backgroundColor: '#10b98120', 
+                            fill: true, 
+                            tension: 0.35 
+                        }]
                     },
                     options: { 
                         responsive: true, 
