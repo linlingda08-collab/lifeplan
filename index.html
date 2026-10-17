@@ -14,8 +14,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-    <!-- PeerJS (端末間直接通信ライブラリ) -->
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <style id="dynamic-theme-style">
         :root {
             --app-bg: linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%);
@@ -93,7 +91,7 @@
 
             <div class="flex items-center space-x-2">
                 <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
-                    <span>🔄</span> <span>端末間直結同期</span>
+                    <span>🔄</span> <span>データ同期</span>
                 </button>
             </div>
         </div>
@@ -189,7 +187,7 @@
                 </div>
 
                 <div class="flex justify-end no-print pt-2">
-                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                    <button onclick="triggerA4PrintOrSave()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
                         <span>📸</span> この収支表を印刷・写真フォルダに保存 (A4最適化)
                     </button>
                 </div>
@@ -263,21 +261,39 @@
 
         <!-- ================= TAB 5: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
-            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6" onclick="event.stopPropagation()">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
                         <p class="text-xs opacity-70 mt-0.5">登録したイベントの時期と費用は、ホームの複合グラフに自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                        <button onclick="addNewEvent()" class="border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                        <button onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span>🤖</span> Gemini回答から自動反映
+                        </button>
+                        <button onclick="addNewEvent()" class="opacity-80 hover:opacity-100 border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
                             <span>＋</span> 追加
                         </button>
                     </div>
                 </div>
 
+                <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 hidden shadow-lg" onclick="event.stopPropagation()">
+                    <div class="flex items-center justify-between pb-2 border-b border-current/10">
+                        <h4 class="font-bold text-xs flex items-center gap-1.5">
+                            <span>✨</span> Gemini回答の自動解析
+                        </h4>
+                        <button onclick="toggleAiParserBox()" class="opacity-70 hover:opacity-100 text-xs font-bold cursor-pointer">×</button>
+                    </div>
+                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border" onclick="event.stopPropagation()"></textarea>
+                    <div class="flex justify-end">
+                        <button onclick="parseAiTextAndAddEvent()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow cursor-pointer">
+                            📥 解析して今後の予定に追加する
+                        </button>
+                    </div>
+                </div>
+
                 <div class="space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-xl sm:border sm:border-current/10">
-                    <table class="w-full text-xs text-left border-collapse">
+                    <table class="hidden sm:table w-full text-xs text-left border-collapse">
                         <thead>
                             <tr class="theme-card-sm font-semibold border-b border-current/10">
                                 <th class="p-3 w-40">イベント名</th>
@@ -290,6 +306,7 @@
                         </thead>
                         <tbody id="events-table-body" class="divide-y divide-current/10"></tbody>
                     </table>
+                    <div id="events-card-list" class="sm:hidden space-y-3"></div>
                 </div>
             </div>
         </div>
@@ -362,42 +379,71 @@
                     </h3>
                     <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
+
+                <div class="space-y-3 pt-4 border-t border-current/10">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>🛠️</span> 完全自由カスタマイズ
+                    </h3>
+                    <div class="theme-card-sm p-4 rounded-xl space-y-4 border">
+                        <div>
+                            <label class="block text-[11px] font-semibold opacity-80 mb-1">テーマ名</label>
+                            <input type="text" id="custom-theme-name" placeholder="例: マイ・フェイバリットパステル" class="w-full theme-card-sm rounded-xl p-2 text-xs focus:outline-none border">
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">背景色</label>
+                                <input type="color" id="custom-theme-bg" value="#f4f6f8" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">文字メイン色</label>
+                                <input type="color" id="custom-theme-text" value="#2d3748" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">メインアクセント</label>
+                                <input type="color" id="custom-theme-primary" value="#6b8abc" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">カード背景色</label>
+                                <input type="color" id="custom-theme-card" value="#ffffff" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button onclick="saveCustomTheme()" class="theme-primary-bg text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
+                                💾 オリジナルテーマを保存・適用
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- ================= P2P DIRECT SYNC MODAL ================= -->
+    <!-- ================= SYNC MODAL (Original Text Copy) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
-        <div class="theme-card max-w-md w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
+        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>🔄</span> 端末間直結同期 (iPhone ⇄ iPad)
+                    <span>🔄</span> 端末間データ同期
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
             </div>
 
-            <div class="space-y-5 text-xs sm:text-sm">
-                <!-- 送信側の表示 -->
-                <div class="theme-card-sm p-4 rounded-2xl border space-y-3 bg-amber-500/5">
-                    <h4 class="font-bold text-xs text-amber-800">📱 1️⃣ この端末の接続番号 (送信側)</h4>
-                    <p class="text-[11px] opacity-80">あなたのこの端末の4桁番号です。受信側のiPadにこの番号を入力してください。</p>
-                    <div id="my-peer-id-display" class="text-center text-3xl font-extrabold tracking-widest text-amber-900 bg-white/80 p-3 rounded-xl border">
-                        接続中...
-                    </div>
+            <div class="space-y-4 text-xs sm:text-sm">
+                <div class="space-y-2">
+                    <label class="block font-semibold">同期コードをコピー（送信側）</label>
+                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2 rounded-xl transition shadow cursor-pointer">
+                        📋 全同期コードをコピー
+                    </button>
+                    <textarea id="export-data-textarea" readonly rows="3" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] font-mono border focus:outline-none"></textarea>
                 </div>
 
-                <!-- 受信側の入力 -->
-                <div class="theme-card-sm p-4 rounded-2xl border space-y-3">
-                    <h4 class="font-bold text-xs">📥 2️⃣ 相手の接続番号を入力して同期 (受信側)</h4>
-                    <p class="text-[11px] opacity-80">iPhone画面に表示されている4桁の番号をここに入力してください。</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="target-peer-id-input" placeholder="例: 5821" maxlength="4" class="flex-grow theme-card-sm rounded-xl px-3 py-2.5 text-sm font-bold tracking-widest text-center border focus:outline-none">
-                        <button onclick="connectAndSyncData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer shrink-0">
-                            🚀 一発同期する
-                        </button>
-                    </div>
-                    <div id="sync-status-msg" class="text-center font-bold text-xs text-stone-600"></div>
+                <div class="space-y-2 pt-2 border-t border-current/10">
+                    <label class="block font-semibold">同期コードを貼り付け（受信側）</label>
+                    <textarea id="import-data-textarea" rows="3" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-2.5 text-xs focus:outline-none border"></textarea>
+                    <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow cursor-pointer w-full">
+                        ✅ データを反映して同期する
+                    </button>
                 </div>
             </div>
         </div>
@@ -406,8 +452,6 @@
     <!-- App Logic -->
     <script>
         const STORAGE_KEY = 'lifeplan_master_unified_data';
-        let peer = null;
-        let myShortId = '';
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -465,66 +509,16 @@
 
         const presetThemes = {
             earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46' },
+            midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155' },
             ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8' },
             sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030' },
-            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20' }
+            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20' },
+            vitamin: { name: '🍊 ペール・オレンジ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100' },
+            burgundy: { name: '🍷 淡ロゼ・ウォーム', bg: 'linear-gradient(135deg, #faf0f2 0%, #f4e1e6 100%)', text: '#3d1a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 215, 0.8)', primary: '#b85270', primaryHover: '#9a3e58' },
+            monotone: { name: '🐘 スノー・モノトーン', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40' },
+            lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
+            mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
-
-        function initPeer() {
-            if (peer) return;
-            myShortId = String(Math.floor(1000 + Math.random() * 9000));
-            peer = new Peer('lifeplan_' + myShortId);
-
-            peer.on('open', (id) => {
-                const display = document.getElementById('my-peer-id-display');
-                if (display) display.innerText = myShortId;
-            });
-
-            peer.on('connection', (conn) => {
-                conn.on('data', (incomingData) => {
-                    try {
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(incomingData));
-                        document.getElementById('sync-status-msg').innerText = '🎉 データを受信・同期しました！画面を更新します...';
-                        setTimeout(() => location.reload(), 1500);
-                    } catch(e) {
-                        document.getElementById('sync-status-msg').innerText = '❌ 受信データエラー';
-                    }
-                });
-            });
-        }
-
-        function connectAndSyncData() {
-            const targetIdVal = document.getElementById('target-peer-id-input').value.trim();
-            if (!targetIdVal || targetIdVal.length !== 4) {
-                alert('4桁の接続番号を正しく入力してください。');
-                return;
-            }
-
-            const statusMsg = document.getElementById('sync-status-msg');
-            statusMsg.innerText = '接続中...';
-
-            const conn = peer.connect('lifeplan_' + targetIdVal);
-            
-            conn.on('open', () => {
-                statusMsg.innerText = 'データを送信中...';
-                conn.send(appData);
-                statusMsg.innerText = '🎉 送信完了！相手のデータが更新されました。';
-                setTimeout(() => closeSyncModal(), 2000);
-            });
-
-            conn.on('error', (err) => {
-                statusMsg.innerText = '❌ 接続に失敗しました。番号を確認してください。';
-            });
-        }
-
-        function openSyncModal() {
-            document.getElementById('sync-modal').classList.remove('hidden');
-            initPeer();
-        }
-
-        function closeSyncModal() {
-            document.getElementById('sync-modal').classList.add('hidden');
-        }
 
         function getAccountNames() {
             return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
@@ -553,7 +547,11 @@
             appData.settings.currentTheme = themeKey;
             saveStorage();
 
-            let theme = presetThemes[themeKey] || presetThemes['earth'];
+            let theme = presetThemes[themeKey];
+            if (!theme) {
+                theme = appData.customThemes.find(t => t.key === themeKey) || presetThemes['earth'];
+            }
+
             const root = document.documentElement;
             root.style.setProperty('--app-bg', theme.bg);
             root.style.setProperty('--app-text', theme.text);
@@ -572,7 +570,12 @@
             if (!container) return;
             container.innerHTML = '';
 
-            for (let [key, t] of Object.entries(presetThemes)) {
+            const allThemes = { ...presetThemes };
+            if (appData.customThemes) {
+                appData.customThemes.forEach(ct => allThemes[ct.key] = ct);
+            }
+
+            for (let [key, t] of Object.entries(allThemes)) {
                 const isSelected = appData.settings.currentTheme === key;
                 const div = document.createElement('div');
                 div.className = `p-3 rounded-2xl flex items-center justify-between cursor-pointer transition border ${isSelected ? 'ring-2 ring-emerald-600 font-bold shadow-md' : 'opacity-90 hover:opacity-100'}`;
@@ -591,6 +594,89 @@
             }
         }
 
+        function saveCustomTheme() {
+            const name = document.getElementById('custom-theme-name').value.trim();
+            const bg = document.getElementById('custom-theme-bg').value;
+            const text = document.getElementById('custom-theme-text').value;
+            const primary = document.getElementById('custom-theme-primary').value;
+            const cardBg = document.getElementById('custom-theme-card').value;
+            
+            if (!name) {
+                alert('テーマ名を入力してください。');
+                return;
+            }
+            const key = 'custom_' + Date.now();
+            const newTheme = { 
+                key, name, bg, text, 
+                cardBg: cardBg + 'f0', 
+                border: primary + '40', 
+                primary, primaryHover: primary 
+            };
+            
+            if (!appData.customThemes) appData.customThemes = [];
+            appData.customThemes.push(newTheme);
+            saveStorage();
+            applyTheme(key);
+            document.getElementById('custom-theme-name').value = '';
+            alert('🎉 オリジナルテーマを保存・適用しました！');
+        }
+
+        function startAddingExpense() {
+            const nameInput = document.getElementById('new-expense-raw-name');
+            const rawName = nameInput.value.trim();
+            if (!rawName) {
+                alert('追加する支出項目の名前を入力してください。');
+                return;
+            }
+
+            let emojiInput = prompt('絵文字を入力してください。');
+            if (!emojiInput || !emojiInput.trim()) return;
+            
+            let emoji = emojiInput.trim();
+            const formattedName = `${emoji} ${rawName}`;
+            const id = 'exp_' + Date.now();
+            appData.expenseCategories.push({ id, name: formattedName });
+            appData.monthly.forEach(m => {
+                if (!m.expenses) m.expenses = {};
+                m.expenses[id] = 0;
+            });
+
+            nameInput.value = '';
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+            alert(`🎉 支出項目「${formattedName}」を追加しました！`);
+        }
+
+        function removeExpenseCategory(catId) {
+            if (appData.expenseCategories.length <= 1) {
+                alert('支出項目は最低1つ必要です。');
+                return;
+            }
+            appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+        }
+
+        function calculateRealAccumulatedNisa() {
+            let total = 0;
+            appData.monthly.forEach(m => total += Number(m.nisa || 0));
+            return total;
+        }
+
+        function generateDateOptions(selectedVal) {
+            let opts = '';
+            for (let y = 2026; y <= new Date().getFullYear() + 60; y++) {
+                for (let m = 1; m <= 12; m++) {
+                    const mm = String(m).padStart(2, '0');
+                    const val = `${y}-${mm}`;
+                    opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                }
+            }
+            return opts;
+        }
+
         function loadStorage() {
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
@@ -600,12 +686,15 @@
             if (saved) {
                 try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
             }
-
+            
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [...defaultAccounts];
             }
 
-            applyTheme(appData.settings.currentTheme || 'earth');
+            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
+            if (!appData.customThemes) appData.customThemes = [];
+
+            applyTheme(appData.settings.currentTheme);
             syncSettingsToUI();
             updateMonthSelector();
             renderMonthEditor();
@@ -625,11 +714,47 @@
             renderPieChart();
         }
 
+        function openSyncModal() {
+            document.getElementById('sync-modal').classList.remove('hidden');
+            document.getElementById('export-data-textarea').value = JSON.stringify(appData);
+        }
+
+        function closeSyncModal() {
+            document.getElementById('sync-modal').classList.add('hidden');
+        }
+
+        function copyDataText() {
+            const textarea = document.getElementById('export-data-textarea');
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                alert('📋 同期コードをコピーしました！');
+            }).catch(() => {
+                alert('📋 テキストエリア内の文字列をすべて選択して手動でコピーしてください。');
+            });
+        }
+
+        function applyImportedData() {
+            const text = document.getElementById('import-data-textarea').value.trim();
+            if (!text) {
+                alert('同期コードが入力されていません。');
+                return;
+            }
+            try {
+                const parsed = JSON.parse(text);
+                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+                alert('🎉 データ同期が完了しました！画面を更新します。');
+                location.reload();
+            } catch(e) {
+                alert('❌ 同期コードの読み込みに失敗しました。正しいコードを貼り付けてください。');
+            }
+        }
+
         function syncSettingsToUI() {
-            document.getElementById('setting-age').value = appData.settings.age || 27;
-            document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa || 30000;
+            document.getElementById('setting-age').value = appData.settings.age;
+            document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa;
             document.getElementById('setting-nisa-yield').value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
-            document.getElementById('setting-years').value = appData.settings.years || 38;
+            document.getElementById('setting-years').value = appData.settings.years;
             document.getElementById('sim-start-cash').value = appData.settings.startCash || 3000000;
             document.getElementById('sim-default-monthly-save').value = appData.settings.defaultMonthlySave || 50000;
             document.getElementById('nisa-real-accumulated').innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
@@ -648,24 +773,6 @@
             appData.settings.startCash = Number(document.getElementById('sim-start-cash').value);
             appData.settings.defaultMonthlySave = Number(document.getElementById('sim-default-monthly-save').value);
             saveStorage();
-        }
-
-        function calculateRealAccumulatedNisa() {
-            let total = 0;
-            appData.monthly.forEach(m => total += Number(m.nisa || 0));
-            return total;
-        }
-
-        function generateDateOptions(selectedVal) {
-            let opts = '';
-            for (let y = 2026; y <= new Date().getFullYear() + 60; y++) {
-                for (let m = 1; m <= 12; m++) {
-                    const mm = String(m).padStart(2, '0');
-                    const val = `${y}-${mm}`;
-                    opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
-                }
-            }
-            return opts;
         }
 
         function renderBankAccountsManager() {
@@ -695,10 +802,13 @@
 
         function addNewBankAccount() {
             const nameInput = document.getElementById('new-bank-account-name');
+            const balanceInput = document.getElementById('new-bank-account-balance');
             const name = nameInput.value.trim();
+            const initialBalance = Number(balanceInput.value) || 0;
             if (!name) return;
-            appData.bankAccounts.push({ name, initialBalance: 0 });
+            appData.bankAccounts.push({ name, initialBalance });
             nameInput.value = '';
+            balanceInput.value = '';
             saveStorage();
             renderBankAccountsManager();
             updateCalculations();
@@ -817,7 +927,6 @@
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
-            alert(`🎉 ${newMonth} のデータを追加しました！`);
         }
 
         function deleteMonth(index) {
@@ -863,7 +972,10 @@
             appData.expenseCategories.forEach(cat => {
                 expensesHtml += `
                     <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between gap-2 border">
-                        <span class="text-xs font-semibold truncate">${cat.name}</span>
+                        <div class="flex items-center gap-1.5 truncate">
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print">×</button>
+                            <span class="text-xs font-semibold truncate">${cat.name}</span>
+                        </div>
                         <input type="number" value="${m.expenses[cat.id] || 0}" onchange="updateExpenseField('${cat.id}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
                     </div>
                 `;
@@ -927,13 +1039,33 @@
                             <span class="text-xs font-semibold">ゲストB収入 (円)</span>
                             <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
                         </div>
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                            <span class="text-xs font-bold">🎁 ボーナス (円)</span>
+                            <input type="number" value="${m.bonus || 0}" onchange="updateMonthField('bonus', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                        </div>
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                            <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
+                            <input type="number" value="${m.extraInc || 0}" onchange="updateMonthField('extraInc', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
-                        ${expensesHtml}
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center pt-2 border-b border-current/10 pb-1">
+                            <span class="font-bold text-xs">支出項目</span>
+                            <div class="flex gap-2">
+                                <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-lg px-2 py-1 text-xs">
+                                <button onclick="startAddingExpense()" class="bg-amber-600 text-white text-xs px-3 py-1 rounded-lg font-bold">＋ 項目追加</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                            ${expensesHtml}
+                        </div>
                     </div>
                 </div>
             `;
         }
+
+        function triggerA4PrintOrSave() { window.print(); }
 
         function updateMonthField(field, value) {
             appData.monthly[currentEditingIndex][field] = value;
@@ -1010,18 +1142,33 @@
             if (pieChart) pieChart.destroy();
 
             let rawItems = [];
+            let totalExp = 0;
             appData.expenseCategories.forEach(cat => {
-                rawItems.push({ label: cat.name, val: Number(m.expenses?.[cat.id] || 0) });
+                const val = Number(m.expenses?.[cat.id] || 0);
+                rawItems.push({ label: cat.name, val });
+                totalExp += val;
             });
 
             pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: rawItems.map(i => i.label),
-                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: ['#8c6d53', '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2'] }]
+                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: ['#8c6d53', '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2', '#475569', '#10b981'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
+        }
+
+        function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
+
+        function parseAiTextAndAddEvent() {
+            const rawText = document.getElementById('ai-raw-text').value;
+            if (!rawText.trim()) return;
+            appData.events.push({ name: '予定イベント', date: '2027-12', cost: 100000, status: '予定', memo: rawText });
+            saveStorage();
+            renderEventsTable();
+            toggleAiParserBox();
+            alert('🎉 イベントを追加しました！');
         }
 
         function addNewEvent() {
@@ -1034,6 +1181,10 @@
             const tbody = document.getElementById('events-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
+            if (appData.events.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-70">予定はまだ登録されていません。</td></tr>`;
+                return;
+            }
             appData.events.forEach((ev, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -1102,7 +1253,7 @@
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 24; i++) {
                     labels.push(`2026年${i+1}月`);
                     balanceData.push(Math.round(runningBalance / 10000));
                     runningBalance += 50000;
