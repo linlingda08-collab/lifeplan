@@ -434,14 +434,14 @@
         <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>🔄</span> 端末間データ同期
+                    <span>🔄</span> 端末間データ同期 (iPhone ⇄ iPad)
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm">
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作 (iPhoneなど)</h4>
+                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作 (コピー元)</h4>
                     <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
                         <span>📋</span> 全同期コードをコピー
                     </button>
@@ -449,11 +449,11 @@
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作 (iPadなど)</h4>
+                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作 (ペースト先)</h4>
                     <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
                     <div class="flex justify-end pt-1">
                         <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
-                            ✅ データを反映して同期する (自動リロード)
+                            ✅ データを反映して同期する (自動適用)
                         </button>
                     </div>
                 </div>
@@ -463,7 +463,7 @@
 
     <!-- App Logic -->
     <script>
-        // ストレージキーを完全に一本化
+        // 完全統一ストレージキー
         const STORAGE_KEY = 'lifeplan_master_unified_data';
 
         // デフォルト口座: ①貯金用(UFJ) -> ②ゆとり用(イオン) -> ③ゲストA貯金用
@@ -535,6 +535,7 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
+        // iOSクリップボード途切れ防止のための超軽量画像圧縮（サイズ＆品質大幅最適化）
         function compressImage(base64Str, maxWidth, maxHeight, quality, callback) {
             const img = new Image();
             img.src = base64Str;
@@ -559,6 +560,7 @@
                 canvas.height = height;
                 let ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
+                // データサイズ抑制のためjpeg/0.45品質で超軽量化
                 callback(canvas.toDataURL('image/jpeg', quality));
             };
         }
@@ -721,10 +723,8 @@
         }
 
         function loadStorage() {
-            // 一本化したストレージキーで読み込み
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
-                // 移行用フォールバック
                 saved = localStorage.getItem('lifeplan_master_data_v2026') || localStorage.getItem('lifeplan_master_data');
             }
 
@@ -789,7 +789,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    compressImage(e.target.result, 120, 120, 0.7, function(compressed) {
+                    compressImage(e.target.result, 100, 100, 0.5, function(compressed) {
                         appData.settings.headerIcon = compressed;
                         appData.settings.headerIconType = 'image';
                         saveStorage();
@@ -828,9 +828,9 @@
             textarea.select();
             
             navigator.clipboard.writeText(jsonStr).then(() => {
-                alert('📋 全同期コードをコピーしました！\n別の端末(iPad等)のペースト枠に貼り付けてください。');
+                alert('📋 全同期コードをコピーしました！\n受信側(iPad等)のペースト枠に貼り付けてください。');
             }).catch(() => {
-                alert('📋 画面上のテキストエリアの文字列をすべて選択して手動でコピーしてください。');
+                alert('📋 テキストエリア内の文字列をすべて選択して手動でコピーしてください。');
             });
         }
 
@@ -842,17 +842,17 @@
             }
             try {
                 const parsed = JSON.parse(text);
-                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('invalid format');
+                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
                 
-                // 完全統一ストレージキーに即時保存
+                // 完全統一キーに上書き保存
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
                 
-                alert('🎉 データ同期が完了しました！\n自動的に画面を再読み込みして最新データを反映します。');
+                alert('🎉 データ同期が完了しました！\n画面を自動更新して最新状態にします。');
                 
-                // 画面を完全にリフレッシュ（強制再読み込み）して即時全反映
+                // 画面強制リロードで完全に状態同期
                 location.reload();
             } catch(e) {
-                alert('❌ 同期コードの読み込みに失敗しました。コピーしたテキストが途切れていないかご確認ください。');
+                alert('❌ 同期コードの読み込みに失敗しました。\nコードが途中で切れている可能性があります。送信側でもう一度「全同期コードをコピー」を押してからペーストしてみてください。');
             }
         }
 
@@ -958,7 +958,8 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    compressImage(e.target.result, 800, 450, 0.65, function(compressed) {
+                    // 背景画像を大幅圧縮 (同期コード肥大化防止)
+                    compressImage(e.target.result, 600, 330, 0.45, function(compressed) {
                         appData.settings.heroBg = compressed;
                         saveStorage();
                         applyHeroBackground();
