@@ -12,8 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2canvas for image export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
@@ -31,7 +29,7 @@
             background: var(--app-bg) !important;
             color: var(--app-text) !important;
             min-height: 100vh;
-            padding-bottom: 70px; /* ボトムナビゲーションの高さ分の余白 */
+            padding-bottom: 70px;
         }
 
         .theme-card {
@@ -77,7 +75,7 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- Header / Top Bar (Minimalist) -->
+    <!-- Header / Top Bar -->
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
@@ -92,10 +90,7 @@
 
             <div class="flex items-center space-x-2">
                 <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
-                    <span>🔄</span> <span class="hidden sm:inline">同期</span>
-                </button>
-                <button onclick="window.print()" class="no-print opacity-80 hover:opacity-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer border border-current">
-                    <span>🖨️</span>
+                    <span>🔄</span> <span>データ同期・バックアップ</span>
                 </button>
             </div>
         </div>
@@ -148,9 +143,7 @@
             </div>
 
             <!-- KPI Cards & Bank Accounts Grid -->
-            <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <!-- 動的に口座カードおよび収支カードが並びます -->
-            </div>
+            <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"></div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
@@ -195,15 +188,13 @@
                     </div>
                 </div>
 
-                <!-- 1枚の画像として書き出すエリア -->
                 <div id="monthly-export-card" class="space-y-6 p-4 sm:p-6 rounded-2xl theme-card border">
                     <div id="month-editor-container" class="space-y-6"></div>
                 </div>
 
-                <!-- 画像書き出しボタン -->
                 <div class="flex justify-end no-print pt-2">
-                    <button onclick="exportMonthlyCardAsImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <span>📸</span> この月の収支を1枚の画像として保存
+                    <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
+                        <span>🖨️</span> この月の収支を綺麗に保存・印刷 (PDF化)
                     </button>
                 </div>
             </div>
@@ -332,13 +323,13 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理</h2>
-                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や、食費・光熱費などの「生活口座（引き落とし口座）」を追加・管理します。</p>
+                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や生活口座（引き落とし用）を追加・管理します。</p>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
                     <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
-                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名 (例: 生活口座)..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
+                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
                         <input type="number" id="new-bank-account-balance" placeholder="初期残高(円)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
                         <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
                     </div>
@@ -431,31 +422,34 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL ================= -->
+    <!-- ================= SYNC MODAL (File Export/Import) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>🔄</span> 端末間データ同期
+                    <span>🔄</span> 端末間データ同期・バックアップ
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm">
+                <!-- 送信側：ファイルとしてダウンロード -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作</h4>
-                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>📋</span> 全データをコピー
+                    <h4 class="font-bold text-xs">1️⃣ 旧端末（送信側）の操作</h4>
+                    <p class="text-[11px] opacity-80">現在の全データをバックアップファイル（.json）として端末にダウンロードします。</p>
+                    <button onclick="exportDataFile()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>💾</span> バックアップファイルをダウンロード
                     </button>
-                    <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] focus:outline-none font-mono border"></textarea>
                 </div>
 
+                <!-- 受信側：ファイルを選択してインポート -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作</h4>
-                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
+                    <h4 class="font-bold text-xs">2️⃣ 新端末（受信側）の操作</h4>
+                    <p class="text-[11px] opacity-80">送信側で保存したファイルを選択して読み込みます。</p>
+                    <input type="file" id="import-file-input" accept=".json" class="w-full text-xs theme-card-sm rounded-xl p-2 border cursor-pointer">
                     <div class="flex justify-end pt-1">
-                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
-                            ✅ データを反映して同期する
+                        <button onclick="importDataFile(event)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
+                            ✅ ファイルを読み込んで同期する
                         </button>
                     </div>
                 </div>
@@ -508,8 +502,7 @@
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, '生活口座(引き落とし用)': 70000 },
-                    transfers: []
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, '生活口座(引き落とし用)': 70000 }
                 }
             ],
             events: []
@@ -549,17 +542,8 @@
             let initial = getAccountInitialBalance(accName);
             let allocatedSum = 0;
             appData.monthly.forEach(m => {
-                let effAllocs = {};
-                getAccountNames().forEach(b => effAllocs[b] = Number(m.bankAllocations?.[b] || 0));
-                if (m.transfers) {
-                    m.transfers.forEach(tr => {
-                        let amt = Number(tr.amount || 0);
-                        if (effAllocs[tr.from] !== undefined) effAllocs[tr.from] -= amt;
-                        if (effAllocs[tr.to] !== undefined) effAllocs[tr.to] += amt;
-                    });
-                }
-                if (effAllocs[accName] !== undefined) {
-                    allocatedSum += Number(effAllocs[accName] || 0);
+                if (m.bankAllocations && m.bankAllocations[accName] !== undefined) {
+                    allocatedSum += Number(m.bankAllocations[accName] || 0);
                 }
             });
             return initial + allocatedSum;
@@ -800,31 +784,47 @@
 
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
-            document.getElementById('export-data-textarea').value = JSON.stringify(appData);
         }
 
         function closeSyncModal() {
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        function copyDataText() {
-            const jsonStr = JSON.stringify(appData);
-            navigator.clipboard.writeText(jsonStr).then(() => alert('📋 全データをコピーしました！'));
+        // ファイルダウンロード形式による確実な同期
+        function exportDataFile() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `lifeplan_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            alert('💾 バックアップファイルをダウンロードしました！新端末でこのファイルを選択してください。');
         }
 
-        function applyImportedData() {
-            const text = document.getElementById('import-data-textarea').value.trim();
-            try {
-                const parsed = JSON.parse(text);
-                if (!parsed.monthly) throw new Error();
-                appData = parsed;
-                saveStorage();
-                loadStorage();
-                closeSyncModal();
-                alert('🎉 データ同期が完了しました！');
-            } catch(e) {
-                alert('❌ データの解析に失敗しました。');
+        function importDataFile(event) {
+            const fileInput = document.getElementById('import-file-input');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('ファイルを選択してください。');
+                return;
             }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (!parsed.monthly) throw new Error();
+                    appData = parsed;
+                    saveStorage();
+                    loadStorage();
+                    closeSyncModal();
+                    alert('🎉 データの同期・読み込みが完了しました！');
+                } catch(err) {
+                    alert('❌ ファイルの解析に失敗しました。正しいバックアップファイルを選択してください。');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function syncSettingsToUI() {
@@ -1021,8 +1021,7 @@
                 bonus: 0, 
                 extraInc: 0, 
                 memo: '', 
-                bankAllocations: newBankAllocs,
-                transfers: []
+                bankAllocations: newBankAllocs 
             });
 
             currentEditingIndex = appData.monthly.length - 1;
@@ -1041,37 +1040,6 @@
             renderMonthEditor();
         }
 
-        function addTransferRow() {
-            const m = appData.monthly[currentEditingIndex];
-            if (!m.transfers) m.transfers = [];
-            const accNames = getAccountNames();
-            if (accNames.length < 2) {
-                alert('口座が2つ以上登録されている必要があります。');
-                return;
-            }
-            m.transfers.push({ from: accNames[0], to: accNames[1], amount: 10000 });
-            saveStorage();
-            renderMonthEditor();
-        }
-
-        function updateTransferField(tIdx, field, val) {
-            const m = appData.monthly[currentEditingIndex];
-            if (m.transfers && m.transfers[tIdx]) {
-                m.transfers[tIdx][field] = val;
-                saveStorage();
-                renderMonthEditor();
-            }
-        }
-
-        function removeTransferRow(tIdx) {
-            const m = appData.monthly[currentEditingIndex];
-            if (m.transfers) {
-                m.transfers.splice(tIdx, 1);
-                saveStorage();
-                renderMonthEditor();
-            }
-        }
-
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
             if (!container) return;
@@ -1087,19 +1055,8 @@
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             if (!m.bankAllocations) m.bankAllocations = {};
-            if (!m.transfers) m.transfers = [];
-
-            let effectiveAllocations = {};
-            getAccountNames().forEach(b => effectiveAllocations[b] = Number(m.bankAllocations[b] || 0));
-
-            m.transfers.forEach(tr => {
-                let amt = Number(tr.amount || 0);
-                if (effectiveAllocations[tr.from] !== undefined) effectiveAllocations[tr.from] -= amt;
-                if (effectiveAllocations[tr.to] !== undefined) effectiveAllocations[tr.to] += amt;
-            });
-
             let allocatedSum = 0;
-            getAccountNames().forEach(b => allocatedSum += effectiveAllocations[b]);
+            getAccountNames().forEach(b => allocatedSum += Number(m.bankAllocations[b] || 0));
 
             const isMatched = (allocatedSum === autoSaving);
 
@@ -1117,29 +1074,6 @@
                     `;
                 });
             }
-
-            let transfersHtml = '';
-            m.transfers.forEach((tr, tIdx) => {
-                let opts = '';
-                accountNames.forEach(acc => {
-                    opts += `<option value="${acc}" ${acc===tr.from?'selected':''}>${acc}</option>`;
-                });
-                let optsTo = '';
-                accountNames.forEach(acc => {
-                    optsTo += `<option value="${acc}" ${acc===tr.to?'selected':''}>${acc}</option>`;
-                });
-
-                transfersHtml += `
-                    <div class="flex items-center gap-2 theme-card-sm p-2.5 rounded-xl border text-xs">
-                        <select onchange="updateTransferField(${tIdx}, 'from', this.value)" class="theme-card-sm rounded-lg p-1 border font-semibold">${opts}</select>
-                        <span>➔</span>
-                        <select onchange="updateTransferField(${tIdx}, 'to', this.value)" class="theme-card-sm rounded-lg p-1 border font-semibold">${optsTo}</select>
-                        <input type="number" value="${tr.amount}" onchange="updateTransferField(${tIdx}, 'amount', Number(this.value))" class="w-24 theme-card-sm rounded-lg p-1 text-right font-semibold border" placeholder="金額">
-                        <span class="text-[10px]">円</span>
-                        <button onclick="removeTransferRow(${tIdx})" class="text-rose-500 font-bold ml-auto cursor-pointer">×</button>
-                    </div>
-                `;
-            });
 
             let expensesHtml = '';
             appData.expenseCategories.forEach(cat => {
@@ -1223,16 +1157,6 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
                         ${banksHtml}
                     </div>
-
-                    <div class="pt-3 border-t border-current/10 space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold opacity-80">🔄 口座間のお金移動（任意・収支に影響しません）</span>
-                            <button onclick="addTransferRow()" class="no-print text-[11px] theme-primary-bg px-2.5 py-1 rounded-lg font-semibold cursor-pointer">＋ 移動を追加</button>
-                        </div>
-                        <div class="space-y-1.5">
-                            ${transfersHtml}
-                        </div>
-                    </div>
                 </div>
 
                 <div class="space-y-5">
@@ -1291,30 +1215,6 @@
                     </div>
                 </div>
             `;
-        }
-
-        // 高速化された画像出力関数 (html2canvas)
-        function exportMonthlyCardAsImage() {
-            const targetElement = document.getElementById('monthly-export-card');
-            if (!targetElement) return;
-
-            // 描画負荷を軽減して高速化
-            html2canvas(targetElement, {
-                scale: 1.5, 
-                useCORS: true,
-                backgroundColor: null,
-                logging: false
-            }).then(canvas => {
-                const imageURL = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                const currentMonth = appData.monthly[currentEditingIndex].month || 'monthly';
-                link.download = `ライフプラン_${currentMonth}収支.png`;
-                link.href = imageURL;
-                link.click();
-            }).catch(err => {
-                console.error(err);
-                alert('❌ 画像の生成に失敗しました。');
-            });
         }
 
         function updateMonthField(field, value) {
@@ -1594,12 +1494,10 @@
                 const nisaAmt = Number(m.nisa || 0);
                 const surplus = inc - exp - nisaAmt;
 
-                // ホーム画面のKPIカードグリッドを動的に構築（各口座 ＋ 手取り・生活費・貯金）
                 const gridContainer = document.getElementById('home-kpi-grid');
                 if (gridContainer) {
                     let html = '';
                     
-                    // 各口座のカードを生成
                     appData.bankAccounts.forEach(acc => {
                         const accName = typeof acc === 'string' ? acc : acc.name;
                         const currentBal = calculateAccountCurrentBalance(accName);
@@ -1614,7 +1512,6 @@
                         `;
                     });
 
-                    // 収支カードを生成
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                             <div>
@@ -1695,18 +1592,8 @@
                     let matched = appData.monthly.find(item => item.month === yyyymm);
                     let saving = defaultSave;
                     if (matched) {
-                        let effAllocs = {};
-                        getAccountNames().forEach(b => effAllocs[b] = Number(matched.bankAllocations?.[b] || 0));
-                        if (matched.transfers) {
-                            matched.transfers.forEach(tr => {
-                                let amt = Number(tr.amount || 0);
-                                if (effAllocs[tr.from] !== undefined) effAllocs[tr.from] -= amt;
-                                if (effAllocs[tr.to] !== undefined) effAllocs[tr.to] += amt;
-                            });
-                        }
-
-                        if (effAllocs[savingAccountName] !== undefined) {
-                            saving = Number(effAllocs[savingAccountName] || 0);
+                        if (matched.bankAllocations && matched.bankAllocations[savingAccountName] !== undefined) {
+                            saving = Number(matched.bankAllocations[savingAccountName] || 0);
                         } else {
                             let inc = (matched.rIncome || 0) + (matched.hIncome || 0) + (matched.bonus || 0) + (matched.extraInc || 0);
                             let exp = 0;
