@@ -29,7 +29,7 @@
             background: var(--app-bg) !important;
             color: var(--app-text) !important;
             min-height: 100vh;
-            padding-bottom: 70px;
+            padding-bottom: 75px;
         }
 
         .theme-card {
@@ -790,7 +790,6 @@
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        // ファイルダウンロード形式による確実な同期
         function exportDataFile() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
             const downloadAnchor = document.createElement('a');
