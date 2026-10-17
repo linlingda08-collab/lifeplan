@@ -543,15 +543,19 @@
             return initial + allocatedSum;
         }
 
+        function getCurrentThemeObj() {
+            let theme = presetThemes[appData.settings.currentTheme];
+            if (!theme && appData.customThemes) {
+                theme = appData.customThemes.find(t => t.key === appData.settings.currentTheme);
+            }
+            return theme || presetThemes['earth'];
+        }
+
         function applyTheme(themeKey) {
             appData.settings.currentTheme = themeKey;
             saveStorage();
 
-            let theme = presetThemes[themeKey];
-            if (!theme) {
-                theme = appData.customThemes.find(t => t.key === themeKey) || presetThemes['earth'];
-            }
-
+            let theme = getCurrentThemeObj();
             const root = document.documentElement;
             root.style.setProperty('--app-bg', theme.bg);
             root.style.setProperty('--app-text', theme.text);
@@ -1149,11 +1153,12 @@
                 totalExp += val;
             });
 
+            const theme = getCurrentThemeObj();
             pieChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: rawItems.map(i => i.label),
-                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: ['#8c6d53', '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2', '#475569', '#10b981'] }]
+                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: [theme.primary, '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2', '#475569', '#10b981'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -1248,6 +1253,7 @@
         }
 
         function renderCharts() {
+            const theme = getCurrentThemeObj();
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
@@ -1262,7 +1268,7 @@
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: '#8c6d53', borderWidth: 3, fill: true }]
+                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: theme.primary, backgroundColor: theme.primary + '20', borderWidth: 3, fill: true }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
@@ -1275,7 +1281,7 @@
                     type: 'line',
                     data: {
                         labels: ['現在', '1年後', '3年後', '5年後'],
-                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', fill: true }]
+                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', backgroundColor: '#10b98120', fill: true }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
