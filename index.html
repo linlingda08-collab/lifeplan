@@ -68,6 +68,7 @@
             border-radius: 9999px;
         }
 
+        /* 印刷・画像保存用 A4 スタイル */
         @media print {
             .no-print { display: none !important; }
             body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
@@ -132,6 +133,7 @@
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl transition-all bg-gradient-to-r from-amber-800/90 via-stone-700/90 to-amber-900/90">
+                <div id="hero-overlay" class="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4 sm:py-6">
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプランシミュレーション</h2>
                 </div>
@@ -199,22 +201,36 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">支出の内訳</h3>
+                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳
+                        </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
+                    
                     <div class="relative h-56 sm:h-64 flex items-center justify-center">
                         <canvas id="expensePieChart"></canvas>
                     </div>
-                    <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
+
+                    <div>
+                        <h4 class="text-xs font-bold opacity-70 uppercase tracking-wider mb-2">項目の詳細金額リスト</h4>
+                        <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
+                    </div>
                 </div>
 
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
-                    <h3 class="font-bold text-xs sm:text-sm mb-4">過去の収支履歴一覧</h3>
+                    <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 過去の収支履歴一覧
+                    </h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-xl border border-current/10">
-                        <table class="w-full text-xs text-left border-collapse">
+                        <table class="w-full text-xs text-left border-collapse whitespace-nowrap sm:whitespace-normal">
                             <thead>
                                 <tr class="theme-card-sm font-semibold border-b border-current/10">
-                                    <th class="p-3">年月</th><th class="p-3">区分</th><th class="p-3 text-right">手取り</th><th class="p-3 text-right">生活費</th><th class="p-3 text-right">貯金</th><th class="p-3 text-center">操作</th>
+                                    <th class="p-3">年月</th>
+                                    <th class="p-3">区分</th>
+                                    <th class="p-3 text-right">手取り</th>
+                                    <th class="p-3 text-right">生活費</th>
+                                    <th class="p-3 text-right">貯金</th>
+                                    <th class="p-3 text-center">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="history-table-body" class="divide-y divide-current/10"></tbody>
@@ -229,7 +245,9 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">推移グラフ設定・初期資産</h2>
+                    <p class="text-xs opacity-70 mt-0.5">スタート時点（2026年11月）の初期現金残高や、標準の毎月貯金額などを自由に変更できます。</p>
                 </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
                     <div class="theme-card-sm p-4 rounded-xl space-y-2 border">
                         <label class="block font-semibold opacity-80">スタート時点の初期現金総額 (円)</label>
@@ -246,18 +264,33 @@
         <!-- ================= TAB 5: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
-                <div class="flex justify-between items-center pb-3 border-b border-current/10">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
-                    <button onclick="addNewEvent()" class="border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold cursor-pointer">＋ 追加</button>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
+                    <div>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
+                        <p class="text-xs opacity-70 mt-0.5">登録したイベントの時期と費用は、ホームの複合グラフに自動連動します。</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                        <button onclick="addNewEvent()" class="border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                            <span>＋</span> 追加
+                        </button>
+                    </div>
                 </div>
-                <table class="w-full text-xs text-left border-collapse">
-                    <thead>
-                        <tr class="theme-card-sm font-semibold border-b border-current/10">
-                            <th class="p-3">イベント名</th><th class="p-3">時期</th><th class="p-3">費用</th><th class="p-3 text-center">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="events-table-body" class="divide-y divide-current/10"></tbody>
-                </table>
+
+                <div class="space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-xl sm:border sm:border-current/10">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead>
+                            <tr class="theme-card-sm font-semibold border-b border-current/10">
+                                <th class="p-3 w-40">イベント名</th>
+                                <th class="p-3 w-32">予定時期</th>
+                                <th class="p-3 w-32">予定費用 (円)</th>
+                                <th class="p-3 w-20">ステータス</th>
+                                <th class="p-3">メモ</th>
+                                <th class="p-3 w-16 text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table-body" class="divide-y divide-current/10"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -266,12 +299,15 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理</h2>
+                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や各口座を管理します。並び順はホーム画面にもそのまま反映されます。</p>
                 </div>
+
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <div id="bank-accounts-manager" class="space-y-3"></div>
-                    <div class="flex gap-2 pt-3 border-t border-current/10">
+                    <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
+                    <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
-                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold cursor-pointer">＋ 追加</button>
+                        <input type="number" id="new-bank-account-balance" placeholder="初期残高(円)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
+                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
                     </div>
                 </div>
             </div>
@@ -281,12 +317,32 @@
         <div id="tab-nisa" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">NISA管理</h2>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">NISA管理・シミュレーション</h2>
+                    <p class="text-xs opacity-70 mt-0.5">想定年利（％）を入力すると毎月複利運用を計算します。未入力時は純粋な積立元本のみを計算します。</p>
                 </div>
-                <div class="space-y-4 text-xs sm:text-sm">
+                
+                <div class="space-y-4 text-xs sm:text-sm pt-2">
                     <div>
-                        <label class="block font-semibold mb-1">毎月のNISA積立額 (円)</label>
-                        <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 border">
+                        <label class="block font-semibold opacity-80 mb-1.5">現在の年齢</label>
+                        <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">毎月のNISA積立標準額 (円)</label>
+                        <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">想定年利 (％) <span class="text-[10px] opacity-70">(※未入力時は利回りなし・純粋な元本のみ)</span></label>
+                        <input type="number" step="0.1" id="setting-nisa-yield" placeholder="例: 5.0 (未入力は利回り0%)" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div>
+                        <label class="block font-semibold opacity-80 mb-1.5">運用想定期間 (年)</label>
+                        <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
+                    </div>
+                    <div class="p-4 theme-card-sm rounded-2xl space-y-2 border">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span>📊 現在のNISAリアル累積積立元本:</span>
+                            <span id="nisa-real-accumulated" class="text-sm font-extrabold text-emerald-600">¥0</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -296,9 +352,16 @@
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">テーマ切替</h2>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ</h2>
+                    <p class="text-xs opacity-70 mt-0.5">背景色はすべて上品で目に優しい淡色ベースで統一しています。</p>
                 </div>
-                <div id="preset-themes-grid" class="grid grid-cols-2 gap-3"></div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>✨</span> プリセットテーマ
+                    </h3>
+                    <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
             </div>
         </div>
 
@@ -353,30 +416,58 @@
         ];
 
         let appData = {
-            settings: { age: 27, monthlyNisa: 30000, startCash: 3000000, defaultMonthlySave: 50000, currentTheme: 'earth' },
+            settings: { 
+                age: 27, 
+                monthlyNisa: 30000, 
+                nisaYield: '', 
+                years: 38, 
+                headerIcon: '🌰',
+                headerIconType: 'emoji',
+                startCash: 3000000,
+                defaultMonthlySave: 50000,
+                currentTheme: 'earth'
+            },
+            customThemes: [],
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
-                { id: 'house', name: '🏠 住居費' },
-                { id: 'utility', name: '⚡ 水道光熱費' }
+                { id: 'rTrans', name: '🚆 ゲストA交通費' },
+                { id: 'hTrans', name: '🚆 ゲストB交通費' },
+                { id: 'house', name: '🏠 住居費(管理費込)' },
+                { id: 'goods', name: '🛒 生活用品' },
+                { id: 'utility', name: '⚡ 水道ガス電気' },
+                { id: 'rLoan', name: '🎓 ゲストA奨学金' },
+                { id: 'pon', name: '🐾 ぽん費' },
+                { id: 'kenmin', name: '➕ 県民共済' },
+                { id: 'rSub', name: '📖 ゲストAサブスク' },
+                { id: 'rPocket', name: '💵 ゲストAお小遣い' },
+                { id: 'hPocket', name: '💵 ゲストBお小遣い' },
+                { id: 'hHair', name: '💇 ゲストB美容代' },
+                { id: 'rComm', name: '📞 ゲストA通信費' },
+                { id: 'hComm', name: '📞 ゲストB通信費' }
             ],
             monthly: [
                 { 
-                    month: '2026-11', type: '想定', rIncome: 200000, hIncome: 195000, 
-                    expenses: { food: 35000, house: 75000, utility: 20000 },
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: 'スタート月',
+                    month: '2026-11', type: '想定', 
+                    rIncome: 200000, hIncome: 195000, 
+                    expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
+                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
                     bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, 'ゲストA貯金用': 70000 }
                 }
             ],
             events: []
         };
 
-        let cashChart = null, nisaChart = null, pieChart = null;
+        let cashChart = null;
+        let nisaChart = null;
+        let pieChart = null;
         let currentEditingIndex = 0;
 
         const presetThemes = {
-            earth: { name: '🌰 アース', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53' },
-            ocean: { name: '🌊 オーシャン', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb' }
+            earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46' },
+            ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8' },
+            sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030' },
+            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20' }
         };
 
         function initPeer() {
@@ -435,27 +526,33 @@
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        function loadStorage() {
-            let saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                try { appData = JSON.parse(saved); } catch(e) {}
-            }
-            applyTheme(appData.settings.currentTheme || 'earth');
-            updateMonthSelector();
-            renderMonthEditor();
-            updateCalculations();
-            renderCharts();
+        function getAccountNames() {
+            return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
         }
 
-        function saveStorage() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-            updateCalculations();
-            renderCharts();
+        function getAccountInitialBalance(accName) {
+            const found = appData.bankAccounts.find(acc => (typeof acc === 'object' && acc.name === accName) || acc === accName);
+            if (found && typeof found === 'object' && found.initialBalance !== undefined) {
+                return Number(found.initialBalance) || 0;
+            }
+            return 0;
+        }
+
+        function calculateAccountCurrentBalance(accName) {
+            let initial = getAccountInitialBalance(accName);
+            let allocatedSum = 0;
+            appData.monthly.forEach(m => {
+                if (m.bankAllocations && m.bankAllocations[accName] !== undefined) {
+                    allocatedSum += Number(m.bankAllocations[accName] || 0);
+                }
+            });
+            return initial + allocatedSum;
         }
 
         function applyTheme(themeKey) {
             appData.settings.currentTheme = themeKey;
             saveStorage();
+
             let theme = presetThemes[themeKey] || presetThemes['earth'];
             const root = document.documentElement;
             root.style.setProperty('--app-bg', theme.bg);
@@ -463,6 +560,176 @@
             root.style.setProperty('--app-card-bg', theme.cardBg);
             root.style.setProperty('--app-card-border', theme.border);
             root.style.setProperty('--app-primary', theme.primary);
+            root.style.setProperty('--app-primary-hover', theme.primaryHover || theme.primary);
+
+            renderPresetThemesSelector();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function renderPresetThemesSelector() {
+            const container = document.getElementById('preset-themes-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let [key, t] of Object.entries(presetThemes)) {
+                const isSelected = appData.settings.currentTheme === key;
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-2xl flex items-center justify-between cursor-pointer transition border ${isSelected ? 'ring-2 ring-emerald-600 font-bold shadow-md' : 'opacity-90 hover:opacity-100'}`;
+                div.style.background = t.cardBg;
+                div.style.borderColor = t.border;
+                div.style.color = t.text;
+                div.onclick = () => applyTheme(key);
+                div.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 rounded-full shadow-xs shrink-0 border" style="background-color: ${t.primary};"></span>
+                        <span class="text-xs">${t.name}</span>
+                    </div>
+                    ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">適用中</span>' : ''}
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function loadStorage() {
+            let saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) {
+                saved = localStorage.getItem('lifeplan_master_data_v2026') || localStorage.getItem('lifeplan_master_data');
+            }
+
+            if (saved) {
+                try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
+            }
+
+            if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
+                appData.bankAccounts = [...defaultAccounts];
+            }
+
+            applyTheme(appData.settings.currentTheme || 'earth');
+            syncSettingsToUI();
+            updateMonthSelector();
+            renderMonthEditor();
+            renderHistoryTable();
+            renderEventsTable();
+            renderBankAccountsManager();
+            updateCalculations();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function saveStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            updateCalculations();
+            renderHistoryTable();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function syncSettingsToUI() {
+            document.getElementById('setting-age').value = appData.settings.age || 27;
+            document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa || 30000;
+            document.getElementById('setting-nisa-yield').value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
+            document.getElementById('setting-years').value = appData.settings.years || 38;
+            document.getElementById('sim-start-cash').value = appData.settings.startCash || 3000000;
+            document.getElementById('sim-default-monthly-save').value = appData.settings.defaultMonthlySave || 50000;
+            document.getElementById('nisa-real-accumulated').innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
+            renderPresetThemesSelector();
+        }
+
+        function saveSettings() {
+            appData.settings.age = Number(document.getElementById('setting-age').value);
+            appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
+            appData.settings.nisaYield = document.getElementById('setting-nisa-yield').value;
+            appData.settings.years = Number(document.getElementById('setting-years').value);
+            saveStorage();
+        }
+
+        function saveSimulationSettings() {
+            appData.settings.startCash = Number(document.getElementById('sim-start-cash').value);
+            appData.settings.defaultMonthlySave = Number(document.getElementById('sim-default-monthly-save').value);
+            saveStorage();
+        }
+
+        function calculateRealAccumulatedNisa() {
+            let total = 0;
+            appData.monthly.forEach(m => total += Number(m.nisa || 0));
+            return total;
+        }
+
+        function generateDateOptions(selectedVal) {
+            let opts = '';
+            for (let y = 2026; y <= new Date().getFullYear() + 60; y++) {
+                for (let m = 1; m <= 12; m++) {
+                    const mm = String(m).padStart(2, '0');
+                    const val = `${y}-${mm}`;
+                    opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                }
+            }
+            return opts;
+        }
+
+        function renderBankAccountsManager() {
+            const container = document.getElementById('bank-accounts-manager');
+            if (!container) return;
+            container.innerHTML = '';
+            appData.bankAccounts.forEach((acc, i) => {
+                const name = typeof acc === 'string' ? acc : acc.name;
+                const balance = typeof acc === 'object' && acc.initialBalance !== undefined ? acc.initialBalance : 0;
+                const div = document.createElement('div');
+                div.className = "flex flex-col sm:flex-row items-center justify-between theme-card-sm p-3 rounded-xl border text-xs font-semibold gap-2";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-grow">
+                        <span>🏦</span>
+                        <input type="text" value="${name}" onchange="updateBankAccountName(${i}, this.value)" class="flex-grow theme-card-sm rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none border">
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <span class="opacity-70 text-[11px]">初期残高:</span>
+                        <input type="number" value="${balance}" onchange="updateBankAccountBalance(${i}, Number(this.value))" class="w-28 theme-card-sm rounded-lg px-2 py-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        <span class="opacity-70 text-[11px]">円</span>
+                        <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2">削除</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewBankAccount() {
+            const nameInput = document.getElementById('new-bank-account-name');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            appData.bankAccounts.push({ name, initialBalance: 0 });
+            nameInput.value = '';
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function updateBankAccountName(index, newName) {
+            if (typeof appData.bankAccounts[index] === 'string') {
+                appData.bankAccounts[index] = { name: newName.trim(), initialBalance: 0 };
+            } else {
+                appData.bankAccounts[index].name = newName.trim();
+            }
+            saveStorage();
+            renderBankAccountsManager();
+        }
+
+        function updateBankAccountBalance(index, newBalance) {
+            if (typeof appData.bankAccounts[index] === 'string') {
+                appData.bankAccounts[index] = { name: appData.bankAccounts[index], initialBalance: newBalance };
+            } else {
+                appData.bankAccounts[index].initialBalance = newBalance;
+            }
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function removeBankAccount(index) {
+            appData.bankAccounts.splice(index, 1);
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
         }
 
         function switchTab(tabId) {
@@ -483,6 +750,13 @@
                 activeBtn.classList.remove('opacity-70', 'font-medium');
                 activeBtn.classList.add('theme-primary-bg', 'font-bold');
             }
+
+            if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
+            else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
+            else if (tabId === 'simulation') { syncSettingsToUI(); }
+            else if (tabId === 'nisa') { syncSettingsToUI(); }
+            else if (tabId === 'accounts') { renderBankAccountsManager(); }
+            else if (tabId === 'theme') { renderPresetThemesSelector(); }
         }
 
         function updateMonthSelector() {
@@ -498,37 +772,363 @@
             });
         }
 
-        function selectMonthCard(index) { currentEditingIndex = Number(index); renderMonthEditor(); }
+        function selectMonthCard(index) {
+            currentEditingIndex = Number(index);
+            renderMonthEditor();
+        }
+
+        function addNewMonthByDropdown() {
+            let lastMonthStr = "2026-11";
+            let lastMonthData = null;
+            if (appData.monthly.length > 0) {
+                lastMonthData = appData.monthly[appData.monthly.length - 1];
+                lastMonthStr = lastMonthData.month;
+            }
+
+            let [y, m] = lastMonthStr.split('-').map(Number);
+            m += 1;
+            if (m > 12) { m = 1; y++; }
+            const newMonth = `${y}-${String(m).padStart(2, '0')}`;
+
+            let newExpenses = {};
+            appData.expenseCategories.forEach(cat => {
+                newExpenses[cat.id] = lastMonthData && lastMonthData.expenses ? (lastMonthData.expenses[cat.id] || 0) : 0;
+            });
+
+            let newBankAllocs = {};
+            getAccountNames().forEach(b => {
+                newBankAllocs[b] = lastMonthData && lastMonthData.bankAllocations ? (lastMonthData.bankAllocations[b] || 0) : 0;
+            });
+
+            appData.monthly.push({ 
+                month: newMonth, 
+                type: '想定', 
+                rIncome: lastMonthData ? (lastMonthData.rIncome || 0) : 200000, 
+                hIncome: lastMonthData ? (lastMonthData.hIncome || 0) : 195000, 
+                expenses: newExpenses, 
+                nisa: lastMonthData && lastMonthData.nisa !== undefined ? lastMonthData.nisa : 30000, 
+                bonus: 0, 
+                extraInc: 0, 
+                memo: '', 
+                bankAllocations: newBankAllocs 
+            });
+
+            currentEditingIndex = appData.monthly.length - 1;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+            alert(`🎉 ${newMonth} のデータを追加しました！`);
+        }
+
+        function deleteMonth(index) {
+            if (appData.monthly.length <= 1) return;
+            appData.monthly.splice(index, 1);
+            currentEditingIndex = Math.max(0, index - 1);
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
 
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
             if (!container) return;
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
-            container.innerHTML = `<div class="p-4 theme-card-sm rounded-xl font-bold">📅 ${m.month} の収支 (手取り: ¥${((m.rIncome||0)+(m.hIncome||0)).toLocaleString()})</div>`;
+
+            const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+            let totalExp = 0;
+            if (!m.expenses) m.expenses = {};
+            appData.expenseCategories.forEach(cat => totalExp += Number(m.expenses[cat.id] || 0));
+            
+            const nisaAmt = Number(m.nisa || 0);
+            const autoSaving = totalInc - totalExp - nisaAmt;
+
+            if (!m.bankAllocations) m.bankAllocations = {};
+            let allocatedSum = 0;
+            getAccountNames().forEach(b => allocatedSum += Number(m.bankAllocations[b] || 0));
+
+            const isMatched = (allocatedSum === autoSaving);
+
+            let banksHtml = '';
+            getAccountNames().forEach(b => {
+                banksHtml += `
+                    <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
+                        <span class="font-semibold text-xs">🏦 ${b}</span>
+                        <input type="number" value="${m.bankAllocations[b] || 0}" onchange="updateBankAllocation('${b}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
+                    </div>
+                `;
+            });
+
+            let expensesHtml = '';
+            appData.expenseCategories.forEach(cat => {
+                expensesHtml += `
+                    <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between gap-2 border">
+                        <span class="text-xs font-semibold truncate">${cat.name}</span>
+                        <input type="number" value="${m.expenses[cat.id] || 0}" onchange="updateExpenseField('${cat.id}', Number(this.value))" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="theme-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print">
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">年月</label>
+                        <select onchange="updateMonthField('month', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                            ${generateDateOptions(m.month)}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">区分</label>
+                        <select onchange="updateMonthField('type', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                            <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">メモ</label>
+                        <input type="text" value="${m.memo || ''}" onchange="updateMonthField('memo', this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
+                    </div>
+                    <div class="flex justify-end sm:justify-start items-end">
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">削除</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 theme-card-sm p-4 rounded-xl border text-center">
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">総手取り</p>
+                        <p class="text-base sm:text-lg font-bold theme-primary-text mt-0.5">¥${totalInc.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
+                        <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5">¥${totalExp.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
+                        <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">¥${autoSaving.toLocaleString()}</p>
+                    </div>
+                </div>
+
+                <div class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-emerald-600 bg-emerald-500/5' : 'border-rose-500 bg-rose-500/10'}">
+                    <h3 class="font-bold text-xs uppercase tracking-wider">
+                        💰 口座割り振りチェック (割り振り計: ¥${allocatedSum.toLocaleString()} / 貯金: ¥${autoSaving.toLocaleString()})
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                        ${banksHtml}
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                            <span class="text-xs font-semibold">ゲストA収入 (円)</span>
+                            <input type="number" value="${m.rIncome}" onchange="updateMonthField('rIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                        </div>
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                            <span class="text-xs font-semibold">ゲストB収入 (円)</span>
+                            <input type="number" value="${m.hIncome}" onchange="updateMonthField('hIncome', Number(this.value))" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                        ${expensesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateMonthField(field, value) {
+            appData.monthly[currentEditingIndex][field] = value;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function updateExpenseField(catId, value) {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.expenses) m.expenses = {};
+            m.expenses[catId] = value;
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+        }
+
+        function updateBankAllocation(bankName, value) {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m.bankAllocations) m.bankAllocations = {};
+            m.bankAllocations[bankName] = value;
+            saveStorage();
+            renderMonthEditor();
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+                let totalExp = 0;
+                if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
+                const nisaAmt = Number(m.nisa || 0);
+                const surplus = totalInc - totalExp - nisaAmt;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-current/5 transition font-medium";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold">${m.month}</td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 text-emerald-600':'bg-amber-500/20 text-amber-600'}">${m.type}</span></td>
+                    <td class="p-3 text-right font-semibold theme-primary-text">¥${totalInc.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePieSelector() {
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                selector.appendChild(opt);
+            });
+        }
+
+        function renderPieChart() {
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            const idx = Number(selector.value) || 0;
+            const m = appData.monthly[idx];
+            if (!m) return;
+
+            const ctx = document.getElementById('expensePieChart');
+            if (!ctx) return;
+            if (pieChart) pieChart.destroy();
+
+            let rawItems = [];
+            appData.expenseCategories.forEach(cat => {
+                rawItems.push({ label: cat.name, val: Number(m.expenses?.[cat.id] || 0) });
+            });
+
+            pieChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: rawItems.map(i => i.label),
+                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: ['#8c6d53', '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function addNewEvent() {
+            appData.events.push({ name: '新しいイベント', date: '2027-04', cost: 100000, status: '予定', memo: '' });
+            saveStorage();
+            renderEventsTable();
+        }
+
+        function renderEventsTable() {
+            const tbody = document.getElementById('events-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            appData.events.forEach((ev, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
+                    <td class="p-2.5"><select onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateDateOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs"></td>
+                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-500 font-bold text-xs">削除</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         function updateCalculations() {
-            const grid = document.getElementById('home-kpi-grid');
-            if (grid) {
-                grid.innerHTML = `
-                    <div class="theme-card p-4 rounded-2xl">
-                        <p class="text-xs opacity-70">今月の手取り</p>
-                        <p class="text-xl font-bold mt-1">¥${((appData.monthly[0].rIncome||0)+(appData.monthly[0].hIncome||0)).toLocaleString()}</p>
-                    </div>
-                `;
+            if (appData.monthly.length > 0) {
+                const m = appData.monthly[currentEditingIndex] || appData.monthly[0];
+                const inc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+                let exp = 0;
+                if (m.expenses) for (let v of Object.values(m.expenses)) exp += Number(v || 0);
+                const surplus = inc - exp - Number(m.nisa || 0);
+
+                const gridContainer = document.getElementById('home-kpi-grid');
+                if (gridContainer) {
+                    let html = '';
+                    appData.bankAccounts.forEach(acc => {
+                        const accName = typeof acc === 'string' ? acc : acc.name;
+                        const currentBal = calculateAccountCurrentBalance(accName);
+                        html += `
+                            <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                                <div>
+                                    <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
+                                    <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥${currentBal.toLocaleString()}</p>
+                                </div>
+                                <div class="mt-2 text-[10px] opacity-70 pt-2 border-t border-current/10">現在残高</div>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り</p>
+                                <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費</p>
+                                <p class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl">
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
+                            <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                        </div>
+                    `;
+                    gridContainer.innerHTML = html;
+                }
             }
         }
 
         function renderCharts() {
-            const ctx = document.getElementById('cashFlowChart');
-            if (!ctx) return;
-            if (cashChart) cashChart.destroy();
-            cashChart = new Chart(ctx.getContext('2d'), {
-                type: 'bar',
-                data: { labels: ['2026年11月', '2026年12月'], datasets: [{ label: '残高', data: [300, 350], backgroundColor: '#8c6d53' }] },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+            const chart1El = document.getElementById('cashFlowChart');
+            if (chart1El) {
+                if (cashChart) cashChart.destroy();
+                let labels = [], balanceData = [];
+                let runningBalance = Number(appData.settings.startCash || 3000000);
+                for (let i = 0; i < 12; i++) {
+                    labels.push(`2026年${i+1}月`);
+                    balanceData.push(Math.round(runningBalance / 10000));
+                    runningBalance += 50000;
+                }
+                cashChart = new Chart(chart1El.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: '#8c6d53', borderWidth: 3, fill: true }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            const chart2El = document.getElementById('nisaChart');
+            if (chart2El) {
+                if (nisaChart) nisaChart.destroy();
+                nisaChart = new Chart(chart2El.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['現在', '1年後', '3年後', '5年後'],
+                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', fill: true }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
         }
 
         window.onload = function() { loadStorage(); };
