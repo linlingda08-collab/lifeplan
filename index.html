@@ -31,6 +31,7 @@
             background: var(--app-bg) !important;
             color: var(--app-text) !important;
             min-height: 100vh;
+            padding-bottom: 70px; /* ボトムナビゲーションの高さ分の余白 */
         }
 
         .theme-card {
@@ -67,7 +68,7 @@
             border-radius: 9999px;
         }
         @media print {
-            body { background: white !important; color: black !important; font-size: 11pt; }
+            body { background: white !important; color: black !important; font-size: 11pt; padding-bottom: 0; }
             .no-print { display: none !important; }
             .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
             @page { size: A4 portrait; margin: 10mm; }
@@ -76,39 +77,57 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- Header / Navigation -->
-    <header class="no-print theme-card sticky top-0 z-50 transition-all border-b">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-2">
+    <!-- Header / Top Bar (Minimalist) -->
+    <header class="no-print theme-card sticky top-0 z-40 transition-all border-b">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
-                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base sm:text-lg shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更">
+                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更">
                     <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
-                    <h1 class="text-sm sm:text-base font-bold tracking-tight leading-tight">ライフプラン</h1>
+                    <h1 class="text-sm font-bold tracking-tight leading-tight">ライフプラン</h1>
                 </div>
             </div>
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
-            <div class="flex items-center space-x-1.5 sm:space-x-2">
-                <nav class="flex flex-wrap gap-1 p-1 rounded-xl text-[11px] sm:text-xs font-semibold theme-card-sm">
-                    <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 theme-primary-bg shadow-xs cursor-pointer">ホーム</button>
-                    <button onclick="switchTab('input')" id="btn-tab-input" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">毎月入力</button>
-                    <button onclick="switchTab('charts')" id="btn-tab-charts" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">グラフ</button>
-                    <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">推移設定</button>
-                    <button onclick="switchTab('events')" id="btn-tab-events" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">予定</button>
-                    <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">口座</button>
-                    <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">NISA</button>
-                    <button onclick="switchTab('theme')" id="btn-tab-theme" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg transition-all duration-200 opacity-80 hover:opacity-100 cursor-pointer">🎨 テーマ</button>
-                </nav>
-                <button onclick="openSyncModal()" class="theme-primary-bg px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
+            <div class="flex items-center space-x-2">
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
                     <span>🔄</span> <span class="hidden sm:inline">同期</span>
                 </button>
-                <button onclick="window.print()" class="no-print opacity-80 hover:opacity-100 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer border border-current">
+                <button onclick="window.print()" class="no-print opacity-80 hover:opacity-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer border border-current">
                     <span>🖨️</span>
                 </button>
             </div>
         </div>
     </header>
+
+    <!-- Bottom Navigation Bar (iPhone One-Handed Optimization) -->
+    <nav class="no-print theme-card fixed bottom-0 left-0 right-0 z-50 border-t shadow-lg py-2 px-2 flex justify-around items-center backdrop-blur-md">
+        <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition theme-primary-bg cursor-pointer text-[10px] font-bold">
+            <span class="text-base">🏠</span> ホーム
+        </button>
+        <button onclick="switchTab('input')" id="btn-tab-input" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">📝</span> 毎月入力
+        </button>
+        <button onclick="switchTab('charts')" id="btn-tab-charts" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">📊</span> グラフ
+        </button>
+        <button onclick="switchTab('events')" id="btn-tab-events" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">📅</span> 予定
+        </button>
+        <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">🏦</span> 口座
+        </button>
+        <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">🌟</span> NISA
+        </button>
+        <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">⚙️</span> 設定
+        </button>
+        <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+            <span class="text-base">🎨</span> テーマ
+        </button>
+    </nav>
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 print-container space-y-6">
@@ -128,37 +147,9 @@
                 </div>
             </div>
 
-            <!-- KPI Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">銀行口座総資産</p>
-                        <p id="kpi-current-saving" class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥0</p>
-                    </div>
-                    <div id="home-bank-breakdown" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
-                </div>
-
-                <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り</p>
-                        <p id="kpi-monthly-income" class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥0</p>
-                    </div>
-                    <div id="home-income-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
-                </div>
-
-                <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費</p>
-                        <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥0</p>
-                    </div>
-                    <div id="home-expense-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
-                </div>
-
-                <div class="theme-card p-4 sm:p-5 rounded-2xl">
-                    <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                    <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥0</p>
-                    <div id="home-bucket-breakdown" class="mt-2 space-y-1 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
-                </div>
+            <!-- KPI Cards & Bank Accounts Grid -->
+            <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <!-- 動的に口座カードおよび収支カードが並びます -->
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -341,13 +332,13 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理</h2>
-                    <p class="text-xs opacity-70 mt-0.5">資産を管理する銀行口座や財布の追加・初期残高の設定を行います。</p>
+                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や、食費・光熱費などの「生活口座（引き落とし口座）」を追加・管理します。</p>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
                     <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
-                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
+                        <input type="text" id="new-bank-account-name" placeholder="新しい口座名 (例: 生活口座)..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
                         <input type="number" id="new-bank-account-balance" placeholder="初期残高(円)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
                         <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
                     </div>
@@ -491,7 +482,8 @@
             customThemes: [],
             bankAccounts: [
                 { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
-                { name: 'ゆとり用(イオン銀行)', initialBalance: 0 }
+                { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
+                { name: '生活口座(引き落とし用)', initialBalance: 100000 }
             ],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
@@ -516,8 +508,8 @@
                     rIncome: 200000, hIncome: 195000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000 },
-                    transfers: [] // 口座間移動データ: [{from: 'ゆとり用(イオン銀行)', to: '貯金用(三菱UFJ銀行)', amount: 20000}]
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, '生活口座(引き落とし用)': 70000 },
+                    transfers: []
                 }
             ],
             events: []
@@ -551,6 +543,26 @@
                 return Number(found.initialBalance) || 0;
             }
             return 0;
+        }
+
+        function calculateAccountCurrentBalance(accName) {
+            let initial = getAccountInitialBalance(accName);
+            let allocatedSum = 0;
+            appData.monthly.forEach(m => {
+                let effAllocs = {};
+                getAccountNames().forEach(b => effAllocs[b] = Number(m.bankAllocations?.[b] || 0));
+                if (m.transfers) {
+                    m.transfers.forEach(tr => {
+                        let amt = Number(tr.amount || 0);
+                        if (effAllocs[tr.from] !== undefined) effAllocs[tr.from] -= amt;
+                        if (effAllocs[tr.to] !== undefined) effAllocs[tr.to] += amt;
+                    });
+                }
+                if (effAllocs[accName] !== undefined) {
+                    allocatedSum += Number(effAllocs[accName] || 0);
+                }
+            });
+            return initial + allocatedSum;
         }
 
         function applyTheme(themeKey) {
@@ -706,7 +718,8 @@
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [
                     { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
-                    { name: 'ゆとり用(イオン銀行)', initialBalance: 0 }
+                    { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
+                    { name: '生活口座(引き落とし用)', initialBalance: 100000 }
                 ];
             } else {
                 appData.bankAccounts = appData.bankAccounts.map(acc => {
@@ -935,8 +948,8 @@
                 const btnEl = document.getElementById('btn-tab-' + id);
                 if (tabEl) tabEl.classList.add('hidden');
                 if (btnEl) {
-                    btnEl.classList.remove('theme-primary-bg', 'shadow-xs');
-                    btnEl.classList.add('opacity-80');
+                    btnEl.classList.remove('theme-primary-bg', 'font-bold');
+                    btnEl.classList.add('opacity-70', 'font-medium');
                 }
             });
 
@@ -945,8 +958,8 @@
 
             const activeBtn = document.getElementById('btn-tab-' + tabId);
             if (activeBtn) {
-                activeBtn.classList.remove('opacity-80');
-                activeBtn.classList.add('theme-primary-bg', 'shadow-xs');
+                activeBtn.classList.remove('opacity-70', 'font-medium');
+                activeBtn.classList.add('theme-primary-bg', 'font-bold');
             }
 
             if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
@@ -1028,7 +1041,6 @@
             renderMonthEditor();
         }
 
-        // 口座間移動の追加・削除用関数
         function addTransferRow() {
             const m = appData.monthly[currentEditingIndex];
             if (!m.transfers) m.transfers = [];
@@ -1077,7 +1089,6 @@
             if (!m.bankAllocations) m.bankAllocations = {};
             if (!m.transfers) m.transfers = [];
 
-            // 口座間移動による増減を各口座の割り当てに反映してチェックする
             let effectiveAllocations = {};
             getAccountNames().forEach(b => effectiveAllocations[b] = Number(m.bankAllocations[b] || 0));
 
@@ -1107,7 +1118,6 @@
                 });
             }
 
-            // 口座間移動UI
             let transfersHtml = '';
             m.transfers.forEach((tr, tIdx) => {
                 let opts = '';
@@ -1214,7 +1224,6 @@
                         ${banksHtml}
                     </div>
 
-                    <!-- 口座間移動セクション -->
                     <div class="pt-3 border-t border-current/10 space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold opacity-80">🔄 口座間のお金移動（任意・収支に影響しません）</span>
@@ -1284,18 +1293,17 @@
             `;
         }
 
-        // 毎月入力を1枚の画像として出力する関数
+        // 高速化された画像出力関数 (html2canvas)
         function exportMonthlyCardAsImage() {
             const targetElement = document.getElementById('monthly-export-card');
             if (!targetElement) return;
 
-            // 一時的に影やスタイルを調整して綺麗にキャプチャ
-            alert('📸 画像を生成しています。少々お待ちください...');
-
+            // 描画負荷を軽減して高速化
             html2canvas(targetElement, {
-                scale: 2, // 高解像度化
+                scale: 1.5, 
                 useCORS: true,
-                backgroundColor: null
+                backgroundColor: null,
+                logging: false
             }).then(canvas => {
                 const imageURL = canvas.toDataURL('image/png');
                 const link = document.createElement('a');
@@ -1586,42 +1594,53 @@
                 const nisaAmt = Number(m.nisa || 0);
                 const surplus = inc - exp - nisaAmt;
 
-                let savingAccountName = '貯金用(三菱UFJ銀行)';
-                const foundSavingAcc = appData.bankAccounts.find(acc => {
-                    const name = typeof acc === 'string' ? acc : acc.name;
-                    return name.includes('貯金用');
-                });
-                if (foundSavingAcc) {
-                    savingAccountName = typeof foundSavingAcc === 'string' ? foundSavingAcc : foundSavingAcc.name;
+                // ホーム画面のKPIカードグリッドを動的に構築（各口座 ＋ 手取り・生活費・貯金）
+                const gridContainer = document.getElementById('home-kpi-grid');
+                if (gridContainer) {
+                    let html = '';
+                    
+                    // 各口座のカードを生成
+                    appData.bankAccounts.forEach(acc => {
+                        const accName = typeof acc === 'string' ? acc : acc.name;
+                        const currentBal = calculateAccountCurrentBalance(accName);
+                        html += `
+                            <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                                <div>
+                                    <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
+                                    <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥${currentBal.toLocaleString()}</p>
+                                </div>
+                                <div class="mt-2 text-[10px] opacity-70 pt-2 border-t border-current/10">現在残高</div>
+                            </div>
+                        `;
+                    });
+
+                    // 収支カードを生成
+                    html += `
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り</p>
+                                <p id="kpi-monthly-income" class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                            </div>
+                            <div id="home-income-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
+                        </div>
+
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                            <div>
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費</p>
+                                <p id="kpi-monthly-expense" class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                            </div>
+                            <div id="home-expense-recent" class="mt-2 space-y-0.5 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
+                        </div>
+
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl">
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
+                            <p id="kpi-monthly-surplus" class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                            <div id="home-bucket-breakdown" class="mt-2 space-y-1 text-[11px] opacity-80 pt-2 border-t border-current/10"></div>
+                        </div>
+                    `;
+
+                    gridContainer.innerHTML = html;
                 }
-
-                let savingAccountInitial = getAccountInitialBalance(savingAccountName);
-                if (savingAccountInitial === 0 && appData.bankAccounts.length > 0) {
-                    savingAccountInitial = Number(appData.settings.startCash || 3000000);
-                }
-
-                let savingAccountAllocatedTotal = 0;
-                appData.monthly.forEach(monthItem => {
-                    let effAllocs = {};
-                    getAccountNames().forEach(b => effAllocs[b] = Number(monthItem.bankAllocations?.[b] || 0));
-                    if (monthItem.transfers) {
-                        monthItem.transfers.forEach(tr => {
-                            let amt = Number(tr.amount || 0);
-                            if (effAllocs[tr.from] !== undefined) effAllocs[tr.from] -= amt;
-                            if (effAllocs[tr.to] !== undefined) effAllocs[tr.to] += amt;
-                        });
-                    }
-                    if (effAllocs[savingAccountName] !== undefined) {
-                        savingAccountAllocatedTotal += Number(effAllocs[savingAccountName] || 0);
-                    }
-                });
-
-                let totalSavingAsset = savingAccountInitial + savingAccountAllocatedTotal;
-
-                document.getElementById('kpi-current-saving').innerText = '¥' + totalSavingAsset.toLocaleString();
-                document.getElementById('kpi-monthly-income').innerText = '¥' + inc.toLocaleString();
-                document.getElementById('kpi-monthly-expense').innerText = '¥' + exp.toLocaleString();
-                document.getElementById('kpi-monthly-surplus').innerText = '¥' + surplus.toLocaleString();
 
                 let recentMonths = appData.monthly.slice(Math.max(0, currentEditingIndex - 1), currentEditingIndex + 1);
                 let incHtml = `<div class="text-[10px] font-bold opacity-70 mb-0.5">直近の推移:</div>`;
@@ -1629,7 +1648,8 @@
                     let rTotal = (rm.rIncome||0)+(rm.hIncome||0)+(rm.bonus||0)+(rm.extraInc||0);
                     incHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${rTotal.toLocaleString()}</span></div>`;
                 });
-                document.getElementById('home-income-recent').innerHTML = incHtml;
+                const incRecentEl = document.getElementById('home-income-recent');
+                if (incRecentEl) incRecentEl.innerHTML = incHtml;
 
                 let expHtml = `<div class="text-[10px] font-bold opacity-70 mb-0.5">直近の推移:</div>`;
                 recentMonths.forEach(rm => {
@@ -1637,10 +1657,8 @@
                     if (rm.expenses) for (let v of Object.values(rm.expenses)) eSum += Number(v||0);
                     expHtml += `<div class="flex justify-between"><span>・${rm.month}:</span><span class="font-bold">¥${eSum.toLocaleString()}</span></div>`;
                 });
-                document.getElementById('home-expense-recent').innerHTML = expHtml;
-
-                let bankBreakdownHtml = `<div class="flex justify-between"><span>・${savingAccountName}:</span><span class="font-bold">¥${totalSavingAsset.toLocaleString()}</span></div>`;
-                document.getElementById('home-bank-breakdown').innerHTML = bankBreakdownHtml;
+                const expRecentEl = document.getElementById('home-expense-recent');
+                if (expRecentEl) expRecentEl.innerHTML = expHtml;
             }
         }
 
