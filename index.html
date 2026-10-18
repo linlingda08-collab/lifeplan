@@ -15,7 +15,7 @@
     <!-- QRCode Generator Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <!-- jsQR Library for Camera Scanning -->
-    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <!-- PeerJS for WebRTC Direct P2P Sync -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- Google Fonts -->
@@ -124,9 +124,6 @@
         <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🏦</span> 口座
         </button>
-        <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
-            <span class="text-base">🌟</span> NISA
-        </button>
         <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🎨</span> テーマ
         </button>
@@ -155,31 +152,19 @@
 
             <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (貯金用口座) ＆ 予定費用
-                        </h3>
-                        <div class="flex items-center gap-3 text-[11px] font-medium">
-                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
-                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto custom-scrollbar pb-2">
-                        <div class="min-w-[850px] h-64 sm:h-72 relative">
-                            <canvas id="cashFlowChart"></canvas>
-                        </div>
+            <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                    <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (貯金用口座) ＆ 予定費用
+                    </h3>
+                    <div class="flex items-center gap-3 text-[11px] font-medium">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
                     </div>
                 </div>
-                <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> NISA積立シミュレーション
-                        </h3>
-                    </div>
-                    <div class="relative flex-grow h-56 sm:h-60">
-                        <canvas id="nisaChart"></canvas>
+                <div class="overflow-x-auto custom-scrollbar pb-2">
+                    <div class="min-w-[850px] h-64 sm:h-72 relative">
+                        <canvas id="cashFlowChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -328,42 +313,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: NISA ================= -->
-        <div id="tab-nisa" class="hidden space-y-6">
-            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
-                <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">NISA管理・シミュレーション</h2>
-                    <p class="text-xs opacity-70 mt-0.5">想定年利（％）を入力すると毎月複利運用を計算します。未入力時は純粋な積立元本のみを計算します。</p>
-                </div>
-                
-                <div class="space-y-4 text-xs sm:text-sm pt-2">
-                    <div>
-                        <label class="block font-semibold opacity-80 mb-1.5">現在の年齢</label>
-                        <input type="number" id="setting-age" value="27" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
-                    </div>
-                    <div>
-                        <label class="block font-semibold opacity-80 mb-1.5">毎月のNISA積立標準額 (円)</label>
-                        <input type="number" id="setting-monthly-nisa" value="30000" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
-                    </div>
-                    <div>
-                        <label class="block font-semibold opacity-80 mb-1.5">想定年利 (％) <span class="text-[10px] opacity-70">(※未入力時は利回りなし・純粋な元本のみ)</span></label>
-                        <input type="number" step="0.1" id="setting-nisa-yield" placeholder="例: 5.0 (未入力は利回り0%)" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
-                    </div>
-                    <div>
-                        <label class="block font-semibold opacity-80 mb-1.5">運用想定期間 (年)</label>
-                        <input type="number" id="setting-years" value="38" onchange="saveSettings()" class="w-full theme-card-sm rounded-xl p-2.5 text-sm font-medium focus:outline-none transition border">
-                    </div>
-                    <div class="p-4 theme-card-sm rounded-2xl space-y-2 border">
-                        <div class="flex justify-between items-center text-xs font-bold">
-                            <span>📊 現在のNISAリアル累積積立元本:</span>
-                            <span id="nisa-real-accumulated" class="text-sm font-extrabold text-emerald-600">¥0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 7: THEMES ================= -->
+        <!-- ================= TAB 6: THEMES ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -466,15 +416,13 @@
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
-            { name: 'ゆとり用(イオン銀行)', initialBalance: 0 },
-            { name: 'ゲストA貯金用', initialBalance: 0 }
+            { name: 'ゆとり用(イオン銀行)', initialBalance: 0 }
         ];
 
         let appData = {
             settings: { 
                 age: 27, 
                 monthlyNisa: 30000, 
-                nisaYield: '', 
                 years: 38, 
                 heroBg: '', 
                 headerIcon: '🌰',
@@ -504,10 +452,10 @@
             monthly: [
                 { 
                     month: '2026-11', type: '想定', 
-                    rIncome: 200000, hIncome: 195000, 
+                    rIncome: 210000, hIncome: 170000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
-                    nisa: 30000, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
-                    bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, 'ゲストA貯金用': 70000 }
+                    nisa: 20000, rSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 }
                 }
             ],
             events: [
@@ -516,7 +464,6 @@
         };
 
         let cashChart = null;
-        let nisaChart = null;
         let pieChart = null;
         let currentEditingIndex = 0;
         let isMonthFormModified = false;
@@ -761,7 +708,33 @@
             return initial + allocatedSum;
         }
 
-        // 口座ごとの直近2ヶ月の貯金額の明細データを生成する関数
+        // ゲストA貯金の累計計算
+        function calculateRSavingTotal() {
+            let total = 0;
+            appData.monthly.forEach(m => {
+                if (m.type === '実績') {
+                    total += Number(m.rSaving || 0);
+                }
+            });
+            return total;
+        }
+
+        // ゲストA貯金の直近2ヶ月詳細データの取得
+        function getRSavingRecent2MonthsDetails() {
+            if (!appData.monthly || appData.monthly.length === 0) return [];
+            const sorted = [...appData.monthly]
+                .filter(m => m.type === '実績')
+                .sort((a, b) => b.month.localeCompare(a.month));
+            
+            const results = [];
+            const count = Math.min(2, sorted.length);
+            for (let i = 0; i < count; i++) {
+                const m = sorted[i];
+                results.push({ month: m.month, amount: Number(m.rSaving || 0) });
+            }
+            return results.reverse();
+        }
+
         function getAccountRecent2MonthsSavingsDetails(accName) {
             if (!appData.monthly || appData.monthly.length === 0) return [];
             const sorted = [...appData.monthly]
@@ -900,12 +873,6 @@
             renderPieChart();
         }
 
-        function calculateRealAccumulatedNisa() {
-            let total = 0;
-            appData.monthly.forEach(m => total += Number(m.nisa || 0));
-            return total;
-        }
-
         function generateDateOptions(selectedVal) {
             let opts = '';
             let y = 2026, m = 11;
@@ -938,15 +905,16 @@
                 } catch(e) { console.error(e); }
             }
             
+            // 旧バージョンの「ゲストA貯金用」口座を除外クリーンアップ
+            if (appData.bankAccounts) {
+                appData.bankAccounts = appData.bankAccounts.filter(acc => {
+                    const name = typeof acc === 'string' ? acc : acc.name;
+                    return name !== 'ゲストA貯金用';
+                });
+            }
+
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [...defaultAccounts];
-            } else {
-                const existingNames = appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
-                defaultAccounts.forEach(defAcc => {
-                    if (!existingNames.includes(defAcc.name)) {
-                        appData.bankAccounts.push(defAcc);
-                    }
-                });
             }
 
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
@@ -978,16 +946,12 @@
         function syncSettingsToUI() {
             const ageEl = document.getElementById('setting-age');
             const nisaEl = document.getElementById('setting-monthly-nisa');
-            const yieldEl = document.getElementById('setting-nisa-yield');
             const yearsEl = document.getElementById('setting-years');
-            const accNisaEl = document.getElementById('nisa-real-accumulated');
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
 
             if (ageEl) ageEl.value = appData.settings.age;
             if (nisaEl) nisaEl.value = appData.settings.monthlyNisa;
-            if (yieldEl) yieldEl.value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
             if (yearsEl) yearsEl.value = appData.settings.years;
-            if (accNisaEl) accNisaEl.innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
             if (defaultSaveEl) defaultSaveEl.value = appData.settings.defaultMonthlySave || 50000;
             renderPresetThemesSelector();
         }
@@ -995,12 +959,10 @@
         function saveSettings() {
             const ageEl = document.getElementById('setting-age');
             const nisaEl = document.getElementById('setting-monthly-nisa');
-            const yieldEl = document.getElementById('setting-nisa-yield');
             const yearsEl = document.getElementById('setting-years');
 
             if (ageEl) appData.settings.age = Number(ageEl.value);
             if (nisaEl) appData.settings.monthlyNisa = Number(nisaEl.value);
-            if (yieldEl) appData.settings.nisaYield = yieldEl.value;
             if (yearsEl) appData.settings.years = Number(yearsEl.value);
             saveStorage();
         }
@@ -1088,7 +1050,7 @@
             }
             isMonthFormModified = false;
 
-            ['dashboard', 'input', 'charts', 'events', 'accounts', 'nisa', 'theme'].forEach(id => {
+            ['dashboard', 'input', 'charts', 'events', 'accounts', 'theme'].forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
                 const btnEl = document.getElementById('btn-tab-' + id);
                 if (tabEl) tabEl.classList.add('hidden');
@@ -1108,7 +1070,6 @@
 
             if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
-            else if (tabId === 'nisa') { syncSettingsToUI(); }
             else if (tabId === 'events') { renderEventsTable(); }
             else if (tabId === 'accounts') { renderBankAccountsManager(); syncSettingsToUI(); }
             else if (tabId === 'theme') { renderPresetThemesSelector(); }
@@ -1170,10 +1131,11 @@
             appData.monthly.push({ 
                 month: newMonth, 
                 type: '想定', 
-                rIncome: lastMonthData ? (lastMonthData.rIncome || 0) : 200000, 
-                hIncome: lastMonthData ? (lastMonthData.hIncome || 0) : 195000, 
+                rIncome: lastMonthData ? (lastMonthData.rIncome || 0) : 210000, 
+                hIncome: lastMonthData ? (lastMonthData.hIncome || 0) : 170000, 
                 expenses: newExpenses, 
-                nisa: lastMonthData && lastMonthData.nisa !== undefined ? lastMonthData.nisa : 30000, 
+                nisa: lastMonthData && lastMonthData.nisa !== undefined ? lastMonthData.nisa : 20000, 
+                rSaving: lastMonthData && lastMonthData.rSaving !== undefined ? lastMonthData.rSaving : 0, 
                 bonus: 0, 
                 extraInc: 0, 
                 memo: '', 
@@ -1208,7 +1170,8 @@
             appData.expenseCategories.forEach(cat => totalExp += Number(m.expenses[cat.id] || 0));
             
             const nisaAmt = Number(m.nisa || 0);
-            const autoSaving = totalInc - totalExp - nisaAmt;
+            const rSavingAmt = Number(m.rSaving || 0);
+            const autoSaving = totalInc - totalExp - nisaAmt - rSavingAmt;
 
             if (!m.bankAllocations) m.bankAllocations = {};
             let allocatedSum = 0;
@@ -1273,22 +1236,26 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-4 gap-3 theme-card-sm p-4 rounded-xl border text-center">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 theme-card-sm p-4 rounded-xl border text-center">
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">総手取り</p>
-                        <p class="text-sm sm:text-base font-bold theme-primary-text mt-0.5" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
+                        <p class="text-xs sm:text-base font-bold theme-primary-text mt-0.5" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
-                        <p class="text-sm sm:text-base font-bold text-amber-600 mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
+                        <p class="text-xs sm:text-base font-bold text-amber-600 mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
                         <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold text-emerald-600 mt-0.5 focus:outline-none">
                     </div>
                     <div>
-                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                        <p class="text-sm sm:text-base font-bold text-emerald-600 mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">ゲストA貯金</p>
+                        <input type="number" id="input-field-rSaving" value="${m.rSaving || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold text-sky-600 mt-0.5 focus:outline-none">
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通)</p>
+                        <p class="text-xs sm:text-base font-bold text-emerald-600 mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -1364,7 +1331,8 @@
             });
 
             const nisaAmt = Number(document.getElementById('input-field-nisa')?.value || 0);
-            const autoSaving = totalInc - totalExp - nisaAmt;
+            const rSavingAmt = Number(document.getElementById('input-field-rSaving')?.value || 0);
+            const autoSaving = totalInc - totalExp - nisaAmt - rSavingAmt;
 
             let allocatedSum = 0;
             getAccountNames().forEach(b => {
@@ -1418,7 +1386,8 @@
             });
 
             const nisaAmt = Number(document.getElementById('input-field-nisa').value) || 0;
-            const autoSaving = totalInc - totalExp - nisaAmt;
+            const rSavingAmt = Number(document.getElementById('input-field-rSaving').value) || 0;
+            const autoSaving = totalInc - totalExp - nisaAmt - rSavingAmt;
 
             let newBankAllocs = {};
             let allocatedSum = 0;
@@ -1441,6 +1410,7 @@
             m.bonus = bonus;
             m.extraInc = extraInc;
             m.nisa = nisaAmt;
+            m.rSaving = rSavingAmt;
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
@@ -1460,7 +1430,8 @@
                 let totalExp = 0;
                 if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
                 const nisaAmt = Number(m.nisa || 0);
-                const surplus = totalInc - totalExp - nisaAmt;
+                const rSavingAmt = Number(m.rSaving || 0);
+                const surplus = totalInc - totalExp - nisaAmt - rSavingAmt;
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-current/5 transition font-medium";
@@ -1666,7 +1637,9 @@
             if (targetMonthData && targetMonthData.expenses) {
                 for (let v of Object.values(targetMonthData.expenses)) exp += Number(v || 0);
             }
-            const surplus = targetMonthData ? (inc - exp - Number(targetMonthData.nisa || 0)) : 0;
+            const nisaAmt = targetMonthData ? Number(targetMonthData.nisa || 0) : 0;
+            const rSavingAmt = targetMonthData ? Number(targetMonthData.rSaving || 0) : 0;
+            const surplus = targetMonthData ? (inc - exp - nisaAmt - rSavingAmt) : 0;
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
@@ -1697,6 +1670,24 @@
                     `;
                 });
 
+                // ゲストA貯金額カードの追加
+                const rSavingTotal = calculateRSavingTotal();
+                const rSavingDetails = getRSavingRecent2MonthsDetails();
+                let rDetailsHtml = rSavingDetails.length === 0 ? `<span class="opacity-50">記録なし</span>` : rSavingDetails.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+
+                html += `
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">👤 ゲストA累積貯金</p>
+                            <p class="text-lg sm:text-2xl font-bold text-sky-600 tracking-tight mt-1">¥${rSavingTotal.toLocaleString()}</p>
+                        </div>
+                        <div class="pt-2 border-t border-current/10 text-[10px] space-y-0.5">
+                            <div class="opacity-75 font-medium">直近の貯金額内訳:</div>
+                            <div class="font-bold text-sky-600 truncate">${rDetailsHtml}</div>
+                        </div>
+                    </div>
+                `;
+
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                         <div>
@@ -1710,8 +1701,14 @@
                             <p class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                        </div>
+                    </div>
                     <div class="theme-card p-4 sm:p-5 rounded-2xl">
-                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
                         <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                     </div>
                 `;
@@ -1722,13 +1719,11 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME COMBINATION CHART (11月、12月(11-1月間), 1月、4月以降四半期ごと) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventBarData = [];
                 
-                // 正確な初期残高＋「実績」になっている月の貯金合計をスタート残高とする
                 let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
                 appData.monthly.forEach(m => {
                     if (m.type === '実績' && m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
@@ -1745,7 +1740,8 @@
                         let totalExp = 0;
                         if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
                         const nisaAmt = Number(m.nisa || 0);
-                        const saving = totalInc - totalExp - nisaAmt;
+                        const rSavingAmt = Number(m.rSaving || 0);
+                        const saving = totalInc - totalExp - nisaAmt - rSavingAmt;
                         monthlyDataMap[m.month] = { saving, type: m.type };
                     });
                 }
@@ -1759,7 +1755,6 @@
                     });
                 }
 
-                // グラフポイントの定義（12月を11月と1月の間に独立したラベルとして配置）
                 let rawPoints = [
                     { ymKey: '2026-11', label: '2026年11月' },
                     { ymKey: '2026-12', label: '2026年12月' },
@@ -1792,7 +1787,6 @@
                         }
                         stepSaving = saving;
                     } else {
-                        // 四半期ごと (3ヶ月分合算)
                         let [y, m] = pt.ymKey.split('-').map(Number);
                         for (let k = 0; k < 3; k++) {
                             const mm = String(m).padStart(2, '0');
@@ -1871,7 +1865,7 @@
                                 borderColor: theme.primary,
                                 borderWidth: 1,
                                 borderRadius: 6,
-                                barThickness: 12, // マスの幅を保ちつつ複数の月別予定をきれいに並べるため調整
+                                barThickness: 12,
                                 yAxisID: 'y'
                             }
                         ]
@@ -1911,62 +1905,6 @@
                         }
                     },
                     plugins: [todayLinePlugin]
-                });
-            }
-
-            const chart2El = document.getElementById('nisaChart');
-            if (chart2El) {
-                if (nisaChart) nisaChart.destroy();
-                let nisaLabels = [], nisaData = [];
-                let nisaTotal = 0;
-                let monthlyNisa = Number(appData.settings.monthlyNisa || 30000);
-                let currentAge = Number(appData.settings.age || 27);
-
-                for (let ageStep = currentAge; ageStep <= Math.min(100, currentAge + 40); ageStep += 5) {
-                    nisaLabels.push(`${ageStep}歳`);
-                    nisaData.push(nisaTotal);
-                    nisaTotal += monthlyNisa * 60;
-                }
-
-                const ctx2 = chart2El.getContext('2d');
-                nisaChart = new Chart(ctx2, {
-                    type: 'line',
-                    data: {
-                        labels: nisaLabels,
-                        datasets: [{ 
-                            label: 'NISA積立元本 (円)', 
-                            data: nisaData, 
-                            borderColor: '#10b981', 
-                            backgroundColor: 'transparent', 
-                            fill: false, 
-                            tension: 0.2,
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#10b981',
-                            pointBorderColor: '#ffffff'
-                        }]
-                    },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) { return '¥' + (value / 10000).toLocaleString() + '万'; }
-                                }
-                            }
-                        },
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return ` NISA累計: ¥${context.raw.toLocaleString()}`;
-                                    }
-                                }
-                            }
-                        }
-                    }
                 });
             }
         }
