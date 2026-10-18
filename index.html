@@ -158,7 +158,7 @@
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (2026.11 → 2027.1 → 以降四半期・予定反映)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (実績＋標準貯金＋予定反映)
                         </h3>
                         <span class="text-[10px] opacity-70">👉 左右にスライドして閲覧可能</span>
                     </div>
@@ -476,7 +476,7 @@
 
     <!-- App Logic -->
     <script>
-        const STORAGE_KEY = 'lifeplan_master_data_v2026_rev4';
+        const STORAGE_KEY = 'lifeplan_master_data_v2026_rev5';
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -1464,7 +1464,6 @@
             const rgb = hexToRgbValues(theme.primary);
             const canvasCtx = ctx.getContext('2d');
 
-            // 逆順のグラデーション階調
             const bgColors = rawItems.map((_, i) => {
                 const count = Math.max(1, rawItems.length);
                 const factor = 1.0 - (i * (0.8 / count));
@@ -1619,15 +1618,29 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME CASH FLOW CHART (2026.11 → 2027.1 → 以降四半期・予定自動差引・グラデーション・今日比例マーカー) =================
+            // ================= HOME CASH FLOW CHART (実績優先 ＋ 標準貯金 ＋ 予定自動差引) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
                 
-                let monthlySave = Number(appData.settings.defaultMonthlySave || 50000);
+                let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
 
+                // 毎月入力データのマップ化 ('2026-11' -> { saving, type })
+                let monthlyDataMap = {};
+                if (appData.monthly) {
+                    appData.monthly.forEach(m => {
+                        const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+                        let totalExp = 0;
+                        if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
+                        const nisaAmt = Number(m.nisa || 0);
+                        const saving = totalInc - totalExp - nisaAmt;
+                        monthlyDataMap[m.month] = { saving, type: m.type };
+                    });
+                }
+
+                // イベント（予定費用）マップ化 ('2027-10' -> cost)
                 let eventMap = {};
                 if (appData.events) {
                     appData.events.forEach(ev => {
@@ -1637,8 +1650,6 @@
                     });
                 }
 
-                // テスト基準として、現在が2026年11月の場合のインデックスを想定（またはリアル日付）
-                // ここでは「2026-11」をテスト基準の現在月としてインデックス0を指定
                 const targetCurrentYM = '2026-11'; 
                 let todayIndex = 0;
 
@@ -1647,8 +1658,9 @@
                 if (eventMap['2026-11']) runningBalance -= eventMap['2026-11'];
                 balanceData.push(runningBalance);
 
-                // 2. 2027年1月（2ヶ月分加算）
-                runningBalance += monthlySave * 2;
+                // 2. 2027年1月
+                let saving202701 = monthlyDataMap['2027-01'] ? monthlyDataMap['2027-01'].saving : (defaultMonthlySave * 2);
+                runningBalance += saving202701;
                 if (eventMap['2027-01']) runningBalance -= eventMap['2027-01'];
                 labels.push('2027年1月');
                 balanceData.push(runningBalance);
@@ -1664,6 +1676,16 @@
                     
                     labels.push(`${curY}年${curM}月`);
                     
+                    // その月に実績があればそれを採用、なければ「標準毎月貯金額 × 3ヶ月」を加算
+                    let periodSaving = 0;
+                    if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
+                        periodSaving = monthlyDataMap[ymKey].saving;
+                    } else {
+                        periodSaving = defaultMonthlySave * 3;
+                    }
+
+                    runningBalance += periodSaving;
+
                     if (eventMap[ymKey]) {
                         runningBalance -= eventMap[ymKey];
                     }
@@ -1683,7 +1705,6 @@
                 areaGradient.addColorStop(0, theme.primary + '60');
                 areaGradient.addColorStop(1, theme.primary + '00');
 
-                // 今日時点のハイライト用カスタマイズプラグイン（2026.11の点に赤いマーカー＆縦線）
                 const todayLinePlugin = {
                     id: 'todayLinePlugin',
                     afterDraw: (chart) => {
