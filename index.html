@@ -762,10 +762,8 @@
         }
 
         // 口座ごとの直近2ヶ月の貯金額の明細データを生成する関数
-        // 戻り値例: [{ month: '2026-11', amount: 88500 }, { month: '2026-12', amount: 90000 }]
         function getAccountRecent2MonthsSavingsDetails(accName) {
             if (!appData.monthly || appData.monthly.length === 0) return [];
-            // 「実績」データのみ対象にするか、あるいは登録されている月をソート
             const sorted = [...appData.monthly]
                 .filter(m => m.type === '実績')
                 .sort((a, b) => b.month.localeCompare(a.month));
@@ -777,7 +775,6 @@
                 const amt = (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? Number(m.bankAllocations[accName] || 0) : 0;
                 results.push({ month: m.month, amount: amt });
             }
-            // 古い月 → 新しい月の順に並び替え
             return results.reverse();
         }
 
@@ -1083,12 +1080,11 @@
             updateCalculations();
         }
 
-        // 未保存ガードの修正：変更がある場合はアラートで通知し、タブ移動を完全にブロックする
         function switchTab(tabId) {
             const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
             if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
                 alert("⚠️ 毎月入力画面で変更された内容が保存されていません！\n他のページに移動するには、まず「💾 この内容で保存・反映する」ボタンを押してください。");
-                return; // 移動を完全にブロック
+                return;
             }
             isMonthFormModified = false;
 
@@ -1726,13 +1722,20 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME COMBINATION CHART (2026.11の次は直接2027.01、2027.04以降は四半期ごと) =================
+            // ================= HOME COMBINATION CHART (11月、12月(11-1月間), 1月、4月以降四半期ごと) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventBarData = [];
                 
-                let runningBalance = calculateAccountCurrentBalance('貯金用(三菱UFJ銀行)');
+                // 正確な初期残高＋「実績」になっている月の貯金合計をスタート残高とする
+                let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
+                appData.monthly.forEach(m => {
+                    if (m.type === '実績' && m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
+                        runningBalance += Number(m.bankAllocations['貯金用(三菱UFJ銀行)'] || 0);
+                    }
+                });
+
                 let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
 
                 let monthlyDataMap = {};
@@ -1756,24 +1759,19 @@
                     });
                 }
 
-                // グラフポイントのシーケンス作成：
-                // 1. 2026年11月
-                // 2. 2027年1月（2026年12月はスキップ）
-                // 3. 2027年4月以降は四半期ごと（4月, 7月, 10月, 1月...）
-                let rawPoints = [];
-                
-                // 1. 2026年11月
-                rawPoints.push({ ymKey: '2026-11', label: '2026年11月', monthsCount: 1 });
-                // 2. 2027年1月
-                rawPoints.push({ ymKey: '2027-01', label: '2027年1月', monthsCount: 2 }); // 12月〜1月の2ヶ月分を合算または推移
+                // グラフポイントの定義（12月を11月と1月の間に独立したラベルとして配置）
+                let rawPoints = [
+                    { ymKey: '2026-11', label: '2026年11月' },
+                    { ymKey: '2026-12', label: '2026年12月' },
+                    { ymKey: '2027-01', label: '2027年1月' }
+                ];
 
-                // 3. 2027年4月以降（四半期ごと）
                 let curY = 2027;
                 let curM = 4;
                 for (let i = 0; i < 20; i++) {
                     const mmStr = String(curM).padStart(2, '0');
                     const ymKey = `${curY}-${mmStr}`;
-                    rawPoints.push({ ymKey, label: `${curY}年${curM}月`, monthsCount: 3 });
+                    rawPoints.push({ ymKey, label: `${curY}年${curM}月` });
 
                     curM += 3;
                     if (curM > 12) { curM = 1; curY++; }
@@ -1785,23 +1783,17 @@
                     labels.push(pt.label);
                     
                     let stepSaving = 0;
-                    let stepEvCost = 0;
+                    let stepEvCost = eventMap[pt.ymKey] || 0;
 
-                    if (pt.ymKey === '2026-11') {
+                    if (pt.ymKey === '2026-11' || pt.ymKey === '2026-12' || pt.ymKey === '2027-01') {
                         let saving = defaultMonthlySave;
-                        if (monthlyDataMap['2026-11'] && monthlyDataMap['2026-11'].type === '実績') saving = monthlyDataMap['2026-11'].saving;
+                        if (monthlyDataMap[pt.ymKey] && monthlyDataMap[pt.ymKey].type === '実績') {
+                            saving = monthlyDataMap[pt.ymKey].saving;
+                        }
                         stepSaving = saving;
-                        stepEvCost = eventMap['2026-11'] || 0;
-                    } else if (pt.ymKey === '2027-01') {
-                        // 12月と1月の合算
-                        let s12 = (monthlyDataMap['2026-12'] && monthlyDataMap['2026-12'].type === '実績') ? monthlyDataMap['2026-12'].saving : defaultMonthlySave;
-                        let s01 = (monthlyDataMap['2027-01'] && monthlyDataMap['2027-01'].type === '実績') ? monthlyDataMap['2027-01'].saving : defaultMonthlySave;
-                        stepSaving = s12 + s01;
-                        stepEvCost = (eventMap['2026-12'] || 0) + (eventMap['2027-01'] || 0);
                     } else {
-                        // 四半期ごと (3ヶ月分)
+                        // 四半期ごと (3ヶ月分合算)
                         let [y, m] = pt.ymKey.split('-').map(Number);
-                        // 当該四半期の3ヶ月分の貯金＆予定費用を合算
                         for (let k = 0; k < 3; k++) {
                             const mm = String(m).padStart(2, '0');
                             const key = `${y}-${mm}`;
@@ -1879,7 +1871,7 @@
                                 borderColor: theme.primary,
                                 borderWidth: 1,
                                 borderRadius: 6,
-                                barThickness: 16,
+                                barThickness: 12, // マスの幅を保ちつつ複数の月別予定をきれいに並べるため調整
                                 yAxisID: 'y'
                             }
                         ]
