@@ -35,7 +35,7 @@
             background: var(--app-bg) !important;
             color: var(--app-text) !important;
             min-height: 100vh;
-            padding-bottom: 75px;
+            padding-bottom: 85px;
         }
 
         .theme-card {
@@ -72,6 +72,11 @@
             border-radius: 9999px;
         }
 
+        /* モバイルタッチターゲット最適化 */
+        button, select, input, label {
+            touch-action: manipulation;
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
@@ -104,29 +109,29 @@
     </header>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="no-print theme-card fixed bottom-0 left-0 right-0 z-50 border-t shadow-lg py-2 px-2 flex justify-around items-center backdrop-blur-md">
-        <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition theme-primary-bg cursor-pointer text-[10px] font-bold">
+    <nav class="no-print theme-card fixed bottom-0 left-0 right-0 z-50 border-t shadow-lg py-2 px-1 flex justify-around items-center backdrop-blur-md">
+        <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition theme-primary-bg cursor-pointer text-[10px] font-bold">
             <span class="text-base">🏠</span> ホーム
         </button>
-        <button onclick="switchTab('input')" id="btn-tab-input" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('input')" id="btn-tab-input" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">📝</span> 毎月入力
         </button>
-        <button onclick="switchTab('charts')" id="btn-tab-charts" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('charts')" id="btn-tab-charts" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">📊</span> グラフ
         </button>
-        <button onclick="switchTab('events')" id="btn-tab-events" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('events')" id="btn-tab-events" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">📅</span> 予定
         </button>
-        <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🏦</span> 口座
         </button>
-        <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🌟</span> NISA
         </button>
-        <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">⚙️</span> 設定
         </button>
-        <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🎨</span> テーマ
         </button>
     </nav>
@@ -145,7 +150,7 @@
                     </label>
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2 py-4 sm:py-6">
-                    <div class="inline-block bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-1 border border-white/30" id="today-date-badge">
+                    <div class="inline-block bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold mb-1 border border-white/30 shadow-sm" id="today-date-badge">
                         📅 本日の日付: 読込中...
                     </div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-md">ライフプランシミュレーション</h2>
@@ -156,11 +161,14 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
-                    <div class="flex items-center justify-between mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (実績＋標準貯金＋予定反映)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 ＆ 予定費用（複合グラフ）
                         </h3>
-                        <span class="text-[10px] opacity-70">👉 左右にスライドして閲覧可能</span>
+                        <div class="flex items-center gap-3 text-[11px] font-medium">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
+                        </div>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar pb-2">
                         <div class="min-w-[850px] h-64 sm:h-72 relative">
@@ -191,7 +199,7 @@
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="selectMonthCard(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer focus:outline-none"></select>
-                        <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-semibold transition shadow-sm flex items-center gap-1 cursor-pointer shrink-0">
+                        <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px]">
                             <span>＋</span> 月を追加
                         </button>
                     </div>
@@ -268,40 +276,42 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: EVENTS ================= -->
+        <!-- ================= TAB 5: EVENTS (iPhoneタップ完全修正) ================= -->
         <div id="tab-events" class="hidden space-y-6">
-            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6" onclick="event.stopPropagation()">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
+                <!-- ヘッダーおよび操作ボタン群（z-indexとタッチターゲットを最適化） -->
+                <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
                         <p class="text-xs opacity-70 mt-0.5">登録したイベントの時期と費用は、ホームの折れ線グラフおよび残高に自動連動します。</p>
                     </div>
-                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                        <button onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                    <div class="flex flex-wrap gap-2 w-full sm:w-auto relative z-40">
+                        <button type="button" onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-3.5 py-3 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95">
                             <span>🤖</span> Gemini回答から自動反映
                         </button>
-                        <button onclick="addNewEvent()" class="opacity-80 hover:opacity-100 border border-current text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer shrink-0">
+                        <button type="button" onclick="addNewEvent()" class="theme-primary-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer shrink-0 min-h-[44px] active:scale-95">
                             <span>＋</span> 追加
                         </button>
                     </div>
                 </div>
 
-                <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 hidden shadow-lg" onclick="event.stopPropagation()">
+                <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-2xl border space-y-3 hidden shadow-lg relative z-20">
                     <div class="flex items-center justify-between pb-2 border-b border-current/10">
                         <h4 class="font-bold text-xs flex items-center gap-1.5">
                             <span>✨</span> Gemini回答の自動解析
                         </h4>
-                        <button onclick="toggleAiParserBox()" class="opacity-70 hover:opacity-100 text-xs font-bold cursor-pointer">×</button>
+                        <button type="button" onclick="toggleAiParserBox()" class="opacity-70 hover:opacity-100 text-xs font-bold p-1 cursor-pointer">×</button>
                     </div>
-                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border" onclick="event.stopPropagation()"></textarea>
+                    <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
                     <div class="flex justify-end">
-                        <button onclick="parseAiTextAndAddEvent()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2 rounded-xl font-bold transition shadow cursor-pointer">
+                        <button type="button" onclick="parseAiTextAndAddEvent()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold transition shadow cursor-pointer min-h-[40px]">
                             📥 解析して今後の予定に追加する
                         </button>
                     </div>
                 </div>
 
-                <div class="space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-xl sm:border sm:border-current/10">
+                <!-- 予定一覧コンテンツ -->
+                <div class="relative z-10 space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-xl sm:border sm:border-current/10">
                     <table class="hidden sm:table w-full text-xs text-left border-collapse">
                         <thead>
                             <tr class="theme-card-sm font-semibold border-b border-current/10">
@@ -333,7 +343,7 @@
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
                         <input type="number" id="new-bank-account-balance" placeholder="初期残高(円)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
-                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2 rounded-xl font-semibold transition cursor-pointer shrink-0">＋ 口座追加</button>
+                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-semibold transition cursor-pointer shrink-0 min-h-[40px]">＋ 口座追加</button>
                     </div>
                 </div>
             </div>
@@ -417,7 +427,7 @@
                             </div>
                         </div>
                         <div class="flex justify-end pt-1">
-                            <button onclick="saveCustomTheme()" class="theme-primary-bg text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
+                            <button onclick="saveCustomTheme()" class="theme-primary-bg text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer min-h-[40px]">
                                 💾 オリジナルテーマを保存・適用
                             </button>
                         </div>
@@ -428,7 +438,7 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL (WebRTC P2P via Tiny QR Handshake) ================= -->
+    <!-- ================= SYNC MODAL ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
@@ -438,20 +448,18 @@
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
 
-            <!-- Mode Select View -->
             <div id="sync-mode-select" class="space-y-3">
                 <p class="text-xs opacity-80 leading-relaxed">
                     クラウド不要・容量無制限！送信側のQRコードをカメラで読み取るだけで、端末同士が直接接続し全データを一瞬で同期します。
                 </p>
-                <button onclick="startPeerSend()" class="w-full theme-primary-bg text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2">
+                <button onclick="startPeerSend()" class="w-full theme-primary-bg text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
                     <span>📤</span> 送信：同期用QRコードを表示
                 </button>
-                <button onclick="startPeerReceive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2">
+                <button onclick="startPeerReceive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
                     <span>📷</span> 受信：相手のQRコードをスキャン
                 </button>
             </div>
 
-            <!-- Sender View (Tiny Peer ID QR) -->
             <div id="sync-sender-view" class="hidden text-center space-y-3">
                 <div class="theme-card-sm p-4 rounded-2xl border inline-block bg-white shadow-inner">
                     <div id="qr-canvas-container" class="w-48 h-48 flex items-center justify-center mx-auto"></div>
@@ -461,7 +469,6 @@
                 <button onclick="closeSyncModal()" class="opacity-80 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer">閉じる</button>
             </div>
 
-            <!-- Receiver View (Camera Scanning Peer ID) -->
             <div id="sync-receiver-view" class="hidden text-center space-y-3">
                 <div class="relative w-full aspect-square max-w-[260px] mx-auto rounded-2xl overflow-hidden border-2 border-emerald-500 shadow-inner bg-black flex items-center justify-center">
                     <video id="qr-video" class="w-full h-full object-cover" playsinline></video>
@@ -476,7 +483,8 @@
 
     <!-- App Logic -->
     <script>
-        const STORAGE_KEY = 'lifeplan_master_data_v2026_rev5';
+        // 【修正点2】キー名を永久固定にし、アップデートでデータが上書き消失しない構造に設定
+        const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -919,13 +927,22 @@
         }
 
         function loadStorage() {
+            // 【修正点2】過去のキーからもデータを安全に復元・統合継承
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
-                saved = localStorage.getItem('lifeplan_master_data_v2026') || localStorage.getItem('lifeplan_master_data');
+                saved = localStorage.getItem('lifeplan_master_data_v2026_rev5') || 
+                        localStorage.getItem('lifeplan_master_data_v2026_rev4') || 
+                        localStorage.getItem('lifeplan_master_data_v2026') || 
+                        localStorage.getItem('lifeplan_master_data');
             }
 
             if (saved) {
-                try { appData = JSON.parse(saved); } catch(e) { console.error(e); }
+                try { 
+                    const parsed = JSON.parse(saved);
+                    if (parsed && typeof parsed === 'object') {
+                        appData = parsed;
+                    }
+                } catch(e) { console.error(e); }
             }
             
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
@@ -1080,6 +1097,7 @@
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
             else if (tabId === 'simulation') { syncSettingsToUI(); }
             else if (tabId === 'nisa') { syncSettingsToUI(); }
+            else if (tabId === 'events') { renderEventsTable(); }
             else if (tabId === 'accounts') { renderBankAccountsManager(); }
             else if (tabId === 'theme') { renderPresetThemesSelector(); }
         }
@@ -1296,7 +1314,7 @@
                 </div>
 
                 <div class="pt-4 border-t border-current/10 flex justify-end">
-                    <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-lg transition cursor-pointer hover:scale-105">
+                    <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-lg transition cursor-pointer hover:scale-105 min-h-[44px]">
                         💾 この内容で保存・反映する
                     </button>
                 </div>
@@ -1422,7 +1440,7 @@
                     <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
-                        <button onclick="currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
+                        <button onclick="currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1547,13 +1565,20 @@
 
         function renderEventsTable() {
             const tbody = document.getElementById('events-table-body');
-            if (!tbody) return;
+            const cardList = document.getElementById('events-card-list');
+            if (!tbody || !cardList) return;
+            
             tbody.innerHTML = '';
+            cardList.innerHTML = '';
+
             if (appData.events.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-70">予定はまだ登録されていません。</td></tr>`;
+                cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-70 rounded-2xl border">予定はまだ登録されていません。</div>`;
                 return;
             }
+
             appData.events.forEach((ev, index) => {
+                // PC用テーブル行
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
@@ -1561,9 +1586,40 @@
                     <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs"></td>
-                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-500 font-bold text-xs">削除</button></td>
+                    <td class="p-2.5 text-center"><button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-500 font-bold text-xs p-1 cursor-pointer">削除</button></td>
                 `;
                 tbody.appendChild(tr);
+
+                // モバイル（iPhone）用カード
+                const card = document.createElement('div');
+                card.className = "theme-card-sm p-3.5 rounded-2xl border space-y-2.5";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold">
+                        <button onclick="appData.events.splice(${index},1);saveStorage();renderEventsTable()" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0">削除</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">予定時期</label>
+                            <select onchange="appData.events[${index}].date=this.value;saveStorage()" class="w-full theme-card-sm border rounded-xl p-2 text-xs">${generateDateOptions(ev.date)}</select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">予定費用 (円)</label>
+                            <input type="number" value="${ev.cost}" onchange="appData.events[${index}].cost=Number(this.value);saveStorage()" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">ステータス</label>
+                            <input type="text" value="${ev.status}" onchange="appData.events[${index}].status=this.value;saveStorage()" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">メモ</label>
+                            <input type="text" value="${ev.memo || ''}" onchange="appData.events[${index}].memo=this.value;saveStorage()" class="w-full theme-card-sm border rounded-xl p-2 text-xs">
+                        </div>
+                    </div>
+                `;
+                cardList.appendChild(card);
             });
         }
 
@@ -1618,16 +1674,14 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME CASH FLOW CHART (実績優先 ＋ 標準貯金 ＋ 予定自動差引) =================
+            // ================= 【修正点3】HOME COMBINATION CHART (折れ線残高＋棒グラフ予定費用) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
-                let labels = [], balanceData = [];
+                let labels = [], balanceData = [], eventBarData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
-                
                 let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
 
-                // 毎月入力データのマップ化 ('2026-11' -> { saving, type })
                 let monthlyDataMap = {};
                 if (appData.monthly) {
                     appData.monthly.forEach(m => {
@@ -1640,7 +1694,6 @@
                     });
                 }
 
-                // イベント（予定費用）マップ化 ('2027-10' -> cost)
                 let eventMap = {};
                 if (appData.events) {
                     appData.events.forEach(ev => {
@@ -1650,22 +1703,25 @@
                     });
                 }
 
-                const targetCurrentYM = '2026-11'; 
                 let todayIndex = 0;
 
                 // 1. 2026年11月スタート
                 labels.push('2026年11月');
-                if (eventMap['2026-11']) runningBalance -= eventMap['2026-11'];
+                let ev11 = eventMap['2026-11'] || 0;
+                eventBarData.push(ev11);
+                runningBalance -= ev11;
                 balanceData.push(runningBalance);
 
                 // 2. 2027年1月
                 let saving202701 = monthlyDataMap['2027-01'] ? monthlyDataMap['2027-01'].saving : (defaultMonthlySave * 2);
                 runningBalance += saving202701;
-                if (eventMap['2027-01']) runningBalance -= eventMap['2027-01'];
+                let ev01 = eventMap['2027-01'] || 0;
+                eventBarData.push(ev01);
+                runningBalance -= ev01;
                 labels.push('2027年1月');
                 balanceData.push(runningBalance);
 
-                // 3. 2027年4月以降は四半期ごと（3ヶ月おき）に継続生成
+                // 3. 2027年4月以降（四半期ごと）
                 let curY = 2027;
                 let curM = 4;
                 let endYear = curY + 25;
@@ -1676,7 +1732,6 @@
                     
                     labels.push(`${curY}年${curM}月`);
                     
-                    // その月に実績があればそれを採用、なければ「標準毎月貯金額 × 3ヶ月」を加算
                     let periodSaving = 0;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
                         periodSaving = monthlyDataMap[ymKey].saving;
@@ -1686,9 +1741,9 @@
 
                     runningBalance += periodSaving;
 
-                    if (eventMap[ymKey]) {
-                        runningBalance -= eventMap[ymKey];
-                    }
+                    let evCost = eventMap[ymKey] || 0;
+                    eventBarData.push(evCost);
+                    runningBalance -= evCost;
 
                     balanceData.push(runningBalance);
 
@@ -1702,7 +1757,7 @@
                 const ctx1 = chart1El.getContext('2d');
                 
                 const areaGradient = ctx1.createLinearGradient(0, 0, 0, 300);
-                areaGradient.addColorStop(0, theme.primary + '60');
+                areaGradient.addColorStop(0, theme.primary + '50');
                 areaGradient.addColorStop(1, theme.primary + '00');
 
                 const todayLinePlugin = {
@@ -1730,22 +1785,36 @@
                 const pointRadii = labels.map((_, i) => i === todayIndex ? 6 : 3);
 
                 cashChart = new Chart(ctx1, {
-                    type: 'line',
                     data: {
                         labels: labels,
-                        datasets: [{ 
-                            label: '現金残高 (円)', 
-                            data: balanceData, 
-                            borderColor: theme.primary, 
-                            backgroundColor: areaGradient,
-                            borderWidth: 2.5, 
-                            fill: true, 
-                            tension: 0.2,
-                            pointBackgroundColor: pointBgColors,
-                            pointBorderColor: '#ffffff',
-                            pointRadius: pointRadii,
-                            pointHoverRadius: 8
-                        }]
+                        datasets: [
+                            { 
+                                type: 'line',
+                                label: '現金残高 (円)', 
+                                data: balanceData, 
+                                borderColor: theme.primary, 
+                                backgroundColor: areaGradient,
+                                borderWidth: 2.5, 
+                                fill: true, 
+                                tension: 0.2,
+                                pointBackgroundColor: pointBgColors,
+                                pointBorderColor: '#ffffff',
+                                pointRadius: pointRadii,
+                                pointHoverRadius: 8,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'bar',
+                                label: '予定費用 (円)',
+                                data: eventBarData,
+                                backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                                borderColor: '#dc2626',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                barThickness: 16,
+                                yAxisID: 'y'
+                            }
+                        ]
                     },
                     options: { 
                         responsive: true, 
@@ -1769,9 +1838,13 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        let lbl = ` 残高: ¥${context.raw.toLocaleString()}`;
-                                        if (context.dataIndex === todayIndex) lbl += ' 📍【本日現在】';
-                                        return lbl;
+                                        if (context.dataset.type === 'line') {
+                                            let lbl = ` 現金残高: ¥${context.raw.toLocaleString()}`;
+                                            if (context.dataIndex === todayIndex) lbl += ' 📍【本日現在】';
+                                            return lbl;
+                                        } else {
+                                            return ` 予定費用: ¥${context.raw.toLocaleString()}`;
+                                        }
                                     }
                                 }
                             }
@@ -1793,7 +1866,7 @@
                 for (let ageStep = currentAge; ageStep <= Math.min(100, currentAge + 40); ageStep += 5) {
                     nisaLabels.push(`${ageStep}歳`);
                     nisaData.push(nisaTotal);
-                    nisaTotal += monthlyNisa * 60; // 5年分
+                    nisaTotal += monthlyNisa * 60;
                 }
 
                 const ctx2 = chart2El.getContext('2d');
