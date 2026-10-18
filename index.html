@@ -155,12 +155,12 @@
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (四半期ごと)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (100歳まで)
                         </h3>
                         <span class="text-[10px] opacity-70">👉 横スクロール可能</span>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar pb-2">
-                        <div class="min-w-[700px] h-64 sm:h-72 relative">
+                        <div class="min-w-[900px] h-64 sm:h-72 relative">
                             <canvas id="cashFlowChart"></canvas>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> NISA積立シミュレーション
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> NISA積立シミュレーション (100歳まで)
                         </h3>
                     </div>
                     <div class="relative flex-grow h-56 sm:h-60">
@@ -206,7 +206,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (グラデーション円グラフ)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -546,7 +546,6 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
-        /* ================= COLOR HELPER FOR HOMOGENEOUS GRADIENT ================= */
         function hexToRgba(hex, alpha) {
             if (!hex) return `rgba(140, 109, 83, ${alpha})`;
             let c = hex.replace('#', '');
@@ -1442,11 +1441,33 @@
             });
 
             const theme = getCurrentThemeObj();
-            pieChart = new Chart(ctx.getContext('2d'), {
+            const canvasCtx = ctx.getContext('2d');
+
+            // 支出円グラフの各セグメントにテーマカラーベースの美しいグラデーションを適用
+            const colorPalette = [
+                theme.primary,
+                '#b85270', '#2e7d32', '#f57c00', '#2563eb', 
+                '#7b1fa2', '#475569', '#10b981', '#d97706', '#0284c7'
+            ];
+
+            const bgGradients = rawItems.map((_, i) => {
+                const baseColor = colorPalette[i % colorPalette.length];
+                const grad = canvasCtx.createRadialGradient(150, 150, 10, 150, 150, 130);
+                grad.addColorStop(0, hexToRgba(baseColor, 0.95));
+                grad.addColorStop(1, hexToRgba(baseColor, 0.55));
+                return grad;
+            });
+
+            pieChart = new Chart(canvasCtx, {
                 type: 'doughnut',
                 data: {
                     labels: rawItems.map(i => i.label),
-                    datasets: [{ data: rawItems.map(i => i.val), backgroundColor: [theme.primary, '#b85270', '#2e7d32', '#f57c00', '#2563eb', '#7b1fa2', '#475569', '#10b981'] }]
+                    datasets: [{ 
+                        data: rawItems.map(i => i.val), 
+                        backgroundColor: bgGradients,
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -1542,14 +1563,29 @@
 
         function renderCharts() {
             const theme = getCurrentThemeObj();
+            const currentAge = Number(appData.settings.age || 27);
+            const remainingYears = Math.max(1, 100 - currentAge);
+            const totalMonths = remainingYears * 12;
+
+            // ================= HOME CASH FLOW CHART (100歳まで, 2026.11スタート, 次は2027.1, 以降四半期ごと) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
                 
+                // 2026年11月スタート
+                labels.push('2026年11月');
+                balanceData.push(Math.round(runningBalance / 10000));
+
+                // 次は2027年1月
+                runningBalance += 150000;
+                labels.push('2027年1月');
+                balanceData.push(Math.round(runningBalance / 10000));
+
+                // 以降は2027年4月から四半期ごと（3ヶ月おき）に100歳まで継続
                 let curY = 2027, curM = 4;
-                for (let i = 0; i < 12; i++) {
+                for (let i = 2; i < totalMonths / 3; i++) {
                     labels.push(`${curY}年${curM}月`);
                     balanceData.push(Math.round(runningBalance / 10000));
                     runningBalance += 150000;
@@ -1557,7 +1593,6 @@
                     if (curM > 12) { curM -= 12; curY++; }
                 }
 
-                // 選択されたテーマカラー（緑なら緑、青なら青など）に完全連動するグラデーションを確実に生成
                 const ctx1 = chart1El.getContext('2d');
                 const gradient = ctx1.createLinearGradient(0, 0, 0, 300);
                 gradient.addColorStop(0, hexToRgba(theme.primary, 0.75));
@@ -1601,9 +1636,20 @@
                 });
             }
 
+            // ================= NISA SIMULATION CHART (100歳まで) =================
             const chart2El = document.getElementById('nisaChart');
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
+                let nisaLabels = [], nisaData = [];
+                let nisaTotal = 0;
+                let monthlyNisa = Number(appData.settings.monthlyNisa || 30000);
+
+                for (let ageStep = currentAge; ageStep <= 100; ageStep += 5) {
+                    nisaLabels.push(`${ageStep}歳`);
+                    nisaData.push(Math.round(nisaTotal / 10000));
+                    nisaTotal += monthlyNisa * 60; // 5年分
+                }
+
                 const ctx2 = chart2El.getContext('2d');
                 const gradNisa = ctx2.createLinearGradient(0, 0, 0, 220);
                 gradNisa.addColorStop(0, 'rgba(16, 185, 129, 0.75)');
@@ -1613,10 +1659,10 @@
                 nisaChart = new Chart(ctx2, {
                     type: 'line',
                     data: {
-                        labels: ['現在', '1年後', '3年後', '5年後'],
+                        labels: nisaLabels,
                         datasets: [{ 
-                            label: 'NISA', 
-                            data: [30, 68, 150, 280], 
+                            label: 'NISA積立 (万円)', 
+                            data: nisaData, 
                             borderColor: '#10b981', 
                             backgroundColor: gradNisa, 
                             fill: true, 
