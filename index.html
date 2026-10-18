@@ -139,7 +139,7 @@
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-xl bg-cover bg-center transition-all">
                 <div id="hero-overlay" class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
                 <div class="absolute right-3 top-3 z-20 no-print flex gap-2">
-                    <label class="bg-white/20 hover:bg-white/30 text-white text-[10px] sm:text-[11px] font-semibold px-2.5 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1">
+                    <label class="bg-white/20 hover:bg-white/30 text-white text-[10px] sm:text-[11px] font-semibold px-2.5 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/30 flex items-center gap-1 shadow-sm">
                         <span>📷</span> 背景変更
                         <input type="file" id="hero-bg-input" accept="image/*" onchange="changeHeroBackground(event)" class="hidden">
                     </label>
@@ -471,7 +471,7 @@
         </div>
     </div>
 
-    <!-- App Logic & P2P WebRTC Integration -->
+    <!-- App Logic -->
     <script>
         const STORAGE_KEY = 'lifeplan_master_data_v2026';
 
@@ -545,6 +545,87 @@
             lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a' },
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
+
+        /* ================= COLOR HELPER FOR HOMOGENEOUS GRADIENT ================= */
+        function hexToRgba(hex, alpha) {
+            if (!hex) return `rgba(140, 109, 83, ${alpha})`;
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            if (c.length >= 6) {
+                const r = parseInt(c.substring(0, 2), 16);
+                const g = parseInt(c.substring(2, 4), 16);
+                const b = parseInt(c.substring(4, 6), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+            return `rgba(140, 109, 83, ${alpha})`;
+        }
+
+        /* ================= HERO BACKGROUND & HEADER ICON FUNCTIONS ================= */
+        function changeHeroBackground(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64 = evt.target.result;
+                appData.settings.heroBg = base64;
+                saveStorage();
+                applyHeroBackgroundUI();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyHeroBackgroundUI() {
+            const heroEl = document.getElementById('hero-banner');
+            if (!heroEl) return;
+            if (appData.settings.heroBg) {
+                heroEl.style.backgroundImage = `url("${appData.settings.heroBg}")`;
+            } else {
+                heroEl.style.backgroundImage = '';
+            }
+        }
+
+        function promptHeaderIcon() {
+            const choice = confirm("アイコンの種類を選択してください:\n[OK] 画像をライブラリから選ぶ\n[キャンセル] 絵文字を入力する");
+            if (choice) {
+                document.getElementById('header-icon-file-input').click();
+            } else {
+                const emoji = prompt("アイコンにする絵文字を入力してください:", appData.settings.headerIcon || "🌰");
+                if (emoji && emoji.trim()) {
+                    appData.settings.headerIcon = emoji.trim();
+                    appData.settings.headerIconType = 'emoji';
+                    saveStorage();
+                    applyHeaderIconUI();
+                }
+            }
+        }
+
+        function changeHeaderIconImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64 = evt.target.result;
+                appData.settings.headerIcon = base64;
+                appData.settings.headerIconType = 'image';
+                saveStorage();
+                applyHeaderIconUI();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyHeaderIconUI() {
+            const iconBox = document.getElementById('header-icon-box');
+            const iconText = document.getElementById('header-icon-text');
+            if (!iconBox || !iconText) return;
+
+            if (appData.settings.headerIconType === 'image' && appData.settings.headerIcon) {
+                iconBox.style.backgroundImage = `url("${appData.settings.headerIcon}")`;
+                iconText.innerText = '';
+            } else {
+                iconBox.style.backgroundImage = '';
+                iconText.innerText = appData.settings.headerIcon || '🌰';
+            }
+        }
 
         /* ================= P2P WEB-RTC SYNC LOGIC ================= */
         function openSyncModal() {
@@ -836,6 +917,8 @@
             if (!appData.customThemes) appData.customThemes = [];
 
             applyTheme(appData.settings.currentTheme);
+            applyHeroBackgroundUI();
+            applyHeaderIconUI();
             syncSettingsToUI();
             updateMonthSelector();
             renderMonthEditor();
@@ -1364,19 +1447,38 @@
                     runningBalance += 50000;
                 }
 
-                // テーマカラー連動の美しいグラデーション (完全復元版)
+                // 濃いテーマカラーから完全同系色の薄いカラーへのグラデーション処理
                 const ctx1 = chart1El.getContext('2d');
                 const gradient = ctx1.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, theme.primary + 'b3'); // 約70%の透明度
-                gradient.addColorStop(1, theme.primary + '0a'); // フェードアウト
+                gradient.addColorStop(0, hexToRgba(theme.primary, 0.75));
+                gradient.addColorStop(0.5, hexToRgba(theme.primary, 0.35));
+                gradient.addColorStop(1, hexToRgba(theme.primary, 0.03));
 
                 cashChart = new Chart(ctx1, {
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: theme.primary, backgroundColor: gradient, borderWidth: 3, fill: true, tension: 0.1 }]
+                        datasets: [{ 
+                            type: 'line', 
+                            label: '貯金用口座残高 (万円)', 
+                            data: balanceData, 
+                            borderColor: theme.primary, 
+                            backgroundColor: gradient, 
+                            borderWidth: 3, 
+                            fill: true, 
+                            tension: 0.25,
+                            pointBackgroundColor: theme.primary,
+                            pointBorderColor: '#ffffff',
+                            pointHoverRadius: 6
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false }
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } } }
+                        }
+                    }
                 });
             }
 
@@ -1384,15 +1486,26 @@
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
                 const ctx2 = chart2El.getContext('2d');
-                const gradNisa = ctx2.createLinearGradient(0, 0, 0, 200);
-                gradNisa.addColorStop(0, '#10b981b3');
-                gradNisa.addColorStop(1, '#10b9810a');
+                const gradNisa = ctx2.createLinearGradient(0, 0, 0, 220);
+                gradNisa.addColorStop(0, 'rgba(16, 185, 129, 0.75)');
+                gradNisa.addColorStop(0.5, 'rgba(16, 185, 129, 0.3)');
+                gradNisa.addColorStop(1, 'rgba(16, 185, 129, 0.03)');
 
                 nisaChart = new Chart(ctx2, {
                     type: 'line',
                     data: {
                         labels: ['現在', '1年後', '3年後', '5年後'],
-                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', backgroundColor: gradNisa, fill: true, tension: 0.2 }]
+                        datasets: [{ 
+                            label: 'NISA', 
+                            data: [30, 68, 150, 280], 
+                            borderColor: '#10b981', 
+                            backgroundColor: gradNisa, 
+                            fill: true, 
+                            tension: 0.25,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#10b981',
+                            pointBorderColor: '#ffffff'
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
