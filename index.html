@@ -541,7 +541,7 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
-        /* ================= ANIMATION QR SYNC LOGIC ================= */
+        /* ================= ANIMATION QR SYNC LOGIC (STABLE) ================= */
         let qrSendInterval = null;
         let qrScanAnimation = null;
         let videoStream = null;
@@ -564,7 +564,7 @@
             document.getElementById('sync-sender-view').classList.remove('hidden');
 
             const dataStr = JSON.stringify(appData);
-            const chunkSize = 180; // 1つのQRに収まる最適な文字数
+            const chunkSize = 150; // より確実に読み取れるよう1ブロックの文字数を安全サイズに調整
             const totalChunks = Math.ceil(dataStr.length / chunkSize);
             const sessionId = Math.floor(Math.random() * 9000 + 1000);
             let currentChunkIndex = 0;
@@ -575,20 +575,19 @@
             function renderNextQr() {
                 const start = currentChunkIndex * chunkSize;
                 const chunkData = dataStr.substring(start, start + chunkSize);
-                // フォーマット: SessionID | TotalChunks | CurrentIndex | ChunkData
                 const payload = `LP1|${sessionId}|${totalChunks}|${currentChunkIndex}|${chunkData}`;
 
                 const qr = qrcode(0, 'M');
                 qr.addData(payload);
                 qr.make();
-                qrContainer.innerHTML = qr.createImgTag(5);
+                qrContainer.innerHTML = qr.createImgTag(4);
 
                 progressEl.innerText = `送信中: ${currentChunkIndex + 1} / ${totalChunks} コマ目`;
                 currentChunkIndex = (currentChunkIndex + 1) % totalChunks;
             }
 
             renderNextQr();
-            qrSendInterval = setInterval(renderNextQr, 250); // 1秒間に4回切り替え
+            qrSendInterval = setInterval(renderNextQr, 350); // 切り替えスピードを緩やかにしてカメラで捉えやすく改善
         }
 
         function stopQrSend() {
@@ -623,7 +622,7 @@
             });
 
             function scanFrame() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0 && video.videoHeight > 0) {
                     canvas.height = video.videoHeight;
                     canvas.width = video.videoWidth;
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -646,10 +645,9 @@
 
                             receivedChunks[idx] = content;
                             const count = Object.keys(receivedChunks).length;
-                            progressEl.innerText = `受心中: ${count} / ${expectedTotal} コマ読み取り完了！`;
+                            progressEl.innerText = `受信中: ${count} / ${expectedTotal} コマ読み取り完了！`;
 
                             if (count === expectedTotal) {
-                                // すべてのコマが揃った！
                                 let fullDataStr = '';
                                 for (let i = 0; i < expectedTotal; i++) {
                                     fullDataStr += receivedChunks[i];
@@ -1395,11 +1393,18 @@
                     balanceData.push(Math.round(runningBalance / 10000));
                     runningBalance += 50000;
                 }
-                cashChart = new Chart(chart1El.getContext('2d'), {
+
+                // グラフのグラデーションを美しく再適用
+                const ctx1 = chart1El.getContext('2d');
+                const gradient = ctx1.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, theme.primary + '80');
+                gradient.addColorStop(1, theme.primary + '05');
+
+                cashChart = new Chart(ctx1, {
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: theme.primary, backgroundColor: theme.primary + '20', borderWidth: 3, fill: true }]
+                        datasets: [{ type: 'line', label: '貯金用口座残高 (万円)', data: balanceData, borderColor: theme.primary, backgroundColor: gradient, borderWidth: 3, fill: true, tension: 0.1 }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
@@ -1408,11 +1413,16 @@
             const chart2El = document.getElementById('nisaChart');
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
-                nisaChart = new Chart(chart2El.getContext('2d'), {
+                const ctx2 = chart2El.getContext('2d');
+                const gradNisa = ctx2.createLinearGradient(0, 0, 0, 200);
+                gradNisa.addColorStop(0, '#10b98180');
+                gradNisa.addColorStop(1, '#10b98105');
+
+                nisaChart = new Chart(ctx2, {
                     type: 'line',
                     data: {
                         labels: ['現在', '1年後', '3年後', '5年後'],
-                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', backgroundColor: '#10b98120', fill: true }]
+                        datasets: [{ label: 'NISA', data: [30, 68, 150, 280], borderColor: '#10b981', backgroundColor: gradNisa, fill: true, tension: 0.2 }]
                     },
                     options: { responsive: true, maintainAspectRatio: false }
                 });
