@@ -155,12 +155,12 @@
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (100歳まで)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (2026.11 → 2027.1 → 以降四半期)
                         </h3>
-                        <span class="text-[10px] opacity-70">👉 横スクロール可能</span>
+                        <span class="text-[10px] opacity-70">👉 左右にスライドして閲覧可能</span>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar pb-2">
-                        <div class="min-w-[900px] h-64 sm:h-72 relative">
+                        <div class="min-w-[800px] h-64 sm:h-72 relative">
                             <canvas id="cashFlowChart"></canvas>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> NISA積立シミュレーション (100歳まで)
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> NISA積立シミュレーション
                         </h3>
                     </div>
                     <div class="relative flex-grow h-56 sm:h-60">
@@ -206,7 +206,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (グラデーション円グラフ)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (テーマ同系色グラデーション)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -546,17 +546,18 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
-        function hexToRgba(hex, alpha) {
-            if (!hex) return `rgba(140, 109, 83, ${alpha})`;
+        function hexToRgbValues(hex) {
+            if (!hex) return { r: 140, g: 109, b: 83 };
             let c = hex.replace('#', '');
             if (c.length === 3) c = c.split('').map(x => x + x).join('');
             if (c.length >= 6) {
-                const r = parseInt(c.substring(0, 2), 16);
-                const g = parseInt(c.substring(2, 4), 16);
-                const b = parseInt(c.substring(4, 6), 16);
-                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                return {
+                    r: parseInt(c.substring(0, 2), 16),
+                    g: parseInt(c.substring(2, 4), 16),
+                    b: parseInt(c.substring(4, 6), 16)
+                };
             }
-            return `rgba(140, 109, 83, ${alpha})`;
+            return { r: 140, g: 109, b: 83 };
         }
 
         /* ================= HERO BACKGROUND & HEADER ICON FUNCTIONS ================= */
@@ -1441,20 +1442,15 @@
             });
 
             const theme = getCurrentThemeObj();
+            const rgb = hexToRgbValues(theme.primary);
+
+            // テーマカラーの同系色グラデーション階調を作成
             const canvasCtx = ctx.getContext('2d');
-
-            // 支出円グラフの各セグメントにテーマカラーベースの美しいグラデーションを適用
-            const colorPalette = [
-                theme.primary,
-                '#b85270', '#2e7d32', '#f57c00', '#2563eb', 
-                '#7b1fa2', '#475569', '#10b981', '#d97706', '#0284c7'
-            ];
-
-            const bgGradients = rawItems.map((_, i) => {
-                const baseColor = colorPalette[i % colorPalette.length];
-                const grad = canvasCtx.createRadialGradient(150, 150, 10, 150, 150, 130);
-                grad.addColorStop(0, hexToRgba(baseColor, 0.95));
-                grad.addColorStop(1, hexToRgba(baseColor, 0.55));
+            const bgColors = rawItems.map((_, i) => {
+                const factor = 0.35 + (i * (0.65 / Math.max(1, rawItems.length - 1)));
+                const grad = canvasCtx.createRadialGradient(130, 130, 10, 130, 130, 120);
+                grad.addColorStop(0, `rgba(${Math.round(rgb.r * factor + 50 * (1-factor))}, ${Math.round(rgb.g * factor + 50 * (1-factor))}, ${Math.round(rgb.b * factor + 50 * (1-factor))}, 0.95)`);
+                grad.addColorStop(1, `rgba(${Math.round(rgb.r * factor * 0.7)}, ${Math.round(rgb.g * factor * 0.7)}, ${Math.round(rgb.b * factor * 0.7)}, 0.85)`);
                 return grad;
             });
 
@@ -1464,13 +1460,47 @@
                     labels: rawItems.map(i => i.label),
                     datasets: [{ 
                         data: rawItems.map(i => i.val), 
-                        backgroundColor: bgGradients,
+                        backgroundColor: bgColors,
                         borderColor: '#ffffff',
                         borderWidth: 2
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let val = context.raw || 0;
+                                    let pct = totalExp > 0 ? ((val / totalExp) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ¥${val.toLocaleString()} (${pct}%)`;
+                                }
+                            }
+                        }
+                    } 
+                }
             });
+
+            const listContainer = document.getElementById('expense-breakdown-list');
+            if (listContainer) {
+                let listHtml = '';
+                rawItems.forEach((item, i) => {
+                    const pct = totalExp > 0 ? ((item.val / totalExp) * 100).toFixed(1) : 0;
+                    listHtml += `
+                        <div class="flex items-center justify-between theme-card-sm p-2.5 rounded-xl border text-xs">
+                            <span class="font-semibold">${item.label}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="opacity-70">${pct}%</span>
+                                <span class="font-bold">¥${item.val.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = listHtml;
+            }
         }
 
         function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
@@ -1563,57 +1593,57 @@
 
         function renderCharts() {
             const theme = getCurrentThemeObj();
-            const currentAge = Number(appData.settings.age || 27);
-            const remainingYears = Math.max(1, 100 - currentAge);
-            const totalMonths = remainingYears * 12;
 
-            // ================= HOME CASH FLOW CHART (100歳まで, 2026.11スタート, 次は2027.1, 以降四半期ごと) =================
+            // ================= HOME CASH FLOW CHART (2026.11 → 2027.1 → 以降四半期, 自動増加・スライド対応) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
                 
+                // 現在の日付（自動増加対応）
+                const now = new Date();
+                let targetYear = now.getFullYear();
+                let targetMonth = now.getMonth() + 1;
+
+                // 最低でも30年先（または2056年まで）自動生成
+                let endYear = Math.max(2056, targetYear + 30);
+
                 // 2026年11月スタート
                 labels.push('2026年11月');
-                balanceData.push(Math.round(runningBalance / 10000));
+                balanceData.push(runningBalance);
 
                 // 次は2027年1月
-                runningBalance += 150000;
+                runningBalance += Number(appData.settings.defaultMonthlySave || 50000) * 2;
                 labels.push('2027年1月');
-                balanceData.push(Math.round(runningBalance / 10000));
+                balanceData.push(runningBalance);
 
-                // 以降は2027年4月から四半期ごと（3ヶ月おき）に100歳まで継続
+                // 2027年4月以降は四半期ごと（3ヶ月おき）に将来まで自動生成
                 let curY = 2027, curM = 4;
-                for (let i = 2; i < totalMonths / 3; i++) {
+                while (curY < endYear || (curY === endYear && curM <= 12)) {
                     labels.push(`${curY}年${curM}月`);
-                    balanceData.push(Math.round(runningBalance / 10000));
-                    runningBalance += 150000;
+                    balanceData.push(runningBalance);
+                    runningBalance += Number(appData.settings.defaultMonthlySave || 50000) * 3;
                     curM += 3;
                     if (curM > 12) { curM -= 12; curY++; }
                 }
 
                 const ctx1 = chart1El.getContext('2d');
-                const gradient = ctx1.createLinearGradient(0, 0, 0, 300);
-                gradient.addColorStop(0, hexToRgba(theme.primary, 0.75));
-                gradient.addColorStop(0.5, hexToRgba(theme.primary, 0.35));
-                gradient.addColorStop(1, hexToRgba(theme.primary, 0.03));
-
                 cashChart = new Chart(ctx1, {
-                    type: 'bar',
+                    type: 'line',
                     data: {
                         labels: labels,
                         datasets: [{ 
-                            type: 'line', 
-                            label: '貯金用口座残高 (万円)', 
+                            label: '現金残高 (円)', 
                             data: balanceData, 
                             borderColor: theme.primary, 
-                            backgroundColor: gradient, 
-                            borderWidth: 3, 
-                            fill: true, 
-                            tension: 0.25,
+                            backgroundColor: 'transparent',
+                            borderWidth: 2.5, 
+                            fill: false, 
+                            tension: 0.2,
                             pointBackgroundColor: theme.primary,
                             pointBorderColor: '#ffffff',
+                            pointRadius: 3,
                             pointHoverRadius: 6
                         }]
                     },
@@ -1622,52 +1652,58 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true,
-                                ticks: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } }
+                                beginAtZero: false,
+                                ticks: { 
+                                    font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 },
+                                    callback: function(value) { return '¥' + (value / 10000).toLocaleString() + '万'; }
+                                }
                             },
                             x: {
                                 ticks: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } }
                             }
                         },
                         plugins: {
-                            legend: { labels: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } } }
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` 残高: ¥${context.raw.toLocaleString()}`;
+                                    }
+                                }
+                            }
                         }
                     }
                 });
             }
 
-            // ================= NISA SIMULATION CHART (100歳まで) =================
+            // ================= NISA SIMULATION CHART =================
             const chart2El = document.getElementById('nisaChart');
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
                 let nisaLabels = [], nisaData = [];
                 let nisaTotal = 0;
                 let monthlyNisa = Number(appData.settings.monthlyNisa || 30000);
+                let currentAge = Number(appData.settings.age || 27);
 
-                for (let ageStep = currentAge; ageStep <= 100; ageStep += 5) {
+                for (let ageStep = currentAge; ageStep <= Math.min(100, currentAge + 40); ageStep += 5) {
                     nisaLabels.push(`${ageStep}歳`);
-                    nisaData.push(Math.round(nisaTotal / 10000));
+                    nisaData.push(nisaTotal);
                     nisaTotal += monthlyNisa * 60; // 5年分
                 }
 
                 const ctx2 = chart2El.getContext('2d');
-                const gradNisa = ctx2.createLinearGradient(0, 0, 0, 220);
-                gradNisa.addColorStop(0, 'rgba(16, 185, 129, 0.75)');
-                gradNisa.addColorStop(0.5, 'rgba(16, 185, 129, 0.3)');
-                gradNisa.addColorStop(1, 'rgba(16, 185, 129, 0.03)');
-
                 nisaChart = new Chart(ctx2, {
                     type: 'line',
                     data: {
                         labels: nisaLabels,
                         datasets: [{ 
-                            label: 'NISA積立 (万円)', 
+                            label: 'NISA積立元本 (円)', 
                             data: nisaData, 
                             borderColor: '#10b981', 
-                            backgroundColor: gradNisa, 
-                            fill: true, 
-                            tension: 0.25,
-                            borderWidth: 3,
+                            backgroundColor: 'transparent', 
+                            fill: false, 
+                            tension: 0.2,
+                            borderWidth: 2.5,
                             pointBackgroundColor: '#10b981',
                             pointBorderColor: '#ffffff'
                         }]
@@ -1676,7 +1712,22 @@
                         responsive: true, 
                         maintainAspectRatio: false,
                         scales: {
-                            y: { beginAtZero: true }
+                            y: { 
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) { return '¥' + (value / 10000).toLocaleString() + '万'; }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` NISA累計: ¥${context.raw.toLocaleString()}`;
+                                    }
+                                }
+                            }
                         }
                     }
                 });
