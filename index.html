@@ -191,10 +191,10 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">毎月の収支計算</h2>
-                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
+                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。変更後は必ず保存してください。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="month-selector" onchange="selectMonthCard(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer focus:outline-none"></select>
+                        <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer focus:outline-none"></select>
                         <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px]">
                             <span>＋</span> 月を追加
                         </button>
@@ -303,15 +303,22 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: ACCOUNTS ================= -->
+        <!-- ================= TAB 5: ACCOUNTS (将来標準貯金額の設置) ================= -->
         <div id="tab-accounts" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理</h2>
-                    <p class="text-xs opacity-70 mt-0.5">貯金用口座や各口座を管理します。並び順はホーム画面にもそのまま反映されます。</p>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">銀行口座の管理 ＆ 将来予測設定</h2>
+                    <p class="text-xs opacity-70 mt-0.5">口座の管理と、ホームグラフの未来予測に使う「将来の標準毎月貯金額」を設定できます。</p>
+                </div>
+
+                <!-- 将来の標準毎月貯金額の設定ブロック -->
+                <div class="theme-card-sm p-4 rounded-2xl space-y-2 border">
+                    <label class="block font-semibold text-xs opacity-80">📈 将来の標準毎月貯金額 (円) <span class="text-[10px] opacity-70">(※未確定月のグラフ推移計算に使用)</span></label>
+                    <input type="number" id="sim-default-monthly-save" value="50000" onchange="saveSimulationDefaultSave()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border">
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
+                    <h3 class="font-bold text-xs mb-1">🏦 登録口座一覧</h3>
                     <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
@@ -473,6 +480,7 @@
                 heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
+                defaultMonthlySave: 50000,
                 currentTheme: 'earth'
             },
             customThemes: [],
@@ -512,6 +520,7 @@
         let nisaChart = null;
         let pieChart = null;
         let currentEditingIndex = 0;
+        let isMonthFormModified = false; // 未保存変更ガード用フラグ
         let activePeer = null;
         let videoStream = null;
         let qrScanAnimation = null;
@@ -742,27 +751,26 @@
             return 0;
         }
 
+        // 口座残高の計算：区分が「実績」として保存されている月の割り振り額のみを合算する
         function calculateAccountCurrentBalance(accName) {
             let initial = getAccountInitialBalance(accName);
             let allocatedSum = 0;
             appData.monthly.forEach(m => {
-                if (m.bankAllocations && m.bankAllocations[accName] !== undefined) {
+                if (m.type === '実績' && m.bankAllocations && m.bankAllocations[accName] !== undefined) {
                     allocatedSum += Number(m.bankAllocations[accName] || 0);
                 }
             });
             return initial + allocatedSum;
         }
 
-        // 指定口座の直近2ヶ月の貯金額（割り振り額）を計算する関数
         function getAccountRecent2MonthsSaving(accName) {
             if (!appData.monthly || appData.monthly.length === 0) return 0;
-            // 登録されている月をソート（新しい順）
             const sorted = [...appData.monthly].sort((a, b) => b.month.localeCompare(a.month));
             let sum = 0;
             const count = Math.min(2, sorted.length);
             for (let i = 0; i < count; i++) {
                 const m = sorted[i];
-                if (m.bankAllocations && m.bankAllocations[accName] !== undefined) {
+                if (m.type === '実績' && m.bankAllocations && m.bankAllocations[accName] !== undefined) {
                     sum += Number(m.bankAllocations[accName] || 0);
                 }
             }
@@ -872,6 +880,7 @@
             });
 
             nameInput.value = '';
+            isMonthFormModified = true;
             saveStorage();
             renderMonthEditor();
             renderPieChart();
@@ -884,6 +893,7 @@
                 return;
             }
             appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
+            isMonthFormModified = true;
             saveStorage();
             renderMonthEditor();
             renderPieChart();
@@ -970,12 +980,14 @@
             const yieldEl = document.getElementById('setting-nisa-yield');
             const yearsEl = document.getElementById('setting-years');
             const accNisaEl = document.getElementById('nisa-real-accumulated');
+            const defaultSaveEl = document.getElementById('sim-default-monthly-save');
 
             if (ageEl) ageEl.value = appData.settings.age;
             if (nisaEl) nisaEl.value = appData.settings.monthlyNisa;
             if (yieldEl) yieldEl.value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
             if (yearsEl) yearsEl.value = appData.settings.years;
             if (accNisaEl) accNisaEl.innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
+            if (defaultSaveEl) defaultSaveEl.value = appData.settings.defaultMonthlySave || 50000;
             renderPresetThemesSelector();
         }
 
@@ -990,6 +1002,14 @@
             if (yieldEl) appData.settings.nisaYield = yieldEl.value;
             if (yearsEl) appData.settings.years = Number(yearsEl.value);
             saveStorage();
+        }
+
+        function saveSimulationDefaultSave() {
+            const defaultSaveEl = document.getElementById('sim-default-monthly-save');
+            if (defaultSaveEl) {
+                appData.settings.defaultMonthlySave = Number(defaultSaveEl.value) || 50000;
+                saveStorage();
+            }
         }
 
         function renderBankAccountsManager() {
@@ -1059,7 +1079,15 @@
             updateCalculations();
         }
 
+        // 未保存変更ガード付きのタブ切り替え
         function switchTab(tabId) {
+            const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
+            if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
+                const confirmLeave = confirm("⚠️ 毎月入力画面で変更された内容が保存されていません！\nこのまま移動すると変更が破棄されますがよろしいですか？\n(保存する場合は「キャンセル」を押して保存ボタンを押してください)");
+                if (!confirmLeave) return;
+            }
+            isMonthFormModified = false;
+
             ['dashboard', 'input', 'charts', 'events', 'accounts', 'nisa', 'theme'].forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
                 const btnEl = document.getElementById('btn-tab-' + id);
@@ -1082,7 +1110,7 @@
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
             else if (tabId === 'nisa') { syncSettingsToUI(); }
             else if (tabId === 'events') { renderEventsTable(); }
-            else if (tabId === 'accounts') { renderBankAccountsManager(); }
+            else if (tabId === 'accounts') { renderBankAccountsManager(); syncSettingsToUI(); }
             else if (tabId === 'theme') { renderPresetThemesSelector(); }
         }
 
@@ -1099,12 +1127,26 @@
             });
         }
 
-        function selectMonthCard(index) {
+        function confirmAndSwitchMonth(index) {
+            if (isMonthFormModified) {
+                const ok = confirm("⚠️ 現在の月の入力内容が保存されていません。移動しますか？");
+                if (!ok) {
+                    document.getElementById('month-selector').value = currentEditingIndex;
+                    return;
+                }
+            }
+            isMonthFormModified = false;
             currentEditingIndex = Number(index);
             renderMonthEditor();
         }
 
         function addNewMonthByDropdown() {
+            if (isMonthFormModified) {
+                const ok = confirm("⚠️ 保存されていない変更があります。新しい月を追加しますか？");
+                if (!ok) return;
+            }
+            isMonthFormModified = false;
+
             let lastMonthStr = "2026-11";
             let lastMonthData = null;
             if (appData.monthly.length > 0) {
@@ -1150,6 +1192,7 @@
             if (appData.monthly.length <= 1) return;
             appData.monthly.splice(index, 1);
             currentEditingIndex = Math.max(0, index - 1);
+            isMonthFormModified = false;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
@@ -1212,20 +1255,20 @@
                 <div class="theme-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print">
                     <div>
                         <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">年月</label>
-                        <select id="input-field-month" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
                             ${generateDateOptions(m.month)}
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">区分</label>
-                        <select id="input-field-type" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                        <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
-                            <option value="実績" ${m.type==='実績'?'selected':''}>実績</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※グラフ・貯金残高に反映)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">メモ</label>
-                        <input type="text" id="input-field-memo" value="${m.memo || ''}" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
+                        <input type="text" id="input-field-memo" value="${m.memo || ''}" oninput="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
                         <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">削除</button>
@@ -1243,7 +1286,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
-                        <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="updateAllocationRealtimeFeedback()" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold text-emerald-600 mt-0.5 focus:outline-none">
+                        <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold text-emerald-600 mt-0.5 focus:outline-none">
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
@@ -1267,19 +1310,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
                             <span class="text-xs font-semibold">ゲストA収入 (円)</span>
-                            <input type="number" id="input-field-rIncome" value="${m.rIncome}" oninput="updateAllocationRealtimeFeedback()" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            <input type="number" id="input-field-rIncome" value="${m.rIncome}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
                         </div>
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
                             <span class="text-xs font-semibold">ゲストB収入 (円)</span>
-                            <input type="number" id="input-field-hIncome" value="${m.hIncome}" oninput="updateAllocationRealtimeFeedback()" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            <input type="number" id="input-field-hIncome" value="${m.hIncome}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
                         </div>
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
                             <span class="text-xs font-bold">🎁 ボーナス (円)</span>
-                            <input type="number" id="input-field-bonus" value="${m.bonus || 0}" oninput="updateAllocationRealtimeFeedback()" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            <input type="number" id="input-field-bonus" value="${m.bonus || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
                         </div>
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
                             <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
-                            <input type="number" id="input-field-extraInc" value="${m.extraInc || 0}" oninput="updateAllocationRealtimeFeedback()" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            <input type="number" id="input-field-extraInc" value="${m.extraInc || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
                         </div>
                     </div>
 
@@ -1303,6 +1346,11 @@
                     </button>
                 </div>
             `;
+        }
+
+        function markModified() {
+            isMonthFormModified = true;
+            updateAllocationRealtimeFeedback();
         }
 
         function updateAllocationRealtimeFeedback() {
@@ -1398,6 +1446,7 @@
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
+            isMonthFormModified = false;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
@@ -1424,7 +1473,7 @@
                     <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
-                        <button onclick="currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
+                        <button onclick="if(isMonthFormModified){if(!confirm('⚠️ 保存されていない変更があります。移動しますか？'))return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1667,7 +1716,7 @@
                 let labels = [], balanceData = [], eventBarData = [];
                 
                 let runningBalance = calculateAccountCurrentBalance('貯金用(三菱UFJ銀行)');
-                let defaultMonthlySave = 50000;
+                let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
 
                 let monthlyDataMap = {};
                 if (appData.monthly) {
@@ -1701,6 +1750,7 @@
                     
                     labels.push(`${curY}年${curM}月`);
 
+                    // 区分が「実績」の月だけ実際の貯蓄額を足し、それ以外（想定など）は口座タブにある将来の標準貯金額でシミュレーション
                     let monthSaving = defaultMonthlySave;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
                         monthSaving = monthlyDataMap[ymKey].saving;
