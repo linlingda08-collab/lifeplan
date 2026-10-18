@@ -127,9 +127,6 @@
         <button onclick="switchTab('nisa')" id="btn-tab-nisa" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🌟</span> NISA
         </button>
-        <button onclick="switchTab('simulation')" id="btn-tab-simulation" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
-            <span class="text-base">⚙️</span> 設定
-        </button>
         <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🎨</span> テーマ
         </button>
@@ -254,28 +251,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: SIMULATION ================= -->
-        <div id="tab-simulation" class="hidden space-y-6">
-            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
-                <div class="border-b border-current/10 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight">推移グラフ設定・初期資産</h2>
-                    <p class="text-xs opacity-70 mt-0.5">スタート時点（2026年11月）の初期現金残高や、標準の毎月貯金額などを自由に変更できます。</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-                    <div class="theme-card-sm p-4 rounded-xl space-y-2 border">
-                        <label class="block font-semibold opacity-80">スタート時点の初期現金総額 (円)</label>
-                        <input type="number" id="sim-start-cash" value="3000000" onchange="saveSimulationSettings()" class="w-full theme-card-sm rounded-xl p-2.5 font-semibold focus:outline-none border">
-                    </div>
-                    <div class="theme-card-sm p-4 rounded-xl space-y-2 border">
-                        <label class="block font-semibold opacity-80">将来の標準毎月貯金額 (円)</label>
-                        <input type="number" id="sim-default-monthly-save" value="50000" onchange="saveSimulationSettings()" class="w-full theme-card-sm rounded-xl p-2.5 font-semibold focus:outline-none border">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= TAB 5: EVENTS ================= -->
+        <!-- ================= TAB 4: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
@@ -327,7 +303,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: ACCOUNTS ================= -->
+        <!-- ================= TAB 5: ACCOUNTS ================= -->
         <div id="tab-accounts" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -346,7 +322,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 7: NISA ================= -->
+        <!-- ================= TAB 6: NISA ================= -->
         <div id="tab-nisa" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -381,7 +357,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 8: THEMES ================= -->
+        <!-- ================= TAB 7: THEMES ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -497,8 +473,6 @@
                 heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
-                startCash: 3000000,
-                defaultMonthlySave: 50000,
                 currentTheme: 'earth'
             },
             customThemes: [],
@@ -779,6 +753,22 @@
             return initial + allocatedSum;
         }
 
+        // 指定口座の直近2ヶ月の貯金額（割り振り額）を計算する関数
+        function getAccountRecent2MonthsSaving(accName) {
+            if (!appData.monthly || appData.monthly.length === 0) return 0;
+            // 登録されている月をソート（新しい順）
+            const sorted = [...appData.monthly].sort((a, b) => b.month.localeCompare(a.month));
+            let sum = 0;
+            const count = Math.min(2, sorted.length);
+            for (let i = 0; i < count; i++) {
+                const m = sorted[i];
+                if (m.bankAllocations && m.bankAllocations[accName] !== undefined) {
+                    sum += Number(m.bankAllocations[accName] || 0);
+                }
+            }
+            return sum;
+        }
+
         function getCurrentThemeObj() {
             let theme = presetThemes[appData.settings.currentTheme];
             if (!theme && appData.customThemes) {
@@ -975,27 +965,30 @@
         }
 
         function syncSettingsToUI() {
-            document.getElementById('setting-age').value = appData.settings.age;
-            document.getElementById('setting-monthly-nisa').value = appData.settings.monthlyNisa;
-            document.getElementById('setting-nisa-yield').value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
-            document.getElementById('setting-years').value = appData.settings.years;
-            document.getElementById('sim-start-cash').value = appData.settings.startCash || 3000000;
-            document.getElementById('sim-default-monthly-save').value = appData.settings.defaultMonthlySave || 50000;
-            document.getElementById('nisa-real-accumulated').innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
+            const ageEl = document.getElementById('setting-age');
+            const nisaEl = document.getElementById('setting-monthly-nisa');
+            const yieldEl = document.getElementById('setting-nisa-yield');
+            const yearsEl = document.getElementById('setting-years');
+            const accNisaEl = document.getElementById('nisa-real-accumulated');
+
+            if (ageEl) ageEl.value = appData.settings.age;
+            if (nisaEl) nisaEl.value = appData.settings.monthlyNisa;
+            if (yieldEl) yieldEl.value = appData.settings.nisaYield !== undefined ? appData.settings.nisaYield : '';
+            if (yearsEl) yearsEl.value = appData.settings.years;
+            if (accNisaEl) accNisaEl.innerText = '¥' + calculateRealAccumulatedNisa().toLocaleString();
             renderPresetThemesSelector();
         }
 
         function saveSettings() {
-            appData.settings.age = Number(document.getElementById('setting-age').value);
-            appData.settings.monthlyNisa = Number(document.getElementById('setting-monthly-nisa').value);
-            appData.settings.nisaYield = document.getElementById('setting-nisa-yield').value;
-            appData.settings.years = Number(document.getElementById('setting-years').value);
-            saveStorage();
-        }
+            const ageEl = document.getElementById('setting-age');
+            const nisaEl = document.getElementById('setting-monthly-nisa');
+            const yieldEl = document.getElementById('setting-nisa-yield');
+            const yearsEl = document.getElementById('setting-years');
 
-        function saveSimulationSettings() {
-            appData.settings.startCash = Number(document.getElementById('sim-start-cash').value);
-            appData.settings.defaultMonthlySave = Number(document.getElementById('sim-default-monthly-save').value);
+            if (ageEl) appData.settings.age = Number(ageEl.value);
+            if (nisaEl) appData.settings.monthlyNisa = Number(nisaEl.value);
+            if (yieldEl) appData.settings.nisaYield = yieldEl.value;
+            if (yearsEl) appData.settings.years = Number(yearsEl.value);
             saveStorage();
         }
 
@@ -1067,7 +1060,7 @@
         }
 
         function switchTab(tabId) {
-            ['dashboard', 'input', 'charts', 'simulation', 'events', 'accounts', 'nisa', 'theme'].forEach(id => {
+            ['dashboard', 'input', 'charts', 'events', 'accounts', 'nisa', 'theme'].forEach(id => {
                 const tabEl = document.getElementById('tab-' + id);
                 const btnEl = document.getElementById('btn-tab-' + id);
                 if (tabEl) tabEl.classList.add('hidden');
@@ -1087,7 +1080,6 @@
 
             if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
-            else if (tabId === 'simulation') { syncSettingsToUI(); }
             else if (tabId === 'nisa') { syncSettingsToUI(); }
             else if (tabId === 'events') { renderEventsTable(); }
             else if (tabId === 'accounts') { renderBankAccountsManager(); }
@@ -1627,13 +1619,18 @@
                     appData.bankAccounts.forEach(acc => {
                         const accName = typeof acc === 'string' ? acc : acc.name;
                         const currentBal = calculateAccountCurrentBalance(accName);
+                        const recent2MonthsSaving = getAccountRecent2MonthsSaving(accName);
+                        
                         html += `
-                            <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                            <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
                                 <div>
                                     <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
                                     <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥${currentBal.toLocaleString()}</p>
                                 </div>
-                                <div class="mt-2 text-[10px] opacity-70 pt-2 border-t border-current/10">現在残高</div>
+                                <div class="pt-2 border-t border-current/10 flex items-center justify-between text-[11px]">
+                                    <span class="opacity-70 font-medium">直近2ヶ月の貯金額:</span>
+                                    <span class="font-bold text-emerald-600">¥${recent2MonthsSaving.toLocaleString()}</span>
+                                </div>
                             </div>
                         `;
                     });
@@ -1664,13 +1661,13 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME COMBINATION CHART (実績優先 ＋ 標準貯金 ＋ 月別連続シミュレーション) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventBarData = [];
-                let runningBalance = Number(appData.settings.startCash || 3000000);
-                let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
+                
+                let runningBalance = calculateAccountCurrentBalance('貯金用(三菱UFJ銀行)');
+                let defaultMonthlySave = 50000;
 
                 let monthlyDataMap = {};
                 if (appData.monthly) {
@@ -1696,7 +1693,7 @@
                 let todayIndex = 0;
                 let curY = 2026;
                 let curM = 11;
-                let totalMonths = 60; // 5年分（毎月ループ）
+                let totalMonths = 60;
 
                 for (let i = 0; i < totalMonths; i++) {
                     const mmStr = String(curM).padStart(2, '0');
@@ -1704,7 +1701,6 @@
                     
                     labels.push(`${curY}年${curM}月`);
 
-                    // 「実績」が選ばれている月はその実額、それ以外（想定・未入力の月・12月以降）は設定の標準毎月貯金額
                     let monthSaving = defaultMonthlySave;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
                         monthSaving = monthlyDataMap[ymKey].saving;
@@ -1825,7 +1821,6 @@
                 });
             }
 
-            // ================= NISA SIMULATION CHART =================
             const chart2El = document.getElementById('nisaChart');
             if (chart2El) {
                 if (nisaChart) nisaChart.destroy();
