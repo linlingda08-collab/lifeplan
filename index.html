@@ -889,7 +889,6 @@
 
         function generateDateOptions(selectedVal) {
             let opts = '';
-            // 正しい暦の範囲（2026年11月スタート、13月を完全に排除）
             let y = 2026, m = 11;
             for (let i = 0; i < 120; i++) {
                 const mm = String(m).padStart(2, '0');
@@ -914,7 +913,6 @@
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [...defaultAccounts];
             } else {
-                // デフォルトの口座名（ゲストA貯金用など）が確実に含まれるように保証
                 const existingNames = appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
                 defaultAccounts.forEach(defAcc => {
                     if (!existingNames.includes(defAcc.name)) {
@@ -1213,18 +1211,22 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-3 gap-3 theme-card-sm p-4 rounded-xl border text-center">
+                <div class="grid grid-cols-4 gap-3 theme-card-sm p-4 rounded-xl border text-center">
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">総手取り</p>
-                        <p class="text-base sm:text-lg font-bold theme-primary-text mt-0.5" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
+                        <p class="text-sm sm:text-base font-bold theme-primary-text mt-0.5" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
-                        <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
+                        <p class="text-sm sm:text-base font-bold text-amber-600 mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
+                        <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="updateAllocationRealtimeFeedback()" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold text-emerald-600 mt-0.5 focus:outline-none">
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                        <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
+                        <p class="text-sm sm:text-base font-bold text-emerald-600 mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -1294,8 +1296,7 @@
                 totalExp += Number(document.getElementById(`input-exp-${cat.id}`)?.value || 0);
             });
 
-            const m = appData.monthly[currentEditingIndex];
-            const nisaAmt = Number(m?.nisa || 0);
+            const nisaAmt = Number(document.getElementById('input-field-nisa')?.value || 0);
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             let allocatedSum = 0;
@@ -1309,19 +1310,13 @@
 
             if (diff === 0) {
                 diffMessage = `<span class="text-emerald-600 font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
-                if (box) {
-                    box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-emerald-600 bg-emerald-500/5";
-                }
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-emerald-600 bg-emerald-500/5";
             } else if (diff < 0) {
                 diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
-                if (box) {
-                    box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
-                }
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
             } else {
                 diffMessage = `<span class="text-rose-500 font-bold">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
-                if (box) {
-                    box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
-                }
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
             }
 
             const incEl = document.getElementById('live-total-inc');
@@ -1355,7 +1350,7 @@
                 totalExp += val;
             });
 
-            const nisaAmt = Number(m.nisa || 0);
+            const nisaAmt = Number(document.getElementById('input-field-nisa').value) || 0;
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             let newBankAllocs = {};
@@ -1378,6 +1373,7 @@
             m.hIncome = hInc;
             m.bonus = bonus;
             m.extraInc = extraInc;
+            m.nisa = nisaAmt;
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
@@ -1552,7 +1548,6 @@
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
                 
-                // 2027年4月を起点として四半期ごと（3ヶ月おき：4月、7月、10月、1月...）に生成
                 let curY = 2027, curM = 4;
                 for (let i = 0; i < 12; i++) {
                     labels.push(`${curY}年${curM}月`);
@@ -1562,6 +1557,7 @@
                     if (curM > 12) { curM -= 12; curY++; }
                 }
 
+                // 選択されたテーマカラー（緑なら緑、青なら青など）に完全連動するグラデーションを確実に生成
                 const ctx1 = chart1El.getContext('2d');
                 const gradient = ctx1.createLinearGradient(0, 0, 0, 300);
                 gradient.addColorStop(0, hexToRgba(theme.primary, 0.75));
@@ -1591,7 +1587,7 @@
                         maintainAspectRatio: false,
                         scales: {
                             y: {
-                                beginAtZero: true, // 0からスタート
+                                beginAtZero: true,
                                 ticks: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } }
                             },
                             x: {
