@@ -179,8 +179,8 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2">
-                    <!-- 横幅をさらにコンパクトに調整 -->
-                    <div class="min-w-[550px] h-60 sm:h-68 relative">
+                    <!-- 横幅をさらに狭くコンパクトに調整 -->
+                    <div class="min-w-[420px] h-60 sm:h-68 relative">
                         <canvas id="cashFlowChart"></canvas>
                     </div>
                 </div>
@@ -1833,12 +1833,13 @@
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
-                    // 四半期（1月・4月・7月・10月）ごとにラベルを表示してスッキリさせる
-                    const isQuarterLabel = (m === 1 || m === 4 || m === 7 || m === 10);
-                    if (isQuarterLabel) {
+                    
+                    // 「2026年11月」または四半期（1月・4月・7月・10月）のグリッド線の真下に正確にラベルを表示
+                    const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
+                    if (isTargetLabel) {
                         label = `${y}年${m}月`;
                     } else {
-                        label = ''; // その他の月はラベルを非表示にし、ホバーのツールチップで確認
+                        label = ''; // その他の月は非表示にし、ホバーのツールチップでいつでも確認可能
                     }
 
                     labels.push(label);
@@ -1946,7 +1947,7 @@
                                     color: 'rgba(0, 0, 0, 0.05)'
                                 },
                                 min: 0,
-                                max: Math.min(labels.length - 1, 14) // 横幅を狭めてコンパクトに表示
+                                max: Math.min(labels.length - 1, 12) // 横幅をさらに狭くコンパクトに調整
                             }
                         },
                         plugins: {
