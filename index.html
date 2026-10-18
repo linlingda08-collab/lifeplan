@@ -178,9 +178,9 @@
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
                     </div>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar pb-2">
-                    <!-- 横幅をさらに狭くコンパクトに調整 -->
-                    <div class="min-w-[420px] h-60 sm:h-68 relative">
+                <!-- グラフ領域：縦線の間隔をさらに狭くコンパクトに収納 -->
+                <div class="overflow-x-auto custom-scrollbar pb-6 pt-2">
+                    <div class="min-w-[480px] h-64 sm:h-72 relative">
                         <canvas id="cashFlowChart"></canvas>
                     </div>
                 </div>
@@ -1834,7 +1834,7 @@
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
                     
-                    // 「2026年11月」または四半期（1月・4月・7月・10月）のグリッド線の真下に正確にラベルを表示
+                    // 「2026年11月」および四半期（1月・4月・7月・10月）のグリッド線の真下に斜め表示ラベルを配置
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
                     if (isTargetLabel) {
                         label = `${y}年${m}月`;
@@ -1936,9 +1936,9 @@
                             x: {
                                 offset: false, // 折れ点をグリッド線の真上にぴったり合わせる
                                 ticks: { 
-                                    font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 10 },
-                                    maxRotation: 0,
-                                    minRotation: 0,
+                                    font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 9 },
+                                    maxRotation: 45, // 斜め表示で文字の重なりを確実に防止
+                                    minRotation: 45,
                                     autoSkip: false
                                 },
                                 grid: {
@@ -1947,7 +1947,7 @@
                                     color: 'rgba(0, 0, 0, 0.05)'
                                 },
                                 min: 0,
-                                max: Math.min(labels.length - 1, 12) // 横幅をさらに狭くコンパクトに調整
+                                max: Math.min(labels.length - 1, 10) // 横幅（マスの幅）をさらに狭くコンパクトに詰める
                             }
                         },
                         plugins: {
