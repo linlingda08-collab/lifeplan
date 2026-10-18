@@ -28,9 +28,9 @@
             --app-card-border: rgba(228, 218, 208, 0.8);
             --app-primary: #8c6d53;
             --app-primary-hover: #785d46;
-            --theme-tone-1: #8c6d53; /* メインカラー */
-            --theme-tone-2: #6b523c; /* 濃い同系色 */
-            --theme-tone-3: #b0957e; /* 明るい同系色 */
+            --theme-tone-1: #8c6d53;
+            --theme-tone-2: #6b523c;
+            --theme-tone-3: #b0957e;
         }
 
         body {
@@ -179,7 +179,8 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2">
-                    <div class="min-w-[700px] h-64 sm:h-72 relative">
+                    <!-- 横幅をさらにコンパクトに調整 -->
+                    <div class="min-w-[550px] h-60 sm:h-68 relative">
                         <canvas id="cashFlowChart"></canvas>
                     </div>
                 </div>
@@ -1832,12 +1833,12 @@
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
-                    // 半年に1回（4月・10月）または初月のみ文字ラベルを表示し、間隔を空けて重なりを完全に防止
-                    const isMajorLabel = (ymKey === '2026-11' || ymKey === '2027-01' || m === 4 || m === 10);
-                    if (isMajorLabel && !eventMap[ymKey]) {
+                    // 四半期（1月・4月・7月・10月）ごとにラベルを表示してスッキリさせる
+                    const isQuarterLabel = (m === 1 || m === 4 || m === 7 || m === 10);
+                    if (isQuarterLabel) {
                         label = `${y}年${m}月`;
                     } else {
-                        label = ''; // その他の月は非表示にし、ホバーのツールチップですっきり確認
+                        label = ''; // その他の月はラベルを非表示にし、ホバーのツールチップで確認
                     }
 
                     labels.push(label);
@@ -1932,10 +1933,11 @@
                                 }
                             },
                             x: {
+                                offset: false, // 折れ点をグリッド線の真上にぴったり合わせる
                                 ticks: { 
                                     font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 10 },
-                                    maxRotation: 30, // 斜め表示で重なり防止
-                                    minRotation: 30,
+                                    maxRotation: 0,
+                                    minRotation: 0,
                                     autoSkip: false
                                 },
                                 grid: {
@@ -1944,7 +1946,7 @@
                                     color: 'rgba(0, 0, 0, 0.05)'
                                 },
                                 min: 0,
-                                max: Math.min(labels.length - 1, 15) // マスの幅を狭めてコンパクトに表示
+                                max: Math.min(labels.length - 1, 14) // 横幅を狭めてコンパクトに表示
                             }
                         },
                         plugins: {
