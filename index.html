@@ -12,9 +12,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google API & Identity Services -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- QRCode Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <!-- jsQR Library for Camera Scanning -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
@@ -93,8 +94,8 @@
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="Googleドライブ同期">
-                    <span>☁️</span> <span>クラウド同期</span>
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="アニメーションQR同期">
+                    <span>📱</span> <span>データ同期</span>
                 </button>
             </div>
         </div>
@@ -422,58 +423,55 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL (Google Drive Integration) ================= -->
-    <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
-        <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
+    <!-- ================= SYNC MODAL (Animation QR Code Sync) ================= -->
+    <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
+        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>☁️</span> Googleドライブでクラウド同期
+                    <span>📱</span> アニメーションQRコード同期
                 </h3>
-                <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
+                <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
 
-            <div class="space-y-4 text-xs sm:text-sm">
+            <!-- Mode Select View -->
+            <div id="sync-mode-select" class="space-y-3">
                 <p class="text-xs opacity-80 leading-relaxed">
-                    Googleドライブの共有ファイル（<code>lifeplan_cloud_data.json</code>）を経由して、iPhoneとiPad間でワンタップ同期できます。
+                    端末をかざすだけで全データを相互送信できます。容量が増えてもアニメーションQRで高速転送されます。
                 </p>
+                <button onclick="startQrSend()" class="w-full theme-primary-bg text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2">
+                    <span>📤</span> 送信：アニメーションQRを表示
+                </button>
+                <button onclick="startQrReceive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2">
+                    <span>📷</span> 受信：相手の画面をカメラでスキャン
+                </button>
+            </div>
 
-                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>📤</span> 送信側：データをクラウドに保存
-                    </h4>
-                    <p class="text-[11px] opacity-70">編集した最新データをGoogleドライブへアップロードします。</p>
-                    <button onclick="uploadToGoogleDrive()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>☁️</span> 今のデータをGoogleドライブへ保存
-                    </button>
+            <!-- Sender View (Animated QR) -->
+            <div id="sync-sender-view" class="hidden text-center space-y-3">
+                <div class="theme-card-sm p-4 rounded-2xl border inline-block bg-white shadow-inner">
+                    <div id="qr-canvas-container" class="w-56 h-56 flex items-center justify-center mx-auto"></div>
                 </div>
+                <div class="text-xs font-bold theme-primary-text" id="qr-sender-progress">送信準備中...</div>
+                <p class="text-[11px] opacity-70">受信側端末の「カメラでスキャン」でこの画面を写してください。</p>
+                <button onclick="stopQrSend()" class="opacity-80 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer">閉じる</button>
+            </div>
 
-                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>📥</span> 受信側：クラウドからデータを復元
-                    </h4>
-                    <p class="text-[11px] opacity-70">Googleドライブ上の最新データを読み込み、この端末に反映します。</p>
-                    <button onclick="downloadFromGoogleDrive()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer w-full flex items-center justify-center gap-1.5">
-                        <span>🔄</span> Googleドライブから最新データを読み込む
-                    </button>
+            <!-- Receiver View (Camera Scanning) -->
+            <div id="sync-receiver-view" class="hidden text-center space-y-3">
+                <div class="relative w-full aspect-square max-w-[260px] mx-auto rounded-2xl overflow-hidden border-2 border-emerald-500 shadow-inner bg-black flex items-center justify-center">
+                    <video id="qr-video" class="w-full h-full object-cover" playsinline></video>
+                    <canvas id="qr-canvas-scanner" class="hidden"></canvas>
+                    <div class="absolute inset-0 border-2 border-dashed border-emerald-400/70 m-4 rounded-xl pointer-events-none"></div>
                 </div>
-
-                <div id="sync-status-msg" class="text-center text-xs font-bold text-emerald-600 hidden"></div>
+                <div class="text-xs font-bold text-emerald-600" id="qr-receiver-progress">カメラを相手の画面に向けてください...</div>
+                <button onclick="stopQrReceive()" class="opacity-80 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer">キャンセル</button>
             </div>
         </div>
     </div>
 
-    <!-- App Logic -->
+    <!-- App Logic & Animation QR Integration -->
     <script>
         const STORAGE_KEY = 'lifeplan_master_data_v2026';
-        const DRIVE_FILENAME = 'lifeplan_cloud_data.json';
-
-        // Google OAuth 2.0 Credentials Config
-        const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'; // 設定不要で連携可能な標準OAuth構成
-        const SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
-
-        let tokenClient;
-        let gapiInited = false;
-        let gsiInited = false;
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -543,6 +541,154 @@
             mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e' }
         };
 
+        /* ================= ANIMATION QR SYNC LOGIC ================= */
+        let qrSendInterval = null;
+        let qrScanAnimation = null;
+        let videoStream = null;
+
+        function openSyncModal() {
+            document.getElementById('sync-modal').classList.remove('hidden');
+            document.getElementById('sync-mode-select').classList.remove('hidden');
+            document.getElementById('sync-sender-view').classList.add('hidden');
+            document.getElementById('sync-receiver-view').classList.add('hidden');
+        }
+
+        function closeSyncModal() {
+            stopQrSend();
+            stopQrReceive();
+            document.getElementById('sync-modal').classList.add('hidden');
+        }
+
+        function startQrSend() {
+            document.getElementById('sync-mode-select').classList.add('hidden');
+            document.getElementById('sync-sender-view').classList.remove('hidden');
+
+            const dataStr = JSON.stringify(appData);
+            const chunkSize = 180; // 1つのQRに収まる最適な文字数
+            const totalChunks = Math.ceil(dataStr.length / chunkSize);
+            const sessionId = Math.floor(Math.random() * 9000 + 1000);
+            let currentChunkIndex = 0;
+
+            const qrContainer = document.getElementById('qr-canvas-container');
+            const progressEl = document.getElementById('qr-sender-progress');
+
+            function renderNextQr() {
+                const start = currentChunkIndex * chunkSize;
+                const chunkData = dataStr.substring(start, start + chunkSize);
+                // フォーマット: SessionID | TotalChunks | CurrentIndex | ChunkData
+                const payload = `LP1|${sessionId}|${totalChunks}|${currentChunkIndex}|${chunkData}`;
+
+                const qr = qrcode(0, 'M');
+                qr.addData(payload);
+                qr.make();
+                qrContainer.innerHTML = qr.createImgTag(5);
+
+                progressEl.innerText = `送信中: ${currentChunkIndex + 1} / ${totalChunks} コマ目`;
+                currentChunkIndex = (currentChunkIndex + 1) % totalChunks;
+            }
+
+            renderNextQr();
+            qrSendInterval = setInterval(renderNextQr, 250); // 1秒間に4回切り替え
+        }
+
+        function stopQrSend() {
+            if (qrSendInterval) {
+                clearInterval(qrSendInterval);
+                qrSendInterval = null;
+            }
+        }
+
+        function startQrReceive() {
+            document.getElementById('sync-mode-select').classList.add('hidden');
+            document.getElementById('sync-receiver-view').classList.remove('hidden');
+
+            const video = document.getElementById('qr-video');
+            const canvas = document.getElementById('qr-canvas-scanner');
+            const ctx = canvas.getContext('2d');
+            const progressEl = document.getElementById('qr-receiver-progress');
+
+            let receivedChunks = {};
+            let expectedTotal = 0;
+            let currentSession = null;
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+                videoStream = stream;
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true);
+                video.play();
+                qrScanAnimation = requestAnimationFrame(scanFrame);
+            }).catch(err => {
+                alert('カメラへのアクセス許可が必要です。');
+                stopQrReceive();
+            });
+
+            function scanFrame() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+
+                    if (code && code.data && code.data.startsWith('LP1|')) {
+                        const parts = code.data.split('|');
+                        if (parts.length >= 5) {
+                            const sessId = parts[1];
+                            const total = parseInt(parts[2], 10);
+                            const idx = parseInt(parts[3], 10);
+                            const content = parts.slice(4).join('|');
+
+                            if (currentSession !== sessId) {
+                                currentSession = sessId;
+                                receivedChunks = {};
+                                expectedTotal = total;
+                            }
+
+                            receivedChunks[idx] = content;
+                            const count = Object.keys(receivedChunks).length;
+                            progressEl.innerText = `受心中: ${count} / ${expectedTotal} コマ読み取り完了！`;
+
+                            if (count === expectedTotal) {
+                                // すべてのコマが揃った！
+                                let fullDataStr = '';
+                                for (let i = 0; i < expectedTotal; i++) {
+                                    fullDataStr += receivedChunks[i];
+                                }
+                                try {
+                                    const parsed = JSON.parse(fullDataStr);
+                                    if (parsed && parsed.monthly) {
+                                        appData = parsed;
+                                        saveStorage();
+                                        progressEl.innerText = '🎉 同期成功！最新状態に更新します...';
+                                        setTimeout(() => {
+                                            closeSyncModal();
+                                            location.reload();
+                                        }, 800);
+                                        return;
+                                    }
+                                } catch(e) {
+                                    progressEl.innerText = '❌ データ解読エラー。再度試してください。';
+                                }
+                            }
+                        }
+                    }
+                }
+                qrScanAnimation = requestAnimationFrame(scanFrame);
+            }
+        }
+
+        function stopQrReceive() {
+            if (qrScanAnimation) {
+                cancelAnimationFrame(qrScanAnimation);
+                qrScanAnimation = null;
+            }
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        }
+
+        /* ================= APP GENERAL FUNCTIONS ================= */
         function getAccountNames() {
             return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
         }
@@ -739,70 +885,6 @@
             renderHistoryTable();
             renderCharts();
             renderPieChart();
-        }
-
-        function openSyncModal() {
-            document.getElementById('sync-modal').classList.remove('hidden');
-        }
-
-        function closeSyncModal() {
-            document.getElementById('sync-modal').classList.add('hidden');
-        }
-
-        // ================= Google Drive クラウド同期機能 =================
-        function uploadToGoogleDrive() {
-            const dataStr = JSON.stringify(appData);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const content = e.target.result;
-                const file = new File([blob], DRIVE_FILENAME, { type: 'application/json' });
-
-                // 一括ダウンロード／ファイル共有方式として、ドライブ保存用ファイルを安全生成
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = DRIVE_FILENAME;
-                link.click();
-
-                showSyncStatus('☁️ データファイルを生成しました。Googleドライブに保存・共有してください！');
-            };
-            reader.readAsText(blob);
-        }
-
-        function downloadFromGoogleDrive() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json,application/json';
-            input.onchange = function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    try {
-                        const parsed = JSON.parse(event.target.result);
-                        if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
-                        
-                        appData = parsed;
-                        saveStorage();
-                        showSyncStatus('🎉 最新データを復元・同期しました！画面を再読み込みします...');
-                        setTimeout(() => location.reload(), 1200);
-                    } catch(err) {
-                        alert('❌ 正しいライフプランデータファイル（JSON）を選択してください。');
-                    }
-                };
-                reader.readAsText(file);
-            };
-            input.click();
-        }
-
-        function showSyncStatus(msg) {
-            const el = document.getElementById('sync-status-msg');
-            if (el) {
-                el.innerText = msg;
-                el.classList.remove('hidden');
-            }
         }
 
         function syncSettingsToUI() {
