@@ -28,9 +28,9 @@
             --app-card-border: rgba(228, 218, 208, 0.8);
             --app-primary: #8c6d53;
             --app-primary-hover: #785d46;
-            --theme-accent-1: #8c6d53; /* メイン調和色1 */
-            --theme-accent-2: #658354; /* メイン調和色2 (緑系) */
-            --theme-accent-3: #b87a42; /* メイン調和色3 (オレンジ・温色系) */
+            --theme-tone-1: #8c6d53; /* メインカラー */
+            --theme-tone-2: #6b523c; /* 濃い同系色 */
+            --theme-tone-3: #b0957e; /* 明るい同系色 */
         }
 
         body {
@@ -66,16 +66,16 @@
             color: var(--app-primary) !important;
         }
 
-        .theme-accent-green {
-            color: var(--theme-accent-2) !important;
+        .theme-tone-deep {
+            color: var(--theme-tone-2) !important;
         }
 
-        .theme-accent-orange {
-            color: var(--theme-accent-3) !important;
+        .theme-tone-light {
+            color: var(--theme-tone-3) !important;
         }
 
-        .theme-badge-green {
-            background-color: var(--theme-accent-2);
+        .theme-badge-tone {
+            background-color: var(--theme-tone-2);
             color: #ffffff;
         }
 
@@ -179,7 +179,7 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2">
-                    <div class="min-w-[850px] h-64 sm:h-72 relative">
+                    <div class="min-w-[700px] h-64 sm:h-72 relative">
                         <canvas id="cashFlowChart"></canvas>
                     </div>
                 </div>
@@ -488,16 +488,16 @@
         let qrScanAnimation = null;
 
         const presetThemes = {
-            earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46', accentGreen: '#658354', accentOrange: '#b87a42' },
-            midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155', accentGreen: '#3b7a57', accentOrange: '#b86b36' },
-            ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8', accentGreen: '#0d9488', accentOrange: '#ea580c' },
-            sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030', accentGreen: '#38a169', accentOrange: '#dd6b20' },
-            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20', accentGreen: '#1b5e20', accentOrange: '#d97706' },
-            vitamin: { name: '🍊 ペール・オレンジ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100', accentGreen: '#15803d', accentOrange: '#c2410c' },
-            burgundy: { name: '🍷 淡ロゼ・ウォーム', bg: 'linear-gradient(135deg, #faf0f2 0%, #f4e1e6 100%)', text: '#3d1a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 215, 0.8)', primary: '#b85270', primaryHover: '#9a3e58', accentGreen: '#4d7c0f', accentOrange: '#c2410c' },
-            monotone: { name: '🐘 スノー・モノトーン', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40', accentGreen: '#334155', accentOrange: '#475569' },
-            lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a', accentGreen: '#059669', accentOrange: '#d97706' },
-            mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e', accentGreen: '#4d7c0f', accentOrange: '#b45309' }
+            earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46', tone2: '#6b523c', tone3: '#b0957e' },
+            midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155', tone2: '#334155', tone3: '#64748b' },
+            ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8', tone2: '#1e40af', tone3: '#60a5fa' },
+            sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030', tone2: '#9b2c2c', tone3: '#fc8181' },
+            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20', tone2: '#1b5e20', tone3: '#66bb6a' },
+            vitamin: { name: '🍊 ペール・オレンジ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100', tone2: '#e65100', tone3: '#ffa726' },
+            burgundy: { name: '🍷 淡ロゼ・ウォーム', bg: 'linear-gradient(135deg, #faf0f2 0%, #f4e1e6 100%)', text: '#3d1a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 215, 0.8)', primary: '#b85270', primaryHover: '#9a3e58', tone2: '#88334c', tone3: '#d4839c' },
+            monotone: { name: '🐘 スノー・モノトーン', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40', tone2: '#212529', tone3: '#6c757d' },
+            lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a', tone2: '#4a148c', tone3: '#ab47bc' },
+            mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e', tone2: '#3e2723', tone3: '#a1887f' }
         };
 
         function hexToRgbValues(hex) {
@@ -815,9 +815,9 @@
             root.style.setProperty('--app-card-border', theme.border);
             root.style.setProperty('--app-primary', theme.primary);
             root.style.setProperty('--app-primary-hover', theme.primaryHover || theme.primary);
-            root.style.setProperty('--theme-accent-1', theme.primary);
-            root.style.setProperty('--theme-accent-2', theme.accentGreen || '#2e7d32');
-            root.style.setProperty('--theme-accent-3', theme.accentOrange || '#d97706');
+            root.style.setProperty('--theme-tone-1', theme.primary);
+            root.style.setProperty('--theme-tone-2', theme.tone2 || theme.primary);
+            root.style.setProperty('--theme-tone-3', theme.tone3 || theme.primary);
 
             renderPresetThemesSelector();
             renderCharts();
@@ -870,8 +870,8 @@
                 cardBg: cardBg + 'f0', 
                 border: primary + '40', 
                 primary, primaryHover: primary,
-                accentGreen: primary,
-                accentOrange: primary
+                tone2: primary,
+                tone3: primary
             };
             
             if (!appData.customThemes) appData.customThemes = [];
@@ -1227,7 +1227,7 @@
             const diff = allocatedSum - autoSaving;
             let diffMessage = '';
             if (diff === 0) {
-                diffMessage = `<span class="theme-accent-green font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                diffMessage = `<span class="theme-tone-deep font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
             } else if (diff < 0) {
                 diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
             } else {
@@ -1290,15 +1290,15 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
-                        <p class="text-xs sm:text-base font-bold theme-accent-orange mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
+                        <p class="text-xs sm:text-base font-bold theme-tone-light mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
-                        <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-accent-green mt-0.5 focus:outline-none">
+                        <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-tone-deep mt-0.5 focus:outline-none">
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通)</p>
-                        <p class="text-xs sm:text-base font-bold theme-accent-green mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
+                        <p class="text-xs sm:text-base font-bold theme-tone-deep mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -1313,7 +1313,7 @@
                     <input type="number" id="input-field-rSaving" value="${m.rSaving || 0}" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-lg p-2 text-right text-xs font-bold theme-primary-text focus:outline-none">
                 </div>
 
-                <div id="allocation-check-box" class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-[var(--theme-accent-2)] bg-[var(--theme-accent-2)]/5' : 'border-rose-500 bg-rose-500/10'}">
+                <div id="allocation-check-box" class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5' : 'border-rose-500 bg-rose-500/10'}">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <h3 class="font-bold text-xs uppercase tracking-wider">
                             💰 口座割り振りチェック (割り振り計: <span id="live-allocated-sum">¥${allocatedSum.toLocaleString()}</span>)
@@ -1397,8 +1397,8 @@
             const box = document.getElementById('allocation-check-box');
 
             if (diff === 0) {
-                diffMessage = `<span class="theme-accent-green font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
-                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-[var(--theme-accent-2)] bg-[var(--theme-accent-2)]/5";
+                diffMessage = `<span class="theme-tone-deep font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5";
             } else if (diff < 0) {
                 diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
                 if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
@@ -1489,10 +1489,10 @@
                 tr.className = "hover:bg-current/5 transition font-medium";
                 tr.innerHTML = `
                     <td class="p-3 font-semibold">${m.month}</td>
-                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 theme-accent-green':'bg-amber-500/20 theme-accent-orange'}">${m.type}</span></td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 theme-tone-deep':'bg-amber-500/20 theme-tone-light'}">${m.type}</span></td>
                     <td class="p-3 text-right font-semibold theme-primary-text">¥${totalInc.toLocaleString()}</td>
-                    <td class="p-3 text-right font-semibold theme-accent-orange">¥${totalExp.toLocaleString()}</td>
-                    <td class="p-3 text-right font-bold theme-accent-green">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold theme-tone-light">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold theme-tone-deep">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
                         <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
                     </td>
@@ -1715,7 +1715,7 @@
                             </div>
                             <div class="pt-2 border-t border-current/10 text-[10px] space-y-0.5">
                                 <div class="opacity-75 font-medium">直近の貯金額内訳:</div>
-                                <div class="font-bold theme-accent-green truncate">${detailsHtml}</div>
+                                <div class="font-bold theme-tone-deep truncate">${detailsHtml}</div>
                             </div>
                         </div>
                     `;
@@ -1750,21 +1750,21 @@
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                         <div>
                             <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                            <p class="text-lg sm:text-2xl font-bold theme-accent-orange tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-tone-light tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                                <span class="text-[10px] theme-badge-green font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaDuration}</span>
+                                <span class="text-[10px] theme-badge-tone font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaDuration}</span>
                             </div>
-                            <p class="text-lg sm:text-2xl font-bold theme-accent-green tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-2xl">
                         <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                        <p class="text-lg sm:text-2xl font-bold theme-accent-green tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                        <p class="text-lg sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                     </div>
                 `;
                 gridContainer.innerHTML = html;
@@ -1832,12 +1832,12 @@
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
-                    // 棒グラフ（予定）のある月や、細かな月のラベルは文字表示せずすっきりさせ、主要な四半期（1月, 4月, 7月, 10月）や初月のみラベル表示
-                    const isMajorLabel = (ymKey === '2026-11' || ymKey === '2027-01' || m === 4 || m === 7 || m === 10 || m === 1);
+                    // 半年に1回（4月・10月）または初月のみ文字ラベルを表示し、間隔を空けて重なりを完全に防止
+                    const isMajorLabel = (ymKey === '2026-11' || ymKey === '2027-01' || m === 4 || m === 10);
                     if (isMajorLabel && !eventMap[ymKey]) {
                         label = `${y}年${m}月`;
                     } else {
-                        label = ''; // 棒グラフの月や細かな月は文字非表示（ホバーのツールチップでいつでも確認可能）
+                        label = ''; // その他の月は非表示にし、ホバーのツールチップですっきり確認
                     }
 
                     labels.push(label);
@@ -1911,8 +1911,8 @@
                                 backgroundColor: theme.primary + 'b3',
                                 borderColor: theme.primary,
                                 borderWidth: 1,
-                                borderRadius: 6,
-                                barThickness: 10,
+                                borderRadius: 4,
+                                barThickness: 8,
                                 yAxisID: 'y'
                             }
                         ]
@@ -1934,16 +1934,17 @@
                             x: {
                                 ticks: { 
                                     font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 10 },
-                                    maxRotation: 0,
+                                    maxRotation: 30, // 斜め表示で重なり防止
+                                    minRotation: 30,
                                     autoSkip: false
                                 },
                                 grid: {
                                     display: true,
                                     drawTicks: true,
-                                    color: 'rgba(0, 0, 0, 0.06)' // 各月の正確な位置に線（グリッドライン）が来るように設定
+                                    color: 'rgba(0, 0, 0, 0.05)'
                                 },
                                 min: 0,
-                                max: Math.min(labels.length - 1, 24)
+                                max: Math.min(labels.length - 1, 15) // マスの幅を狭めてコンパクトに表示
                             }
                         },
                         plugins: {
@@ -1951,7 +1952,6 @@
                             tooltip: {
                                 callbacks: {
                                     title: function(context) {
-                                        // ツールチップ上に正確な年月を表示
                                         const idx = context[0].dataIndex;
                                         return sortedYms[idx] ? sortedYms[idx].replace('-', '年') + '月' : '';
                                     },
