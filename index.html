@@ -15,7 +15,7 @@
     <!-- QRCode Generator Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <!-- jsQR Library for Camera Scanning -->
-    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <!-- PeerJS for WebRTC Direct P2P Sync -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- Google Fonts -->
@@ -178,7 +178,6 @@
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
                     </div>
                 </div>
-                <!-- グラフ領域：縦線の間隔をさらに狭くコンパクトに収納 -->
                 <div class="overflow-x-auto custom-scrollbar pb-6 pt-2">
                     <div class="min-w-[480px] h-64 sm:h-72 relative">
                         <canvas id="cashFlowChart"></canvas>
@@ -601,7 +600,10 @@
         }
 
         function closeSyncModal() {
-            if (activePeer) { activePeer.destroy(); activePeer = null; }
+            if (activePeer) { 
+                try { activePeer.destroy(); } catch(e) {}
+                activePeer = null; 
+            }
             stopCamera();
             document.getElementById('sync-modal').classList.add('hidden');
         }
@@ -616,16 +618,25 @@
             document.getElementById('sync-sender-view').classList.remove('hidden');
             document.getElementById('sync-sender-status').innerText = '接続サーバーに接続中...';
 
-            if (activePeer) activePeer.destroy();
+            if (activePeer) {
+                try { activePeer.destroy(); } catch(e) {}
+            }
+
             activePeer = new Peer();
 
             activePeer.on('open', (id) => {
                 document.getElementById('sync-sender-status').innerText = 'QRコードを相手に読み込ませてください';
                 const qrContainer = document.getElementById('qr-canvas-container');
-                const qr = qrcode(0, 'M');
-                qr.addData('LPP2P|' + id);
-                qr.make();
-                qrContainer.innerHTML = qr.createImgTag(5);
+                
+                try {
+                    const qr = qrcode(0, 'M');
+                    qr.addData('LPP2P|' + id);
+                    qr.make();
+                    qrContainer.innerHTML = qr.createImgTag(5);
+                } catch(err) {
+                    console.error('QR生成エラー:', err);
+                    qrContainer.innerText = 'ID: ' + id;
+                }
             });
 
             activePeer.on('connection', (conn) => {
@@ -638,7 +649,8 @@
             });
 
             activePeer.on('error', (err) => {
-                document.getElementById('sync-sender-status').innerText = '接続エラー。もう一度お試しください。';
+                console.error('PeerJSエラー:', err);
+                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しぐださい。';
             });
         }
 
@@ -662,43 +674,65 @@
                 closeSyncModal();
             });
 
+            let isConnecting = false;
+
             function scanFrame() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+                if (!isConnecting && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
                     canvas.height = video.videoHeight;
                     canvas.width = video.videoWidth;
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+                    
+                    const qrScanner = window.jsQR || jsQR;
+                    if (qrScanner) {
+                        const code = qrScanner(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
 
-                    if (code && code.data && code.data.startsWith('LPP2P|')) {
-                        const targetPeerId = code.data.split('|')[1];
-                        stopCamera();
-                        statusEl.innerText = '🔗 送信端末と接続中...';
+                        if (code && code.data && code.data.startsWith('LPP2P|')) {
+                            isConnecting = true;
+                            const targetPeerId = code.data.split('|')[1];
+                            stopCamera();
+                            statusEl.innerText = '🔗 送信端末と接続中...';
 
-                        if (activePeer) activePeer.destroy();
-                        activePeer = new Peer();
+                            if (activePeer) {
+                                try { activePeer.destroy(); } catch(e) {}
+                            }
+                            
+                            activePeer = new Peer();
 
-                        activePeer.on('open', (id) => {
-                            const conn = activePeer.connect(targetPeerId);
-                            conn.on('open', () => {
-                                statusEl.innerText = '📥 データを一括受信中...';
+                            activePeer.on('open', () => {
+                                const conn = activePeer.connect(targetPeerId);
+                                conn.on('open', () => {
+                                    statusEl.innerText = '📥 データを一括受信中...';
+                                });
+                                conn.on('data', (data) => {
+                                    if (data && data.monthly) {
+                                        appData = data;
+                                        saveStorage();
+                                        statusEl.innerText = '🎉 同期成功！最新状態に更新します...';
+                                        setTimeout(() => {
+                                            closeSyncModal();
+                                            location.reload();
+                                        }, 800);
+                                    }
+                                });
+                                conn.on('error', (err) => {
+                                    statusEl.innerText = '通信エラーが発生しました。';
+                                    isConnecting = false;
+                                });
                             });
-                            conn.on('data', (data) => {
-                                if (data && data.monthly) {
-                                    appData = data;
-                                    saveStorage();
-                                    statusEl.innerText = '🎉 同期成功！最新状態に更新します...';
-                                    setTimeout(() => {
-                                        closeSyncModal();
-                                        location.reload();
-                                    }, 800);
-                                }
+
+                            activePeer.on('error', (err) => {
+                                statusEl.innerText = '接続に失敗しました。';
+                                isConnecting = false;
                             });
-                        });
-                        return;
+
+                            return;
+                        }
                     }
                 }
-                qrScanAnimation = requestAnimationFrame(scanFrame);
+                if (!isConnecting) {
+                    qrScanAnimation = requestAnimationFrame(scanFrame);
+                }
             }
         }
 
@@ -1834,12 +1868,11 @@
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
                     
-                    // 「2026年11月」および四半期（1月・4月・7月・10月）のグリッド線の真下に斜め表示ラベルを配置
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
                     if (isTargetLabel) {
                         label = `${y}年${m}月`;
                     } else {
-                        label = ''; // その他の月は非表示にし、ホバーのツールチップでいつでも確認可能
+                        label = '';
                     }
 
                     labels.push(label);
@@ -1934,10 +1967,10 @@
                                 }
                             },
                             x: {
-                                offset: false, // 折れ点をグリッド線の真上にぴったり合わせる
+                                offset: false,
                                 ticks: { 
                                     font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 9 },
-                                    maxRotation: 45, // 斜め表示で文字の重なりを確実に防止
+                                    maxRotation: 45,
                                     minRotation: 45,
                                     autoSkip: false
                                 },
@@ -1947,7 +1980,7 @@
                                     color: 'rgba(0, 0, 0, 0.05)'
                                 },
                                 min: 0,
-                                max: Math.min(labels.length - 1, 10) // 横幅（マスの幅）をさらに狭くコンパクトに詰める
+                                max: Math.min(labels.length - 1, 10)
                             }
                         },
                         plugins: {
