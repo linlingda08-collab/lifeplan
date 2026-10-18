@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ライフプラン v2026.10</title>
+    <title>ライフプラン v2026.11</title>
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png">
     <meta name="apple-mobile-web-app-title" content="ライフプラン">
@@ -155,12 +155,12 @@
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (2026.11 → 2027.1 → 以降四半期)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (2026.11 → 2027.1 → 以降四半期・予定反映)
                         </h3>
                         <span class="text-[10px] opacity-70">👉 左右にスライドして閲覧可能</span>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar pb-2">
-                        <div class="min-w-[800px] h-64 sm:h-72 relative">
+                        <div class="min-w-[850px] h-64 sm:h-72 relative">
                             <canvas id="cashFlowChart"></canvas>
                         </div>
                     </div>
@@ -206,7 +206,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (明瞭な同系色グラデーション)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (逆順グラデーション階調)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -271,7 +271,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
-                        <p class="text-xs opacity-70 mt-0.5">登録したイベントの時期と費用は、ホームの複合グラフに自動連動します。</p>
+                        <p class="text-xs opacity-70 mt-0.5">登録したイベントの時期と費用は、ホームの折れ線グラフおよび残高に自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto">
                         <button onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-3.5 py-2.5 rounded-xl font-semibold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
@@ -473,7 +473,7 @@
 
     <!-- App Logic -->
     <script>
-        const STORAGE_KEY = 'lifeplan_master_data_v2026_rev2';
+        const STORAGE_KEY = 'lifeplan_master_data_v2026_rev3';
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -522,7 +522,9 @@
                     bankAllocations: { '貯金用(三菱UFJ銀行)': 88500, 'ゆとり用(イオン銀行)': 30000, 'ゲストA貯金用': 70000 }
                 }
             ],
-            events: []
+            events: [
+                { name: '結婚式・新婚旅行', date: '2027-10', cost: 1200000, status: '予定', memo: '大きなライフイベント' }
+            ]
         };
 
         let cashChart = null;
@@ -1445,9 +1447,10 @@
             const rgb = hexToRgbValues(theme.primary);
             const canvasCtx = ctx.getContext('2d');
 
+            // 逆順のグラデーション階調
             const bgColors = rawItems.map((_, i) => {
                 const count = Math.max(1, rawItems.length);
-                const factor = 0.2 + (i * (0.8 / count));
+                const factor = 1.0 - (i * (0.8 / count));
                 
                 const grad = canvasCtx.createRadialGradient(130, 130, 10, 130, 130, 120);
                 const r1 = Math.min(255, Math.round(rgb.r * factor + (255 * (1 - factor) * 0.4)));
@@ -1599,42 +1602,112 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME CASH FLOW CHART (2026.11 → 2027.1 → 以降四半期) =================
+            // ================= HOME CASH FLOW CHART (2026.11 → 2027.1 → 以降四半期・予定自動差引・グラデーション・今日マーカー) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
                 
-                const now = new Date();
-                let targetYear = now.getFullYear();
-                let endYear = Math.max(2056, targetYear + 30);
                 let monthlySave = Number(appData.settings.defaultMonthlySave || 50000);
+
+                // イベント（予定費用）をマップ化 (例: '2027-10' -> 1200000)
+                let eventMap = {};
+                if (appData.events) {
+                    appData.events.forEach(ev => {
+                        if (ev.date && ev.cost) {
+                            eventMap[ev.date] = (eventMap[ev.date] || 0) + Number(ev.cost);
+                        }
+                    });
+                }
+
+                // 本日の年月（例: '2026-10'）を取得し、グラフ内で「現在」位置を特定
+                const now = new Date();
+                const currentYearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                let todayIndex = -1;
 
                 // 1. 2026年11月スタート
                 labels.push('2026年11月');
+                if ('2026-11' === currentYearMonth) todayIndex = 0;
+                
+                // スタート時のイベントチェック
+                if (eventMap['2026-11']) runningBalance -= eventMap['2026-11'];
                 balanceData.push(runningBalance);
 
                 // 2. 2027年1月（2ヶ月分加算）
                 runningBalance += monthlySave * 2;
+                if (eventMap['2027-01']) runningBalance -= eventMap['2027-01'];
                 labels.push('2027年1月');
+                if ('2027-01' === currentYearMonth) todayIndex = 1;
                 balanceData.push(runningBalance);
 
-                // 3. 2027年4月以降は四半期ごと（3ヶ月おき）に正確に生成
+                // 3. 2027年4月以降は四半期ごと（3ヶ月おき）に継続生成
                 let curY = 2027;
                 let curM = 4; // 4月スタート
+                let endYear = curY + 25; // 25年分
+
+                let stepIdx = 2;
                 while (curY < endYear || (curY === endYear && curM <= 12)) {
+                    const mmStr = String(curM).padStart(2, '0');
+                    const ymKey = `${curY}-${mmStr}`;
+                    
                     labels.push(`${curY}年${curM}月`);
+                    
+                    // 予定費用があれば残高から差し引く
+                    if (eventMap[ymKey]) {
+                        runningBalance -= eventMap[ymKey];
+                    }
+
                     balanceData.push(runningBalance);
-                    runningBalance += monthlySave * 3; // 3ヶ月分の貯蓄を加算
+
+                    if (ymKey === currentYearMonth || (todayIndex === -1 && `${curY}-${mmStr}` >= currentYearMonth)) {
+                        if (todayIndex === -1) todayIndex = stepIdx;
+                    }
+
+                    runningBalance += monthlySave * 3; // 3ヶ月分の貯蓄加算
                     curM += 3;
                     if (curM > 12) {
                         curM -= 12;
                         curY++;
                     }
+                    stepIdx++;
                 }
 
+                if (todayIndex === -1) todayIndex = 0;
+
                 const ctx1 = chart1El.getContext('2d');
+                
+                // エリアグラデーション背景
+                const areaGradient = ctx1.createLinearGradient(0, 0, 0, 300);
+                areaGradient.addColorStop(0, theme.primary + '60');
+                areaGradient.addColorStop(1, theme.primary + '00');
+
+                // 今日時点のハイライト用カスタマイズプラグイン
+                const todayLinePlugin = {
+                    id: 'todayLinePlugin',
+                    afterDraw: (chart) => {
+                        if (todayIndex < 0 || todayIndex >= chart.scales.x.ticks.length) return;
+                        const xMeta = chart.getDatasetMeta(0);
+                        if (!xMeta.data[todayIndex]) return;
+                        const pt = xMeta.data[todayIndex];
+                        const ctx = chart.ctx;
+                        
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.setLineDash([4, 4]);
+                        ctx.moveTo(pt.x, chart.chartArea.top);
+                        ctx.lineTo(pt.x, chart.chartArea.bottom);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = '#ef4444'; // 赤い縦線
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                };
+
+                // ポイントカラーを今日だけ赤色（マーカー）にする
+                const pointBgColors = labels.map((_, i) => i === todayIndex ? '#ef4444' : theme.primary);
+                const pointRadii = labels.map((_, i) => i === todayIndex ? 6 : 3);
+
                 cashChart = new Chart(ctx1, {
                     type: 'line',
                     data: {
@@ -1643,14 +1716,14 @@
                             label: '現金残高 (円)', 
                             data: balanceData, 
                             borderColor: theme.primary, 
-                            backgroundColor: 'transparent',
+                            backgroundColor: areaGradient,
                             borderWidth: 2.5, 
-                            fill: false, 
+                            fill: true, 
                             tension: 0.2,
-                            pointBackgroundColor: theme.primary,
+                            pointBackgroundColor: pointBgColors,
                             pointBorderColor: '#ffffff',
-                            pointRadius: 3,
-                            pointHoverRadius: 6
+                            pointRadius: pointRadii,
+                            pointHoverRadius: 8
                         }]
                     },
                     options: { 
@@ -1665,7 +1738,10 @@
                                 }
                             },
                             x: {
-                                ticks: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } }
+                                ticks: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } },
+                                // 初期表示時は直近の約15〜20期間（約4〜5年分）を枠内に収めて表示、スクロール可能
+                                min: 0,
+                                max: Math.min(labels.length - 1, 16)
                             }
                         },
                         plugins: {
@@ -1673,12 +1749,15 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        return ` 残高: ¥${context.raw.toLocaleString()}`;
+                                        let lbl = ` 残高: ¥${context.raw.toLocaleString()}`;
+                                        if (context.dataIndex === todayIndex) lbl += ' 📍【本日現在】';
+                                        return lbl;
                                     }
                                 }
                             }
                         }
-                    }
+                    },
+                    plugins: [todayLinePlugin]
                 });
             }
 
