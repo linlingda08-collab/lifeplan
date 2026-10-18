@@ -206,7 +206,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (テーマ同系色グラデーション)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (明瞭な同系色グラデーション)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -1443,14 +1443,20 @@
 
             const theme = getCurrentThemeObj();
             const rgb = hexToRgbValues(theme.primary);
-
-            // テーマカラーの同系色グラデーション階調を作成
             const canvasCtx = ctx.getContext('2d');
+
+            // 項目ごとに明度・彩度の差を大きく広げた、明瞭で美しい同系色グラデーション階調
             const bgColors = rawItems.map((_, i) => {
-                const factor = 0.35 + (i * (0.65 / Math.max(1, rawItems.length - 1)));
+                const count = Math.max(1, rawItems.length);
+                const factor = 0.2 + (i * (0.8 / count));
+                
                 const grad = canvasCtx.createRadialGradient(130, 130, 10, 130, 130, 120);
-                grad.addColorStop(0, `rgba(${Math.round(rgb.r * factor + 50 * (1-factor))}, ${Math.round(rgb.g * factor + 50 * (1-factor))}, ${Math.round(rgb.b * factor + 50 * (1-factor))}, 0.95)`);
-                grad.addColorStop(1, `rgba(${Math.round(rgb.r * factor * 0.7)}, ${Math.round(rgb.g * factor * 0.7)}, ${Math.round(rgb.b * factor * 0.7)}, 0.85)`);
+                const r1 = Math.min(255, Math.round(rgb.r * factor + (255 * (1 - factor) * 0.4)));
+                const g1 = Math.min(255, Math.round(rgb.g * factor + (255 * (1 - factor) * 0.4)));
+                const b1 = Math.min(255, Math.round(rgb.b * factor + (255 * (1 - factor) * 0.4)));
+
+                grad.addColorStop(0, `rgba(${r1}, ${g1}, ${b1}, 0.98)`);
+                grad.addColorStop(1, `rgba(${Math.round(r1 * 0.75)}, ${Math.round(g1 * 0.75)}, ${Math.round(b1 * 0.75)}, 0.90)`);
                 return grad;
             });
 
@@ -1462,7 +1468,7 @@
                         data: rawItems.map(i => i.val), 
                         backgroundColor: bgColors,
                         borderColor: '#ffffff',
-                        borderWidth: 2
+                        borderWidth: 2.5
                     }]
                 },
                 options: { 
@@ -1601,29 +1607,26 @@
                 let labels = [], balanceData = [];
                 let runningBalance = Number(appData.settings.startCash || 3000000);
                 
-                // 現在の日付（自動増加対応）
                 const now = new Date();
                 let targetYear = now.getFullYear();
-                let targetMonth = now.getMonth() + 1;
-
-                // 最低でも30年先（または2056年まで）自動生成
                 let endYear = Math.max(2056, targetYear + 30);
+                let monthlySave = Number(appData.settings.defaultMonthlySave || 50000);
 
-                // 2026年11月スタート
+                // 1. 2026年11月スタート
                 labels.push('2026年11月');
                 balanceData.push(runningBalance);
 
-                // 次は2027年1月
-                runningBalance += Number(appData.settings.defaultMonthlySave || 50000) * 2;
+                // 2. 2027年1月（2ヶ月分加算）
+                runningBalance += monthlySave * 2;
                 labels.push('2027年1月');
                 balanceData.push(runningBalance);
 
-                // 2027年4月以降は四半期ごと（3ヶ月おき）に将来まで自動生成
+                // 3. 2027年4月以降は四半期ごと（3ヶ月おき）に継続生成
                 let curY = 2027, curM = 4;
                 while (curY < endYear || (curY === endYear && curM <= 12)) {
                     labels.push(`${curY}年${curM}月`);
                     balanceData.push(runningBalance);
-                    runningBalance += Number(appData.settings.defaultMonthlySave || 50000) * 3;
+                    runningBalance += monthlySave * 3;
                     curM += 3;
                     if (curM > 12) { curM -= 12; curY++; }
                 }
