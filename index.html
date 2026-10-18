@@ -15,7 +15,7 @@
     <!-- QRCode Generator Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <!-- jsQR Library for Camera Scanning -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.js"></script>
     <!-- PeerJS for WebRTC Direct P2P Sync -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- Google Fonts -->
@@ -191,7 +191,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/10 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">毎月の収支計算</h2>
-                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。変更後は必ず保存してください。</p>
+                        <p class="text-xs opacity-70 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3 py-2 text-xs font-semibold transition cursor-pointer focus:outline-none"></select>
@@ -761,18 +761,24 @@
             return initial + allocatedSum;
         }
 
-        function getAccountRecent2MonthsSaving(accName) {
-            if (!appData.monthly || appData.monthly.length === 0) return 0;
-            const sorted = [...appData.monthly].sort((a, b) => b.month.localeCompare(a.month));
-            let sum = 0;
+        // 口座ごとの直近2ヶ月の貯金額の明細データを生成する関数
+        // 戻り値例: [{ month: '2026-11', amount: 88500 }, { month: '2026-12', amount: 90000 }]
+        function getAccountRecent2MonthsSavingsDetails(accName) {
+            if (!appData.monthly || appData.monthly.length === 0) return [];
+            // 「実績」データのみ対象にするか、あるいは登録されている月をソート
+            const sorted = [...appData.monthly]
+                .filter(m => m.type === '実績')
+                .sort((a, b) => b.month.localeCompare(a.month));
+            
+            const results = [];
             const count = Math.min(2, sorted.length);
             for (let i = 0; i < count; i++) {
                 const m = sorted[i];
-                if (m.type === '実績' && m.bankAllocations && m.bankAllocations[accName] !== undefined) {
-                    sum += Number(m.bankAllocations[accName] || 0);
-                }
+                const amt = (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? Number(m.bankAllocations[accName] || 0) : 0;
+                results.push({ month: m.month, amount: amt });
             }
-            return sum;
+            // 古い月 → 新しい月の順に並び替え
+            return results.reverse();
         }
 
         function getCurrentThemeObj() {
@@ -1077,11 +1083,12 @@
             updateCalculations();
         }
 
+        // 未保存ガードの修正：変更がある場合はアラートで通知し、タブ移動を完全にブロックする
         function switchTab(tabId) {
             const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
             if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
-                const confirmLeave = confirm("⚠️ 毎月入力画面で変更された内容が保存されていません！\nこのまま移動すると変更が破棄されますがよろしいですか？\n(保存する場合は「キャンセル」を押して保存ボタンを押してください)");
-                if (!confirmLeave) return;
+                alert("⚠️ 毎月入力画面で変更された内容が保存されていません！\n他のページに移動するには、まず「💾 この内容で保存・反映する」ボタンを押してください。");
+                return; // 移動を完全にブロック
             }
             isMonthFormModified = false;
 
@@ -1126,11 +1133,9 @@
 
         function confirmAndSwitchMonth(index) {
             if (isMonthFormModified) {
-                const ok = confirm("⚠️ 現在の月の入力内容が保存されていません。移動しますか？");
-                if (!ok) {
-                    document.getElementById('month-selector').value = currentEditingIndex;
-                    return;
-                }
+                alert("⚠️ 現在の月の入力内容が保存されていません。保存ボタンを押してから移動してください。");
+                document.getElementById('month-selector').value = currentEditingIndex;
+                return;
             }
             isMonthFormModified = false;
             currentEditingIndex = Number(index);
@@ -1139,8 +1144,8 @@
 
         function addNewMonthByDropdown() {
             if (isMonthFormModified) {
-                const ok = confirm("⚠️ 保存されていない変更があります。新しい月を追加しますか？");
-                if (!ok) return;
+                alert("⚠️ 保存されていない変更があります。新しい月を追加する前に保存してください。");
+                return;
             }
             isMonthFormModified = false;
 
@@ -1470,7 +1475,7 @@
                     <td class="p-3 text-right font-semibold text-amber-600">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right font-bold text-emerald-600">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
-                        <button onclick="if(isMonthFormModified){if(!confirm('⚠️ 保存されていない変更があります。移動しますか？'))return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
+                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1651,12 +1656,10 @@
             });
         }
 
-        // 本日の日付（今月）のデータを自動取得してホームKPIに表示する関数
         function updateCalculations() {
             const now = new Date();
             const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             
-            // 本日の日付けに一致する月データを検索、なければ直近または最初を使用
             let targetMonthData = appData.monthly.find(m => m.month === currentYM);
             if (!targetMonthData && appData.monthly.length > 0) {
                 targetMonthData = appData.monthly[0];
@@ -1675,17 +1678,24 @@
                 appData.bankAccounts.forEach(acc => {
                     const accName = typeof acc === 'string' ? acc : acc.name;
                     const currentBal = calculateAccountCurrentBalance(accName);
-                    const recent2MonthsSaving = getAccountRecent2MonthsSaving(accName);
+                    const details = getAccountRecent2MonthsSavingsDetails(accName);
                     
+                    let detailsHtml = '';
+                    if (details.length === 0) {
+                        detailsHtml = `<span class="opacity-50">記録なし</span>`;
+                    } else {
+                        detailsHtml = details.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                    }
+
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
                             <div>
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
                                 <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥${currentBal.toLocaleString()}</p>
                             </div>
-                            <div class="pt-2 border-t border-current/10 flex items-center justify-between text-[11px]">
-                                <span class="opacity-70 font-medium">直近2ヶ月の貯金額:</span>
-                                <span class="font-bold text-emerald-600">¥${recent2MonthsSaving.toLocaleString()}</span>
+                            <div class="pt-2 border-t border-current/10 text-[10px] space-y-0.5">
+                                <div class="opacity-75 font-medium">直近の貯金額内訳:</div>
+                                <div class="font-bold text-emerald-600 truncate">${detailsHtml}</div>
                             </div>
                         </div>
                     `;
@@ -1716,7 +1726,7 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= HOME COMBINATION CHART (2026.11・2027.01は毎月、2027.04以降は四半期ごと) =================
+            // ================= HOME COMBINATION CHART (2026.11の次は直接2027.01、2027.04以降は四半期ごと) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
@@ -1746,52 +1756,63 @@
                     });
                 }
 
-                // シミュレーション期間の生成：
-                // 2026年11月、2026年12月、2027年1月までは毎月
-                // 2027年2月以降は四半期ごと（4月, 7月, 10月, 1月...）にステップを進める
-                let curY = 2026;
-                let curM = 11;
-                let todayIndex = 0;
-
-                // 対象期間の全データポイントを作成
+                // グラフポイントのシーケンス作成：
+                // 1. 2026年11月
+                // 2. 2027年1月（2026年12月はスキップ）
+                // 3. 2027年4月以降は四半期ごと（4月, 7月, 10月, 1月...）
                 let rawPoints = [];
-                let totalSteps = 24; // 2年分強のポイント
+                
+                // 1. 2026年11月
+                rawPoints.push({ ymKey: '2026-11', label: '2026年11月', monthsCount: 1 });
+                // 2. 2027年1月
+                rawPoints.push({ ymKey: '2027-01', label: '2027年1月', monthsCount: 2 }); // 12月〜1月の2ヶ月分を合算または推移
 
-                for (let i = 0; i < totalSteps; i++) {
+                // 3. 2027年4月以降（四半期ごと）
+                let curY = 2027;
+                let curM = 4;
+                for (let i = 0; i < 20; i++) {
                     const mmStr = String(curM).padStart(2, '0');
                     const ymKey = `${curY}-${mmStr}`;
-                    
-                    let labelStr = `${curY}年${curM}月`;
-                    
-                    let monthSaving = defaultMonthlySave;
-                    if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
-                        monthSaving = monthlyDataMap[ymKey].saving;
-                    }
+                    rawPoints.push({ ymKey, label: `${curY}年${curM}月`, monthsCount: 3 });
 
-                    let evCost = eventMap[ymKey] || 0;
-
-                    rawPoints.push({ ymKey, label: labelStr, saving: monthSaving, eventCost: evCost, isQuarter: (curY > 2027 || (curY === 2027 && curM >= 4)) });
-
-                    // 次のステップの計算
-                    if (curY === 2026 && curM === 11) { curM = 12; }
-                    else if (curY === 2026 && curM === 12) { curY = 2027; curM = 1; }
-                    else if (curY === 2027 && curM === 1) { curY = 2027; curM = 4; } // ここから四半期ごとへ
-                    else {
-                        curM += 3;
-                        if (curM > 12) { curM = 1; curY++; }
-                    }
+                    curM += 3;
+                    if (curM > 12) { curM = 1; curY++; }
                 }
 
-                // 累積残高とグラフデータの構築
+                let todayIndex = 0;
+
                 rawPoints.forEach((pt, idx) => {
                     labels.push(pt.label);
                     
-                    // 四半期区間の場合は3ヶ月分の貯金＆予定費用を合算
-                    let stepSaving = pt.saving;
-                    let stepEvCost = pt.eventCost;
-                    
-                    if (pt.ymKey >= '2027-04') {
-                        stepSaving *= 3; // 3ヶ月分
+                    let stepSaving = 0;
+                    let stepEvCost = 0;
+
+                    if (pt.ymKey === '2026-11') {
+                        let saving = defaultMonthlySave;
+                        if (monthlyDataMap['2026-11'] && monthlyDataMap['2026-11'].type === '実績') saving = monthlyDataMap['2026-11'].saving;
+                        stepSaving = saving;
+                        stepEvCost = eventMap['2026-11'] || 0;
+                    } else if (pt.ymKey === '2027-01') {
+                        // 12月と1月の合算
+                        let s12 = (monthlyDataMap['2026-12'] && monthlyDataMap['2026-12'].type === '実績') ? monthlyDataMap['2026-12'].saving : defaultMonthlySave;
+                        let s01 = (monthlyDataMap['2027-01'] && monthlyDataMap['2027-01'].type === '実績') ? monthlyDataMap['2027-01'].saving : defaultMonthlySave;
+                        stepSaving = s12 + s01;
+                        stepEvCost = (eventMap['2026-12'] || 0) + (eventMap['2027-01'] || 0);
+                    } else {
+                        // 四半期ごと (3ヶ月分)
+                        let [y, m] = pt.ymKey.split('-').map(Number);
+                        // 当該四半期の3ヶ月分の貯金＆予定費用を合算
+                        for (let k = 0; k < 3; k++) {
+                            const mm = String(m).padStart(2, '0');
+                            const key = `${y}-${mm}`;
+                            let s = defaultMonthlySave;
+                            if (monthlyDataMap[key] && monthlyDataMap[key].type === '実績') s = monthlyDataMap[key].saving;
+                            stepSaving += s;
+                            stepEvCost += (eventMap[key] || 0);
+
+                            m++;
+                            if (m > 12) { m = 1; y++; }
+                        }
                     }
 
                     runningBalance += stepSaving;
@@ -1854,7 +1875,6 @@
                                 type: 'bar',
                                 label: '予定費用 (円)',
                                 data: eventBarData,
-                                // 棒グラフの色味をテーマカラー（アクセントカラー）に連動させる
                                 backgroundColor: theme.primary + 'b3',
                                 borderColor: theme.primary,
                                 borderWidth: 1,
