@@ -72,7 +72,6 @@
             border-radius: 9999px;
         }
 
-        /* モバイルタッチターゲット最適化 */
         button, select, input, label {
             touch-action: manipulation;
         }
@@ -163,7 +162,7 @@
                 <div class="lg:col-span-2 theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 ＆ 予定費用（複合グラフ）
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 現金残高の推移 (貯金用口座) ＆ 予定費用
                         </h3>
                         <div class="flex items-center gap-3 text-[11px] font-medium">
                             <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
@@ -276,10 +275,9 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: EVENTS (iPhoneタップ完全修正) ================= -->
+        <!-- ================= TAB 5: EVENTS ================= -->
         <div id="tab-events" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-2xl space-y-6">
-                <!-- ヘッダーおよび操作ボタン群（z-indexとタッチターゲットを最適化） -->
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/10 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">今後の予定</h2>
@@ -310,7 +308,6 @@
                     </div>
                 </div>
 
-                <!-- 予定一覧コンテンツ -->
                 <div class="relative z-10 space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-xl sm:border sm:border-current/10">
                     <table class="hidden sm:table w-full text-xs text-left border-collapse">
                         <thead>
@@ -483,7 +480,6 @@
 
     <!-- App Logic -->
     <script>
-        // 【修正点2】キー名を永久固定にし、アップデートでデータが上書き消失しない構造に設定
         const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
 
         const defaultAccounts = [
@@ -573,7 +569,6 @@
             return { r: 140, g: 109, b: 83 };
         }
 
-        /* ================= TODAY DATE DISPLAY ================= */
         function updateTodayDateBadge() {
             const badge = document.getElementById('today-date-badge');
             if (!badge) return;
@@ -586,7 +581,6 @@
             badge.innerText = `📅 本日の日付: ${y}年${m}月${d}日 (${w})`;
         }
 
-        /* ================= HERO BACKGROUND & HEADER ICON FUNCTIONS ================= */
         function changeHeroBackground(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -653,7 +647,6 @@
             }
         }
 
-        /* ================= P2P WEB-RTC SYNC LOGIC ================= */
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
             document.getElementById('sync-mode-select').classList.remove('hidden');
@@ -763,7 +756,6 @@
             }
         }
 
-        /* ================= APP GENERAL FUNCTIONS ================= */
         function getAccountNames() {
             return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
         }
@@ -927,10 +919,10 @@
         }
 
         function loadStorage() {
-            // 【修正点2】過去のキーからもデータを安全に復元・統合継承
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
-                saved = localStorage.getItem('lifeplan_master_data_v2026_rev5') || 
+                saved = localStorage.getItem('lifeplan_master_persistent_storage_data_v1') || 
+                        localStorage.getItem('lifeplan_master_data_v2026_rev5') || 
                         localStorage.getItem('lifeplan_master_data_v2026_rev4') || 
                         localStorage.getItem('lifeplan_master_data_v2026') || 
                         localStorage.getItem('lifeplan_master_data');
@@ -1578,7 +1570,6 @@
             }
 
             appData.events.forEach((ev, index) => {
-                // PC用テーブル行
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="appData.events[${index}].name=this.value;saveStorage()" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
@@ -1590,7 +1581,6 @@
                 `;
                 tbody.appendChild(tr);
 
-                // モバイル（iPhone）用カード
                 const card = document.createElement('div');
                 card.className = "theme-card-sm p-3.5 rounded-2xl border space-y-2.5";
                 card.innerHTML = `
@@ -1674,7 +1664,7 @@
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
-            // ================= 【修正点3】HOME COMBINATION CHART (折れ線残高＋棒グラフ予定費用) =================
+            // ================= HOME COMBINATION CHART (実績優先 ＋ 標準貯金 ＋ 月別連続シミュレーション) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
@@ -1704,42 +1694,23 @@
                 }
 
                 let todayIndex = 0;
+                let curY = 2026;
+                let curM = 11;
+                let totalMonths = 60; // 5年分（毎月ループ）
 
-                // 1. 2026年11月スタート
-                labels.push('2026年11月');
-                let ev11 = eventMap['2026-11'] || 0;
-                eventBarData.push(ev11);
-                runningBalance -= ev11;
-                balanceData.push(runningBalance);
-
-                // 2. 2027年1月
-                let saving202701 = monthlyDataMap['2027-01'] ? monthlyDataMap['2027-01'].saving : (defaultMonthlySave * 2);
-                runningBalance += saving202701;
-                let ev01 = eventMap['2027-01'] || 0;
-                eventBarData.push(ev01);
-                runningBalance -= ev01;
-                labels.push('2027年1月');
-                balanceData.push(runningBalance);
-
-                // 3. 2027年4月以降（四半期ごと）
-                let curY = 2027;
-                let curM = 4;
-                let endYear = curY + 25;
-
-                while (curY < endYear || (curY === endYear && curM <= 12)) {
+                for (let i = 0; i < totalMonths; i++) {
                     const mmStr = String(curM).padStart(2, '0');
                     const ymKey = `${curY}-${mmStr}`;
                     
                     labels.push(`${curY}年${curM}月`);
-                    
-                    let periodSaving = 0;
+
+                    // 「実績」が選ばれている月はその実額、それ以外（想定・未入力の月・12月以降）は設定の標準毎月貯金額
+                    let monthSaving = defaultMonthlySave;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
-                        periodSaving = monthlyDataMap[ymKey].saving;
-                    } else {
-                        periodSaving = defaultMonthlySave * 3;
+                        monthSaving = monthlyDataMap[ymKey].saving;
                     }
 
-                    runningBalance += periodSaving;
+                    runningBalance += monthSaving;
 
                     let evCost = eventMap[ymKey] || 0;
                     eventBarData.push(evCost);
@@ -1747,9 +1718,9 @@
 
                     balanceData.push(runningBalance);
 
-                    curM += 3;
+                    curM++;
                     if (curM > 12) {
-                        curM -= 12;
+                        curM = 1;
                         curY++;
                     }
                 }
