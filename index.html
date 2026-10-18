@@ -303,7 +303,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: ACCOUNTS (将来標準貯金額の設置) ================= -->
+        <!-- ================= TAB 5: ACCOUNTS ================= -->
         <div id="tab-accounts" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3">
@@ -311,7 +311,6 @@
                     <p class="text-xs opacity-70 mt-0.5">口座の管理と、ホームグラフの未来予測に使う「将来の標準毎月貯金額」を設定できます。</p>
                 </div>
 
-                <!-- 将来の標準毎月貯金額の設定ブロック -->
                 <div class="theme-card-sm p-4 rounded-2xl space-y-2 border">
                     <label class="block font-semibold text-xs opacity-80">📈 将来の標準毎月貯金額 (円) <span class="text-[10px] opacity-70">(※未確定月のグラフ推移計算に使用)</span></label>
                     <input type="number" id="sim-default-monthly-save" value="50000" onchange="saveSimulationDefaultSave()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border">
@@ -520,7 +519,7 @@
         let nisaChart = null;
         let pieChart = null;
         let currentEditingIndex = 0;
-        let isMonthFormModified = false; // 未保存変更ガード用フラグ
+        let isMonthFormModified = false;
         let activePeer = null;
         let videoStream = null;
         let qrScanAnimation = null;
@@ -751,7 +750,6 @@
             return 0;
         }
 
-        // 口座残高の計算：区分が「実績」として保存されている月の割り振り額のみを合算する
         function calculateAccountCurrentBalance(accName) {
             let initial = getAccountInitialBalance(accName);
             let allocatedSum = 0;
@@ -1079,7 +1077,6 @@
             updateCalculations();
         }
 
-        // 未保存変更ガード付きのタブ切り替え
         function switchTab(tabId) {
             const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
             if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
@@ -1233,7 +1230,7 @@
                 banksHtml += `
                     <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
                         <span class="font-semibold text-xs">🏦 ${b}</span>
-                        <input type="number" id="input-bank-${b}" value="${m.bankAllocations[b] || 0}" oninput="updateAllocationRealtimeFeedback()" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        <input type="number" id="input-bank-${b}" value="${m.bankAllocations[b] || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
                     </div>
                 `;
             });
@@ -1246,7 +1243,7 @@
                             <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print">×</button>
                             <span class="text-xs font-semibold truncate">${cat.name}</span>
                         </div>
-                        <input type="number" id="input-exp-${cat.id}" value="${m.expenses[cat.id] || 0}" oninput="updateAllocationRealtimeFeedback()" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
+                        <input type="number" id="input-exp-${cat.id}" value="${m.expenses[cat.id] || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
                     </div>
                 `;
             });
@@ -1654,62 +1651,72 @@
             });
         }
 
+        // 本日の日付（今月）のデータを自動取得してホームKPIに表示する関数
         function updateCalculations() {
-            if (appData.monthly.length > 0) {
-                const m = appData.monthly[currentEditingIndex] || appData.monthly[0];
-                const inc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
-                let exp = 0;
-                if (m.expenses) for (let v of Object.values(m.expenses)) exp += Number(v || 0);
-                const surplus = inc - exp - Number(m.nisa || 0);
+            const now = new Date();
+            const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            
+            // 本日の日付けに一致する月データを検索、なければ直近または最初を使用
+            let targetMonthData = appData.monthly.find(m => m.month === currentYM);
+            if (!targetMonthData && appData.monthly.length > 0) {
+                targetMonthData = appData.monthly[0];
+            }
 
-                const gridContainer = document.getElementById('home-kpi-grid');
-                if (gridContainer) {
-                    let html = '';
-                    appData.bankAccounts.forEach(acc => {
-                        const accName = typeof acc === 'string' ? acc : acc.name;
-                        const currentBal = calculateAccountCurrentBalance(accName);
-                        const recent2MonthsSaving = getAccountRecent2MonthsSaving(accName);
-                        
-                        html += `
-                            <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
-                                <div>
-                                    <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                    <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥${currentBal.toLocaleString()}</p>
-                                </div>
-                                <div class="pt-2 border-t border-current/10 flex items-center justify-between text-[11px]">
-                                    <span class="opacity-70 font-medium">直近2ヶ月の貯金額:</span>
-                                    <span class="font-bold text-emerald-600">¥${recent2MonthsSaving.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        `;
-                    });
+            const inc = targetMonthData ? ((targetMonthData.rIncome || 0) + (targetMonthData.hIncome || 0) + (targetMonthData.bonus || 0) + (targetMonthData.extraInc || 0)) : 0;
+            let exp = 0;
+            if (targetMonthData && targetMonthData.expenses) {
+                for (let v of Object.values(targetMonthData.expenses)) exp += Number(v || 0);
+            }
+            const surplus = targetMonthData ? (inc - exp - Number(targetMonthData.nisa || 0)) : 0;
 
+            const gridContainer = document.getElementById('home-kpi-grid');
+            if (gridContainer) {
+                let html = '';
+                appData.bankAccounts.forEach(acc => {
+                    const accName = typeof acc === 'string' ? acc : acc.name;
+                    const currentBal = calculateAccountCurrentBalance(accName);
+                    const recent2MonthsSaving = getAccountRecent2MonthsSaving(accName);
+                    
                     html += `
-                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
                             <div>
-                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り</p>
-                                <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
+                                <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1">¥${currentBal.toLocaleString()}</p>
                             </div>
-                        </div>
-                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
-                            <div>
-                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費</p>
-                                <p class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                            <div class="pt-2 border-t border-current/10 flex items-center justify-between text-[11px]">
+                                <span class="opacity-70 font-medium">直近2ヶ月の貯金額:</span>
+                                <span class="font-bold text-emerald-600">¥${recent2MonthsSaving.toLocaleString()}</span>
                             </div>
-                        </div>
-                        <div class="theme-card p-4 sm:p-5 rounded-2xl">
-                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金</p>
-                            <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                         </div>
                     `;
-                    gridContainer.innerHTML = html;
-                }
+                });
+
+                html += `
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-lg sm:text-2xl font-bold text-amber-600 tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl">
+                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                        <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                    </div>
+                `;
+                gridContainer.innerHTML = html;
             }
         }
 
         function renderCharts() {
             const theme = getCurrentThemeObj();
 
+            // ================= HOME COMBINATION CHART (2026.11・2027.01は毎月、2027.04以降は四半期ごと) =================
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
@@ -1739,37 +1746,60 @@
                     });
                 }
 
-                let todayIndex = 0;
+                // シミュレーション期間の生成：
+                // 2026年11月、2026年12月、2027年1月までは毎月
+                // 2027年2月以降は四半期ごと（4月, 7月, 10月, 1月...）にステップを進める
                 let curY = 2026;
                 let curM = 11;
-                let totalMonths = 60;
+                let todayIndex = 0;
 
-                for (let i = 0; i < totalMonths; i++) {
+                // 対象期間の全データポイントを作成
+                let rawPoints = [];
+                let totalSteps = 24; // 2年分強のポイント
+
+                for (let i = 0; i < totalSteps; i++) {
                     const mmStr = String(curM).padStart(2, '0');
                     const ymKey = `${curY}-${mmStr}`;
                     
-                    labels.push(`${curY}年${curM}月`);
-
-                    // 区分が「実績」の月だけ実際の貯蓄額を足し、それ以外（想定など）は口座タブにある将来の標準貯金額でシミュレーション
+                    let labelStr = `${curY}年${curM}月`;
+                    
                     let monthSaving = defaultMonthlySave;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
                         monthSaving = monthlyDataMap[ymKey].saving;
                     }
 
-                    runningBalance += monthSaving;
-
                     let evCost = eventMap[ymKey] || 0;
-                    eventBarData.push(evCost);
-                    runningBalance -= evCost;
 
-                    balanceData.push(runningBalance);
+                    rawPoints.push({ ymKey, label: labelStr, saving: monthSaving, eventCost: evCost, isQuarter: (curY > 2027 || (curY === 2027 && curM >= 4)) });
 
-                    curM++;
-                    if (curM > 12) {
-                        curM = 1;
-                        curY++;
+                    // 次のステップの計算
+                    if (curY === 2026 && curM === 11) { curM = 12; }
+                    else if (curY === 2026 && curM === 12) { curY = 2027; curM = 1; }
+                    else if (curY === 2027 && curM === 1) { curY = 2027; curM = 4; } // ここから四半期ごとへ
+                    else {
+                        curM += 3;
+                        if (curM > 12) { curM = 1; curY++; }
                     }
                 }
+
+                // 累積残高とグラフデータの構築
+                rawPoints.forEach((pt, idx) => {
+                    labels.push(pt.label);
+                    
+                    // 四半期区間の場合は3ヶ月分の貯金＆予定費用を合算
+                    let stepSaving = pt.saving;
+                    let stepEvCost = pt.eventCost;
+                    
+                    if (pt.ymKey >= '2027-04') {
+                        stepSaving *= 3; // 3ヶ月分
+                    }
+
+                    runningBalance += stepSaving;
+                    runningBalance -= stepEvCost;
+
+                    balanceData.push(runningBalance);
+                    eventBarData.push(stepEvCost);
+                });
 
                 const ctx1 = chart1El.getContext('2d');
                 
@@ -1792,13 +1822,13 @@
                         ctx.moveTo(pt.x, chart.chartArea.top);
                         ctx.lineTo(pt.x, chart.chartArea.bottom);
                         ctx.lineWidth = 2;
-                        ctx.strokeStyle = '#ef4444';
+                        ctx.strokeStyle = theme.primary;
                         ctx.stroke();
                         ctx.restore();
                     }
                 };
 
-                const pointBgColors = labels.map((_, i) => i === todayIndex ? '#ef4444' : theme.primary);
+                const pointBgColors = labels.map((_, i) => i === todayIndex ? theme.primary : theme.primary);
                 const pointRadii = labels.map((_, i) => i === todayIndex ? 6 : 3);
 
                 cashChart = new Chart(ctx1, {
@@ -1824,8 +1854,9 @@
                                 type: 'bar',
                                 label: '予定費用 (円)',
                                 data: eventBarData,
-                                backgroundColor: 'rgba(239, 68, 68, 0.7)',
-                                borderColor: '#dc2626',
+                                // 棒グラフの色味をテーマカラー（アクセントカラー）に連動させる
+                                backgroundColor: theme.primary + 'b3',
+                                borderColor: theme.primary,
                                 borderWidth: 1,
                                 borderRadius: 6,
                                 barThickness: 16,
