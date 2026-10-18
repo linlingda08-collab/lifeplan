@@ -15,7 +15,7 @@
     <!-- QRCode Generator Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <!-- jsQR Library for Camera Scanning -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.js"></script>
     <!-- PeerJS for WebRTC Direct P2P Sync -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- Google Fonts -->
@@ -749,6 +749,39 @@
             return results.reverse();
         }
 
+        // NISA積立が初めて計上された月を起点として、現在までの積立期間（年・月）を動的計算する関数
+        function calculateNisaDurationText() {
+            if (!appData.monthly || appData.monthly.length === 0) return '0年';
+            
+            // 積立額が0より大きい最初の月を探す
+            const sortedMonthly = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
+            let startYM = null;
+            for (let m of sortedMonthly) {
+                if (Number(m.nisa || 0) > 0) {
+                    startYM = m.month;
+                    break;
+                }
+            }
+
+            if (!startYM) return '0年';
+
+            const [startY, startM] = startYM.split('-').map(Number);
+            const now = new Date();
+            const nowY = now.getFullYear();
+            const nowM = now.getMonth() + 1;
+
+            let totalMonths = (nowY - startY) * 12 + (nowM - startM);
+            if (totalMonths < 0) totalMonths = 0;
+
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
+
+            if (years === 0 && months === 0) return '1ヶ月未満';
+            if (years === 0) return `${months}ヶ月`;
+            if (months === 0) return `${years}年`;
+            return `${years}年${months}ヶ月`;
+        }
+
         function getCurrentThemeObj() {
             let theme = presetThemes[appData.settings.currentTheme];
             if (!theme && appData.customThemes) {
@@ -1167,7 +1200,6 @@
             appData.expenseCategories.forEach(cat => totalExp += Number(m.expenses[cat.id] || 0));
             
             const nisaAmt = Number(m.nisa || 0);
-            // ゲストA貯金はお小遣い枠からの貯金のため、共通収支からは差し引かない
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             if (!m.bankAllocations) m.bankAllocations = {};
@@ -1671,7 +1703,6 @@
                     `;
                 });
 
-                // ゲストA貯金カード（表記変更：ゲストA貯金）
                 const rSavingTotal = calculateRSavingTotal();
                 const rSavingDetails = getRSavingRecent2MonthsDetails();
                 let rDetailsHtml = rSavingDetails.length === 0 ? `<span class="opacity-50">記録なし</span>` : rSavingDetails.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
@@ -1689,7 +1720,7 @@
                     </div>
                 `;
 
-                const nisaYears = appData.settings.years || 38;
+                const nisaDuration = calculateNisaDurationText();
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
@@ -1708,7 +1739,7 @@
                         <div>
                             <div class="flex items-center justify-between">
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                                <span class="text-[10px] bg-emerald-500/20 text-emerald-600 font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaYears}年</span>
+                                <span class="text-[10px] bg-emerald-500/20 text-emerald-600 font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaDuration}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-bold text-emerald-600 tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
@@ -1751,6 +1782,7 @@
                     });
                 }
 
+                // 予定金額の合算マップ作成（同じ月に複数の予定がある場合は合計する）
                 let eventMap = {};
                 if (appData.events) {
                     appData.events.forEach(ev => {
@@ -1760,52 +1792,53 @@
                     });
                 }
 
-                // 月が異なる予定を独立した個別の棒グラフとして分離・配置するタイムライン構築
+                // 2026年12月を除外し、各月の正確な位置（毎月データ・予定データに対応）を網羅するタイムラインを生成
                 let rawPoints = [
                     { ymKey: '2026-11', label: '2026年11月' },
-                    { ymKey: '2026-12', label: '2026年12月' },
                     { ymKey: '2027-01', label: '2027年1月' }
                 ];
 
+                // 登録されている月や予定の月から自動的に必要な月ポイントを動的に拾い上げる、または標準の月次・四半期展開を行う
+                let allYms = new Set(['2026-11', '2027-01']);
+                if (appData.monthly) appData.monthly.forEach(m => allYms.add(m.month));
+                if (appData.events) appData.events.forEach(ev => { if (ev.date) allYms.add(ev.date); });
+
                 let curY = 2027;
-                let curM = 4;
-                for (let i = 0; i < 20; i++) {
+                let curM = 2; // 2月から四半期ごと＋毎月必要分を展開
+                for (let i = 0; i < 25; i++) {
                     const mmStr = String(curM).padStart(2, '0');
                     const ymKey = `${curY}-${mmStr}`;
-                    rawPoints.push({ ymKey, label: `${curY}年${curM}月` });
+                    allYms.add(ymKey);
 
-                    curM += 3;
+                    curM += 1; // 毎月の位置を考慮して生成
                     if (curM > 12) { curM = 1; curY++; }
                 }
 
+                // 年月順にソート
+                let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
+                // 2026-12 は明示的に除外
+                sortedYms = sortedYms.filter(ym => ym !== '2026-12');
+
                 let todayIndex = 0;
 
-                rawPoints.forEach((pt, idx) => {
-                    labels.push(pt.label);
-                    
-                    let stepSaving = 0;
-                    let stepEvCost = eventMap[pt.ymKey] || 0;
-
-                    if (pt.ymKey === '2026-11' || pt.ymKey === '2026-12' || pt.ymKey === '2027-01') {
-                        let saving = defaultMonthlySave;
-                        if (monthlyDataMap[pt.ymKey] && monthlyDataMap[pt.ymKey].type === '実績') {
-                            saving = monthlyDataMap[pt.ymKey].saving;
-                        }
-                        stepSaving = saving;
+                sortedYms.forEach((ymKey, idx) => {
+                    let [y, m] = ymKey.split('-').map(Number);
+                    let label = '';
+                    // 文字ラベルは主要な月（2026-11, 2027-01, および4, 7, 10, 1月など四半期、または予定のある月）に分かりやすく表示し、スッキリさせる
+                    const isMajorLabel = (ymKey === '2026-11' || ymKey === '2027-01' || m === 4 || m === 7 || m === 10 || m === 1 || eventMap[ymKey] > 0);
+                    if (isMajorLabel) {
+                        label = `${y}年${m}月`;
                     } else {
-                        let [y, m] = pt.ymKey.split('-').map(Number);
-                        for (let k = 0; k < 3; k++) {
-                            const mm = String(m).padStart(2, '0');
-                            const key = `${y}-${mm}`;
-                            let s = defaultMonthlySave;
-                            if (monthlyDataMap[key] && monthlyDataMap[key].type === '実績') s = monthlyDataMap[key].saving;
-                            stepSaving += s;
-                            stepEvCost += (eventMap[key] || 0);
-
-                            m++;
-                            if (m > 12) { m = 1; y++; }
-                        }
+                        label = ''; // 文字ラベルは非表示にしてグラフのX軸をすっきりさせる
                     }
+
+                    labels.push(label);
+
+                    let stepSaving = defaultMonthlySave;
+                    if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
+                        stepSaving = monthlyDataMap[ymKey].saving;
+                    }
+                    let stepEvCost = eventMap[ymKey] || 0;
 
                     runningBalance += stepSaving;
                     runningBalance -= stepEvCost;
@@ -1871,7 +1904,7 @@
                                 borderColor: theme.primary,
                                 borderWidth: 1,
                                 borderRadius: 6,
-                                barThickness: 12,
+                                barThickness: 10,
                                 yAxisID: 'y'
                             }
                         ]
@@ -1888,9 +1921,13 @@
                                 }
                             },
                             x: {
-                                ticks: { font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 } },
+                                ticks: { 
+                                    font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 10 },
+                                    maxRotation: 0,
+                                    autoSkip: false
+                                },
                                 min: 0,
-                                max: Math.min(labels.length - 1, 16)
+                                max: Math.min(labels.length - 1, 24)
                             }
                         },
                         plugins: {
@@ -1903,7 +1940,10 @@
                                             if (context.dataIndex === todayIndex) lbl += ' 📍【本日現在】';
                                             return lbl;
                                         } else {
-                                            return ` 予定費用: ¥${context.raw.toLocaleString()}`;
+                                            if (context.raw > 0) {
+                                                return ` 予定費用: ¥${context.raw.toLocaleString()}`;
+                                            }
+                                            return null;
                                         }
                                     }
                                 }
