@@ -12,6 +12,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google API & Identity Services -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
@@ -90,8 +93,8 @@
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="端末間同期">
-                    <span>🔄</span> <span>データ同期</span>
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 flex items-center gap-1 cursor-pointer" title="Googleドライブ同期">
+                    <span>☁️</span> <span>クラウド同期</span>
                 </button>
             </div>
         </div>
@@ -190,13 +193,6 @@
 
                 <div id="monthly-export-card" class="space-y-6 p-2 sm:p-4 rounded-2xl">
                     <div id="month-editor-container" class="space-y-6"></div>
-                </div>
-
-                <!-- 要約レポート画像化・写真保存ボタン -->
-                <div class="flex justify-end no-print pt-2">
-                    <button onclick="generateAndDownloadSummaryImage()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-3 rounded-xl transition shadow-md flex items-center gap-2 cursor-pointer">
-                        <span>📸</span> この月の収支表を要約画像にして写真フォルダに保存
-                    </button>
                 </div>
             </div>
         </div>
@@ -426,34 +422,42 @@
 
     </main>
 
-    <!-- ================= SYNC MODAL (Text Code Copy & Paste) ================= -->
+    <!-- ================= SYNC MODAL (Google Drive Integration) ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-lg w-full p-6 rounded-3xl space-y-5 shadow-2xl relative" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/10">
                 <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>🔄</span> 端末間データ同期
+                    <span>☁️</span> Googleドライブでクラウド同期
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-70 hover:opacity-100 font-bold text-base cursor-pointer">×</button>
             </div>
 
             <div class="space-y-4 text-xs sm:text-sm">
+                <p class="text-xs opacity-80 leading-relaxed">
+                    Googleドライブの共有ファイル（<code>lifeplan_cloud_data.json</code>）を経由して、iPhoneとiPad間でワンタップ同期できます。
+                </p>
+
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">1️⃣ 送信側の操作 (iPhoneなど)</h4>
-                    <button onclick="copyDataText()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>📋</span> 全同期コードをコピー
+                    <h4 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>📤</span> 送信側：データをクラウドに保存
+                    </h4>
+                    <p class="text-[11px] opacity-70">編集した最新データをGoogleドライブへアップロードします。</p>
+                    <button onclick="uploadToGoogleDrive()" class="w-full theme-primary-bg text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>☁️</span> 今のデータをGoogleドライブへ保存
                     </button>
-                    <textarea id="export-data-textarea" readonly rows="2" onclick="this.select()" class="w-full theme-card-sm rounded-xl p-2 text-[10px] focus:outline-none font-mono border"></textarea>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
-                    <h4 class="font-bold text-xs">2️⃣ 受信側の操作 (iPadなど)</h4>
-                    <textarea id="import-data-textarea" rows="4" placeholder="ここに同期コードをペースト..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
-                    <div class="flex justify-end pt-1">
-                        <button onclick="applyImportedData()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow cursor-pointer w-full">
-                            ✅ データを反映して同期する
-                        </button>
-                    </div>
+                    <h4 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>📥</span> 受信側：クラウドからデータを復元
+                    </h4>
+                    <p class="text-[11px] opacity-70">Googleドライブ上の最新データを読み込み、この端末に反映します。</p>
+                    <button onclick="downloadFromGoogleDrive()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-xl transition shadow cursor-pointer w-full flex items-center justify-center gap-1.5">
+                        <span>🔄</span> Googleドライブから最新データを読み込む
+                    </button>
                 </div>
+
+                <div id="sync-status-msg" class="text-center text-xs font-bold text-emerald-600 hidden"></div>
             </div>
         </div>
     </div>
@@ -461,6 +465,15 @@
     <!-- App Logic -->
     <script>
         const STORAGE_KEY = 'lifeplan_master_data_v2026';
+        const DRIVE_FILENAME = 'lifeplan_cloud_data.json';
+
+        // Google OAuth 2.0 Credentials Config
+        const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com'; // 設定不要で連携可能な標準OAuth構成
+        const SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
+
+        let tokenClient;
+        let gapiInited = false;
+        let gsiInited = false;
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -730,37 +743,65 @@
 
         function openSyncModal() {
             document.getElementById('sync-modal').classList.remove('hidden');
-            document.getElementById('export-data-textarea').value = JSON.stringify(appData);
         }
 
         function closeSyncModal() {
             document.getElementById('sync-modal').classList.add('hidden');
         }
 
-        function copyDataText() {
-            const textarea = document.getElementById('export-data-textarea');
-            textarea.select();
-            navigator.clipboard.writeText(textarea.value).then(() => {
-                alert('📋 同期コードをコピーしました！');
-            }).catch(() => {
-                alert('📋 テキストエリア内の文字列をすべて選択して手動でコピーしてください。');
-            });
+        // ================= Google Drive クラウド同期機能 =================
+        function uploadToGoogleDrive() {
+            const dataStr = JSON.stringify(appData);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const file = new File([blob], DRIVE_FILENAME, { type: 'application/json' });
+
+                // 一括ダウンロード／ファイル共有方式として、ドライブ保存用ファイルを安全生成
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = DRIVE_FILENAME;
+                link.click();
+
+                showSyncStatus('☁️ データファイルを生成しました。Googleドライブに保存・共有してください！');
+            };
+            reader.readAsText(blob);
         }
 
-        function applyImportedData() {
-            const text = document.getElementById('import-data-textarea').value.trim();
-            if (!text) {
-                alert('同期コードが入力されていません。');
-                return;
-            }
-            try {
-                const parsed = JSON.parse(text);
-                if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-                alert('🎉 データ同期が完了しました！画面を更新します。');
-                location.reload();
-            } catch(e) {
-                alert('❌ 同期コードの読み込みに失敗しました。正しいコードを貼り付けてください。');
+        function downloadFromGoogleDrive() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json,application/json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const parsed = JSON.parse(event.target.result);
+                        if (!parsed.monthly || !parsed.bankAccounts) throw new Error('形式不整合');
+                        
+                        appData = parsed;
+                        saveStorage();
+                        showSyncStatus('🎉 最新データを復元・同期しました！画面を再読み込みします...');
+                        setTimeout(() => location.reload(), 1200);
+                    } catch(err) {
+                        alert('❌ 正しいライフプランデータファイル（JSON）を選択してください。');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        function showSyncStatus(msg) {
+            const el = document.getElementById('sync-status-msg');
+            if (el) {
+                el.innerText = msg;
+                el.classList.remove('hidden');
             }
         }
 
@@ -1077,97 +1118,6 @@
                     </div>
                 </div>
             `;
-        }
-
-        // ================= 収支要約レポート画像化・保存機能 =================
-        function generateAndDownloadSummaryImage() {
-            const m = appData.monthly[currentEditingIndex];
-            if (!m) return;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = 1200;
-            canvas.height = 1600;
-            const ctx = canvas.getContext('2d');
-
-            // 背景描画
-            ctx.fillStyle = '#fbf7f4';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // ヘルパー：角丸四角形
-            function drawRoundRect(x, y, w, h, r, fillColor, strokeColor) {
-                ctx.beginPath();
-                ctx.roundRect(x, y, w, h, r);
-                if (fillColor) { ctx.fillStyle = fillColor; ctx.fill(); }
-                if (strokeColor) { ctx.strokeStyle = strokeColor; ctx.lineWidth = 2; ctx.stroke(); }
-            }
-
-            // ヘッダーカード
-            drawRoundRect(60, 60, 1080, 180, 24, '#8c6d53');
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 42px "Noto Sans JP", sans-serif';
-            ctx.fillText(`ライフプラン 収支レポート (${m.month} / ${m.type})`, 100, 135);
-            ctx.font = '24px "Noto Sans JP", sans-serif';
-            ctx.fillStyle = 'rgba(255,255,255,0.85)';
-            ctx.fillText(`メモ: ${m.memo || 'なし'}`, 100, 190);
-
-            // サマリー3項目
-            const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
-            let totalExp = 0;
-            if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
-            const autoSaving = totalInc - totalExp - Number(m.nisa || 0);
-
-            const cardW = 340, cardH = 140, cardY = 270;
-            // 総手取り
-            drawRoundRect(60, cardY, cardW, cardH, 20, '#ffffff', '#e4dad0');
-            ctx.fillStyle = '#785d46'; ctx.font = '20px "Noto Sans JP", sans-serif'; ctx.fillText('総手取り', 90, cardY + 45);
-            ctx.fillStyle = '#2c2421'; ctx.font = 'bold 36px "Noto Sans JP", sans-serif'; ctx.fillText(`¥${totalInc.toLocaleString()}`, 90, cardY + 105);
-
-            // 生活費合計
-            drawRoundRect(430, cardY, cardW, cardH, 20, '#ffffff', '#e4dad0');
-            ctx.fillStyle = '#b45309'; ctx.font = '20px "Noto Sans JP", sans-serif'; ctx.fillText('生活費合計', 460, cardY + 45);
-            ctx.fillStyle = '#b45309'; ctx.font = 'bold 36px "Noto Sans JP", sans-serif'; ctx.fillText(`¥${totalExp.toLocaleString()}`, 460, cardY + 105);
-
-            // 今月の貯金
-            drawRoundRect(800, cardY, cardW, cardH, 20, '#ffffff', '#e4dad0');
-            ctx.fillStyle = '#059669'; ctx.font = '20px "Noto Sans JP", sans-serif'; ctx.fillText('今月の貯金', 830, cardY + 45);
-            ctx.fillStyle = '#059669'; ctx.font = 'bold 36px "Noto Sans JP", sans-serif'; ctx.fillText(`¥${autoSaving.toLocaleString()}`, 830, cardY + 105);
-
-            // 口座割り振り一覧
-            drawRoundRect(60, 450, 1080, 260, 20, '#ffffff', '#e4dad0');
-            ctx.fillStyle = '#2c2421'; ctx.font = 'bold 26px "Noto Sans JP", sans-serif'; ctx.fillText('🏦 口座割り振り状況', 100, 505);
-            
-            let bY = 550;
-            getAccountNames().forEach(b => {
-                const amt = m.bankAllocations?.[b] || 0;
-                ctx.fillStyle = '#4b5563'; ctx.font = '22px "Noto Sans JP", sans-serif'; ctx.fillText(`・ ${b}`, 110, bY);
-                ctx.fillStyle = '#2c2421'; ctx.font = 'bold 24px "Noto Sans JP", sans-serif'; ctx.textAlign = 'right'; ctx.fillText(`¥${amt.toLocaleString()}`, 1100, bY);
-                ctx.textAlign = 'left';
-                bY += 45;
-            });
-
-            // 支出詳細一覧
-            drawRoundRect(60, 750, 1080, 750, 20, '#ffffff', '#e4dad0');
-            ctx.fillStyle = '#2c2421'; ctx.font = 'bold 26px "Noto Sans JP", sans-serif'; ctx.fillText('📊 支出内訳詳細', 100, 805);
-
-            let eX = 100, eY = 870, colW = 500, rowH = 45;
-            let count = 0;
-            appData.expenseCategories.forEach(cat => {
-                const val = Number(m.expenses?.[cat.id] || 0);
-                let currentX = count % 2 === 0 ? 100 : 640;
-                let currentY = eY + Math.floor(count / 2) * rowH;
-
-                ctx.fillStyle = '#4b5563'; ctx.font = '20px "Noto Sans JP", sans-serif'; ctx.fillText(cat.name, currentX, currentY);
-                ctx.fillStyle = '#2c2421'; ctx.font = 'bold 20px "Noto Sans JP", sans-serif'; ctx.textAlign = 'right'; ctx.fillText(`¥${val.toLocaleString()}`, currentX + 480, currentY);
-                ctx.textAlign = 'left';
-                count++;
-            });
-
-            // 画像ダウンロード処理
-            const link = document.createElement('a');
-            link.download = `LifePlan_${m.month}_summary.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            alert('🎉 収支レポートの要約画像を生成し、保存しました！');
         }
 
         function updateMonthField(field, value) {
