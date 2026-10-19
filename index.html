@@ -171,7 +171,7 @@
             <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 貯金推移 (今後10年・長期予測)
+                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 貯金推移
                     </h3>
                     <div class="flex items-center gap-3 text-[11px] font-medium">
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
@@ -1818,7 +1818,7 @@
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
                                 <span class="text-[10px] theme-badge-tone font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaDuration}</span>
                             </div>
-                            <p class="text-lg sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                            <p class="text-[12px] sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-2xl">
@@ -1872,7 +1872,6 @@
                 if (appData.monthly) appData.monthly.forEach(m => allYms.add(m.month));
                 if (appData.events) appData.events.forEach(ev => { if (ev.date) allYms.add(ev.date); });
 
-                // 今後10年分（120ヶ月分）の未来データを自動生成・拡張
                 let curY = 2026;
                 let curM = 11;
                 for (let i = 0; i < 120; i++) {
@@ -1891,7 +1890,6 @@
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
                     
-                    // 四半期（1月, 4月, 7月, 10月）および開始月にラベルを表示
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
                     if (isTargetLabel) {
                         label = `${y}年${m}月`;
@@ -1942,7 +1940,8 @@
                 };
 
                 const pointBgColors = labels.map((_, i) => i === todayIndex ? theme.primary : theme.primary);
-                const pointRadii = labels.map((_, i) => i === todayIndex ? 6 : 3);
+                const pointBorderColors = labels.map(() => 'rgba(255, 255, 255, 0.95)'); // カード背景（白ベース）に馴染むソフトな外周
+                const pointRadii = labels.map((_, i) => i === todayIndex ? 4.5 : 2.5); // 隣の点と干渉しない最適なサイズに調整
 
                 cashChart = new Chart(ctx1, {
                     data: {
@@ -1950,17 +1949,18 @@
                         datasets: [
                             { 
                                 type: 'line',
-                                label: '現金残高 (円)', 
+                                label: '貯金推移', 
                                 data: balanceData, 
                                 borderColor: theme.primary, 
                                 backgroundColor: areaGradient,
-                                borderWidth: 2.5, 
+                                borderWidth: 2.2, 
                                 fill: true, 
                                 tension: 0.2,
                                 pointBackgroundColor: pointBgColors,
-                                pointBorderColor: '#ffffff',
+                                pointBorderColor: pointBorderColors,
+                                pointBorderWidth: 1.5,
                                 pointRadius: pointRadii,
-                                pointHoverRadius: 8,
+                                pointHoverRadius: 6,
                                 yAxisID: 'y'
                             },
                             {
@@ -2016,7 +2016,7 @@
                                     },
                                     label: function(context) {
                                         if (context.dataset.type === 'line') {
-                                            let lbl = ` 現金残高: ¥${context.raw.toLocaleString()}`;
+                                            let lbl = ` 貯金推移: ¥${context.raw.toLocaleString()}`;
                                             if (context.dataIndex === todayIndex) lbl += ' 📍【本日現在】';
                                             return lbl;
                                         } else {
