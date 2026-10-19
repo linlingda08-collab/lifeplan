@@ -392,7 +392,17 @@
                 </h3>
                 <button onclick="closeHistoryModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
-            <div id="history-modal-content" class="overflow-y-auto custom-scrollbar flex-grow space-y-2 pr-1 text-xs"></div>
+            
+            <!-- 年別フィルター選択ドロップダウン -->
+            <div class="flex items-center justify-between gap-2 shrink-0 no-print">
+                <label class="text-xs font-semibold opacity-70">絞り込み表示:</label>
+                <select id="history-modal-year-filter" onchange="filterHistoryModalByYear()" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer">
+                    <option value="ALL">📅 すべての年</option>
+                </select>
+            </div>
+
+            <div id="history-modal-content" class="overflow-y-auto custom-scrollbar flex-grow space-y-3 pr-1 text-xs"></div>
+            
             <div class="pt-3 border-t border-current/10 flex justify-end shrink-0">
                 <button onclick="closeHistoryModal()" class="theme-card-sm px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer">閉じる</button>
             </div>
@@ -446,6 +456,8 @@
     <script>
         const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
 
+        let currentModalRawHistory = [];
+
         function parseNum(val) {
             if (val === null || val === undefined) return 0;
             const str = String(val).replace(/,/g, '').trim();
@@ -468,25 +480,107 @@
             input.value = formatNum(input.value);
         }
 
+        function toggleYearAccordion(year) {
+            const el = document.getElementById(`modal-year-group-${year}`);
+            const icon = document.getElementById(`modal-year-icon-${year}`);
+            if (el) {
+                el.classList.toggle('hidden');
+                if (icon) {
+                    icon.innerText = el.classList.contains('hidden') ? '▶' : '▼';
+                }
+            }
+        }
+
         function openHistoryModal(title, historyList) {
+            currentModalRawHistory = historyList || [];
             const titleEl = document.getElementById('history-modal-title');
-            const contentEl = document.getElementById('history-modal-content');
+            const filterEl = document.getElementById('history-modal-year-filter');
             const modalEl = document.getElementById('history-popup-modal');
 
             if (titleEl) titleEl.innerHTML = `<span>📜</span> ${title} の全貯金履歴`;
-            if (contentEl) {
-                if (!historyList || historyList.length === 0) {
-                    contentEl.innerHTML = `<div class="p-6 text-center opacity-60">実績データがありません</div>`;
-                } else {
-                    contentEl.innerHTML = historyList.map(d => `
-                        <div class="flex items-center justify-between theme-card-sm p-3 rounded-xl border">
-                            <span class="font-semibold">${d.month.replace('-', '年')}月</span>
-                            <span class="font-bold theme-primary-text text-sm">¥${d.amount.toLocaleString()}</span>
-                        </div>
-                    `).join('');
-                }
+
+            // 年のリストを取得してフィルタードロップダウンを生成
+            if (filterEl) {
+                const years = Array.from(new Set(currentModalRawHistory.map(d => d.month.split('-')[0]))).sort((a, b) => b.localeCompare(a));
+                let opts = '<option value="ALL">📅 すべての年</option>';
+                years.forEach(y => {
+                    opts += `<option value="${y}">${y}年</option>`;
+                });
+                filterEl.innerHTML = opts;
+                filterEl.value = 'ALL';
             }
+
+            renderHistoryModalContent('ALL');
             if (modalEl) modalEl.classList.remove('hidden');
+        }
+
+        function filterHistoryModalByYear() {
+            const filterEl = document.getElementById('history-modal-year-filter');
+            const selectedYear = filterEl ? filterEl.value : 'ALL';
+            renderHistoryModalContent(selectedYear);
+        }
+
+        function renderHistoryModalContent(selectedYearFilter) {
+            const contentEl = document.getElementById('history-modal-content');
+            if (!contentEl) return;
+
+            if (!currentModalRawHistory || currentModalRawHistory.length === 0) {
+                contentEl.innerHTML = `<div class="p-6 text-center opacity-60">実績データがありません</div>`;
+                return;
+            }
+
+            // フィルター適用
+            let filtered = currentModalRawHistory;
+            if (selectedYearFilter !== 'ALL') {
+                filtered = currentModalRawHistory.filter(d => d.month.startsWith(selectedYearFilter));
+            }
+
+            if (filtered.length === 0) {
+                contentEl.innerHTML = `<div class="p-6 text-center opacity-60">${selectedYearFilter}年の実績データはありません</div>`;
+                return;
+            }
+
+            // 年ごとにグループ化
+            const grouped = {};
+            filtered.forEach(d => {
+                const year = d.month.split('-')[0];
+                if (!grouped[year]) grouped[year] = [];
+                grouped[year].push(d);
+            });
+
+            const sortedYears = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+
+            let html = '';
+            sortedYears.forEach((year, index) => {
+                const list = grouped[year];
+                const yearTotal = list.reduce((sum, item) => sum + parseNum(item.amount), 0);
+                const isFirst = index === 0; // 最新の年だけ初期状態で開く
+
+                const itemsHtml = list.map(d => `
+                    <div class="flex items-center justify-between theme-card-sm p-2.5 rounded-xl border text-xs">
+                        <span class="font-semibold">${d.month.replace('-', '年')}月</span>
+                        <span class="font-bold theme-primary-text">¥${d.amount.toLocaleString()}</span>
+                    </div>
+                `).join('');
+
+                html += `
+                    <div class="theme-card-sm rounded-2xl border overflow-hidden">
+                        <button onclick="toggleYearAccordion('${year}')" class="w-full px-3.5 py-2.5 flex items-center justify-between font-bold text-xs bg-current/5 hover:bg-current/10 transition cursor-pointer">
+                            <span class="flex items-center gap-1.5">
+                                <span id="modal-year-icon-${year}">${isFirst ? '▼' : '▶'}</span>
+                                <span>${year}年</span>
+                                <span class="text-[10px] opacity-70 font-normal">(${list.length}ヶ月分)</span>
+                            </span>
+                            <span class="theme-primary-text">計 ¥${yearTotal.toLocaleString()}</span>
+                        </button>
+                        <div id="modal-year-group-${year}" class="${isFirst ? '' : 'hidden'} p-2 space-y-1.5 border-t border-current/10">
+                            ${itemsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            contentEl.innerHTML = html;
         }
 
         function closeHistoryModal() {
