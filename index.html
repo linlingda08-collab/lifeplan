@@ -383,6 +383,22 @@
 
     </main>
 
+    <!-- ================= HISTORY POPUP MODAL ================= -->
+    <div id="history-popup-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeHistoryModal()">
+        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-current/10 shrink-0">
+                <h3 class="font-bold text-base flex items-center gap-2" id="history-modal-title">
+                    <span>📜</span> 全貯金履歴
+                </h3>
+                <button onclick="closeHistoryModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
+            </div>
+            <div id="history-modal-content" class="overflow-y-auto custom-scrollbar flex-grow space-y-2 pr-1 text-xs"></div>
+            <div class="pt-3 border-t border-current/10 flex justify-end shrink-0">
+                <button onclick="closeHistoryModal()" class="theme-card-sm px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer">閉じる</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= SYNC MODAL ================= -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative" onclick="event.stopPropagation()">
@@ -452,11 +468,30 @@
             input.value = formatNum(input.value);
         }
 
-        function toggleAccordion(id) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.classList.toggle('hidden');
+        function openHistoryModal(title, historyList) {
+            const titleEl = document.getElementById('history-modal-title');
+            const contentEl = document.getElementById('history-modal-content');
+            const modalEl = document.getElementById('history-popup-modal');
+
+            if (titleEl) titleEl.innerHTML = `<span>📜</span> ${title} の全貯金履歴`;
+            if (contentEl) {
+                if (!historyList || historyList.length === 0) {
+                    contentEl.innerHTML = `<div class="p-6 text-center opacity-60">実績データがありません</div>`;
+                } else {
+                    contentEl.innerHTML = historyList.map(d => `
+                        <div class="flex items-center justify-between theme-card-sm p-3 rounded-xl border">
+                            <span class="font-semibold">${d.month.replace('-', '年')}月</span>
+                            <span class="font-bold theme-primary-text text-sm">¥${d.amount.toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                }
             }
+            if (modalEl) modalEl.classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            const modalEl = document.getElementById('history-popup-modal');
+            if (modalEl) modalEl.classList.add('hidden');
         }
 
         const defaultAccounts = [
@@ -804,7 +839,6 @@
             return total;
         }
 
-        // 過去すべての実績月リストを取得（新しい順）
         function getAllRSavingHistoryDetails() {
             if (!appData.monthly || appData.monthly.length === 0) return [];
             return [...appData.monthly]
@@ -1761,24 +1795,15 @@
                     const allHistory = getAllAccountSavingsHistoryDetails(accName);
                     
                     let recent2Html = '';
-                    let allListHtml = '';
 
                     if (allHistory.length === 0) {
                         recent2Html = `<span class="opacity-50">記録なし</span>`;
-                        allListHtml = `<div class="p-2 opacity-50">実績データがありません</div>`;
                     } else {
                         const recent2 = allHistory.slice(0, 2);
                         recent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
-                        
-                        allListHtml = allHistory.map(d => `
-                            <div class="flex justify-between py-1 border-b border-current/10">
-                                <span>${d.month.replace('-', '年')}月</span>
-                                <span class="font-bold">¥${d.amount.toLocaleString()}</span>
-                            </div>
-                        `).join('');
                     }
 
-                    const accAccId = `acc-history-${i}`;
+                    const jsonHistory = JSON.stringify(allHistory).replace(/"/g, '&quot;');
 
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
@@ -1787,14 +1812,11 @@
                                 <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1 theme-primary-text">¥${currentBal.toLocaleString()}</p>
                             </div>
                             <div class="pt-2 border-t border-current/10 text-[10px] space-y-1">
-                                <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="toggleAccordion('${accAccId}')">
+                                <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
                                     <span>直近の貯金額内訳:</span>
-                                    <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る ▾</span>
+                                    <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る 🔍</span>
                                 </div>
-                                <div class="font-bold theme-tone-deep truncate cursor-pointer" onclick="toggleAccordion('${accAccId}')">${recent2Html}</div>
-                                <div id="${accAccId}" class="hidden pt-2 border-t border-current/10 space-y-0.5 max-h-36 overflow-y-auto custom-scrollbar font-normal text-[10px]">
-                                    ${allListHtml}
-                                </div>
+                                <div class="font-bold theme-tone-deep truncate cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">${recent2Html}</div>
                             </div>
                         </div>
                     `;
@@ -1804,23 +1826,15 @@
                 const allRHistory = getAllRSavingHistoryDetails();
                 
                 let rRecent2Html = '';
-                let rAllListHtml = '';
 
                 if (allRHistory.length === 0) {
                     rRecent2Html = `<span class="opacity-50">記録なし</span>`;
-                    rAllListHtml = `<div class="p-2 opacity-50">実績データがありません</div>`;
                 } else {
                     const rRecent2 = allRHistory.slice(0, 2);
                     rRecent2Html = rRecent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
-                    rAllListHtml = allRHistory.map(d => `
-                        <div class="flex justify-between py-1 border-b border-current/10">
-                            <span>${d.month.replace('-', '年')}月</span>
-                            <span class="font-bold">¥${d.amount.toLocaleString()}</span>
-                        </div>
-                    `).join('');
                 }
 
-                const rAccId = `acc-history-rsaving`;
+                const jsonRHistory = JSON.stringify(allRHistory).replace(/"/g, '&quot;');
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
@@ -1829,14 +1843,11 @@
                             <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${rSavingTotal.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/10 text-[10px] space-y-1">
-                            <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="toggleAccordion('${rAccId}')">
+                            <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
                                 <span>直近の貯金額内訳:</span>
-                                <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る ▾</span>
+                                <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る 🔍</span>
                             </div>
-                            <div class="font-bold theme-primary-text truncate cursor-pointer" onclick="toggleAccordion('${rAccId}')">${rRecent2Html}</div>
-                            <div id="${rAccId}" class="hidden pt-2 border-t border-current/10 space-y-0.5 max-h-36 overflow-y-auto custom-scrollbar font-normal text-[10px]">
-                                ${rAllListHtml}
-                            </div>
+                            <div class="font-bold theme-primary-text truncate cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">${rRecent2Html}</div>
                         </div>
                     </div>
                 `;
