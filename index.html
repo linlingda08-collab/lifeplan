@@ -1871,7 +1871,6 @@
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
                     
-                    // 四半期（1月, 4月, 7月, 10月）および開始月にラベルを表示し、マスの間にきれいに配置
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
                     if (isTargetLabel) {
                         label = `${y}年${m}月`;
@@ -1950,8 +1949,10 @@
                                 backgroundColor: theme.primary + 'b3',
                                 borderColor: theme.primary,
                                 borderWidth: 1,
-                                borderRadius: 4,
-                                barThickness: 8,
+                                borderRadius: 3,
+                                // 連続する月に予定がある場合、棒同士が密接して隙間がなくなるよう幅をいっぱいまで拡張
+                                categoryPercentage: 1.0,
+                                barPercentage: 1.0,
                                 yAxisID: 'y'
                             }
                         ]
@@ -1971,7 +1972,7 @@
                                 }
                             },
                             x: {
-                                offset: true, // 各グリッド線の間（マスの中央）にバーやポイントを配置
+                                offset: true,
                                 ticks: { 
                                     font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 9 },
                                     maxRotation: 45,
