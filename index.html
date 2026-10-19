@@ -314,7 +314,7 @@
 
                 <div class="theme-card-sm p-4 rounded-2xl space-y-2 border">
                     <label class="block font-semibold text-xs opacity-80">📈 将来の標準毎月貯金額 (円) <span class="text-[10px] opacity-70">(※未確定月のグラフ推移計算に使用)</span></label>
-                    <input type="number" id="sim-default-monthly-save" value="50000" onchange="saveSimulationDefaultSave()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border">
+                    <input type="text" id="sim-default-monthly-save" value="50,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationDefaultSave();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border">
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border">
@@ -322,7 +322,7 @@
                     <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/10">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border">
-                        <input type="number" id="new-bank-account-balance" placeholder="初期残高(円)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
+                        <input type="text" id="new-bank-account-balance" placeholder="初期残高(円)" onfocus="unformatInput(this)" onblur="formatInput(this)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border">
                         <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-semibold transition cursor-pointer shrink-0 min-h-[40px]">＋ 口座追加</button>
                     </div>
                 </div>
@@ -429,6 +429,29 @@
     <!-- App Logic -->
     <script>
         const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
+
+        // 補助関数：カンマフォーマット関連
+        function parseNum(val) {
+            if (val === null || val === undefined) return 0;
+            const str = String(val).replace(/,/g, '').trim();
+            const n = Number(str);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function formatNum(val) {
+            return parseNum(val).toLocaleString();
+        }
+
+        function unformatInput(input) {
+            if (!input) return;
+            const raw = parseNum(input.value);
+            input.value = raw === 0 && input.value.trim() === '' ? '' : raw;
+        }
+
+        function formatInput(input) {
+            if (!input) return;
+            input.value = formatNum(input.value);
+        }
 
         const defaultAccounts = [
             { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
@@ -749,7 +772,7 @@
         function getAccountInitialBalance(accName) {
             const found = appData.bankAccounts.find(acc => (typeof acc === 'object' && acc.name === accName) || acc === accName);
             if (found && typeof found === 'object' && found.initialBalance !== undefined) {
-                return Number(found.initialBalance) || 0;
+                return parseNum(found.initialBalance);
             }
             return 0;
         }
@@ -759,7 +782,7 @@
             let allocatedSum = 0;
             appData.monthly.forEach(m => {
                 if (m.type === '実績' && m.bankAllocations && m.bankAllocations[accName] !== undefined) {
-                    allocatedSum += Number(m.bankAllocations[accName] || 0);
+                    allocatedSum += parseNum(m.bankAllocations[accName]);
                 }
             });
             return initial + allocatedSum;
@@ -769,7 +792,7 @@
             let total = 0;
             appData.monthly.forEach(m => {
                 if (m.type === '実績') {
-                    total += Number(m.rSaving || 0);
+                    total += parseNum(m.rSaving);
                 }
             });
             return total;
@@ -785,7 +808,7 @@
             const count = Math.min(2, sorted.length);
             for (let i = 0; i < count; i++) {
                 const m = sorted[i];
-                results.push({ month: m.month, amount: Number(m.rSaving || 0) });
+                results.push({ month: m.month, amount: parseNum(m.rSaving) });
             }
             return results.reverse();
         }
@@ -800,7 +823,7 @@
             const count = Math.min(2, sorted.length);
             for (let i = 0; i < count; i++) {
                 const m = sorted[i];
-                const amt = (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? Number(m.bankAllocations[accName] || 0) : 0;
+                const amt = (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? parseNum(m.bankAllocations[accName]) : 0;
                 results.push({ month: m.month, amount: amt });
             }
             return results.reverse();
@@ -811,7 +834,7 @@
             const sortedMonthly = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
             let startYM = null;
             for (let m of sortedMonthly) {
-                if (Number(m.nisa || 0) > 0) {
+                if (parseNum(m.nisa) > 0) {
                     startYM = m.month;
                     break;
                 }
@@ -1035,33 +1058,17 @@
         }
 
         function syncSettingsToUI() {
-            const ageEl = document.getElementById('setting-age');
-            const nisaEl = document.getElementById('setting-monthly-nisa');
-            const yearsEl = document.getElementById('setting-years');
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
 
-            if (ageEl) ageEl.value = appData.settings.age;
-            if (nisaEl) nisaEl.value = appData.settings.monthlyNisa;
-            if (yearsEl) yearsEl.value = appData.settings.years;
-            if (defaultSaveEl) defaultSaveEl.value = appData.settings.defaultMonthlySave || 50000;
+            if (defaultSaveEl) defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave || 50000);
             renderPresetThemesSelector();
-        }
-
-        function saveSettings() {
-            const ageEl = document.getElementById('setting-age');
-            const nisaEl = document.getElementById('setting-monthly-nisa');
-            const yearsEl = document.getElementById('setting-years');
-
-            if (ageEl) appData.settings.age = Number(ageEl.value);
-            if (nisaEl) appData.settings.monthlyNisa = Number(nisaEl.value);
-            if (yearsEl) appData.settings.years = Number(yearsEl.value);
-            saveStorage();
         }
 
         function saveSimulationDefaultSave() {
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
             if (defaultSaveEl) {
-                appData.settings.defaultMonthlySave = Number(defaultSaveEl.value) || 50000;
+                appData.settings.defaultMonthlySave = parseNum(defaultSaveEl.value) || 50000;
+                defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave);
                 saveStorage();
             }
         }
@@ -1082,7 +1089,7 @@
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
                         <span class="opacity-70 text-[11px]">初期残高:</span>
-                        <input type="number" value="${balance}" onchange="updateBankAccountBalance(${i}, Number(this.value))" class="w-28 theme-card-sm rounded-lg px-2 py-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        <input type="text" value="${formatNum(balance)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateBankAccountBalance(${i}, this.value);" class="w-28 theme-card-sm rounded-lg px-2 py-1.5 text-right text-xs font-semibold focus:outline-none border">
                         <span class="opacity-70 text-[11px]">円</span>
                         <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2">削除</button>
                     </div>
@@ -1095,7 +1102,7 @@
             const nameInput = document.getElementById('new-bank-account-name');
             const balanceInput = document.getElementById('new-bank-account-balance');
             const name = nameInput.value.trim();
-            const initialBalance = Number(balanceInput.value) || 0;
+            const initialBalance = parseNum(balanceInput.value) || 0;
             if (!name) return;
             appData.bankAccounts.push({ name, initialBalance });
             nameInput.value = '';
@@ -1115,11 +1122,12 @@
             renderBankAccountsManager();
         }
 
-        function updateBankAccountBalance(index, newBalance) {
+        function updateBankAccountBalance(index, newBalanceVal) {
+            const num = parseNum(newBalanceVal);
             if (typeof appData.bankAccounts[index] === 'string') {
-                appData.bankAccounts[index] = { name: appData.bankAccounts[index], initialBalance: newBalance };
+                appData.bankAccounts[index] = { name: appData.bankAccounts[index], initialBalance: num };
             } else {
-                appData.bankAccounts[index].initialBalance = newBalance;
+                appData.bankAccounts[index].initialBalance = num;
             }
             saveStorage();
             renderBankAccountsManager();
@@ -1211,22 +1219,22 @@
 
             let newExpenses = {};
             appData.expenseCategories.forEach(cat => {
-                newExpenses[cat.id] = lastMonthData && lastMonthData.expenses ? (lastMonthData.expenses[cat.id] || 0) : 0;
+                newExpenses[cat.id] = lastMonthData && lastMonthData.expenses ? parseNum(lastMonthData.expenses[cat.id]) : 0;
             });
 
             let newBankAllocs = {};
             getAccountNames().forEach(b => {
-                newBankAllocs[b] = lastMonthData && lastMonthData.bankAllocations ? (lastMonthData.bankAllocations[b] || 0) : 0;
+                newBankAllocs[b] = lastMonthData && lastMonthData.bankAllocations ? parseNum(lastMonthData.bankAllocations[b]) : 0;
             });
 
             appData.monthly.push({ 
                 month: newMonth, 
                 type: '想定', 
-                rIncome: lastMonthData ? (lastMonthData.rIncome || 0) : 210000, 
-                hIncome: lastMonthData ? (lastMonthData.hIncome || 0) : 170000, 
+                rIncome: lastMonthData ? parseNum(lastMonthData.rIncome) : 210000, 
+                hIncome: lastMonthData ? parseNum(lastMonthData.hIncome) : 170000, 
                 expenses: newExpenses, 
-                nisa: lastMonthData && lastMonthData.nisa !== undefined ? lastMonthData.nisa : 20000, 
-                rSaving: lastMonthData && lastMonthData.rSaving !== undefined ? lastMonthData.rSaving : 0, 
+                nisa: lastMonthData && lastMonthData.nisa !== undefined ? parseNum(lastMonthData.nisa) : 20000, 
+                rSaving: lastMonthData && lastMonthData.rSaving !== undefined ? parseNum(lastMonthData.rSaving) : 0, 
                 bonus: 0, 
                 extraInc: 0, 
                 memo: '', 
@@ -1255,17 +1263,17 @@
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
 
-            const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+            const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
             let totalExp = 0;
             if (!m.expenses) m.expenses = {};
-            appData.expenseCategories.forEach(cat => totalExp += Number(m.expenses[cat.id] || 0));
+            appData.expenseCategories.forEach(cat => totalExp += parseNum(m.expenses[cat.id]));
             
-            const nisaAmt = Number(m.nisa || 0);
+            const nisaAmt = parseNum(m.nisa);
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             if (!m.bankAllocations) m.bankAllocations = {};
             let allocatedSum = 0;
-            getAccountNames().forEach(b => allocatedSum += Number(m.bankAllocations[b] || 0));
+            getAccountNames().forEach(b => allocatedSum += parseNum(m.bankAllocations[b]));
 
             const diff = allocatedSum - autoSaving;
             let diffMessage = '';
@@ -1284,7 +1292,7 @@
                 banksHtml += `
                     <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
                         <span class="font-semibold text-xs">🏦 ${b}</span>
-                        <input type="number" id="input-bank-${b}" value="${m.bankAllocations[b] || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
                     </div>
                 `;
             });
@@ -1297,7 +1305,7 @@
                             <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print">×</button>
                             <span class="text-xs font-semibold truncate">${cat.name}</span>
                         </div>
-                        <input type="number" id="input-exp-${cat.id}" value="${m.expenses[cat.id] || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
+                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
                     </div>
                 `;
             });
@@ -1337,7 +1345,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
-                        <input type="number" id="input-field-nisa" value="${m.nisa || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-tone-deep mt-0.5 focus:outline-none">
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-tone-deep mt-0.5 focus:outline-none">
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通)</p>
@@ -1353,7 +1361,7 @@
                             <p class="text-[10px] opacity-70">共通手取りからの引き算には影響しません</p>
                         </div>
                     </div>
-                    <input type="number" id="input-field-rSaving" value="${m.rSaving || 0}" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-lg p-2 text-right text-xs font-bold theme-primary-text focus:outline-none">
+                    <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-lg p-2 text-right text-xs font-bold theme-primary-text focus:outline-none">
                 </div>
 
                 <div id="allocation-check-box" class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5' : 'border-rose-500 bg-rose-500/10'}">
@@ -1372,19 +1380,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
                             <span class="text-xs font-semibold">ゲストA収入 (円)</span>
-                            <input type="number" id="input-field-rIncome" value="${m.rIncome}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
                         </div>
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
                             <span class="text-xs font-semibold">ゲストB収入 (円)</span>
-                            <input type="number" id="input-field-hIncome" value="${m.hIncome}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
                         </div>
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
                             <span class="text-xs font-bold">🎁 ボーナス (円)</span>
-                            <input type="number" id="input-field-bonus" value="${m.bonus || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
                         </div>
                         <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
                             <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
-                            <input type="number" id="input-field-extraInc" value="${m.extraInc || 0}" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
                         </div>
                     </div>
 
@@ -1412,27 +1420,26 @@
 
         function markModified() {
             isMonthFormModified = true;
-            updateAllocationRealtimeFeedback();
         }
 
         function updateAllocationRealtimeFeedback() {
-            const rInc = Number(document.getElementById('input-field-rIncome')?.value || 0);
-            const hInc = Number(document.getElementById('input-field-hIncome')?.value || 0);
-            const bonus = Number(document.getElementById('input-field-bonus')?.value || 0);
-            const extraInc = Number(document.getElementById('input-field-extraInc')?.value || 0);
+            const rInc = parseNum(document.getElementById('input-field-rIncome')?.value);
+            const hInc = parseNum(document.getElementById('input-field-hIncome')?.value);
+            const bonus = parseNum(document.getElementById('input-field-bonus')?.value);
+            const extraInc = parseNum(document.getElementById('input-field-extraInc')?.value);
             const totalInc = rInc + hInc + bonus + extraInc;
 
             let totalExp = 0;
             appData.expenseCategories.forEach(cat => {
-                totalExp += Number(document.getElementById(`input-exp-${cat.id}`)?.value || 0);
+                totalExp += parseNum(document.getElementById(`input-exp-${cat.id}`)?.value);
             });
 
-            const nisaAmt = Number(document.getElementById('input-field-nisa')?.value || 0);
+            const nisaAmt = parseNum(document.getElementById('input-field-nisa')?.value);
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             let allocatedSum = 0;
             getAccountNames().forEach(b => {
-                allocatedSum += Number(document.getElementById(`input-bank-${b}`)?.value || 0);
+                allocatedSum += parseNum(document.getElementById(`input-bank-${b}`)?.value);
             });
 
             const diff = allocatedSum - autoSaving;
@@ -1467,28 +1474,28 @@
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
 
-            const rInc = Number(document.getElementById('input-field-rIncome').value) || 0;
-            const hInc = Number(document.getElementById('input-field-hIncome').value) || 0;
-            const bonus = Number(document.getElementById('input-field-bonus').value) || 0;
-            const extraInc = Number(document.getElementById('input-field-extraInc').value) || 0;
+            const rInc = parseNum(document.getElementById('input-field-rIncome').value);
+            const hInc = parseNum(document.getElementById('input-field-hIncome').value);
+            const bonus = parseNum(document.getElementById('input-field-bonus').value);
+            const extraInc = parseNum(document.getElementById('input-field-extraInc').value);
             const totalInc = rInc + hInc + bonus + extraInc;
 
             let totalExp = 0;
             let newExpenses = {};
             appData.expenseCategories.forEach(cat => {
-                const val = Number(document.getElementById(`input-exp-${cat.id}`).value) || 0;
+                const val = parseNum(document.getElementById(`input-exp-${cat.id}`).value);
                 newExpenses[cat.id] = val;
                 totalExp += val;
             });
 
-            const nisaAmt = Number(document.getElementById('input-field-nisa').value) || 0;
-            const rSavingAmt = Number(document.getElementById('input-field-rSaving').value) || 0;
+            const nisaAmt = parseNum(document.getElementById('input-field-nisa').value);
+            const rSavingAmt = parseNum(document.getElementById('input-field-rSaving').value);
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             let newBankAllocs = {};
             let allocatedSum = 0;
             getAccountNames().forEach(b => {
-                const val = Number(document.getElementById(`input-bank-${b}`).value) || 0;
+                const val = parseNum(document.getElementById(`input-bank-${b}`).value);
                 newBankAllocs[b] = val;
                 allocatedSum += val;
             });
@@ -1522,10 +1529,10 @@
             if (!tbody) return;
             tbody.innerHTML = '';
             appData.monthly.forEach((m, idx) => {
-                const totalInc = (m.rIncome || 0) + (m.hIncome || 0) + (m.bonus || 0) + (m.extraInc || 0);
+                const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
                 let totalExp = 0;
-                if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += Number(v || 0);
-                const nisaAmt = Number(m.nisa || 0);
+                if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
+                const nisaAmt = parseNum(m.nisa);
                 const surplus = totalInc - totalExp - nisaAmt;
 
                 const tr = document.createElement('tr');
@@ -1570,7 +1577,7 @@
             let rawItems = [];
             let totalExp = 0;
             appData.expenseCategories.forEach(cat => {
-                const val = Number(m.expenses?.[cat.id] || 0);
+                const val = parseNum(m.expenses?.[cat.id]);
                 rawItems.push({ label: cat.name, val });
                 totalExp += val;
             });
@@ -1663,7 +1670,7 @@
         }
 
         function updateEventField(index, key, value) {
-            appData.events[index][key] = value;
+            appData.events[index][key] = (key === 'cost') ? parseNum(value) : value;
             saveStorage();
             renderEventsTable();
         }
@@ -1694,7 +1701,7 @@
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
                     <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateDateOptions(ev.date)}</select></td>
-                    <td class="p-2.5"><input type="number" value="${ev.cost}" onchange="updateEventField(${index}, 'cost', Number(this.value))" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
+                    <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs"></td>
                     <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer">削除</button></td>
@@ -1715,7 +1722,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-70 mb-0.5">予定費用 (円)</label>
-                            <input type="number" value="${ev.cost}" onchange="updateEventField(${index}, 'cost', Number(this.value))" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold">
+                            <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
@@ -1742,12 +1749,12 @@
                 targetMonthData = appData.monthly[0];
             }
 
-            const inc = targetMonthData ? ((targetMonthData.rIncome || 0) + (targetMonthData.hIncome || 0) + (targetMonthData.bonus || 0) + (targetMonthData.extraInc || 0)) : 0;
+            const inc = targetMonthData ? (parseNum(targetMonthData.rIncome) + parseNum(targetMonthData.hIncome) + parseNum(targetMonthData.bonus) + parseNum(targetMonthData.extraInc)) : 0;
             let exp = 0;
             if (targetMonthData && targetMonthData.expenses) {
-                for (let v of Object.values(targetMonthData.expenses)) exp += Number(v || 0);
+                for (let v of Object.values(targetMonthData.expenses)) exp += parseNum(v);
             }
-            const nisaAmt = targetMonthData ? Number(targetMonthData.nisa || 0) : 0;
+            const nisaAmt = targetMonthData ? parseNum(targetMonthData.nisa) : 0;
             const surplus = targetMonthData ? (inc - exp - nisaAmt) : 0;
 
             const gridContainer = document.getElementById('home-kpi-grid');
@@ -1837,16 +1844,13 @@
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventBarData = [];
                 
-                // 口座の初期残高をベースとして取得
                 let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
+                let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
 
-                let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
-
-                // 月ごとのデータをマップ化（実績の三菱UFJ割り振り額を保持）
                 let monthlyDataMap = {};
                 if (appData.monthly) {
                     appData.monthly.forEach(m => {
-                        const mAlloc = m.bankAllocations ? Number(m.bankAllocations['貯金用(三菱UFJ銀行)'] || 0) : 0;
+                        const mAlloc = m.bankAllocations ? parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']) : 0;
                         monthlyDataMap[m.month] = { 
                             saving: mAlloc, 
                             type: m.type 
@@ -1858,7 +1862,7 @@
                 if (appData.events) {
                     appData.events.forEach(ev => {
                         if (ev.date && ev.cost) {
-                            eventMap[ev.date] = (eventMap[ev.date] || 0) + Number(ev.cost);
+                            eventMap[ev.date] = (eventMap[ev.date] || 0) + parseNum(ev.cost);
                         }
                     });
                 }
@@ -1881,7 +1885,6 @@
 
                 let todayIndex = 0;
 
-                // 1ヶ月目から順番に複利・積み上げ式に計算する
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
@@ -1895,19 +1898,15 @@
 
                     labels.push(label);
 
-                    // 判定：その月に「実績」データが存在するかどうか
                     let stepSaving = 0;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
-                        // 実績データがあれば、その月の実際の割り振り額を採用
                         stepSaving = monthlyDataMap[ymKey].saving;
                     } else {
-                        // 実績がなければ（想定、またはデータなし）、標準毎月貯金額を採用
                         stepSaving = defaultMonthlySave;
                     }
 
                     let stepEvCost = eventMap[ymKey] || 0;
 
-                    // 前月の残高に今月の貯金をプラスし、予定費用をマイナスする
                     runningBalance += stepSaving;
                     runningBalance -= stepEvCost;
 
