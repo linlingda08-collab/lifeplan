@@ -234,7 +234,7 @@
 
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 過去の収支履歴一覧
+                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 過去の収支履歴一覧 (直近12ヶ月分)
                     </h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-xl border border-current/10">
                         <table class="w-full text-xs text-left border-collapse whitespace-nowrap sm:whitespace-normal">
@@ -342,7 +342,7 @@
 
                 <div class="space-y-3">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> プリセットテーマ
+                        <span>✨</span> プリセットテーマ (厳選イラストパレット)
                     </h3>
                     <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
@@ -414,10 +414,8 @@
                     <input type="text" id="edit-goal-target" placeholder="1,200,000" onfocus="unformatInput(this)" onblur="formatInput(this)" class="w-full theme-card-sm border rounded-xl p-2.5 font-bold focus:outline-none text-right">
                 </div>
                 <div>
-                    <label class="block font-semibold opacity-70 mb-1">目標時期</label>
-                    <select id="edit-goal-date" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer">
-                        ${generateDateOptions('2027-10')}
-                    </select>
+                    <label class="block font-semibold opacity-70 mb-1">目標時期 (未来30年分より選択)</label>
+                    <select id="edit-goal-date" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer"></select>
                 </div>
                 <div>
                     <label class="block font-semibold opacity-70 mb-1">比較対象の貯金</label>
@@ -650,7 +648,7 @@
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
                 defaultMonthlySave: 50000,
-                currentTheme: 'earth'
+                currentTheme: 'set_a_7'
             },
             goal: {
                 title: '結婚式・新婚旅行',
@@ -699,18 +697,37 @@
         let videoStream = null;
         let qrScanAnimation = null;
 
+        // イラストパレット（Set A / Set B）に基づく厳選10パターンテーマ
         const presetThemes = {
-            earth: { name: '🌰 アース＆ナチュラル', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)', text: '#2c2421', cardBg: 'rgba(255, 255, 255, 0.9)', border: 'rgba(228, 218, 208, 0.8)', primary: '#8c6d53', primaryHover: '#785d46', tone2: '#6b523c', tone3: '#b0957e' },
-            midnight: { name: '🌙 スモーキー・グレー', bg: 'linear-gradient(135deg, #f0f2f5 0%, #e4e7eb 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(203, 213, 225, 0.8)', primary: '#475569', primaryHover: '#334155', tone2: '#334155', tone3: '#64748b' },
-            ocean: { name: '🌊 ペール・スカイブルー', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e0effe 100%)', text: '#1e3a8a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(186, 230, 253, 0.8)', primary: '#2563eb', primaryHover: '#1d4ed8', tone2: '#1e40af', tone3: '#60a5fa' },
-            sakura: { name: '🌸 サクラ・パステル', bg: 'linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%)', text: '#4a2020', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(254, 215, 215, 0.9)', primary: '#e53e3e', primaryHover: '#c53030', tone2: '#9b2c2c', tone3: '#fc8181' },
-            forest: { name: '🌿 セージ・グリーン', bg: 'linear-gradient(135deg, #f2f7f4 0%, #e1ebe5 100%)', text: '#1c3325', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 220, 208, 0.8)', primary: '#2e7d32', primaryHover: '#1b5e20', tone2: '#1b5e20', tone3: '#66bb6a' },
-            vitamin: { name: '🍊 ペール・オレンジ', bg: 'linear-gradient(135deg, #fffbe3 0%, #fff3c4 100%)', text: '#3d2e00', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(250, 220, 150, 0.8)', primary: '#f57c00', primaryHover: '#e65100', tone2: '#e65100', tone3: '#ffa726' },
-            burgundy: { name: '🍷 淡ロゼ・ウォーム', bg: 'linear-gradient(135deg, #faf0f2 0%, #f4e1e6 100%)', text: '#3d1a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 215, 0.8)', primary: '#b85270', primaryHover: '#9a3e58', tone2: '#88334c', tone3: '#d4839c' },
-            monotone: { name: '🐘 スノー・モノトーン', bg: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)', text: '#212529', cardBg: 'rgba(255, 255, 255, 0.95)', border: 'rgba(222, 226, 230, 0.9)', primary: '#495057', primaryHover: '#343a40', tone2: '#212529', tone3: '#6c757d' },
-            lavender: { name: '🍇 ペール・ラベンダー', bg: 'linear-gradient(135deg, #f6f4f9 0%, #e9e3f0 100%)', text: '#2a2133', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 225, 0.8)', primary: '#7b1fa2', primaryHover: '#6a1b9a', tone2: '#4a148c', tone3: '#ab47bc' },
-            mocha: { name: '☕ ミルク・カフェラテ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #eae2dc 100%)', text: '#362a24', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#6d4c41', primaryHover: '#4e342e', tone2: '#3e2723', tone3: '#a1887f' }
+            set_a_7: { name: '🌿 Set A-7: フォレストオリーブ', bg: 'linear-gradient(135deg, #f3f5f3 0%, #e5ebe6 100%)', text: '#2d3830', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(190, 205, 195, 0.8)', primary: '#214d3c', primaryHover: '#16362a', tone2: '#214d3c', tone3: '#5a7a6a' },
+            set_a_17: { name: '🍑 Set A-17: コーラルサンセット', bg: 'linear-gradient(135deg, #fff6f3 0%, #ffebe5 100%)', text: '#422820', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 200, 0.8)', primary: '#e07a68', primaryHover: '#c56150', tone2: '#e07a68', tone3: '#f2a394' },
+            set_a_21: { name: '🌊 Set A-21: アイス・ネイビー', bg: 'linear-gradient(135deg, #f0f6fa 0%, #e1eef5 100%)', text: '#1b2838', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 210, 225, 0.8)', primary: '#2b4c6f', primaryHover: '#1d3652', tone2: '#2b4c6f', tone3: '#5b82a6' },
+            set_a_28: { name: '🌼 Set A-28: セージ＆マスタード', bg: 'linear-gradient(135deg, #f9f8f3 0%, #f0ede1 100%)', text: '#2c332b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 210, 190, 0.8)', primary: '#d49b35', primaryHover: '#b58124', tone2: '#3a6655', tone3: '#8ca691' },
+            set_b_2: { name: '🍃 Set B-2: スモーキーミント', bg: 'linear-gradient(135deg, #f2f7f6 0%, #e2eeec 100%)', text: '#23302e', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(190, 210, 205, 0.8)', primary: '#5c8d89', primaryHover: '#466e6b', tone2: '#5c8d89', tone3: '#8bb3af' },
+            set_b_8: { name: '🏙️ Set B-8: ターコイズナイト', bg: 'linear-gradient(135deg, #eff5f6 0%, #dce8ea 100%)', text: '#1a2628', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(175, 200, 205, 0.8)', primary: '#15838c', primaryHover: '#0e6269', tone2: '#15838c', tone3: '#56a7af' },
+            set_b_12: { name: '🌙 Set B-12: ミッドナイトオーシャン', bg: 'linear-gradient(135deg, #f0f4f8 0%, #e0e9f2 100%)', text: '#152338', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 200, 220, 0.8)', primary: '#1e385c', primaryHover: '#12233b', tone2: '#1e385c', tone3: '#5277a3' },
+            set_b_17: { name: '☕ Set B-17: ヴィンテージカフェ', bg: 'linear-gradient(135deg, #f8f6f0 0%, #eae5d8 100%)', text: '#332f27', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 185, 0.8)', primary: '#6e5e47', primaryHover: '#524533', tone2: '#6e5e47', tone3: '#9e8c72' },
+            set_b_27: { name: '🍇 Set B-27: ドリーミーラベンダー', bg: 'linear-gradient(135deg, #f7f4f9 0%, #ede6f2 100%)', text: '#2f2438', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 225, 0.8)', primary: '#7a528a', primaryHover: '#5e3c6c', tone2: '#7a528a', tone3: '#aa82ba' },
+            set_b_30: { name: '🌅 Set B-30: テラコッタサンセット', bg: 'linear-gradient(135deg, #fdf6f0 0%, #f7e8db 100%)', text: '#3a261a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 185, 0.8)', primary: '#d96b27', primaryHover: '#b55215', tone2: '#8c3d18', tone3: '#e3945d' }
         };
+
+        // 未来30年分の年月選択肢を自動生成する（現在年月起点）
+        function generateFuture30YearsOptions(selectedVal) {
+            let opts = '';
+            const now = new Date();
+            let y = now.getFullYear();
+            let m = now.getMonth() + 1;
+
+            // 今月から未来30年分 (360ヶ月)
+            for (let i = 0; i < 360; i++) {
+                const mm = String(m).padStart(2, '0');
+                const val = `${y}-${mm}`;
+                opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                m++;
+                if (m > 12) { m = 1; y++; }
+            }
+            return opts;
+        }
 
         function sortEventsChronologically() {
             if (appData.events && appData.events.length > 0) {
@@ -1049,7 +1066,7 @@
             if (!theme && appData.customThemes) {
                 theme = appData.customThemes.find(t => t.key === appData.settings.currentTheme);
             }
-            return theme || presetThemes['earth'];
+            return theme || presetThemes['set_a_7'];
         }
 
         function applyTheme(themeKey) {
@@ -1094,9 +1111,9 @@
                 div.innerHTML = `
                     <div class="flex items-center gap-2.5">
                         <span class="w-5 h-5 rounded-full shadow-xs shrink-0 border" style="background-color: ${t.primary};"></span>
-                        <span class="text-xs">${t.name}</span>
+                        <span class="text-xs truncate">${t.name}</span>
                     </div>
-                    ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">適用中</span>' : ''}
+                    ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold shrink-0">適用中</span>' : ''}
                 `;
                 container.appendChild(div);
             }
@@ -1137,10 +1154,10 @@
             document.getElementById('edit-goal-title').value = goal.title || '';
             document.getElementById('edit-goal-target').value = formatNum(goal.targetAmount || 1200000);
 
-            // 目標時期セレクトボックスの生成・設定
+            // 未来30年分の目標時期セレクトボックスの設定
             const dateSelect = document.getElementById('edit-goal-date');
             if (dateSelect) {
-                dateSelect.innerHTML = generateDateOptions(goal.targetDate || '2027-10');
+                dateSelect.innerHTML = generateFuture30YearsOptions(goal.targetDate || '2027-10');
             }
 
             // 比較口座ドロップダウンの更新
@@ -1183,7 +1200,7 @@
             if (ev.date) {
                 const dateSelect = document.getElementById('edit-goal-date');
                 if (dateSelect) {
-                    dateSelect.innerHTML = generateDateOptions(ev.date);
+                    dateSelect.innerHTML = generateFuture30YearsOptions(ev.date);
                     dateSelect.value = ev.date;
                 }
             }
@@ -1273,6 +1290,19 @@
             `;
         }
 
+        // 過去の収支データを自動クリーンアップ（直近12ヶ月分のみ保持）
+        function cleanupOldMonthlyData() {
+            if (!appData.monthly || appData.monthly.length <= 12) return;
+
+            // 月順で並び替え
+            appData.monthly.sort((a, b) => a.month.localeCompare(b.month));
+
+            // 直近12件だけを保持（古い13件目以前を自動クリア）
+            if (appData.monthly.length > 12) {
+                appData.monthly = appData.monthly.slice(appData.monthly.length - 12);
+            }
+        }
+
         function startAddingExpense() {
             const nameInput = document.getElementById('new-expense-raw-name');
             const rawName = nameInput.value.trim();
@@ -1314,16 +1344,7 @@
         }
 
         function generateDateOptions(selectedVal) {
-            let opts = '';
-            let y = 2026, m = 11;
-            for (let i = 0; i < 180; i++) {
-                const mm = String(m).padStart(2, '0');
-                const val = `${y}-${mm}`;
-                opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
-                m++;
-                if (m > 12) { m = 1; y++; }
-            }
-            return opts;
+            return generateFuture30YearsOptions(selectedVal);
         }
 
         function loadStorage() {
@@ -1360,9 +1381,10 @@
                 appData.goal = { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
             }
 
-            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
+            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'set_a_7';
             if (!appData.customThemes) appData.customThemes = [];
 
+            cleanupOldMonthlyData();
             sortEventsChronologically();
             updateTodayDateBadge();
             applyTheme(appData.settings.currentTheme);
@@ -1380,6 +1402,7 @@
         }
 
         function saveStorage() {
+            cleanupOldMonthlyData();
             sortEventsChronologically();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             updateCalculations();
@@ -1646,7 +1669,7 @@
                     <div>
                         <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">年月</label>
                         <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
-                            ${generateDateOptions(m.month)}
+                            ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
                     <div>
@@ -2031,7 +2054,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
-                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateDateOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateFuture30YearsOptions(ev.date)}</select></td>
                     <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs"></td>
@@ -2049,7 +2072,7 @@
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-70 mb-0.5">予定時期</label>
-                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs">${generateDateOptions(ev.date)}</select>
+                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs">${generateFuture30YearsOptions(ev.date)}</select>
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-70 mb-0.5">予定費用 (円)</label>
@@ -2077,7 +2100,7 @@
             
             let targetMonthData = appData.monthly.find(m => m.month === currentYM);
             if (!targetMonthData && appData.monthly.length > 0) {
-                targetMonthData = appData.monthly[0];
+                targetMonthData = appData.monthly[appData.monthly.length - 1];
             }
 
             const inc = targetMonthData ? (parseNum(targetMonthData.rIncome) + parseNum(targetMonthData.hIncome) + parseNum(targetMonthData.bonus) + parseNum(targetMonthData.extraInc)) : 0;
