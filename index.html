@@ -414,8 +414,10 @@
                     <input type="text" id="edit-goal-target" placeholder="1,200,000" onfocus="unformatInput(this)" onblur="formatInput(this)" class="w-full theme-card-sm border rounded-xl p-2.5 font-bold focus:outline-none text-right">
                 </div>
                 <div>
-                    <label class="block font-semibold opacity-70 mb-1">目標時期 (任意)</label>
-                    <input type="text" id="edit-goal-date" placeholder="例: 2027年10月" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none">
+                    <label class="block font-semibold opacity-70 mb-1">目標時期</label>
+                    <select id="edit-goal-date" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer">
+                        ${generateDateOptions('2027-10')}
+                    </select>
                 </div>
                 <div>
                     <label class="block font-semibold opacity-70 mb-1">比較対象の貯金</label>
@@ -653,7 +655,7 @@
             goal: {
                 title: '結婚式・新婚旅行',
                 targetAmount: 1200000,
-                targetDate: '2027年10月',
+                targetDate: '2027-10',
                 accountTarget: 'ALL'
             },
             customThemes: [],
@@ -1130,11 +1132,16 @@
         }
 
         function openGoalModal() {
-            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027年10月', accountTarget: 'ALL' };
+            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
             
             document.getElementById('edit-goal-title').value = goal.title || '';
             document.getElementById('edit-goal-target').value = formatNum(goal.targetAmount || 1200000);
-            document.getElementById('edit-goal-date').value = goal.targetDate || '';
+
+            // 目標時期セレクトボックスの生成・設定
+            const dateSelect = document.getElementById('edit-goal-date');
+            if (dateSelect) {
+                dateSelect.innerHTML = generateDateOptions(goal.targetDate || '2027-10');
+            }
 
             // 比較口座ドロップダウンの更新
             const accSelect = document.getElementById('edit-goal-account');
@@ -1174,15 +1181,18 @@
             document.getElementById('edit-goal-title').value = ev.name || '';
             document.getElementById('edit-goal-target').value = formatNum(ev.cost || 0);
             if (ev.date) {
-                const [y, m] = ev.date.split('-');
-                document.getElementById('edit-goal-date').value = `${y}年${Number(m)}月`;
+                const dateSelect = document.getElementById('edit-goal-date');
+                if (dateSelect) {
+                    dateSelect.innerHTML = generateDateOptions(ev.date);
+                    dateSelect.value = ev.date;
+                }
             }
         }
 
         function saveGoalSettings() {
             const title = document.getElementById('edit-goal-title').value.trim() || '貯金目標';
             const targetAmount = parseNum(document.getElementById('edit-goal-target').value) || 1000000;
-            const targetDate = document.getElementById('edit-goal-date').value.trim();
+            const targetDate = document.getElementById('edit-goal-date').value;
             const accountTarget = document.getElementById('edit-goal-account').value;
 
             appData.goal = {
@@ -1202,7 +1212,7 @@
             const goalCard = document.getElementById('savings-goal-card');
             if (!goalCard) return;
 
-            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027年10月', accountTarget: 'ALL' };
+            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
 
             let currentVal = 0;
             if (goal.accountTarget === 'ALL') {
@@ -1218,12 +1228,22 @@
             const remaining = Math.max(0, target - currentVal);
             const isAchieved = currentVal >= target;
 
+            let formattedTargetDate = '';
+            if (goal.targetDate) {
+                const parts = goal.targetDate.split('-');
+                if (parts.length === 2) {
+                    formattedTargetDate = `${parts[0]}年${Number(parts[1])}月`;
+                } else {
+                    formattedTargetDate = goal.targetDate;
+                }
+            }
+
             goalCard.innerHTML = `
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-current/10 pb-2">
                     <div class="flex items-center gap-2">
                         <span class="text-base">🎯</span>
                         <h3 class="font-bold text-xs sm:text-sm">貯金目標: ${goal.title}</h3>
-                        ${goal.targetDate ? `<span class="text-[10px] theme-primary-bg px-2 py-0.5 rounded-full font-bold">目標: ${goal.targetDate}</span>` : ''}
+                        ${formattedTargetDate ? `<span class="text-[10px] theme-primary-bg px-2 py-0.5 rounded-full font-bold">目標: ${formattedTargetDate}</span>` : ''}
                     </div>
                     <button onclick="openGoalModal()" class="text-[11px] theme-primary-text underline font-semibold hover:opacity-80 cursor-pointer no-print self-end sm:self-auto">⚙️ 目標を編集</button>
                 </div>
@@ -1337,7 +1357,7 @@
             }
 
             if (!appData.goal) {
-                appData.goal = { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027年10月', accountTarget: 'ALL' };
+                appData.goal = { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
             }
 
             if (!appData.settings.currentTheme) appData.settings.currentTheme = 'earth';
