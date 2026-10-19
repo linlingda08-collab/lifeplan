@@ -430,7 +430,6 @@
     <script>
         const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
 
-        // 補助関数：カンマフォーマット関連
         function parseNum(val) {
             if (val === null || val === undefined) return 0;
             const str = String(val).replace(/,/g, '').trim();
@@ -451,6 +450,13 @@
         function formatInput(input) {
             if (!input) return;
             input.value = formatNum(input.value);
+        }
+
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.toggle('hidden');
+            }
         }
 
         const defaultAccounts = [
@@ -798,35 +804,24 @@
             return total;
         }
 
-        function getRSavingRecent2MonthsDetails() {
+        // 過去すべての実績月リストを取得（新しい順）
+        function getAllRSavingHistoryDetails() {
             if (!appData.monthly || appData.monthly.length === 0) return [];
-            const sorted = [...appData.monthly]
+            return [...appData.monthly]
                 .filter(m => m.type === '実績')
-                .sort((a, b) => b.month.localeCompare(a.month));
-            
-            const results = [];
-            const count = Math.min(2, sorted.length);
-            for (let i = 0; i < count; i++) {
-                const m = sorted[i];
-                results.push({ month: m.month, amount: parseNum(m.rSaving) });
-            }
-            return results.reverse();
+                .sort((a, b) => b.month.localeCompare(a.month))
+                .map(m => ({ month: m.month, amount: parseNum(m.rSaving) }));
         }
 
-        function getAccountRecent2MonthsSavingsDetails(accName) {
+        function getAllAccountSavingsHistoryDetails(accName) {
             if (!appData.monthly || appData.monthly.length === 0) return [];
-            const sorted = [...appData.monthly]
+            return [...appData.monthly]
                 .filter(m => m.type === '実績')
-                .sort((a, b) => b.month.localeCompare(a.month));
-            
-            const results = [];
-            const count = Math.min(2, sorted.length);
-            for (let i = 0; i < count; i++) {
-                const m = sorted[i];
-                const amt = (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? parseNum(m.bankAllocations[accName]) : 0;
-                results.push({ month: m.month, amount: amt });
-            }
-            return results.reverse();
+                .sort((a, b) => b.month.localeCompare(a.month))
+                .map(m => ({
+                    month: m.month,
+                    amount: (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? parseNum(m.bankAllocations[accName]) : 0
+                }));
         }
 
         function calculateNisaDurationText() {
@@ -1760,17 +1755,30 @@
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
                 let html = '';
-                appData.bankAccounts.forEach(acc => {
+                appData.bankAccounts.forEach((acc, i) => {
                     const accName = typeof acc === 'string' ? acc : acc.name;
                     const currentBal = calculateAccountCurrentBalance(accName);
-                    const details = getAccountRecent2MonthsSavingsDetails(accName);
+                    const allHistory = getAllAccountSavingsHistoryDetails(accName);
                     
-                    let detailsHtml = '';
-                    if (details.length === 0) {
-                        detailsHtml = `<span class="opacity-50">記録なし</span>`;
+                    let recent2Html = '';
+                    let allListHtml = '';
+
+                    if (allHistory.length === 0) {
+                        recent2Html = `<span class="opacity-50">記録なし</span>`;
+                        allListHtml = `<div class="p-2 opacity-50">実績データがありません</div>`;
                     } else {
-                        detailsHtml = details.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                        const recent2 = allHistory.slice(0, 2);
+                        recent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                        
+                        allListHtml = allHistory.map(d => `
+                            <div class="flex justify-between py-1 border-b border-current/10">
+                                <span>${d.month.replace('-', '年')}月</span>
+                                <span class="font-bold">¥${d.amount.toLocaleString()}</span>
+                            </div>
+                        `).join('');
                     }
+
+                    const accAccId = `acc-history-${i}`;
 
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
@@ -1778,17 +1786,41 @@
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
                                 <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1 theme-primary-text">¥${currentBal.toLocaleString()}</p>
                             </div>
-                            <div class="pt-2 border-t border-current/10 text-[10px] space-y-0.5">
-                                <div class="opacity-75 font-medium">直近の貯金額内訳:</div>
-                                <div class="font-bold theme-tone-deep truncate">${detailsHtml}</div>
+                            <div class="pt-2 border-t border-current/10 text-[10px] space-y-1">
+                                <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="toggleAccordion('${accAccId}')">
+                                    <span>直近の貯金額内訳:</span>
+                                    <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る ▾</span>
+                                </div>
+                                <div class="font-bold theme-tone-deep truncate cursor-pointer" onclick="toggleAccordion('${accAccId}')">${recent2Html}</div>
+                                <div id="${accAccId}" class="hidden pt-2 border-t border-current/10 space-y-0.5 max-h-36 overflow-y-auto custom-scrollbar font-normal text-[10px]">
+                                    ${allListHtml}
+                                </div>
                             </div>
                         </div>
                     `;
                 });
 
                 const rSavingTotal = calculateRSavingTotal();
-                const rSavingDetails = getRSavingRecent2MonthsDetails();
-                let rDetailsHtml = rSavingDetails.length === 0 ? `<span class="opacity-50">記録なし</span>` : rSavingDetails.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                const allRHistory = getAllRSavingHistoryDetails();
+                
+                let rRecent2Html = '';
+                let rAllListHtml = '';
+
+                if (allRHistory.length === 0) {
+                    rRecent2Html = `<span class="opacity-50">記録なし</span>`;
+                    rAllListHtml = `<div class="p-2 opacity-50">実績データがありません</div>`;
+                } else {
+                    const rRecent2 = allRHistory.slice(0, 2);
+                    rRecent2Html = rRecent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                    rAllListHtml = allRHistory.map(d => `
+                        <div class="flex justify-between py-1 border-b border-current/10">
+                            <span>${d.month.replace('-', '年')}月</span>
+                            <span class="font-bold">¥${d.amount.toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                }
+
+                const rAccId = `acc-history-rsaving`;
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
@@ -1796,9 +1828,15 @@
                             <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
                             <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${rSavingTotal.toLocaleString()}</p>
                         </div>
-                        <div class="pt-2 border-t border-current/10 text-[10px] space-y-0.5">
-                            <div class="opacity-75 font-medium">直近の貯金額内訳:</div>
-                            <div class="font-bold theme-primary-text truncate">${rDetailsHtml}</div>
+                        <div class="pt-2 border-t border-current/10 text-[10px] space-y-1">
+                            <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="toggleAccordion('${rAccId}')">
+                                <span>直近の貯金額内訳:</span>
+                                <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る ▾</span>
+                            </div>
+                            <div class="font-bold theme-primary-text truncate cursor-pointer" onclick="toggleAccordion('${rAccId}')">${rRecent2Html}</div>
+                            <div id="${rAccId}" class="hidden pt-2 border-t border-current/10 space-y-0.5 max-h-36 overflow-y-auto custom-scrollbar font-normal text-[10px]">
+                                ${rAllListHtml}
+                            </div>
                         </div>
                     </div>
                 `;
