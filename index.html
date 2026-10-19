@@ -171,15 +171,15 @@
             <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 貯金推移
+                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 貯金推移 (今後10年・長期予測)
                     </h3>
                     <div class="flex items-center gap-3 text-[11px] font-medium">
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
                     </div>
                 </div>
-                <div class="w-full pb-2 pt-2">
-                    <div class="w-full h-64 sm:h-72 relative">
+                <div class="overflow-x-auto custom-scrollbar pb-2 pt-2">
+                    <div class="min-w-[900px] h-64 sm:h-72 relative">
                         <canvas id="cashFlowChart"></canvas>
                     </div>
                 </div>
@@ -966,7 +966,7 @@
         function generateDateOptions(selectedVal) {
             let opts = '';
             let y = 2026, m = 11;
-            for (let i = 0; i < 120; i++) {
+            for (let i = 0; i < 180; i++) {
                 const mm = String(m).padStart(2, '0');
                 const val = `${y}-${mm}`;
                 opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
@@ -1868,23 +1868,22 @@
                     });
                 }
 
-                let allYms = new Set(['2026-11', '2027-01']);
+                let allYms = new Set(['2026-11']);
                 if (appData.monthly) appData.monthly.forEach(m => allYms.add(m.month));
                 if (appData.events) appData.events.forEach(ev => { if (ev.date) allYms.add(ev.date); });
 
-                let curY = 2027;
-                let curM = 2;
-                for (let i = 0; i < 25; i++) {
+                // 今後10年分（120ヶ月分）の未来データを自動生成・拡張
+                let curY = 2026;
+                let curM = 11;
+                for (let i = 0; i < 120; i++) {
+                    curM += 1;
+                    if (curM > 12) { curM = 1; curY++; }
                     const mmStr = String(curM).padStart(2, '0');
                     const ymKey = `${curY}-${mmStr}`;
                     allYms.add(ymKey);
-
-                    curM += 1;
-                    if (curM > 12) { curM = 1; curY++; }
                 }
 
                 let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
-                sortedYms = sortedYms.filter(ym => ym !== '2026-12');
 
                 let todayIndex = 0;
 
@@ -1892,6 +1891,7 @@
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
                     
+                    // 四半期（1月, 4月, 7月, 10月）および開始月にラベルを表示
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
                     if (isTargetLabel) {
                         label = `${y}年${m}月`;
@@ -2003,9 +2003,7 @@
                                     display: true,
                                     drawTicks: true,
                                     color: 'rgba(0, 0, 0, 0.05)'
-                                },
-                                min: 0,
-                                max: Math.min(labels.length - 1, 10)
+                                }
                             }
                         },
                         plugins: {
