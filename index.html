@@ -1837,16 +1837,12 @@
                 if (cashChart) cashChart.destroy();
                 let labels = [], balanceData = [], eventBarData = [];
                 
-                // 修正：グラフのベースは「貯金用(三菱UFJ銀行)」の初期残高 ＋ 同口座への割り振り実績のみを積み上げる
+                // 口座の初期残高をベースとして取得
                 let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
-                appData.monthly.forEach(m => {
-                    if (m.type === '実績' && m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
-                        runningBalance += Number(m.bankAllocations['貯金用(三菱UFJ銀行)'] || 0);
-                    }
-                });
 
                 let defaultMonthlySave = Number(appData.settings.defaultMonthlySave || 50000);
 
+                // 月ごとのデータをマップ化（実績の三菱UFJ割り振り額を保持）
                 let monthlyDataMap = {};
                 if (appData.monthly) {
                     appData.monthly.forEach(m => {
@@ -1885,6 +1881,7 @@
 
                 let todayIndex = 0;
 
+                // 1ヶ月目から順番に複利・積み上げ式に計算する
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
@@ -1898,12 +1895,19 @@
 
                     labels.push(label);
 
-                    let stepSaving = defaultMonthlySave;
+                    // 判定：その月に「実績」データが存在するかどうか
+                    let stepSaving = 0;
                     if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
+                        // 実績データがあれば、その月の実際の割り振り額を採用
                         stepSaving = monthlyDataMap[ymKey].saving;
+                    } else {
+                        // 実績がなければ（想定、またはデータなし）、標準毎月貯金額を採用
+                        stepSaving = defaultMonthlySave;
                     }
+
                     let stepEvCost = eventMap[ymKey] || 0;
 
+                    // 前月の残高に今月の貯金をプラスし、予定費用をマイナスする
                     runningBalance += stepSaving;
                     runningBalance -= stepEvCost;
 
@@ -1939,8 +1943,8 @@
                 };
 
                 const pointBgColors = labels.map((_, i) => i === todayIndex ? theme.primary : theme.primary);
-                const pointBorderColors = labels.map(() => 'rgba(255, 255, 255, 0.95)'); // ソフトな外周
-                const pointRadii = labels.map((_, i) => i === todayIndex ? 4.5 : 2.5); // 隣の点と干渉しない最適なサイズ
+                const pointBorderColors = labels.map(() => 'rgba(255, 255, 255, 0.95)');
+                const pointRadii = labels.map((_, i) => i === todayIndex ? 4.5 : 2.5);
 
                 cashChart = new Chart(ctx1, {
                     data: {
