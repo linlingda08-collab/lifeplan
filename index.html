@@ -214,7 +214,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (逆順グラデーション階調)
+                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (金額の高い順)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -224,7 +224,7 @@
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold opacity-70 uppercase tracking-wider mb-2">項目の詳細金額リスト</h4>
+                        <h4 class="text-xs font-bold opacity-70 uppercase tracking-wider mb-2">項目の詳細金額リスト (金額が高い順)</h4>
                         <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                     </div>
                 </div>
@@ -1567,6 +1567,9 @@
                 totalExp += val;
             });
 
+            // 金額の高い順（降順）にソート
+            rawItems.sort((a, b) => b.val - a.val);
+
             const theme = getCurrentThemeObj();
             const rgb = hexToRgbValues(theme.primary);
             const canvasCtx = ctx.getContext('2d');
@@ -1868,6 +1871,7 @@
                     let [y, m] = ymKey.split('-').map(Number);
                     let label = '';
                     
+                    // 四半期（1月, 4月, 7月, 10月）および開始月にラベルを表示し、マスの間にきれいに配置
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
                     if (isTargetLabel) {
                         label = `${y}年${m}月`;
@@ -1967,7 +1971,7 @@
                                 }
                             },
                             x: {
-                                offset: false,
+                                offset: true, // 各グリッド線の間（マスの中央）にバーやポイントを配置
                                 ticks: { 
                                     font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 9 },
                                     maxRotation: 45,
