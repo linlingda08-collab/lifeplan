@@ -166,6 +166,9 @@
                 </div>
             </div>
 
+            <!-- 🎯 貯金目標プログレスバーカード -->
+            <div id="savings-goal-card" class="theme-card p-4 sm:p-6 rounded-2xl shadow-sm space-y-3"></div>
+
             <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
             <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
@@ -331,25 +334,15 @@
 
         <!-- ================= TAB 6: THEMES ================= -->
         <div id="tab-theme" class="hidden space-y-6">
-            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
-                <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ</h2>
-                        <p class="text-xs opacity-70 mt-0.5">画像のタイトル・イメージモチーフ（雪だるま・プレゼント・花・星等）ごとに選択できます。</p>
-                    </div>
-                </div>
-
-                <!-- 🔍 カテゴリ（タイトル）絞り込みドロップダウン -->
-                <div class="theme-card-sm p-4 rounded-2xl border space-y-2">
-                    <label class="block font-bold text-xs flex items-center gap-1.5">
-                        <span>📁</span> テーマカテゴリ（画像タイトル）から選ぶ
-                    </label>
-                    <select id="theme-category-select" onchange="renderPresetThemesSelector()" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold focus:outline-none cursor-pointer"></select>
+            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-3xl mx-auto space-y-6">
+                <div class="border-b border-current/10 pb-3">
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ</h2>
+                    <p class="text-xs opacity-70 mt-0.5">背景色はすべて上品で目に優しい淡色ベースで統一しています。</p>
                 </div>
 
                 <div class="space-y-3">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> カラーパレット一覧（イメージモチーフ付き）
+                        <span>✨</span> プリセットテーマ (厳選イラストパレット)
                     </h3>
                     <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
@@ -393,6 +386,52 @@
 
     </main>
 
+    <!-- ================= GOAL EDIT MODAL ================= -->
+    <div id="goal-edit-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeGoalModal()">
+        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-current/10">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <span>⚙️</span> 貯金目標の設定
+                </h3>
+                <button onclick="closeGoalModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
+            </div>
+
+            <!-- イベント連動ボタン -->
+            <div class="theme-card-sm p-3 rounded-xl border space-y-2">
+                <label class="block text-[11px] font-bold opacity-80">📅 「今後の予定」から目標をセット</label>
+                <select id="goal-event-select" onchange="applyGoalFromEvent(this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                    <option value="">選択してください...</option>
+                </select>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold opacity-70 mb-1">目標の名前</label>
+                    <input type="text" id="edit-goal-title" placeholder="例: 結婚式・新婚旅行" class="w-full theme-card-sm border rounded-xl p-2.5 font-bold focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold opacity-70 mb-1">目標金額 (円)</label>
+                    <input type="text" id="edit-goal-target" placeholder="1,200,000" onfocus="unformatInput(this)" onblur="formatInput(this)" class="w-full theme-card-sm border rounded-xl p-2.5 font-bold focus:outline-none text-right">
+                </div>
+                <div>
+                    <label class="block font-semibold opacity-70 mb-1">目標時期 (未来30年分より選択)</label>
+                    <select id="edit-goal-date" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer"></select>
+                </div>
+                <div>
+                    <label class="block font-semibold opacity-70 mb-1">比較対象の貯金</label>
+                    <select id="edit-goal-account" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer">
+                        <option value="ALL">全口座の残高の合計</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-current/10 flex justify-end gap-2">
+                <button onclick="closeGoalModal()" class="theme-card-sm px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer">キャンセル</button>
+                <button onclick="saveGoalSettings()" class="theme-primary-bg px-5 py-2 rounded-xl text-xs font-bold shadow cursor-pointer">保存・反映</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ================= HISTORY POPUP MODAL ================= -->
     <div id="history-popup-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeHistoryModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
@@ -403,6 +442,7 @@
                 <button onclick="closeHistoryModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
             
+            <!-- 年別フィルター選択ドロップダウン -->
             <div class="flex items-center justify-between gap-2 shrink-0 no-print">
                 <label class="text-xs font-semibold opacity-70">絞り込み表示:</label>
                 <select id="history-modal-year-filter" onchange="filterHistoryModalByYear()" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer">
@@ -608,7 +648,13 @@
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
                 defaultMonthlySave: 50000,
-                currentTheme: 'win_1'
+                currentTheme: 'set_a_7'
+            },
+            goal: {
+                title: '結婚式・新婚旅行',
+                targetAmount: 1200000,
+                targetDate: '2027-10',
+                accountTarget: 'ALL'
             },
             customThemes: [],
             bankAccounts: [...defaultAccounts],
@@ -651,42 +697,28 @@
         let videoStream = null;
         let qrScanAnimation = null;
 
-        // 画像タイトル・モチーフ付きカラーパレット定義（重複カット済み）
+        // イラストパレット（Set A / Set B）に基づく厳選10パターンテーマ
         const presetThemes = {
-            // 今っぽい冬カラー
-            win_1: { cat: '今っぽい冬カラー', motif: '⛄ 雪だるま', name: 'スノーホワイト＆オリーブ', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)', primary: '#9ebdc8', primaryHover: '#7ba4b3', tone2: '#b59179', tone3: '#e6d9c4' },
-            win_2: { cat: '今っぽい冬カラー', motif: '✨ 冬の結晶', name: 'ダスティラベンダー＆スモーキー', bg: 'linear-gradient(135deg, #f8f6f9 0%, #ece6f0 100%)', text: '#312836', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(205, 190, 215, 0.8)', primary: '#9d7e8f', primaryHover: '#806272', tone2: '#99a6bf', tone3: '#dcced5' },
-            win_3: { cat: '今っぽい冬カラー', motif: '🎀 冬のリボン', name: 'ウィンターリボンブルー', bg: 'linear-gradient(135deg, #f4f6fa 0%, #e2e8f4 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 200, 225, 0.8)', primary: '#5676b5', primaryHover: '#3f5d99', tone2: '#d9a9b9', tone3: '#c6c1d6' },
-            win_4: { cat: '今っぽい冬カラー', motif: '🎁 クリスマスプレゼント', name: 'ペールアプリコット＆ディープグリーン', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f2e9e2 100%)', text: '#283332', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#4a717d', primaryHover: '#35535c', tone2: '#ecb486', tone3: '#eae8da' },
-            win_5: { cat: '今っぽい冬カラー', motif: '🎄 クリスマスツリー', name: 'フォレストツリー＆ベリーレッド', bg: 'linear-gradient(135deg, #f5f8f6 0%, #e4ebe6 100%)', text: '#223028', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 190, 0.8)', primary: '#35422f', primaryHover: '#232d1e', tone2: '#c35e58', tone3: '#f0cabf' },
-
-            // やわらか暖色
-            warm_1: { cat: 'やわらか暖色', motif: '🍑 暖色マカロン', name: 'ウォームコーラル＆ピーチ', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)', primary: '#f97940', primaryHover: '#dd5b22', tone2: '#ffb76d', tone3: '#ffcccc' },
-            warm_2: { cat: 'やわらか暖色', motif: '🌼 ポップフラワー', name: 'ハニーイエロー＆セージ', bg: 'linear-gradient(135deg, #faf8f2 0%, #f2edd8 100%)', text: '#2d3322', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(220, 215, 185, 0.8)', primary: '#ffdb7b', primaryHover: '#e5bf5e', tone2: '#77c9c5', tone3: '#b9d672' },
-
-            // シックなブラウン
-            brown_1: { cat: 'シックなブラウン', motif: '☕ カフェショコラ', name: 'モカブラウン＆ダスティローズ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #ece4dd 100%)', text: '#332722', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#7f634d', primaryHover: '#614a38', tone2: '#dfafc9', tone3: '#dfdfd5' },
-            brown_2: { cat: 'シックなブラウン', motif: '🍪 クッキー＆ビスケット', name: 'エスプレッソ＆アイスブルー', bg: 'linear-gradient(135deg, #f6f6f8 0%, #e6e8ed 100%)', text: '#221a1d', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 205, 215, 0.8)', primary: '#402924', primaryHover: '#2a1a17', tone2: '#7ca7eb', tone3: '#e9e7da' },
-
-            // 夜空を感じる青色
-            blue_1: { cat: '夜空を感じる青色', motif: '🌙 ミッドナイトムーン', name: 'ディープナイト＆アンバー', bg: 'linear-gradient(135deg, #f0f4f8 0%, #deeaed 100%)', text: '#121e30', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 200, 220, 0.8)', primary: '#0b275d', primaryHover: '#06173b', tone2: '#dea924', tone3: '#2b5284' },
-            blue_2: { cat: '夜空を感じる青色', motif: '🌟 キラキラ星空', name: 'ステラパープル＆ナイト', bg: 'linear-gradient(135deg, #f4f3f9 0%, #e4e2f2 100%)', text: '#1a1833', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(195, 190, 225, 0.8)', primary: '#22509c', primaryHover: '#15366d', tone2: '#88a5df', tone3: '#6755a0' },
-
-            // 自然を感じるアースカラー
-            earth_1: { cat: '自然を感じるアースカラー', motif: '🌿 ボタニカルリーフ', name: 'ナチュラルオリーブ＆モス', bg: 'linear-gradient(135deg, #f4f6f3 0%, #e3eae1 100%)', text: '#243023', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 205, 185, 0.8)', primary: '#6d885a', primaryHover: '#516842', tone2: '#7f8f8e', tone3: '#c9ceb5' },
-            earth_2: { cat: '自然を感じるアースカラー', motif: '🍂 テラコッタソイル', name: 'テラコッタ＆ネイビー', bg: 'linear-gradient(135deg, #f8f4f0 0%, #eae0d8 100%)', text: '#2d221c', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 185, 0.8)', primary: '#9e7a82', primaryHover: '#7e5e65', tone2: '#233352', tone3: '#cfd7d9' },
-
-            // 懐かしさ感じるレトロカラー
-            retro_1: { cat: '懐かしさ感じるレトロカラー', motif: '📻 クラシックラジオ', name: 'レトロテラコッタ＆フォレスト', bg: 'linear-gradient(135deg, #fbf6f2 0%, #f2e7dc 100%)', text: '#36231a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(220, 200, 185, 0.8)', primary: '#c8624b', primaryHover: '#a34833', tone2: '#32463c', tone3: '#e6d4cc' },
-            retro_2: { cat: '懐かしさ感じるレトロカラー', motif: '🌷 クラシックフラワー', name: 'レトロイエロー＆マスタード', bg: 'linear-gradient(135deg, #fbf8ee 0%, #f0e7d0 100%)', text: '#332c1c', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(225, 210, 175, 0.8)', primary: '#d2ac6c', primaryHover: '#b08b4d', tone2: '#8fae9f', tone3: '#eee6e5' }
+            set_a_7: { name: '🌿 Set A-7: フォレストオリーブ', bg: 'linear-gradient(135deg, #f3f5f3 0%, #e5ebe6 100%)', text: '#2d3830', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(190, 205, 195, 0.8)', primary: '#214d3c', primaryHover: '#16362a', tone2: '#214d3c', tone3: '#5a7a6a' },
+            set_a_17: { name: '🍑 Set A-17: コーラルサンセット', bg: 'linear-gradient(135deg, #fff6f3 0%, #ffebe5 100%)', text: '#422820', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 200, 0.8)', primary: '#e07a68', primaryHover: '#c56150', tone2: '#e07a68', tone3: '#f2a394' },
+            set_a_21: { name: '🌊 Set A-21: アイス・ネイビー', bg: 'linear-gradient(135deg, #f0f6fa 0%, #e1eef5 100%)', text: '#1b2838', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 210, 225, 0.8)', primary: '#2b4c6f', primaryHover: '#1d3652', tone2: '#2b4c6f', tone3: '#5b82a6' },
+            set_a_28: { name: '🌼 Set A-28: セージ＆マスタード', bg: 'linear-gradient(135deg, #f9f8f3 0%, #f0ede1 100%)', text: '#2c332b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 210, 190, 0.8)', primary: '#d49b35', primaryHover: '#b58124', tone2: '#3a6655', tone3: '#8ca691' },
+            set_b_2: { name: '🍃 Set B-2: スモーキーミント', bg: 'linear-gradient(135deg, #f2f7f6 0%, #e2eeec 100%)', text: '#23302e', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(190, 210, 205, 0.8)', primary: '#5c8d89', primaryHover: '#466e6b', tone2: '#5c8d89', tone3: '#8bb3af' },
+            set_b_8: { name: '🏙️ Set B-8: ターコイズナイト', bg: 'linear-gradient(135deg, #eff5f6 0%, #dce8ea 100%)', text: '#1a2628', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(175, 200, 205, 0.8)', primary: '#15838c', primaryHover: '#0e6269', tone2: '#15838c', tone3: '#56a7af' },
+            set_b_12: { name: '🌙 Set B-12: ミッドナイトオーシャン', bg: 'linear-gradient(135deg, #f0f4f8 0%, #e0e9f2 100%)', text: '#152338', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 200, 220, 0.8)', primary: '#1e385c', primaryHover: '#12233b', tone2: '#1e385c', tone3: '#5277a3' },
+            set_b_17: { name: '☕ Set B-17: ヴィンテージカフェ', bg: 'linear-gradient(135deg, #f8f6f0 0%, #eae5d8 100%)', text: '#332f27', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 205, 185, 0.8)', primary: '#6e5e47', primaryHover: '#524533', tone2: '#6e5e47', tone3: '#9e8c72' },
+            set_b_27: { name: '🍇 Set B-27: ドリーミーラベンダー', bg: 'linear-gradient(135deg, #f7f4f9 0%, #ede6f2 100%)', text: '#2f2438', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 225, 0.8)', primary: '#7a528a', primaryHover: '#5e3c6c', tone2: '#7a528a', tone3: '#aa82ba' },
+            set_b_30: { name: '🌅 Set B-30: テラコッタサンセット', bg: 'linear-gradient(135deg, #fdf6f0 0%, #f7e8db 100%)', text: '#3a261a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(235, 205, 185, 0.8)', primary: '#d96b27', primaryHover: '#b55215', tone2: '#8c3d18', tone3: '#e3945d' }
         };
 
+        // 未来30年分の年月選択肢を自動生成する（現在年月起点）
         function generateFuture30YearsOptions(selectedVal) {
             let opts = '';
             const now = new Date();
             let y = now.getFullYear();
             let m = now.getMonth() + 1;
 
+            // 今月から未来30年分 (360ヶ月)
             for (let i = 0; i < 360; i++) {
                 const mm = String(m).padStart(2, '0');
                 const val = `${y}-${mm}`;
@@ -853,7 +885,7 @@
 
             activePeer.on('error', (err) => {
                 console.error('PeerJSエラー:', err);
-                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しください。';
+                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しぐださい。';
             });
         }
 
@@ -1034,7 +1066,7 @@
             if (!theme && appData.customThemes) {
                 theme = appData.customThemes.find(t => t.key === appData.settings.currentTheme);
             }
-            return theme || presetThemes['win_1'];
+            return theme || presetThemes['set_a_7'];
         }
 
         function applyTheme(themeKey) {
@@ -1058,32 +1090,10 @@
             renderPieChart();
         }
 
-        function updateCategoryDropdown() {
-            const catSelect = document.getElementById('theme-category-select');
-            if (!catSelect) return;
-
-            const categories = new Set(['ALL']);
-            Object.values(presetThemes).forEach(t => {
-                if (t.cat) categories.add(t.cat);
-            });
-
-            let opts = '<option value="ALL">📁 すべてのカテゴリ</option>';
-            categories.forEach(cat => {
-                if (cat !== 'ALL') {
-                    opts += `<option value="${cat}">${cat}</option>`;
-                }
-            });
-
-            catSelect.innerHTML = opts;
-        }
-
         function renderPresetThemesSelector() {
             const container = document.getElementById('preset-themes-grid');
-            const catSelect = document.getElementById('theme-category-select');
             if (!container) return;
             container.innerHTML = '';
-
-            const selectedCat = catSelect ? catSelect.value : 'ALL';
 
             const allThemes = { ...presetThemes };
             if (appData.customThemes) {
@@ -1091,28 +1101,19 @@
             }
 
             for (let [key, t] of Object.entries(allThemes)) {
-                if (selectedCat !== 'ALL' && t.cat && t.cat !== selectedCat) continue;
-
                 const isSelected = appData.settings.currentTheme === key;
                 const div = document.createElement('div');
-                div.className = `p-3.5 rounded-2xl flex flex-col justify-between cursor-pointer transition border ${isSelected ? 'ring-2 ring-emerald-600 font-bold shadow-md' : 'opacity-90 hover:opacity-100'}`;
+                div.className = `p-3 rounded-2xl flex items-center justify-between cursor-pointer transition border ${isSelected ? 'ring-2 ring-emerald-600 font-bold shadow-md' : 'opacity-90 hover:opacity-100'}`;
                 div.style.background = t.cardBg;
                 div.style.borderColor = t.border;
                 div.style.color = t.text;
                 div.onclick = () => applyTheme(key);
                 div.innerHTML = `
-                    <div class="flex items-center justify-between gap-2 border-b pb-2 mb-2 border-current/10">
-                        <span class="text-xs font-bold truncate">${t.motif || '🎨'} ${t.name}</span>
-                        ${isSelected ? '<span class="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold shrink-0">適用中</span>' : ''}
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 rounded-full shadow-xs shrink-0 border" style="background-color: ${t.primary};"></span>
+                        <span class="text-xs truncate">${t.name}</span>
                     </div>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-4 h-4 rounded-full border shadow-xs" style="background-color: ${t.primary};" title="メイン"></span>
-                            <span class="w-4 h-4 rounded-full border shadow-xs" style="background-color: ${t.tone2 || t.primary};" title="アクセント"></span>
-                            <span class="w-4 h-4 rounded-full border shadow-xs" style="background-color: ${t.tone3 || t.primary};" title="サブ"></span>
-                        </div>
-                        <span class="text-[10px] opacity-70 font-semibold">${t.cat || 'カスタム'}</span>
-                    </div>
+                    ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold shrink-0">適用中</span>' : ''}
                 `;
                 container.appendChild(div);
             }
@@ -1136,24 +1137,167 @@
                 border: primary + '40', 
                 primary, primaryHover: primary,
                 tone2: primary,
-                tone3: primary,
-                cat: 'カスタムオリジナル',
-                motif: '🎨'
+                tone3: primary
             };
             
             if (!appData.customThemes) appData.customThemes = [];
             appData.customThemes.push(newTheme);
             saveStorage();
-            updateCategoryDropdown();
             applyTheme(key);
             document.getElementById('custom-theme-name').value = '';
             alert('🎉 オリジナルテーマを保存・適用しました！');
         }
 
-        // 直近12ヶ月分のみ自動保持（12ヶ月より古い実績データを自動クリーンアップ）
+        function openGoalModal() {
+            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
+            
+            document.getElementById('edit-goal-title').value = goal.title || '';
+            document.getElementById('edit-goal-target').value = formatNum(goal.targetAmount || 1200000);
+
+            // 未来30年分の目標時期セレクトボックスの設定
+            const dateSelect = document.getElementById('edit-goal-date');
+            if (dateSelect) {
+                dateSelect.innerHTML = generateFuture30YearsOptions(goal.targetDate || '2027-10');
+            }
+
+            // 比較口座ドロップダウンの更新
+            const accSelect = document.getElementById('edit-goal-account');
+            if (accSelect) {
+                let opts = '<option value="ALL">全口座の残高の合計</option>';
+                getAccountNames().forEach(name => {
+                    opts += `<option value="${name}">${name}</option>`;
+                });
+                accSelect.innerHTML = opts;
+                accSelect.value = goal.accountTarget || 'ALL';
+            }
+
+            // イベント連動ドロップダウンの更新
+            const evSelect = document.getElementById('goal-event-select');
+            if (evSelect) {
+                let opts = '<option value="">選択してください...</option>';
+                if (appData.events && appData.events.length > 0) {
+                    appData.events.forEach((ev, idx) => {
+                        opts += `<option value="${idx}">${ev.name} (¥${formatNum(ev.cost)}) - ${ev.date}</option>`;
+                    });
+                }
+                evSelect.innerHTML = opts;
+            }
+
+            document.getElementById('goal-edit-modal').classList.remove('hidden');
+        }
+
+        function closeGoalModal() {
+            document.getElementById('goal-edit-modal').classList.add('hidden');
+        }
+
+        function applyGoalFromEvent(eventIndex) {
+            if (eventIndex === '') return;
+            const ev = appData.events[Number(eventIndex)];
+            if (!ev) return;
+
+            document.getElementById('edit-goal-title').value = ev.name || '';
+            document.getElementById('edit-goal-target').value = formatNum(ev.cost || 0);
+            if (ev.date) {
+                const dateSelect = document.getElementById('edit-goal-date');
+                if (dateSelect) {
+                    dateSelect.innerHTML = generateFuture30YearsOptions(ev.date);
+                    dateSelect.value = ev.date;
+                }
+            }
+        }
+
+        function saveGoalSettings() {
+            const title = document.getElementById('edit-goal-title').value.trim() || '貯金目標';
+            const targetAmount = parseNum(document.getElementById('edit-goal-target').value) || 1000000;
+            const targetDate = document.getElementById('edit-goal-date').value;
+            const accountTarget = document.getElementById('edit-goal-account').value;
+
+            appData.goal = {
+                title,
+                targetAmount,
+                targetDate,
+                accountTarget
+            };
+
+            saveStorage();
+            closeGoalModal();
+            updateCalculations();
+            alert('🎉 貯金目標の設定を更新しました！');
+        }
+
+        function renderGoalCard() {
+            const goalCard = document.getElementById('savings-goal-card');
+            if (!goalCard) return;
+
+            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
+
+            let currentVal = 0;
+            if (goal.accountTarget === 'ALL') {
+                currentVal = calculateTotalAllAccountsBalance();
+            } else {
+                currentVal = calculateAccountCurrentBalance(goal.accountTarget);
+            }
+
+            const target = parseNum(goal.targetAmount) || 1;
+            let percent = Math.min(100, Math.floor((currentVal / target) * 100));
+            if (isNaN(percent)) percent = 0;
+
+            const remaining = Math.max(0, target - currentVal);
+            const isAchieved = currentVal >= target;
+
+            let formattedTargetDate = '';
+            if (goal.targetDate) {
+                const parts = goal.targetDate.split('-');
+                if (parts.length === 2) {
+                    formattedTargetDate = `${parts[0]}年${Number(parts[1])}月`;
+                } else {
+                    formattedTargetDate = goal.targetDate;
+                }
+            }
+
+            goalCard.innerHTML = `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-current/10 pb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">🎯</span>
+                        <h3 class="font-bold text-xs sm:text-sm">貯金目標: ${goal.title}</h3>
+                        ${formattedTargetDate ? `<span class="text-[10px] theme-primary-bg px-2 py-0.5 rounded-full font-bold">目標: ${formattedTargetDate}</span>` : ''}
+                    </div>
+                    <button onclick="openGoalModal()" class="text-[11px] theme-primary-text underline font-semibold hover:opacity-80 cursor-pointer no-print self-end sm:self-auto">⚙️ 目標を編集</button>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-end justify-between text-xs">
+                        <div>
+                            <span class="text-[11px] opacity-70">現在の蓄え:</span>
+                            <span class="font-bold text-base sm:text-lg theme-primary-text ml-1">¥${currentVal.toLocaleString()}</span>
+                            <span class="text-[10px] opacity-70">/ 目標 ¥${target.toLocaleString()}</span>
+                        </div>
+                        <div class="text-right font-extrabold text-sm sm:text-base theme-tone-deep">
+                            ${percent}% 達成
+                        </div>
+                    </div>
+
+                    <!-- プログレスバー -->
+                    <div class="w-full h-3 sm:h-3.5 bg-current/10 rounded-full overflow-hidden p-0.5 shadow-inner">
+                        <div class="h-full theme-primary-bg rounded-full transition-all duration-1000 ease-out shadow" style="width: ${percent}%;"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center text-[10px] opacity-80 font-medium pt-0.5">
+                        <span>${isAchieved ? '🎉 おめでとうございます！目標金額を達成しました！' : `あと ¥${remaining.toLocaleString()} で目標達成！`}</span>
+                        <span class="opacity-60">対象: ${goal.accountTarget === 'ALL' ? '全口座合計' : goal.accountTarget}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 過去の収支データを自動クリーンアップ（直近12ヶ月分のみ保持）
         function cleanupOldMonthlyData() {
             if (!appData.monthly || appData.monthly.length <= 12) return;
+
+            // 月順で並び替え
             appData.monthly.sort((a, b) => a.month.localeCompare(b.month));
+
+            // 直近12件だけを保持（古い13件目以前を自動クリア）
             if (appData.monthly.length > 12) {
                 appData.monthly = appData.monthly.slice(appData.monthly.length - 12);
             }
@@ -1199,6 +1343,10 @@
             renderPieChart();
         }
 
+        function generateDateOptions(selectedVal) {
+            return generateFuture30YearsOptions(selectedVal);
+        }
+
         function loadStorage() {
             let saved = localStorage.getItem(STORAGE_KEY);
             if (!saved) {
@@ -1217,18 +1365,28 @@
                     }
                 } catch(e) { console.error(e); }
             }
+            
+            if (appData.bankAccounts) {
+                appData.bankAccounts = appData.bankAccounts.filter(acc => {
+                    const name = typeof acc === 'string' ? acc : acc.name;
+                    return name !== 'ゲストA貯金用';
+                });
+            }
 
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [...defaultAccounts];
             }
 
-            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'win_1';
+            if (!appData.goal) {
+                appData.goal = { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
+            }
+
+            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'set_a_7';
             if (!appData.customThemes) appData.customThemes = [];
 
             cleanupOldMonthlyData();
             sortEventsChronologically();
             updateTodayDateBadge();
-            updateCategoryDropdown();
             applyTheme(appData.settings.currentTheme);
             applyHeroBackgroundUI();
             applyHeaderIconUI();
@@ -1255,6 +1413,7 @@
 
         function syncSettingsToUI() {
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
+
             if (defaultSaveEl) defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave || 50000);
             renderPresetThemesSelector();
         }
@@ -1366,7 +1525,7 @@
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
             else if (tabId === 'events') { renderEventsTable(); }
             else if (tabId === 'accounts') { renderBankAccountsManager(); syncSettingsToUI(); }
-            else if (tabId === 'theme') { updateCategoryDropdown(); renderPresetThemesSelector(); }
+            else if (tabId === 'theme') { renderPresetThemesSelector(); }
         }
 
         function updateMonthSelector() {
@@ -1951,6 +2110,8 @@
             }
             const nisaAmt = targetMonthData ? parseNum(targetMonthData.nisa) : 0;
             const surplus = targetMonthData ? (inc - exp - nisaAmt) : 0;
+
+            renderGoalCard();
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
