@@ -334,12 +334,12 @@
             <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-4xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ (全57画像対応)</h2>
-                        <p class="text-xs opacity-70 mt-0.5">画像タイトルを選択すると、その画像内にある約9個のカラーコードパターンが一目で分かる一覧が表示されます。</p>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 アプリ全着せ替えテーマ</h2>
+                        <p class="text-xs opacity-70 mt-0.5">画像のタイトル・イメージモチーフ（雪だるま・プレゼント・花・星等）ごとに選択できます。</p>
                     </div>
                 </div>
 
-                <!-- 🔍 カテゴリ（画像タイトル）絞り込みドロップダウン -->
+                <!-- 🔍 カテゴリ（タイトル）絞り込みドロップダウン -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-2">
                     <label class="block font-bold text-xs flex items-center gap-1.5">
                         <span>📁</span> テーマカテゴリ（画像タイトル）から選ぶ
@@ -349,9 +349,44 @@
 
                 <div class="space-y-3">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> パターン一覧（カラーコード表示）
+                        <span>✨</span> カラーパレット一覧（イメージモチーフ付き）
                     </h3>
                     <div id="preset-themes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t border-current/10">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>🛠️</span> 完全自由カスタマイズ
+                    </h3>
+                    <div class="theme-card-sm p-4 rounded-xl space-y-4 border">
+                        <div>
+                            <label class="block text-[11px] font-semibold opacity-80 mb-1">テーマ名</label>
+                            <input type="text" id="custom-theme-name" placeholder="例: マイ・フェイバリットパステル" class="w-full theme-card-sm rounded-xl p-2 text-xs focus:outline-none border">
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">背景色</label>
+                                <input type="color" id="custom-theme-bg" value="#f4f6f8" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">文字メイン色</label>
+                                <input type="color" id="custom-theme-text" value="#2d3748" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">メインアクセント</label>
+                                <input type="color" id="custom-theme-primary" value="#6b8abc" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-semibold opacity-80 mb-1">カード背景色</label>
+                                <input type="color" id="custom-theme-card" value="#ffffff" class="w-full h-9 rounded-xl p-0.5 cursor-pointer border">
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button onclick="saveCustomTheme()" class="theme-primary-bg text-xs font-bold px-4 py-2.5 rounded-xl transition cursor-pointer min-h-[40px]">
+                                💾 オリジナルテーマを保存・適用
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -573,8 +608,9 @@
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
                 defaultMonthlySave: 50000,
-                currentTheme: 'win_1_1'
+                currentTheme: 'win_1'
             },
+            customThemes: [],
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
@@ -615,60 +651,35 @@
         let videoStream = null;
         let qrScanAnimation = null;
 
-        // 全57画像の配色データベース
+        // 画像タイトル・モチーフ付きカラーパレット定義（重複カット済み）
         const presetThemes = {
-            win_1_1: { cat: '今っぽい冬カラー', name: 'パターン1 (#9EBDC8 / #E6D9C4 / #B59179)', primary: '#9EBDC8', tone2: '#E6D9C4', tone3: '#B59179', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
-            win_1_2: { cat: '今っぽい冬カラー', name: 'パターン2 (#9D7E8F / #DCCED5 / #99A6BF)', primary: '#9D7E8F', tone2: '#DCCED5', tone3: '#99A6BF', bg: 'linear-gradient(135deg, #f8f6f9 0%, #ece6f0 100%)', text: '#312836', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(205, 190, 215, 0.8)' },
-            win_1_3: { cat: '今っぽい冬カラー', name: 'パターン3 (#5676B5 / #D9A9B9 / #C6C1D6)', primary: '#5676B5', tone2: '#D9A9B9', tone3: '#C6C1D6', bg: 'linear-gradient(135deg, #f4f6fa 0%, #e2e8f4 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 200, 225, 0.8)' },
-            win_1_4: { cat: '今っぽい冬カラー', name: 'パターン4 (#4A717D / #ECB486 / #EAE8DA)', primary: '#4A717D', tone2: '#ECB486', tone3: '#EAE8DA', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f2e9e2 100%)', text: '#283332', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)' },
-            win_1_5: { cat: '今っぽい冬カラー', name: 'パターン5 (#35422F / #C35E58 / #F0CABF)', primary: '#35422F', tone2: '#C35E58', tone3: '#F0CABF', bg: 'linear-gradient(135deg, #f5f8f6 0%, #e4ebe6 100%)', text: '#223028', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 190, 0.8)' },
-            win_1_6: { cat: '今っぽい冬カラー', name: 'パターン6 (#C9C6DE / #A4AECC / #596B84)', primary: '#C9C6DE', tone2: '#A4AECC', tone3: '#596B84', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
-            win_1_7: { cat: '今っぽい冬カラー', name: 'パターン7 (#F0CABF / #35422F / #C35E58)', primary: '#F0CABF', tone2: '#35422F', tone3: '#C35E58', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
-            win_1_8: { cat: '今っぽい冬カラー', name: 'パターン8 (#D2A380 / #E6BFAB / #9BA8AB)', primary: '#D2A380', tone2: '#E6BFAB', tone3: '#9BA8AB', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
-            win_1_9: { cat: '今っぽい冬カラー', name: 'パターン9 (#9D7E8F / #DCCED5 / #99A6BF)', primary: '#9D7E8F', tone2: '#DCCED5', tone3: '#99A6BF', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
+            // 今っぽい冬カラー
+            win_1: { cat: '今っぽい冬カラー', motif: '⛄ 雪だるま', name: 'スノーホワイト＆オリーブ', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)', primary: '#9ebdc8', primaryHover: '#7ba4b3', tone2: '#b59179', tone3: '#e6d9c4' },
+            win_2: { cat: '今っぽい冬カラー', motif: '✨ 冬の結晶', name: 'ダスティラベンダー＆スモーキー', bg: 'linear-gradient(135deg, #f8f6f9 0%, #ece6f0 100%)', text: '#312836', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(205, 190, 215, 0.8)', primary: '#9d7e8f', primaryHover: '#806272', tone2: '#99a6bf', tone3: '#dcced5' },
+            win_3: { cat: '今っぽい冬カラー', motif: '🎀 冬のリボン', name: 'ウィンターリボンブルー', bg: 'linear-gradient(135deg, #f4f6fa 0%, #e2e8f4 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 200, 225, 0.8)', primary: '#5676b5', primaryHover: '#3f5d99', tone2: '#d9a9b9', tone3: '#c6c1d6' },
+            win_4: { cat: '今っぽい冬カラー', motif: '🎁 クリスマスプレゼント', name: 'ペールアプリコット＆ディープグリーン', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f2e9e2 100%)', text: '#283332', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#4a717d', primaryHover: '#35535c', tone2: '#ecb486', tone3: '#eae8da' },
+            win_5: { cat: '今っぽい冬カラー', motif: '🎄 クリスマスツリー', name: 'フォレストツリー＆ベリーレッド', bg: 'linear-gradient(135deg, #f5f8f6 0%, #e4ebe6 100%)', text: '#223028', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 190, 0.8)', primary: '#35422f', primaryHover: '#232d1e', tone2: '#c35e58', tone3: '#f0cabf' },
 
-            warm_2_1: { cat: 'やわらか暖色の可愛い配色', name: 'パターン1 (#FFB76D / #F97940 / #FFCCCC)', primary: '#F97940', tone2: '#FFB76D', tone3: '#FFCCCC', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_2: { cat: 'やわらか暖色の可愛い配色', name: 'パターン2 (#EABD86 / #F9E5CC / #ADCCD1)', primary: '#EABD86', tone2: '#F9E5CC', tone3: '#ADCCD1', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_3: { cat: 'やわらか暖色の可愛い配色', name: 'パターン3 (#9FAF64 / #FEA365 / #FFD283)', primary: '#9FAF64', tone2: '#FEA365', tone3: '#FFD283', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_4: { cat: 'やわらか暖色の可愛い配色', name: 'パターン4 (#C8E4E8 / #FBC9AE / #D8B69B)', primary: '#C8E4E8', tone2: '#FBC9AE', tone3: '#D8B69B', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_5: { cat: 'やわらか暖色の可愛い配色', name: 'パターン5 (#FFDB7B / #B9D672 / #77C9C5)', primary: '#FFDB7B', tone2: '#B9D672', tone3: '#77C9C5', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_6: { cat: 'やわらか暖色の可愛い配色', name: 'パターン6 (#FF9969 / #D9A373 / #B2D0B5)', primary: '#FF9969', tone2: '#D9A373', tone3: '#B2D0B5', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_7: { cat: 'やわらか暖色の可愛い配色', name: 'パターン7 (#EEAC60 / #AA695B / #FEE8DD)', primary: '#EEAC60', tone2: '#AA695B', tone3: '#FEE8DD', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_8: { cat: 'やわらか暖色の可愛い配色', name: 'パターン8 (#6C909E / #E6B16D / #EFA681)', primary: '#6C909E', tone2: '#E6B16D', tone3: '#EFA681', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
-            warm_2_9: { cat: 'やわらか暖色の可愛い配色', name: 'パターン9 (#EAAF3E / #F6E2C7 / #E8755B)', primary: '#EAAF3E', tone2: '#F6E2C7', tone3: '#E8755B', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' }
+            // やわらか暖色
+            warm_1: { cat: 'やわらか暖色', motif: '🍑 暖色マカロン', name: 'ウォームコーラル＆ピーチ', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)', primary: '#f97940', primaryHover: '#dd5b22', tone2: '#ffb76d', tone3: '#ffcccc' },
+            warm_2: { cat: 'やわらか暖色', motif: '🌼 ポップフラワー', name: 'ハニーイエロー＆セージ', bg: 'linear-gradient(135deg, #faf8f2 0%, #f2edd8 100%)', text: '#2d3322', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(220, 215, 185, 0.8)', primary: '#ffdb7b', primaryHover: '#e5bf5e', tone2: '#77c9c5', tone3: '#b9d672' },
+
+            // シックなブラウン
+            brown_1: { cat: 'シックなブラウン', motif: '☕ カフェショコラ', name: 'モカブラウン＆ダスティローズ', bg: 'linear-gradient(135deg, #f8f5f2 0%, #ece4dd 100%)', text: '#332722', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)', primary: '#7f634d', primaryHover: '#614a38', tone2: '#dfafc9', tone3: '#dfdfd5' },
+            brown_2: { cat: 'シックなブラウン', motif: '🍪 クッキー＆ビスケット', name: 'エスプレッソ＆アイスブルー', bg: 'linear-gradient(135deg, #f6f6f8 0%, #e6e8ed 100%)', text: '#221a1d', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(200, 205, 215, 0.8)', primary: '#402924', primaryHover: '#2a1a17', tone2: '#7ca7eb', tone3: '#e9e7da' },
+
+            // 夜空を感じる青色
+            blue_1: { cat: '夜空を感じる青色', motif: '🌙 ミッドナイトムーン', name: 'ディープナイト＆アンバー', bg: 'linear-gradient(135deg, #f0f4f8 0%, #deeaed 100%)', text: '#121e30', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 200, 220, 0.8)', primary: '#0b275d', primaryHover: '#06173b', tone2: '#dea924', tone3: '#2b5284' },
+            blue_2: { cat: '夜空を感じる青色', motif: '🌟 キラキラ星空', name: 'ステラパープル＆ナイト', bg: 'linear-gradient(135deg, #f4f3f9 0%, #e4e2f2 100%)', text: '#1a1833', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(195, 190, 225, 0.8)', primary: '#22509c', primaryHover: '#15366d', tone2: '#88a5df', tone3: '#6755a0' },
+
+            // 自然を感じるアースカラー
+            earth_1: { cat: '自然を感じるアースカラー', motif: '🌿 ボタニカルリーフ', name: 'ナチュラルオリーブ＆モス', bg: 'linear-gradient(135deg, #f4f6f3 0%, #e3eae1 100%)', text: '#243023', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 205, 185, 0.8)', primary: '#6d885a', primaryHover: '#516842', tone2: '#7f8f8e', tone3: '#c9ceb5' },
+            earth_2: { cat: '自然を感じるアースカラー', motif: '🍂 テラコッタソイル', name: 'テラコッタ＆ネイビー', bg: 'linear-gradient(135deg, #f8f4f0 0%, #eae0d8 100%)', text: '#2d221c', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 185, 0.8)', primary: '#9e7a82', primaryHover: '#7e5e65', tone2: '#233352', tone3: '#cfd7d9' },
+
+            // 懐かしさ感じるレトロカラー
+            retro_1: { cat: '懐かしさ感じるレトロカラー', motif: '📻 クラシックラジオ', name: 'レトロテラコッタ＆フォレスト', bg: 'linear-gradient(135deg, #fbf6f2 0%, #f2e7dc 100%)', text: '#36231a', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(220, 200, 185, 0.8)', primary: '#c8624b', primaryHover: '#a34833', tone2: '#32463c', tone3: '#e6d4cc' },
+            retro_2: { cat: '懐かしさ感じるレトロカラー', motif: '🌷 クラシックフラワー', name: 'レトロイエロー＆マスタード', bg: 'linear-gradient(135deg, #fbf8ee 0%, #f0e7d0 100%)', text: '#332c1c', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(225, 210, 175, 0.8)', primary: '#d2ac6c', primaryHover: '#b08b4d', tone2: '#8fae9f', tone3: '#eee6e5' }
         };
-
-        const extraCats = [
-            '洗練ムード！シックなブラウン配色', 'グレーを使った可愛い配色', 'ブラウンを使った可愛い配色', 'ピンクを使った可愛い配色',
-            'ベビーピンクの可愛い配色', '赤色をつかった可愛い配色', 'ナチュラルの花緑青の配色', '夜空を感じる青色の配色',
-            'グリーンを使った可愛い配色', 'イエローを使った可愛い配色', 'アースカラー', 'レトロカラー',
-            'メロウなラベンダー配色', '2025年トレンドカラー モカ・ムース', '水色をつかった可愛い配色', '黄色をつかった可愛い配色',
-            'バーガンディの可愛い配色', '萌黄色の可愛い配色', '夏を先取り！爽やかブルー配色', 'メルヘンなパステル配色',
-            'ふんわりカラーのクラウド配色', 'WEBカラーの可愛い配色', '藍色の可愛い配色', '甘さ控えめくすみピンク配色',
-            '緑色を使ったフレッシュな配色', '涼しげなミントブルー配色', '夕暮れ時のオレンジ配色', 'ぽかぽかカラー',
-            'くすんだ菫色の可愛い配色', 'オリーブの可愛い配色', '多幸感あふれるコーラル配色', '柔らかなライトグレー配色',
-            'アイリスの可愛い配色', 'もぎたてシトラス配色', '雨の日の可愛い水彩配色', '可憐なアプリコット配色',
-            'レトロガーリィな可愛い配色', 'ポップに光るネオンな配色'
-        ];
-
-        extraCats.forEach((cName, idx) => {
-            for (let k = 1; k <= 9; k++) {
-                const key = `extra_${idx}_${k}`;
-                if (!presetThemes[key]) {
-                    presetThemes[key] = {
-                        cat: cName,
-                        name: `パターン${k} (サンプル)`,
-                        primary: '#8c6d53',
-                        tone2: '#b0957e',
-                        tone3: '#d9c4b0',
-                        bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)',
-                        text: '#2c2421',
-                        cardBg: 'rgba(255, 255, 255, 0.92)',
-                        border: 'rgba(228, 218, 208, 0.8)'
-                    };
-                }
-            }
-        });
 
         function generateFuture30YearsOptions(selectedVal) {
             let opts = '';
@@ -951,6 +962,14 @@
             return initial + allocatedSum;
         }
 
+        function calculateTotalAllAccountsBalance() {
+            let sum = 0;
+            getAccountNames().forEach(name => {
+                sum += calculateAccountCurrentBalance(name);
+            });
+            return sum;
+        }
+
         function calculateRSavingTotal() {
             let total = 0;
             appData.monthly.forEach(m => {
@@ -1012,7 +1031,10 @@
 
         function getCurrentThemeObj() {
             let theme = presetThemes[appData.settings.currentTheme];
-            return theme || presetThemes['win_1_1'];
+            if (!theme && appData.customThemes) {
+                theme = appData.customThemes.find(t => t.key === appData.settings.currentTheme);
+            }
+            return theme || presetThemes['win_1'];
         }
 
         function applyTheme(themeKey) {
@@ -1026,7 +1048,7 @@
             root.style.setProperty('--app-card-bg', theme.cardBg);
             root.style.setProperty('--app-card-border', theme.border);
             root.style.setProperty('--app-primary', theme.primary);
-            root.style.setProperty('--app-primary-hover', theme.primary);
+            root.style.setProperty('--app-primary-hover', theme.primaryHover || theme.primary);
             root.style.setProperty('--theme-tone-1', theme.primary);
             root.style.setProperty('--theme-tone-2', theme.tone2 || theme.primary);
             root.style.setProperty('--theme-tone-3', theme.tone3 || theme.primary);
@@ -1040,22 +1062,16 @@
             const catSelect = document.getElementById('theme-category-select');
             if (!catSelect) return;
 
-            const categories = new Set();
+            const categories = new Set(['ALL']);
             Object.values(presetThemes).forEach(t => {
                 if (t.cat) categories.add(t.cat);
             });
 
-            // 現在選ばれているテーマのカテゴリを割り出す
-            let currentCat = '';
-            const curThemeObj = presetThemes[appData.settings.currentTheme];
-            if (curThemeObj && curThemeObj.cat) {
-                currentCat = curThemeObj.cat;
-            }
-
-            let opts = '';
-            Array.from(categories).forEach((cat) => {
-                const isSelected = (cat === currentCat) ? 'selected' : '';
-                opts += `<option value="${cat}" ${isSelected}>${cat}</option>`;
+            let opts = '<option value="ALL">📁 すべてのカテゴリ</option>';
+            categories.forEach(cat => {
+                if (cat !== 'ALL') {
+                    opts += `<option value="${cat}">${cat}</option>`;
+                }
             });
 
             catSelect.innerHTML = opts;
@@ -1067,36 +1083,74 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const selectedCat = catSelect ? catSelect.value : '';
+            const selectedCat = catSelect ? catSelect.value : 'ALL';
 
-            for (let [key, t] of Object.entries(presetThemes)) {
-                if (selectedCat && t.cat !== selectedCat) continue;
+            const allThemes = { ...presetThemes };
+            if (appData.customThemes) {
+                appData.customThemes.forEach(ct => allThemes[ct.key] = ct);
+            }
+
+            for (let [key, t] of Object.entries(allThemes)) {
+                if (selectedCat !== 'ALL' && t.cat && t.cat !== selectedCat) continue;
 
                 const isSelected = appData.settings.currentTheme === key;
                 const div = document.createElement('div');
-                div.className = `p-3.5 rounded-2xl flex flex-col justify-between cursor-pointer transition border ${isSelected ? 'ring-4 ring-emerald-600 bg-emerald-500/10 font-bold shadow-lg scale-[1.01]' : 'opacity-90 hover:opacity-100 hover:scale-[1.005]'}`;
-                div.style.background = isSelected ? 'rgba(16, 185, 129, 0.08)' : t.cardBg;
-                div.style.borderColor = isSelected ? '#10b981' : t.border;
+                div.className = `p-3.5 rounded-2xl flex flex-col justify-between cursor-pointer transition border ${isSelected ? 'ring-2 ring-emerald-600 font-bold shadow-md' : 'opacity-90 hover:opacity-100'}`;
+                div.style.background = t.cardBg;
+                div.style.borderColor = t.border;
                 div.style.color = t.text;
                 div.onclick = () => applyTheme(key);
                 div.innerHTML = `
                     <div class="flex items-center justify-between gap-2 border-b pb-2 mb-2 border-current/10">
-                        <span class="text-xs font-bold truncate">${t.name}</span>
-                        ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-extrabold shadow-sm shrink-0">✨ 適用中</span>' : ''}
+                        <span class="text-xs font-bold truncate">${t.motif || '🎨'} ${t.name}</span>
+                        ${isSelected ? '<span class="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold shrink-0">適用中</span>' : ''}
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1.5">
-                            <span class="w-5 h-5 rounded-full border shadow-xs" style="background-color: ${t.primary};" title="メインカラー"></span>
-                            <span class="w-5 h-5 rounded-full border shadow-xs" style="background-color: ${t.tone2 || t.primary};" title="アクセント"></span>
-                            <span class="w-5 h-5 rounded-full border shadow-xs" style="background-color: ${t.tone3 || t.primary};" title="サブカラー"></span>
+                            <span class="w-4 h-4 rounded-full border shadow-xs" style="background-color: ${t.primary};" title="メイン"></span>
+                            <span class="w-4 h-4 rounded-full border shadow-xs" style="background-color: ${t.tone2 || t.primary};" title="アクセント"></span>
+                            <span class="w-4 h-4 rounded-full border shadow-xs" style="background-color: ${t.tone3 || t.primary};" title="サブ"></span>
                         </div>
-                        <span class="text-[10px] ${isSelected ? 'font-bold text-emerald-600' : 'opacity-70 font-semibold'}">${isSelected ? '選択中のテーマ' : 'タップして適用'}</span>
+                        <span class="text-[10px] opacity-70 font-semibold">${t.cat || 'カスタム'}</span>
                     </div>
                 `;
                 container.appendChild(div);
             }
         }
 
+        function saveCustomTheme() {
+            const name = document.getElementById('custom-theme-name').value.trim();
+            const bg = document.getElementById('custom-theme-bg').value;
+            const text = document.getElementById('custom-theme-text').value;
+            const primary = document.getElementById('custom-theme-primary').value;
+            const cardBg = document.getElementById('custom-theme-card').value;
+            
+            if (!name) {
+                alert('テーマ名を入力してください。');
+                return;
+            }
+            const key = 'custom_' + Date.now();
+            const newTheme = { 
+                key, name, bg, text, 
+                cardBg: cardBg + 'f0', 
+                border: primary + '40', 
+                primary, primaryHover: primary,
+                tone2: primary,
+                tone3: primary,
+                cat: 'カスタムオリジナル',
+                motif: '🎨'
+            };
+            
+            if (!appData.customThemes) appData.customThemes = [];
+            appData.customThemes.push(newTheme);
+            saveStorage();
+            updateCategoryDropdown();
+            applyTheme(key);
+            document.getElementById('custom-theme-name').value = '';
+            alert('🎉 オリジナルテーマを保存・適用しました！');
+        }
+
+        // 直近12ヶ月分のみ自動保持（12ヶ月より古い実績データを自動クリーンアップ）
         function cleanupOldMonthlyData() {
             if (!appData.monthly || appData.monthly.length <= 12) return;
             appData.monthly.sort((a, b) => a.month.localeCompare(b.month));
@@ -1150,6 +1204,8 @@
             if (!saved) {
                 saved = localStorage.getItem('lifeplan_master_persistent_storage_data_v1') || 
                         localStorage.getItem('lifeplan_master_data_v2026_rev5') || 
+                        localStorage.getItem('lifeplan_master_data_v2026_rev4') || 
+                        localStorage.getItem('lifeplan_master_data_v2026') || 
                         localStorage.getItem('lifeplan_master_data');
             }
 
@@ -1166,7 +1222,8 @@
                 appData.bankAccounts = [...defaultAccounts];
             }
 
-            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'win_1_1';
+            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'win_1';
+            if (!appData.customThemes) appData.customThemes = [];
 
             cleanupOldMonthlyData();
             sortEventsChronologically();
