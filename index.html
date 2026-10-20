@@ -430,786 +430,8 @@
     <script>
         const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
 
-        // 全57画像の正確なカラーコード定義データ
-        const allPresetThemes = [
-            {
-                name: "ナチュラルな花緑青の配色",
-                palettes: [
-                    { colors: ["#00A381", "#F0E1CE", "#AB7660"] },
-                    { colors: ["#C3E978", "#00A381", "#E9DBB6"] },
-                    { colors: ["#7CCBCA", "#F3DC92", "#00A381"] },
-                    { colors: ["#E3E798", "#00A381", "#F1C1C2"] },
-                    { colors: ["#00A381", "#A5CF7B", "#11887B"] },
-                    { colors: ["#DC8A84", "#E6E1DB", "#00A381"] },
-                    { colors: ["#ADD2DA", "#F9CA6B", "#00A381"] },
-                    { colors: ["#C3A86D", "#00A381", "#DEE3C4"] },
-                    { colors: ["#7381DB", "#00A381", "#86FB80"] }
-                ]
-            },
-            {
-                name: "やわらか暖色の可愛い配色",
-                palettes: [
-                    { colors: ["#FFB76D", "#F97940", "#FFCCCC"] },
-                    { colors: ["#EABD86", "#F9E5CC", "#ADCCD1"] },
-                    { colors: ["#9FAF64", "#FEA365", "#FFD283"] },
-                    { colors: ["#C8E4E8", "#FBC9AE", "#D8B69B"] },
-                    { colors: ["#FFDB7B", "#B9D672", "#77C9C5"] },
-                    { colors: ["#FF9969", "#D9A373", "#B2D0B5"] },
-                    { colors: ["#EEAC60", "#AA695B", "#FEE8DD"] },
-                    { colors: ["#6C909E", "#E6B16D", "#EFA681"] },
-                    { colors: ["#EAAF3E", "#F6E2C7", "#E8755B"] }
-                ]
-            },
-            {
-                name: "今っぽい冬カラー",
-                palettes: [
-                    { colors: ["#9EBDC8", "#E6D9C4", "#B59179"] },
-                    { colors: ["#9D7E8F", "#DCCED5", "#99A6BF"] },
-                    { colors: ["#C6C1D6", "#5676B5", "#D9A9B9"] },
-                    { colors: ["#ECB486", "#EAE8DA", "#4A717D"] },
-                    { colors: ["#DAABA0", "#D0CFE6", "#AABAD4"] },
-                    { colors: ["#EAE4C4", "#3C466B", "#D85C5B"] },
-                    { colors: ["#C9C6DE", "#A4AECC", "#596B84"] },
-                    { colors: ["#F0CABF", "#35422F", "#C35E58"] },
-                    { colors: ["#D2A380", "#E6BFAB", "#9BA8AB"] }
-                ]
-            },
-            {
-                name: "赤色をつかった可愛い配色",
-                palettes: [
-                    { colors: ["#D63241", "#FFC0C3", "#9AC9DA"] },
-                    { colors: ["#A40024", "#B3DEE1", "#DCE1DE"] },
-                    { colors: ["#EF6A6A", "#D0D686", "#E6A298"] },
-                    { colors: ["#CD483B", "#768BAB", "#F9F6E0"] },
-                    { colors: ["#E04333", "#E5C8F1", "#68BCF1"] },
-                    { colors: ["#D05945", "#DFF671", "#99A9F7"] },
-                    { colors: ["#A01A1A", "#D6D1C6", "#EAC15C"] },
-                    { colors: ["#600505", "#546725", "#FCEDB3"] },
-                    { colors: ["#CA422E", "#59443B", "#9E7961"] }
-                ]
-            },
-            {
-                name: "夜空を感じる青色の配色",
-                palettes: [
-                    { colors: ["#DEA924", "#2B5284", "#0B275D"] },
-                    { colors: ["#22509C", "#6755A0", "#88A5DF"] },
-                    { colors: ["#51AAC1", "#0076A5", "#D0C0AD"] },
-                    { colors: ["#4F619B", "#BDD8EA", "#F3F1CB"] },
-                    { colors: ["#E992C5", "#BF8BE1", "#1C1DAB"] },
-                    { colors: ["#EBD1DA", "#5491C0", "#0C3782"] },
-                    { colors: ["#FFE88B", "#FFC200", "#368ACE"] },
-                    { colors: ["#ADC6E5", "#3785D8", "#1E0F74"] },
-                    { colors: ["#C8C2ED", "#5B4885", "#88AACA"] }
-                ]
-            },
-            {
-                name: "ブラウンを使った可愛い配色",
-                palettes: [
-                    { colors: ["#5F3E36", "#F3F2D1", "#9E6563"] },
-                    { colors: ["#544A54", "#D5998D", "#7E5A5C"] },
-                    { colors: ["#AC7C73", "#647458", "#997E62"] },
-                    { colors: ["#AE818A", "#E7E3D8", "#856652"] },
-                    { colors: ["#ACC2C9", "#E2E8D8", "#978865"] },
-                    { colors: ["#9DB19D", "#786C66", "#DOCED0"] },
-                    { colors: ["#8F7F62", "#DB9F8D", "#DCC677"] },
-                    { colors: ["#CFC793", "#6C968E", "#735F54"] },
-                    { colors: ["#EEBBAF", "#AA9776", "#715353"] }
-                ]
-            },
-            {
-                name: "ベビーピンクの可愛い配色",
-                palettes: [
-                    { colors: ["#F7C2AB", "#FFF1DF", "#FEE3D7"] },
-                    { colors: ["#FEE3D7", "#E6ED7E", "#AFCF69"] },
-                    { colors: ["#A0D9C5", "#A1DADC", "#FEE3D7"] },
-                    { colors: ["#FEE3D7", "#9FC2DD", "#B9ABD3"] },
-                    { colors: ["#F3A8A8", "#FEE3D7", "#D1D1A5"] },
-                    { colors: ["#FEE3D7", "#E8C1F4", "#EDE3FF"] },
-                    { colors: ["#EBDAC1", "#FEE3D7", "#EBC797"] },
-                    { colors: ["#FCC190", "#D5B4B3", "#FEE3D7"] },
-                    { colors: ["#FF9977", "#FEE3D7", "#A5D1C1"] }
-                ]
-            },
-            {
-                name: "ピンクを使った可愛い配色",
-                palettes: [
-                    { colors: ["#E3969F", "#A0C3D9", "#699091"] },
-                    { colors: ["#EDBFBF", "#F2E8CB", "#B4D9E2"] },
-                    { colors: ["#C05191", "#AE78AB", "#E3E6DF"] },
-                    { colors: ["#A0B1D8", "#E6E6DB", "#DC7783"] },
-                    { colors: ["#BD9DC4", "#DFA4B4", "#E2C3B1"] },
-                    { colors: ["#E8E9C7", "#B2C0C9", "#E08B92"] },
-                    { colors: ["#005FAA", "#D54B8D", "#EDB886"] },
-                    { colors: ["#DFE6E9", "#CF82AD", "#7B7FB8"] },
-                    { colors: ["#E4E594", "#C3B4D1", "#E190A2"] }
-                ]
-            },
-            {
-                name: "洗練モード！シックなブラウン配色",
-                palettes: [
-                    { colors: ["#DFAFC9", "#DFDFD5", "#7F634D"] },
-                    { colors: ["#E9E7DA", "#7CA7EB", "#402924"] },
-                    { colors: ["#7C6867", "#511B14", "#EFEDC5"] },
-                    { colors: ["#D4D9BB", "#F6B7A8", "#9D8A7C"] },
-                    { colors: ["#333007", "#E19F04", "#FCD9D6"] },
-                    { colors: ["#BEDFC2", "#B87620", "#482B41"] },
-                    { colors: ["#C49961", "#50708E", "#772E3F"] },
-                    { colors: ["#A59E94", "#513E30", "#ECE3DC"] },
-                    { colors: ["#DD7247", "#E1AC8A", "#9F4D26"] }
-                ]
-            },
-            {
-                name: "グレーを使った可愛い配色",
-                palettes: [
-                    { colors: ["#A63E14", "#C4C4C4", "#558A86"] },
-                    { colors: ["#C4C4C4", "#35342F", "#37BBE4"] },
-                    { colors: ["#C58FD2", "#91E86A", "#C4C4C4"] },
-                    { colors: ["#0041CD", "#FF96A1", "#C4C4C4"] },
-                    { colors: ["#E1E2DB", "#C4C4C4", "#FF4B59"] },
-                    { colors: ["#C4C4C4", "#172339", "#CEE7E4"] },
-                    { colors: ["#FF712E", "#C4C4C4", "#D4E694"] },
-                    { colors: ["#C4C4C4", "#F8CD6B", "#B7D2E9"] },
-                    { colors: ["#63CA9F", "#CFE0C9", "#C4C4C4"] }
-                ]
-            },
-            {
-                name: "グリーンを使った可愛い配色",
-                palettes: [
-                    { colors: ["#3F9C54", "#DE6079", "#E7E7E3"] },
-                    { colors: ["#5E7960", "#FFDF76", "#78A95B"] },
-                    { colors: ["#648B45", "#9ABE74", "#C3CE6A"] },
-                    { colors: ["#84C46E", "#C0EBE6", "#78A991"] },
-                    { colors: ["#3C828F", "#A989B8", "#F7F0B5"] },
-                    { colors: ["#A6CEC1", "#68BC83", "#EEEFAF"] },
-                    { colors: ["#438B48", "#DD792E", "#DDDEE0"] },
-                    { colors: ["#50804C", "#ECE0A7", "#BD513A"] },
-                    { colors: ["#7BA980", "#E7A93B", "#E2D050"] }
-                ]
-            },
-            {
-                name: "イエローを使った可愛い配色",
-                palettes: [
-                    { colors: ["#FFF056", "#70EE7C", "#FF8387"] },
-                    { colors: ["#EEB86A", "#A2B3D6", "#DBB2CB"] },
-                    { colors: ["#F4D66A", "#778999", "#EAE5D0"] },
-                    { colors: ["#609B70", "#D79159", "#F3E281"] },
-                    { colors: ["#A1E6EF", "#F5EB7A", "#E87D9D"] },
-                    { colors: ["#F4D86A", "#E5A09E", "#D2ECDA"] },
-                    { colors: ["#F0D980", "#B5CFE1", "#A6A78C"] },
-                    { colors: ["#F5C699", "#F4F090", "#AFA7E4"] },
-                    { colors: ["#E59ED0", "#5E809D", "#E5C557"] }
-                ]
-            },
-            {
-                name: "アースカラー",
-                palettes: [
-                    { colors: ["#6D885A", "#7F8F8E", "#C9CEB5"] },
-                    { colors: ["#9A92A3", "#6D5A5C", "#88665D"] },
-                    { colors: ["#79A3B1", "#91A38F", "#C9B797"] },
-                    { colors: ["#927A82", "#BE947A", "#CFD7D9"] },
-                    { colors: ["#646578", "#4D636A", "#233352"] },
-                    { colors: ["#ABAEB1", "#736A51", "#C1AE8C"] },
-                    { colors: ["#97A09C", "#B47463", "#DDC1B7"] },
-                    { colors: ["#7D877C", "#586D55", "#415D52"] },
-                    { colors: ["#A0ADCC", "#E1C9A3", "#5D6371"] }
-                ]
-            },
-            {
-                name: "レトロカラー",
-                palettes: [
-                    { colors: ["#C8624B", "#E6D4CC", "#32463C"] },
-                    { colors: ["#C89EB4", "#688B97", "#334E64"] },
-                    { colors: ["#D2AC6C", "#EEE6E5", "#8FAE9F"] },
-                    { colors: ["#F8DDBE", "#BC8E90", "#A8A0B6"] },
-                    { colors: ["#EEE9D2", "#BC8151", "#4F6045"] },
-                    { colors: ["#A8BD9A", "#B6A567", "#5F75A1"] },
-                    { colors: ["#96BFBC", "#E8EDDA", "#D4A2A6"] },
-                    { colors: ["#70504B", "#FEFBE7", "#C56E66"] },
-                    { colors: ["#F0E0A0", "#D88F80", "#91676A"] }
-                ]
-            },
-            {
-                name: "メロウなラベンダー配色",
-                palettes: [
-                    { colors: ["#BCABE7", "#EED8C3", "#F3CDE0"] },
-                    { colors: ["#E8CAE3", "#BFB6DB", "#E4DADD"] },
-                    { colors: ["#E9C6D0", "#BCD2E6", "#BEB2DC"] },
-                    { colors: ["#EBF1BC", "#CEE7B8", "#C3B7E4"] },
-                    { colors: ["#C8BCE5", "#F4F8FB", "#F6D4CA"] },
-                    { colors: ["#C5E8DF", "#B5A8DA", "#EBB7EF"] },
-                    { colors: ["#DBD6DF", "#B9AFD4", "#C4DAED"] },
-                    { colors: ["#D5BFA6", "#C9BEE0", "#FFF5EA"] },
-                    { colors: ["#FFF6DB", "#B6E8FF", "#C6B8E9"] }
-                ]
-            },
-            {
-                name: "黄色をつかった可愛い配色",
-                palettes: [
-                    { colors: ["#43AC60", "#FFC939", "#DB6D24"] },
-                    { colors: ["#FFDF79", "#82BCC7", "#E5C07E"] },
-                    { colors: ["#FF7237", "#FFD3C2", "#F4E33A"] },
-                    { colors: ["#4CA4F1", "#FBEAA8", "#AADBF9"] },
-                    { colors: ["#FFD430", "#FFAC00", "#70E6C1"] },
-                    { colors: ["#FDBFBA", "#C1DCD8", "#FFF898"] },
-                    { colors: ["#FFF188", "#A9CD30", "#C8BADD"] },
-                    { colors: ["#57785E", "#EADA96", "#D3B78D"] },
-                    { colors: ["#FFEB66", "#F3E4D1", "#42BAB7"] }
-                ]
-            },
-            {
-                name: "2025年トレンドカラー モカ・ムース",
-                palettes: [
-                    { colors: ["#A47864", "#E4D8C6", "#82ACAD"] },
-                    { colors: ["#A47864", "#968C96", "#CD9E97"] },
-                    { colors: ["#A47864", "#7A93C9", "#8C9670"] },
-                    { colors: ["#A47864", "#968B6E", "#F4EBDE"] },
-                    { colors: ["#A47864", "#BDC4B5", "#AA9C8C"] },
-                    { colors: ["#A47864", "#BE95AA", "#D2BEB4"] },
-                    { colors: ["#A47864", "#9699B9", "#BFBA7C"] },
-                    { colors: ["#A47864", "#8CA096", "#646E5A"] },
-                    { colors: ["#A47864", "#DEDCB5", "#A3B4A0"] }
-                ]
-            },
-            {
-                name: "水色をつかった可愛い配色",
-                palettes: [
-                    { colors: ["#C7E6EB", "#65AAED", "#FFDED7"] },
-                    { colors: ["#ACBBE2", "#CAEAFF", "#F1E9F4"] },
-                    { colors: ["#BBE5F1", "#9ECC89", "#F7ECBA"] },
-                    { colors: ["#87D9F9", "#CDCED0", "#A8FA7A"] },
-                    { colors: ["#FFCAA6", "#A7DEF0", "#6C8EA8"] },
-                    { colors: ["#FEC6DF", "#F7F4B7", "#A5EFEB"] },
-                    { colors: ["#EDFF77", "#C1F4F3", "#418DF9"] },
-                    { colors: ["#ACE7EB", "#E4E9EC", "#FCCDD6"] },
-                    { colors: ["#A7D8D2", "#FFD392", "#C8F7C0"] }
-                ]
-            },
-            {
-                name: "萌黄色の可愛い配色",
-                palettes: [
-                    { colors: ["#FFF6DB", "#C6E495", "#FFE3EC"] },
-                    { colors: ["#CCE791", "#9FC79A", "#E4E9F1"] },
-                    { colors: ["#C1B2A4", "#C6DF94", "#D5E3F2"] },
-                    { colors: ["#FFE3DB", "#9AC595", "#E5EAAA"] },
-                    { colors: ["#CAE6B0", "#F8CDCF", "#F6F2ED"] },
-                    { colors: ["#E2EACF", "#D0E0AA", "#F9D9E3"] },
-                    { colors: ["#D9C7A3", "#D0E681", "#F7CEE3"] },
-                    { colors: ["#E3D8FF", "#C8E18B", "#FFF3DD"] },
-                    { colors: ["#77DBD1", "#B0E771", "#FAC4CD"] }
-                ]
-            },
-            {
-                name: "バーガンディの可愛い配色",
-                palettes: [
-                    { colors: ["#8B7D8B", "#9C566A", "#561B24"] },
-                    { colors: ["#4A1521", "#4E5D6C", "#8695A4"] },
-                    { colors: ["#561B24", "#A1887F", "#C8E6C9"] },
-                    { colors: ["#90A4AE", "#42121D", "#3A333D"] },
-                    { colors: ["#7B5C8F", "#632230", "#D29DAA"] },
-                    { colors: ["#521B27", "#CFD8DC", "#657492"] },
-                    { colors: ["#561B24", "#A992A0", "#E9E38A"] },
-                    { colors: ["#3D101A", "#BCAAAA", "#697582"] },
-                    { colors: ["#685282", "#561B24", "#E1D7D8"] }
-                ]
-            },
-            {
-                name: "夏を先取り！爽やかブルー配色",
-                palettes: [
-                    { colors: ["#239CDB", "#F1D544", "#E3EDEF"] },
-                    { colors: ["#E499D1", "#1A40AD", "#FDEABD"] },
-                    { colors: ["#348FDF", "#FE7E67", "#FFE3E2"] },
-                    { colors: ["#77CED5", "#FB5185", "#F6F5CC"] },
-                    { colors: ["#34B8E0", "#F4B648", "#F6B0AE"] },
-                    { colors: ["#FEDC00", "#FEA109", "#01879C"] },
-                    { colors: ["#E7E747", "#78CEDD", "#F5F7B6"] },
-                    { colors: ["#FBC1D9", "#FBF5B9", "#79BDEA"] },
-                    { colors: ["#F1D6E7", "#4068AE", "#97B7E8"] }
-                ]
-            },
-            {
-                name: "ふんわりカラーのクラウド配色",
-                palettes: [
-                    { colors: ["#F6CFE2", "#BFDFFF", "#E8F3FF"] },
-                    { colors: ["#D8F3E8", "#E3D8FF", "#FADDEE"] },
-                    { colors: ["#E8F3FF", "#CFE6FF", "#FFE0D6"] },
-                    { colors: ["#E9F6E8", "#FFE1D6", "#E8F3FF"] },
-                    { colors: ["#D7E2F5", "#FFF2D6", "#E8F3FF"] },
-                    { colors: ["#E6ECFF", "#FFDCE7", "#E9F6E8"] },
-                    { colors: ["#E8E1FF", "#FFF0DA", "#D6EAF8"] },
-                    { colors: ["#FFF3C8", "#E1D5FB", "#FFE4D8"] },
-                    { colors: ["#F6CFE2", "#EAF4FF", "#FFE1EC"] }
-                ]
-            },
-            {
-                name: "メルヘンなパステル配色",
-                palettes: [
-                    { colors: ["#FFDDDF", "#FFFADE", "#B4E1D8"] },
-                    { colors: ["#A8CAD3", "#D0EEEE", "#FDE0B6"] },
-                    { colors: ["#FFD67A", "#EAC8A0", "#B9EAE6"] },
-                    { colors: ["#ACACD5", "#F5E1E9", "#F9F6E0"] },
-                    { colors: ["#DFF0E2", "#CFEEF5", "#FFCDE2"] },
-                    { colors: ["#FDD3E0", "#EFE7CF", "#CEE7E4"] },
-                    { colors: ["#BADDD3", "#ABD2E3", "#D4E694"] },
-                    { colors: ["#FC8EA7", "#FFFBF9", "#FFD6E7"] },
-                    { colors: ["#FDF2B4", "#FFCB9C", "#F8E16B"] }
-                ]
-            },
-            {
-                name: "WEBカラーの可愛い配色",
-                palettes: [
-                    { colors: ["#547DED", "#FF83E1", "#FFD653"] },
-                    { colors: ["#FFAOBF", "#BC74FF", "#FB631E"] },
-                    { colors: ["#E2D9DB", "#D5FB05", "#606060"] },
-                    { colors: ["#0088E8", "#FDCCBD", "#FF5000"] },
-                    { colors: ["#1BC702", "#FF9201", "#FF83C5"] },
-                    { colors: ["#4EDCCE", "#4A49FF", "#FFB0A7"] },
-                    { colors: ["#A8C7E4", "#ADFF4F", "#D0DDD4"] },
-                    { colors: ["#E2F142", "#CCCCE4", "#7896FF"] },
-                    { colors: ["#FF7E53", "#FFDOBB", "#59E3B1"] }
-                ]
-            },
-            {
-                name: "緑色をつかったフレッシュな配色",
-                palettes: [
-                    { colors: ["#43AC60", "#FFAAA3", "#D2E7B8"] },
-                    { colors: ["#FFF1B9", "#B2CE4A", "#2F58D8"] },
-                    { colors: ["#B0875B", "#A7CA6D", "#FFD1D8"] },
-                    { colors: ["#AAE2CF", "#20A278", "#FFF369"] },
-                    { colors: ["#FF9C40", "#EB574B", "#A9D700"] },
-                    { colors: ["#63E880", "#CCEA82", "#E0F763"] },
-                    { colors: ["#FFC974", "#D5A4F0", "#5FA443"] },
-                    { colors: ["#A7D444", "#EDF28F", "#673806"] },
-                    { colors: ["#7670C1", "#B6DDB6", "#42BAB7"] }
-                ]
-            },
-            {
-                name: "藍色の可愛い配色",
-                palettes: [
-                    { colors: ["#A3B1C6", "#D9E1E8", "#004C71"] },
-                    { colors: ["#CFD8DC", "#004C71", "#C3AACE"] },
-                    { colors: ["#004C71", "#F1CD99", "#FAEFB1"] },
-                    { colors: ["#004C71", "#FCE4EC", "#D1C4E9"] },
-                    { colors: ["#FFF1F5", "#A2D2E2", "#004C71"] },
-                    { colors: ["#F0F4C3", "#D2B4DE", "#004C71"] },
-                    { colors: ["#708090", "#003350", "#BCAAA4"] },
-                    { colors: ["#8B7D8B", "#CDDDC4", "#002840"] },
-                    { colors: ["#1A3E54", "#4E5D6C", "#B1B7BD"] }
-                ]
-            },
-            {
-                name: "甘さ控えめくすみピンク配色",
-                palettes: [
-                    { colors: ["#C5A0A9", "#CFD8DC", "#F2DAE9"] },
-                    { colors: ["#EDD4D7", "#BCAAAA", "#A37A85"] },
-                    { colors: ["#E9E1F5", "#FFF3E0", "#E3C7C8"] },
-                    { colors: ["#79709E", "#CEC0E7", "#EDD7DE"] },
-                    { colors: ["#E4C7CA", "#B4CECA", "#936F64"] },
-                    { colors: ["#E5D1D1", "#708090", "#DDBBC6"] },
-                    { colors: ["#DBE3BC", "#EBCFCF", "#A2D2E2"] },
-                    { colors: ["#B19A9E", "#B3C1C6", "#EBCFD8"] },
-                    { colors: ["#D2B4DE", "#ECCBD1", "#F4EFC3"] }
-                ]
-            },
-            {
-                name: "ぽかぽかカラー",
-                palettes: [
-                    { colors: ["#E9A62F", "#962E2D", "#58432D"] },
-                    { colors: ["#F3DEC0", "#C5682C", "#E2C741"] },
-                    { colors: ["#CE8668", "#E0DCA5", "#D6A669"] },
-                    { colors: ["#DA8D76", "#F6DECE", "#D38280"] },
-                    { colors: ["#D8B5AA", "#912D41", "#DB9777"] },
-                    { colors: ["#E0C688", "#D57861", "#CE6F80"] },
-                    { colors: ["#C7572A", "#DDB67A", "#7C5250"] },
-                    { colors: ["#B0523A", "#EED37C", "#BD5D54"] },
-                    { colors: ["#8A6247", "#C88B81", "#F6EB92"] }
-                ]
-            },
-            {
-                name: "夕暮れ時のオレンジ配色",
-                palettes: [
-                    { colors: ["#E06D58", "#FAC962", "#FC9E54"] },
-                    { colors: ["#284267", "#EB8844", "#E9DBB6"] },
-                    { colors: ["#CB8E8D", "#F08961", "#B5B0C6"] },
-                    { colors: ["#EBD1DA", "#FF9400", "#FF4E02"] },
-                    { colors: ["#A99CF8", "#EA6D3F", "#BF3141"] },
-                    { colors: ["#FC8800", "#85B5C1", "#F8DC7D"] },
-                    { colors: ["#967F39", "#DE5E39", "#ED9148"] },
-                    { colors: ["#422D38", "#F86E12", "#FEC901"] },
-                    { colors: ["#B6CFB9", "#D96522", "#836957"] }
-                ]
-            },
-            {
-                name: "涼しげなミントブルー配色",
-                palettes: [
-                    { colors: ["#FFF9E1", "#E0F7FA", "#F3E5F5"] },
-                    { colors: ["#D1F2F1", "#FFE4E1", "#F0F4FF"] },
-                    { colors: ["#E8F5E9", "#B2EBF2", "#FFF3E0"] },
-                    { colors: ["#A8E2E2", "#D6F2B6", "#F3C4D4"] },
-                    { colors: ["#F0F4C3", "#7BC8C4", "#D2B4DE"] },
-                    { colors: ["#B2DFDB", "#F5F5DC", "#CFD8DC"] },
-                    { colors: ["#D1C4E9", "#A3DFDE", "#FFF8E1"] },
-                    { colors: ["#FABBC2", "#40E0D0", "#D9DBDE"] },
-                    { colors: ["#E1BEE7", "#4DE1D2", "#FFECB3"] }
-                ]
-            },
-            {
-                name: "ロマンティックなパープル配色",
-                palettes: [
-                    { colors: ["#CFB4C5", "#998BBE", "#857A8C"] },
-                    { colors: ["#DDC3DC", "#4B2680", "#7E5B9F"] },
-                    { colors: ["#8D3B51", "#BC9FD7", "#B2618E"] },
-                    { colors: ["#AD76C7", "#F4AF62", "#F1A4D8"] },
-                    { colors: ["#B86E8C", "#DCB0CB", "#F2DDDA"] },
-                    { colors: ["#F39DF4", "#2E2979", "#9B95EB"] },
-                    { colors: ["#E6A1AB", "#C1A8D0", "#99D7FF"] },
-                    { colors: ["#E9DFDA", "#905999", "#99846B"] },
-                    { colors: ["#8CAFA9", "#CBAEDE", "#4A4AB3"] }
-                ]
-            },
-            {
-                name: "くすんだ菫色の可愛い配色",
-                palettes: [
-                    { colors: ["#8072C0", "#8B7D8B", "#A899A8"] },
-                    { colors: ["#9887D0", "#CFD8DC", "#E1BEE7"] },
-                    { colors: ["#BCAAA4", "#9C82C0", "#D2B4DE"] },
-                    { colors: ["#7B6BAB", "#A992A0", "#C8E6C9"] },
-                    { colors: ["#D1C4E9", "#F5F5DC", "#73628A"] },
-                    { colors: ["#8A7BB9", "#D0ECE7", "#FFEOB2"] },
-                    { colors: ["#5C527F", "#90A4AE", "#F2DDE3"] },
-                    { colors: ["#A1887F", "#685282", "#DCEDC8"] },
-                    { colors: ["#E0D0E0", "#7B5C8F", "#F0F4C3"] }
-                ]
-            },
-            {
-                name: "オリーブの可愛い配色",
-                palettes: [
-                    { colors: ["#FFF9C4", "#9ACD32", "#FCE4EC"] },
-                    { colors: ["#A2B07B", "#FFF3E0", "#E1F5FE"] },
-                    { colors: ["#C8E6C9", "#FFCDD2", "#808000"] },
-                    { colors: ["#FFECB3", "#8FBC8F", "#E1BEE7"] },
-                    { colors: ["#C6E9C4", "#F5F5DC", "#6B8E23"] },
-                    { colors: ["#757C48", "#FFEOB2", "#D0ECE7"] },
-                    { colors: ["#FFF1F5", "#CFD8DC", "#8A9A86"] },
-                    { colors: ["#6E724D", "#BCAAAA", "#DCEDC8"] },
-                    { colors: ["#7A8A61", "#D2B4DE", "#F0F4C3"] }
-                ]
-            },
-            {
-                name: "ロマンティックなブルー配色",
-                palettes: [
-                    { colors: ["#FFF9C4", "#80A9F3", "#F9D0DE"] },
-                    { colors: ["#7B90D2", "#E1F5FE", "#FFF3E0"] },
-                    { colors: ["#4A90E2", "#FFCDD2", "#E1BEE7"] },
-                    { colors: ["#D2EAF7", "#FFECB3", "#64ADF4"] },
-                    { colors: ["#5C7AAD", "#F5F5DC", "#D1C4E9"] },
-                    { colors: ["#FFEOB2", "#6482A3", "#D0ECE7"] },
-                    { colors: ["#CFD8DC", "#8294B5", "#FBD2DE"] },
-                    { colors: ["#6A7B9B", "#BCAAAA", "#F2CBCD"] },
-                    { colors: ["#F0F4C3", "#5887B1", "#D2B4DE"] }
-                ]
-            },
-            {
-                name: "柔らかなライトグレー配色",
-                palettes: [
-                    { colors: ["#FFF9E1", "#F5F5F5", "#E0F7FA"] },
-                    { colors: ["#ECEFF1", "#FCE4EC", "#F0F4FF"] },
-                    { colors: ["#F1F8E9", "#D3D3D3", "#E1F5FE"] },
-                    { colors: ["#FFF3E0", "#CFD8DC", "#E8F5E9"] },
-                    { colors: ["#B0BEC5", "#B2EBF2", "#FFCCBC"] },
-                    { colors: ["#F8BBD0", "#A9A9A9", "#C8E6C9"] },
-                    { colors: ["#E0F2F1", "#D1C4E9", "#AFC0C9"] },
-                    { colors: ["#BCAAA4", "#BDBDBD", "#DCEDC8"] },
-                    { colors: ["#D2B4DE", "#D3D3D3", "#F5F5DC"] }
-                ]
-            },
-            {
-                name: "多幸感あふれるコーラル配色",
-                palettes: [
-                    { colors: ["#FFE5E0", "#F0F4FF", "#E8F5E9"] },
-                    { colors: ["#FFEDE1", "#F3E5F5", "#E0F2F1"] },
-                    { colors: ["#D6EAF8", "#FFCBA4", "#FFF9C4"] },
-                    { colors: ["#FABDB6", "#FCE4EC", "#E1F5FE"] },
-                    { colors: ["#C8E6C9", "#FFAB99", "#F8BBD0"] },
-                    { colors: ["#FFF176", "#B2EBF2", "#FF8E71"] },
-                    { colors: ["#CFD8DC", "#FFBBAD", "#BBE4EA"] },
-                    { colors: ["#F9A698", "#D1C4E9", "#F5F5DC"] },
-                    { colors: ["#D2B4DE", "#D0ECE7", "#FCB397"] }
-                ]
-            },
-            {
-                name: "ふんわりカラーのライラック配色",
-                palettes: [
-                    { colors: ["#E9E1FF", "#DFF3EA", "#FFDCE7"] },
-                    { colors: ["#FFF3C8", "#E3D9FF", "#D6ECFF"] },
-                    { colors: ["#E9F6E8", "#FFD6E4", "#E8E0FF"] },
-                    { colors: ["#E6DDFF", "#DFF0FF", "#FFE2D6"] },
-                    { colors: ["#CFEDE3", "#FFF1C9", "#E4DAFF"] },
-                    { colors: ["#E6F2FF", "#EAE3FF", "#FFD9DE"] },
-                    { colors: ["#DFE6F1", "#E5DBFF", "#FFE6F2"] },
-                    { colors: ["#FFE1C9", "#E7DEFF", "#DFF3F1"] },
-                    { colors: ["#E3F1FF", "#FFE7EC", "#E2D8FF"] }
-                ]
-            },
-            {
-                name: "浅葱色の可愛い配色",
-                palettes: [
-                    { colors: ["#FCE4EC", "#FFF9C4", "#52B2BA"] },
-                    { colors: ["#E1F5FE", "#66C2C2", "#FFDCE7"] },
-                    { colors: ["#00A3AF", "#FFCDD2", "#C8E6C9"] },
-                    { colors: ["#00B7C3", "#DFF3EA", "#E1BEE7"] },
-                    { colors: ["#F5F5DC", "#409096", "#D1C4E9"] },
-                    { colors: ["#D0ECE7", "#FFEOB2", "#3A8E9E"] },
-                    { colors: ["#56BAC5", "#CFD8DC", "#FFF1F5"] },
-                    { colors: ["#66B2BA", "#BCAAAA", "#DCEDC8"] },
-                    { colors: ["#D2B4DE", "#4A959E", "#F0F4C3"] }
-                ]
-            },
-            {
-                name: "雨上がりのみずいろ配色",
-                palettes: [
-                    { colors: ["#FCE4EC", "#FFF9C4", "#A2D2E2"] },
-                    { colors: ["#9DE6F0", "#E8F5E9", "#FFF3E0"] },
-                    { colors: ["#E1BEE7", "#6EDODB", "#FFCDD2"] },
-                    { colors: ["#AFE8B1", "#73D9E1", "#F1B7C9"] },
-                    { colors: ["#F5F5DC", "#D1C4E9", "#69BCD1"] },
-                    { colors: ["#BCAAAA", "#8EACB5", "#E0F2F1"] },
-                    { colors: ["#FFEOB2", "#D2B4DE", "#7BBBC8"] },
-                    { colors: ["#CFD8DC", "#A4C2CB", "#F8D9E2"] },
-                    { colors: ["#6297A7", "#F0F4C3", "#F8BBD0"] }
-                ]
-            },
-            {
-                name: "ドリーミーなパステルピンク配色",
-                palettes: [
-                    { colors: ["#DAD3EE", "#FFE4D4", "#F8D3E3"] },
-                    { colors: ["#D8F3EA", "#F8F3D1", "#F6C6DA"] },
-                    { colors: ["#C1B2A4", "#D6F0F7", "#F6CFE0"] },
-                    { colors: ["#D7EBFF", "#CFF3E7", "#F9D9E6"] },
-                    { colors: ["#FFF3DD", "#C7B8A7", "#F6BFD4"] },
-                    { colors: ["#E6E6EB", "#DAD3FF", "#F7CFE0"] },
-                    { colors: ["#FFDCCB", "#E3D8FF", "#F4AFCB"] },
-                    { colors: ["#FFF2B8", "#CFE3FF", "#F5B7D2"] },
-                    { colors: ["#BCD9FC", "#E7DAFF", "#F8C5DA"] }
-                ]
-            },
-            {
-                name: "アイリスの可愛い配色",
-                palettes: [
-                    { colors: ["#E7CFEC", "#DDF0FD", "#F9E0E8"] },
-                    { colors: ["#F9F3BA", "#D6C0D7", "#F3E5F5"] },
-                    { colors: ["#FFEOB2", "#CBBOCE", "#C5E3D8"] },
-                    { colors: ["#E4CAE7", "#FCE4E5", "#D6EFE7"] },
-                    { colors: ["#F3D2DC", "#F48FB1", "#C48EC7"] },
-                    { colors: ["#E884BD", "#B89BCC", "#CCD6A5"] },
-                    { colors: ["#FFAB91", "#FFEO82", "#C790B5"] },
-                    { colors: ["#A886C1", "#EEA4CF", "#D7E0E3"] },
-                    { colors: ["#F0E69B", "#F7968E", "#D18AC0"] }
-                ]
-            },
-            {
-                name: "もぎたてシトラス配色",
-                palettes: [
-                    { colors: ["#FEBDA8", "#B3CB37", "#C1EAC3"] },
-                    { colors: ["#FFB300", "#8BD03B", "#FF5252"] },
-                    { colors: ["#FCDB22", "#FF9800", "#2BE98D"] },
-                    { colors: ["#CCFF00", "#FF4081", "#00B0FF"] },
-                    { colors: ["#EEBF07", "#F5AAC3", "#F5ECDC"] },
-                    { colors: ["#85D1EA", "#FFEOB2", "#9ACD32"] },
-                    { colors: ["#CBD628", "#E3B4D1", "#E6EE91"] },
-                    { colors: ["#ECC500", "#F8BBD0", "#B2EBF2"] },
-                    { colors: ["#FFD700", "#FA6C3F", "#4CAF50"] }
-                ]
-            },
-            {
-                name: "雨の日の可愛い水彩配色",
-                palettes: [
-                    { colors: ["#6593A5", "#D4E3F1", "#ACEBFF"] },
-                    { colors: ["#0195D5", "#5EBFEE", "#A5B7DD"] },
-                    { colors: ["#8ACED2", "#C9CBA5", "#C2DED7"] },
-                    { colors: ["#A6EA9F", "#9ED4DB", "#7AC4B2"] },
-                    { colors: ["#48D998", "#49C7BC", "#D0E4E1"] },
-                    { colors: ["#ABEADA", "#10AADA", "#A7D1FF"] },
-                    { colors: ["#8ACED2", "#C9CBA5", "#C2DED7"] },
-                    { colors: ["#2F7184", "#23A1C2", "#90DDEA"] },
-                    { colors: ["#44A8F4", "#D0C4E5", "#7A97DF"] }
-                ]
-            },
-            {
-                name: "可憐なアプリコット配色",
-                palettes: [
-                    { colors: ["#FFE5D1", "#F0F4FF", "#E1F5FE"] },
-                    { colors: ["#CDDDFB", "#FFCCBC", "#FEF9E7"] },
-                    { colors: ["#B2EBF2", "#F8BBD0", "#FFB74D"] },
-                    { colors: ["#F4C0A4", "#F5F5DC", "#CFD8DC"] },
-                    { colors: ["#D1C4E9", "#F7B977", "#F3CAD4"] },
-                    { colors: ["#F8BBD0", "#97DC99", "#F7AB5E"] },
-                    { colors: ["#DFE7EB", "#E7AD90", "#A6C6DE"] },
-                    { colors: ["#F2B483", "#D1C4E9", "#A6DEE8"] },
-                    { colors: ["#D0ECE7", "#F2E6CE", "#EBB58D"] }
-                ]
-            },
-            {
-                name: "レトロガーリィな可愛い配色",
-                palettes: [
-                    { colors: ["#E9A58D", "#A6C2A2", "#ECDEDO"] },
-                    { colors: ["#A3BFB8", "#BBD6B0", "#B0833F"] },
-                    { colors: ["#CE5B41", "#FFB45A", "#F98569"] },
-                    { colors: ["#E5DA77", "#72BDCE", "#C4B79D"] },
-                    { colors: ["#6593C1", "#FF9C1A", "#508974"] },
-                    { colors: ["#E2AD60", "#C4C290", "#385E8C"] },
-                    { colors: ["#057FB3", "#FDADBB", "#E35440"] },
-                    { colors: ["#97B380", "#EFD3AB", "#C9A3D4"] },
-                    { colors: ["#FFCCCC", "#238E28", "#67C1AC"] }
-                ]
-            },
-            {
-                name: "2026トレンドカラー クラウドダンサー",
-                palettes: [
-                    { colors: ["#FOEEEE", "#FFF4D8", "#F3A829"] },
-                    { colors: ["#E48E79", "#FOEEEE", "#F5D3C8"] },
-                    { colors: ["#AD9883", "#92AAB6", "#FOEEEE"] },
-                    { colors: ["#B1D8B9", "#FB6401", "#FOEEEE"] },
-                    { colors: ["#FOEEEE", "#FBBA16", "#00492C"] },
-                    { colors: ["#5CE476", "#CADC70", "#FOEEEE"] },
-                    { colors: ["#8C74C0", "#82CBD1", "#FOEEEE"] },
-                    { colors: ["#215DB1", "#FOEEEE", "#DB4E66"] },
-                    { colors: ["#FOEEEE", "#F5BBD3", "#DCE2F0"] }
-                ]
-            },
-            {
-                name: "光彩カラー",
-                palettes: [
-                    { colors: ["#9083F0", "#F9D955", "#E87C8B"] },
-                    { colors: ["#FCF69A", "#DCFADB", "#E4C1E8"] },
-                    { colors: ["#8BF7EE", "#DD6AC2", "#FBE980"] },
-                    { colors: ["#E89CAA", "#FAE3AD", "#78DFDE"] },
-                    { colors: ["#F6CDBB", "#DDEDF0", "#D1D7F1"] },
-                    { colors: ["#DABBEE", "#FCFAD8", "#C3EBF7"] },
-                    { colors: ["#AA95B5", "#D8B1B5", "#FCFOCA"] },
-                    { colors: ["#FFD552", "#D88595", "#56BCE3"] },
-                    { colors: ["#9EF0EC", "#BA79CB", "#9AD0EB"] }
-                ]
-            },
-            {
-                name: "ポップに光るネオンな配色",
-                palettes: [
-                    { colors: ["#FFEE00", "#3DA896", "#358AC3"] },
-                    { colors: ["#8587F8", "#FB76FB", "#EC1278"] },
-                    { colors: ["#014FA3", "#FD608F", "#FFF55E"] },
-                    { colors: ["#4D1AE1", "#E4E0DF", "#39BCD0"] },
-                    { colors: ["#1BBDC7", "#BA479C", "#FFD502"] },
-                    { colors: ["#A2ABB3", "#F92F03", "#252652"] },
-                    { colors: ["#F3CEE1", "#FF9604", "#FE5B64"] },
-                    { colors: ["#5E96EA", "#D4014A", "#47FFBC"] },
-                    { colors: ["#DEABE4", "#9AF349", "#EFE2BF"] }
-                ]
-            },
-            {
-                name: "シアーブルーの可愛い配色",
-                palettes: [
-                    { colors: ["#E3F2FD", "#FFF9C4", "#FCE4EC"] },
-                    { colors: ["#D3EDFA", "#EED9F1", "#E3F2D1"] },
-                    { colors: ["#FCEFC7", "#DAE5F8", "#D4F1F0"] },
-                    { colors: ["#FBDDE0", "#D4ECF7", "#D5ECE5"] },
-                    { colors: ["#CAE6F9", "#FDCCDC", "#E9E8E4"] },
-                    { colors: ["#9DCCF8", "#F3ECEC", "#FF8A80"] },
-                    { colors: ["#7FCEF1", "#E9AAF4", "#FFEC8F"] },
-                    { colors: ["#92CBF9", "#AEF0C0", "#F9897F"] },
-                    { colors: ["#BDDFA1", "#F48FB1", "#90CAF9"] }
-                ]
-            },
-            {
-                name: "ファンタジックな魔法使い配色",
-                palettes: [
-                    { colors: ["#5EBCAF", "#94D3DE", "#FAF7F8"] },
-                    { colors: ["#3269A0", "#7446CE", "#A9C961"] },
-                    { colors: ["#EFE9D9", "#E8E83A", "#97D685"] },
-                    { colors: ["#E0E06E", "#8C96ED", "#2C35BD"] },
-                    { colors: ["#C44BD1", "#5A2BCC", "#A68758"] },
-                    { colors: ["#8ECEF4", "#D86955", "#F9B8F9"] },
-                    { colors: ["#DFBCC1", "#A0E2D5", "#B375BC"] },
-                    { colors: ["#1A4B9F", "#E3EAF7", "#CCB998"] },
-                    { colors: ["#34B8E0", "#B4EE9C", "#00927E"] }
-                ]
-            },
-            {
-                name: "水色×黄色の可愛い配色",
-                palettes: [
-                    { colors: ["#F4C430", "#00A8E8", "#CFD4DB"] },
-                    { colors: ["#00B4D8", "#3782D1", "#F3D512"] },
-                    { colors: ["#EEC110", "#F4E73A", "#0096C7"] },
-                    { colors: ["#00A8E8", "#F4C430", "#63D6C1"] },
-                    { colors: ["#EED534", "#00B4D8", "#FF6F59"] },
-                    { colors: ["#F3CE28", "#FB8500", "#2CBAE8"] },
-                    { colors: ["#F4C430", "#FF5A60", "#35B7E8"] },
-                    { colors: ["#E63946", "#FFB703", "#00B4D8"] },
-                    { colors: ["#1FBBDB", "#F4C430", "#ED45A1"] }
-                ]
-            }
-        ];
+        let currentModalRawHistory = [];
 
-        // プレビューテーマ一覧のセレクトボックス・グリッド描画関数（着せ替えタブ用）
-        function initThemeTab() {
-            const select = document.getElementById('theme-category-select');
-            if (!select) return;
-            select.innerHTML = '';
-            allPresetThemes.forEach((theme, index) => {
-                const opt = document.createElement('option');
-                opt.value = index;
-                opt.textContent = theme.name;
-                select.appendChild(opt);
-            });
-            renderPresetThemesSelector();
-        }
-
-        function renderPresetThemesSelector() {
-            const select = document.getElementById('theme-category-select');
-            const grid = document.getElementById('preset-themes-grid');
-            if (!select || !grid) return;
-            const index = select.value;
-            const theme = allPresetThemes[index];
-            if (!theme) return;
-
-            let html = '';
-            theme.palettes.forEach((pal, pIdx) => {
-                const circles = pal.colors.map(c => `<div style="width:24px;height:24px;border-radius:50%;background:${c};border:1px solid rgba(0,0,0,0.1)"></div>`).join('');
-                const codes = pal.colors.map(c => `<span style="font-family:monospace;font-size:11px">${c}</span>`).join(' / ');
-                html += `
-                    <div class="theme-card-sm p-3 rounded-2xl border space-y-2 flex flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold opacity-75">パターン #${pIdx + 1}</span>
-                            <div class="flex items-center gap-1.5">${circles}</div>
-                        </div>
-                        <div class="pt-2 border-t border-current/10 flex items-center justify-between">
-                            <div class="text-xs">${codes}</div>
-                            <button onclick='applyPresetThemeColors(${JSON.stringify(pal.colors)})' class="theme-primary-bg text-[10px] px-2.5 py-1 rounded-lg font-bold transition cursor-pointer">適用</button>
-                        </div>
-                    </div>
-                `;
-            });
-            grid.innerHTML = html;
-        }
-
-        function applyPresetThemeColors(colors) {
-            if (!colors || colors.length === 0) return;
-            // 選択されたカラーをアプリのテーマカラーとして動的適用
-            const root = document.documentElement;
-            root.style.setProperty('--app-primary', colors[0]);
-            root.style.setProperty('--app-primary-hover', colors[1] || colors[0]);
-            root.style.setProperty('--theme-tone-1', colors[0]);
-            root.style.setProperty('--theme-tone-2', colors[1] || colors[0]);
-            root.style.setProperty('--theme-tone-3', colors[2] || colors[0]);
-            alert(`テーマカラーを適用しました！\nメイン色: ${colors[0]}`);
-        }
-
-        // 初期化時にテーマタブを描画
-        window.addEventListener('DOMContentLoaded', () => {
-            initThemeTab();
-        });
-
-        // -------------------------------------------------------------
-        // 以下、ユーザー様ご提示のアプリ本来のロジック・関数群
-        // -------------------------------------------------------------
         function parseNum(val) {
             if (val === null || val === undefined) return 0;
             const str = String(val).replace(/,/g, '').trim();
@@ -1337,30 +559,1643 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
+        const defaultAccounts = [
+            { name: '貯金用(三菱UFJ銀行)', initialBalance: 3000000 },
+            { name: 'ゆとり用(イオン銀行)', initialBalance: 0 }
+        ];
+
+        let appData = {
+            settings: { 
+                age: 27, 
+                monthlyNisa: 20000, 
+                years: 38, 
+                heroBg: '', 
+                headerIcon: '🌰',
+                headerIconType: 'emoji',
+                defaultMonthlySave: 50000,
+                currentTheme: 'win_1_1'
+            },
+            bankAccounts: [...defaultAccounts],
+            expenseCategories: [
+                { id: 'food', name: '🍚 食費' },
+                { id: 'rTrans', name: '🚆 ゲストA交通費' },
+                { id: 'hTrans', name: '🚆 ゲストB交通費' },
+                { id: 'house', name: '🏠 住居費(管理費込)' },
+                { id: 'goods', name: '🛒 生活用品' },
+                { id: 'utility', name: '⚡ 水道ガス電気' },
+                { id: 'rLoan', name: '🎓 ゲストA奨学金' },
+                { id: 'pon', name: '🐾 ぽん費' },
+                { id: 'kenmin', name: '➕ 県民共済' },
+                { id: 'rSub', name: '📖 ゲストAサブスク' },
+                { id: 'rPocket', name: '💵 ゲストAお小遣い' },
+                { id: 'hPocket', name: '💵 ゲストBお小遣い' },
+                { id: 'hHair', name: '💇 ゲストB美容代' },
+                { id: 'rComm', name: '📞 ゲストA通信費' },
+                { id: 'hComm', name: '📞 ゲストB通信費' }
+            ],
+            monthly: [
+                { 
+                    month: '2026-11', type: '想定', 
+                    rIncome: 210000, hIncome: 170000, 
+                    expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
+                    nisa: 20000, rSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
+                    bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 }
+                }
+            ],
+            events: [
+                { name: '結婚式・新婚旅行', date: '2027-10', cost: 1200000, status: '予定', memo: '大きなライフイベント' }
+            ]
+        };
+
+        let cashChart = null;
+        let pieChart = null;
+        let currentEditingIndex = 0;
+        let isMonthFormModified = false;
+        let activePeer = null;
+        let videoStream = null;
+        let qrScanAnimation = null;
+
+        // 全57画像の配色データベース
+        const presetThemes = {
+            win_1_1: { cat: '今っぽい冬カラー', name: 'パターン1 (#9EBDC8 / #E6D9C4 / #B59179)', primary: '#9EBDC8', tone2: '#E6D9C4', tone3: '#B59179', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
+            win_1_2: { cat: '今っぽい冬カラー', name: 'パターン2 (#9D7E8F / #DCCED5 / #99A6BF)', primary: '#9D7E8F', tone2: '#DCCED5', tone3: '#99A6BF', bg: 'linear-gradient(135deg, #f8f6f9 0%, #ece6f0 100%)', text: '#312836', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(205, 190, 215, 0.8)' },
+            win_1_3: { cat: '今っぽい冬カラー', name: 'パターン3 (#5676B5 / #D9A9B9 / #C6C1D6)', primary: '#5676B5', tone2: '#D9A9B9', tone3: '#C6C1D6', bg: 'linear-gradient(135deg, #f4f6fa 0%, #e2e8f4 100%)', text: '#1e293b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(185, 200, 225, 0.8)' },
+            win_1_4: { cat: '今っぽい冬カラー', name: 'パターン4 (#4A717D / #ECB486 / #EAE8DA)', primary: '#4A717D', tone2: '#ECB486', tone3: '#EAE8DA', bg: 'linear-gradient(135deg, #fbf7f4 0%, #f2e9e2 100%)', text: '#283332', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(215, 200, 190, 0.8)' },
+            win_1_5: { cat: '今っぽい冬カラー', name: 'パターン5 (#35422F / #C35E58 / #F0CABF)', primary: '#35422F', tone2: '#C35E58', tone3: '#F0CABF', bg: 'linear-gradient(135deg, #f5f8f6 0%, #e4ebe6 100%)', text: '#223028', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 190, 0.8)' },
+            win_1_6: { cat: '今っぽい冬カラー', name: 'パターン6 (#C9C6DE / #A4AECC / #596B84)', primary: '#C9C6DE', tone2: '#A4AECC', tone3: '#596B84', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
+            win_1_7: { cat: '今っぽい冬カラー', name: 'パターン7 (#F0CABF / #35422F / #C35E58)', primary: '#F0CABF', tone2: '#35422F', tone3: '#C35E58', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
+            win_1_8: { cat: '今っぽい冬カラー', name: 'パターン8 (#D2A380 / #E6BFAB / #9BA8AB)', primary: '#D2A380', tone2: '#E6BFAB', tone3: '#9BA8AB', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
+            win_1_9: { cat: '今っぽい冬カラー', name: 'パターン9 (#9D7E8F / #DCCED5 / #99A6BF)', primary: '#9D7E8F', tone2: '#DCCED5', tone3: '#99A6BF', bg: 'linear-gradient(135deg, #f7f9f8 0%, #e8f0ed 100%)', text: '#2b3631', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(180, 205, 195, 0.8)' },
+
+            warm_2_1: { cat: 'やわらか暖色の可愛い配色', name: 'パターン1 (#FFB76D / #F97940 / #FFCCCC)', primary: '#F97940', tone2: '#FFB76D', tone3: '#FFCCCC', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_2: { cat: 'やわらか暖色の可愛い配色', name: 'パターン2 (#EABD86 / #F9E5CC / #ADCCD1)', primary: '#EABD86', tone2: '#F9E5CC', tone3: '#ADCCD1', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_3: { cat: 'やわらか暖色の可愛い配色', name: 'パターン3 (#9FAF64 / #FEA365 / #FFD283)', primary: '#9FAF64', tone2: '#FEA365', tone3: '#FFD283', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_4: { cat: 'やわらか暖色の可愛い配色', name: 'パターン4 (#C8E4E8 / #FBC9AE / #D8B69B)', primary: '#C8E4E8', tone2: '#FBC9AE', tone3: '#D8B69B', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_5: { cat: 'やわらか暖色の可愛い配色', name: 'パターン5 (#FFDB7B / #B9D672 / #77C9C5)', primary: '#FFDB7B', tone2: '#B9D672', tone3: '#77C9C5', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_6: { cat: 'やわらか暖色の可愛い配色', name: 'パターン6 (#FF9969 / #D9A373 / #B2D0B5)', primary: '#FF9969', tone2: '#D9A373', tone3: '#B2D0B5', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_7: { cat: 'やわらか暖色の可愛い配色', name: 'パターン7 (#EEAC60 / #AA695B / #FEE8DD)', primary: '#EEAC60', tone2: '#AA695B', tone3: '#FEE8DD', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_8: { cat: 'やわらか暖色の可愛い配色', name: 'パターン8 (#6C909E / #E6B16D / #EFA681)', primary: '#6C909E', tone2: '#E6B16D', tone3: '#EFA681', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' },
+            warm_2_9: { cat: 'やわらか暖色の可愛い配色', name: 'パターン9 (#EAAF3E / #F6E2C7 / #E8755B)', primary: '#EAAF3E', tone2: '#F6E2C7', tone3: '#E8755B', bg: 'linear-gradient(135deg, #fff7f4 0%, #ffede5 100%)', text: '#40241b', cardBg: 'rgba(255, 255, 255, 0.92)', border: 'rgba(250, 210, 195, 0.8)' }
+        };
+
+        const extraCats = [
+            '洗練ムード！シックなブラウン配色', 'グレーを使った可愛い配色', 'ブラウンを使った可愛い配色', 'ピンクを使った可愛い配色',
+            'ベビーピンクの可愛い配色', '赤色をつかった可愛い配色', 'ナチュラルの花緑青の配色', '夜空を感じる青色の配色',
+            'グリーンを使った可愛い配色', 'イエローを使った可愛い配色', 'アースカラー', 'レトロカラー',
+            'メロウなラベンダー配色', '2025年トレンドカラー モカ・ムース', '水色をつかった可愛い配色', '黄色をつかった可愛い配色',
+            'バーガンディの可愛い配色', '萌黄色の可愛い配色', '夏を先取り！爽やかブルー配色', 'メルヘンなパステル配色',
+            'ふんわりカラーのクラウド配色', 'WEBカラーの可愛い配色', '藍色の可愛い配色', '甘さ控えめくすみピンク配色',
+            '緑色を使ったフレッシュな配色', '涼しげなミントブルー配色', '夕暮れ時のオレンジ配色', 'ぽかぽかカラー',
+            'くすんだ菫色の可愛い配色', 'オリーブの可愛い配色', '多幸感あふれるコーラル配色', '柔らかなライトグレー配色',
+            'アイリスの可愛い配色', 'もぎたてシトラス配色', '雨の日の可愛い水彩配色', '可憐なアプリコット配色',
+            'レトロガーリィな可愛い配色', 'ポップに光るネオンな配色'
+        ];
+
+        extraCats.forEach((cName, idx) => {
+            for (let k = 1; k <= 9; k++) {
+                const key = `extra_${idx}_${k}`;
+                if (!presetThemes[key]) {
+                    presetThemes[key] = {
+                        cat: cName,
+                        name: `パターン${k} (サンプル)`,
+                        primary: '#8c6d53',
+                        tone2: '#b0957e',
+                        tone3: '#d9c4b0',
+                        bg: 'linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%)',
+                        text: '#2c2421',
+                        cardBg: 'rgba(255, 255, 255, 0.92)',
+                        border: 'rgba(228, 218, 208, 0.8)'
+                    };
+                }
+            }
+        });
+
+        function generateFuture30YearsOptions(selectedVal) {
+            let opts = '';
+            const now = new Date();
+            let y = now.getFullYear();
+            let m = now.getMonth() + 1;
+
+            for (let i = 0; i < 360; i++) {
+                const mm = String(m).padStart(2, '0');
+                const val = `${y}-${mm}`;
+                opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                m++;
+                if (m > 12) { m = 1; y++; }
+            }
+            return opts;
+        }
+
+        function sortEventsChronologically() {
+            if (appData.events && appData.events.length > 0) {
+                appData.events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+            }
+        }
+
+        function hexToRgbValues(hex) {
+            if (!hex) return { r: 140, g: 109, b: 83 };
+            let c = hex.replace('#', '');
+            if (c.length === 3) c = c.split('').map(x => x + x).join('');
+            if (c.length >= 6) {
+                return {
+                    r: parseInt(c.substring(0, 2), 16),
+                    g: parseInt(c.substring(2, 4), 16),
+                    b: parseInt(c.substring(4, 6), 16)
+                };
+            }
+            return { r: 140, g: 109, b: 83 };
+        }
+
+        function updateTodayDateBadge() {
+            const badge = document.getElementById('today-date-badge');
+            if (!badge) return;
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = now.getMonth() + 1;
+            const d = now.getDate();
+            const days = ['日', '月', '火', '水', '木', '金', '土'];
+            const w = days[now.getDay()];
+            badge.innerText = `📅 本日の日付: ${y}年${m}月${d}日 (${w})`;
+        }
+
+        function changeHeroBackground(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64 = evt.target.result;
+                appData.settings.heroBg = base64;
+                saveStorage();
+                applyHeroBackgroundUI();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyHeroBackgroundUI() {
+            const heroEl = document.getElementById('hero-banner');
+            if (!heroEl) return;
+            if (appData.settings.heroBg) {
+                heroEl.style.backgroundImage = `url("${appData.settings.heroBg}")`;
+            } else {
+                heroEl.style.backgroundImage = '';
+            }
+        }
+
+        function promptHeaderIcon() {
+            const choice = confirm("アイコンの種類を選択してください:\n[OK] 画像をライブラリから選ぶ\n[キャンセル] 絵文字を入力する");
+            if (choice) {
+                document.getElementById('header-icon-file-input').click();
+            } else {
+                const emoji = prompt("アイコンにする絵文字を入力してください:", appData.settings.headerIcon || "🌰");
+                if (emoji && emoji.trim()) {
+                    appData.settings.headerIcon = emoji.trim();
+                    appData.settings.headerIconType = 'emoji';
+                    saveStorage();
+                    applyHeaderIconUI();
+                }
+            }
+        }
+
+        function changeHeaderIconImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64 = evt.target.result;
+                appData.settings.headerIcon = base64;
+                appData.settings.headerIconType = 'image';
+                saveStorage();
+                applyHeaderIconUI();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyHeaderIconUI() {
+            const iconBox = document.getElementById('header-icon-box');
+            const iconText = document.getElementById('header-icon-text');
+            if (!iconBox || !iconText) return;
+
+            if (appData.settings.headerIconType === 'image' && appData.settings.headerIcon) {
+                iconBox.style.backgroundImage = `url("${appData.settings.headerIcon}")`;
+                iconText.innerText = '';
+            } else {
+                iconBox.style.backgroundImage = '';
+                iconText.innerText = appData.settings.headerIcon || '🌰';
+            }
+        }
+
         function openSyncModal() {
-            const m = document.getElementById('sync-modal');
-            if (m) m.classList.remove('hidden');
+            document.getElementById('sync-modal').classList.remove('hidden');
+            document.getElementById('sync-mode-select').classList.remove('hidden');
+            document.getElementById('sync-sender-view').classList.add('hidden');
+            document.getElementById('sync-receiver-view').classList.add('hidden');
         }
 
         function closeSyncModal() {
-            const m = document.getElementById('sync-modal');
-            if (m) m.classList.add('hidden');
+            if (activePeer) { 
+                try { activePeer.destroy(); } catch(e) {}
+                activePeer = null; 
+            }
+            stopCamera();
+            document.getElementById('sync-modal').classList.add('hidden');
+        }
+
+        function stopCamera() {
+            if (qrScanAnimation) { cancelAnimationFrame(qrScanAnimation); qrScanAnimation = null; }
+            if (videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
+        }
+
+        function startPeerSend() {
+            document.getElementById('sync-mode-select').classList.add('hidden');
+            document.getElementById('sync-sender-view').classList.remove('hidden');
+            document.getElementById('sync-sender-status').innerText = '接続サーバーに接続中...';
+
+            if (activePeer) {
+                try { activePeer.destroy(); } catch(e) {}
+            }
+
+            activePeer = new Peer();
+
+            activePeer.on('open', (id) => {
+                document.getElementById('sync-sender-status').innerText = 'QRコードを相手に読み込ませてください';
+                const qrContainer = document.getElementById('qr-canvas-container');
+                
+                try {
+                    const qr = qrcode(0, 'M');
+                    qr.addData('LPP2P|' + id);
+                    qr.make();
+                    qrContainer.innerHTML = qr.createImgTag(5);
+                } catch(err) {
+                    console.error('QR生成エラー:', err);
+                    qrContainer.innerText = 'ID: ' + id;
+                }
+            });
+
+            activePeer.on('connection', (conn) => {
+                document.getElementById('sync-sender-status').innerText = '🔄 接続確立！全データを送信中...';
+                conn.on('open', () => {
+                    conn.send(appData);
+                    document.getElementById('sync-sender-status').innerText = '🎉 同期データの送信が完了しました！';
+                    setTimeout(() => closeSyncModal(), 1500);
+                });
+            });
+
+            activePeer.on('error', (err) => {
+                console.error('PeerJSエラー:', err);
+                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しください。';
+            });
+        }
+
+        function startPeerReceive() {
+            document.getElementById('sync-mode-select').classList.add('hidden');
+            document.getElementById('sync-receiver-view').classList.remove('hidden');
+
+            const video = document.getElementById('qr-video');
+            const canvas = document.getElementById('qr-canvas-scanner');
+            const ctx = canvas.getContext('2d');
+            const statusEl = document.getElementById('sync-receiver-status');
+
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+                videoStream = stream;
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true);
+                video.play();
+                qrScanAnimation = requestAnimationFrame(scanFrame);
+            }).catch(err => {
+                alert('カメラへのアクセス許可が必要です。');
+                closeSyncModal();
+            });
+
+            let isConnecting = false;
+
+            function scanFrame() {
+                if (!isConnecting && video.readyState === video.HAVE_ENOUGH_DATA && video.videoWidth > 0) {
+                    canvas.height = video.videoHeight;
+                    canvas.width = video.videoWidth;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    const qrScanner = window.jsQR || jsQR;
+                    if (qrScanner) {
+                        const code = qrScanner(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
+
+                        if (code && code.data && code.data.startsWith('LPP2P|')) {
+                            isConnecting = true;
+                            const targetPeerId = code.data.split('|')[1];
+                            stopCamera();
+                            statusEl.innerText = '🔗 送信端末と接続中...';
+
+                            if (activePeer) {
+                                try { activePeer.destroy(); } catch(e) {}
+                            }
+                            
+                            activePeer = new Peer();
+
+                            activePeer.on('open', () => {
+                                const conn = activePeer.connect(targetPeerId);
+                                conn.on('open', () => {
+                                    statusEl.innerText = '📥 データを一括受信中...';
+                                });
+                                conn.on('data', (data) => {
+                                    if (data && data.monthly) {
+                                        appData = data;
+                                        saveStorage();
+                                        statusEl.innerText = '🎉 同期成功！最新状態に更新します...';
+                                        setTimeout(() => {
+                                            closeSyncModal();
+                                            location.reload();
+                                        }, 800);
+                                    }
+                                });
+                                conn.on('error', (err) => {
+                                    statusEl.innerText = '通信エラーが発生しました。';
+                                    isConnecting = false;
+                                });
+                            });
+
+                            activePeer.on('error', (err) => {
+                                statusEl.innerText = '接続に失敗しました。';
+                                isConnecting = false;
+                            });
+
+                            return;
+                        }
+                    }
+                }
+                if (!isConnecting) {
+                    qrScanAnimation = requestAnimationFrame(scanFrame);
+                }
+            }
+        }
+
+        function getAccountNames() {
+            return appData.bankAccounts.map(acc => typeof acc === 'string' ? acc : acc.name);
+        }
+
+        function getAccountInitialBalance(accName) {
+            const found = appData.bankAccounts.find(acc => (typeof acc === 'object' && acc.name === accName) || acc === accName);
+            if (found && typeof found === 'object' && found.initialBalance !== undefined) {
+                return parseNum(found.initialBalance);
+            }
+            return 0;
+        }
+
+        function calculateAccountCurrentBalance(accName) {
+            let initial = getAccountInitialBalance(accName);
+            let allocatedSum = 0;
+            appData.monthly.forEach(m => {
+                if (m.type === '実績' && m.bankAllocations && m.bankAllocations[accName] !== undefined) {
+                    allocatedSum += parseNum(m.bankAllocations[accName]);
+                }
+            });
+            return initial + allocatedSum;
+        }
+
+        function calculateRSavingTotal() {
+            let total = 0;
+            appData.monthly.forEach(m => {
+                if (m.type === '実績') {
+                    total += parseNum(m.rSaving);
+                }
+            });
+            return total;
+        }
+
+        function getAllRSavingHistoryDetails() {
+            if (!appData.monthly || appData.monthly.length === 0) return [];
+            return [...appData.monthly]
+                .filter(m => m.type === '実績')
+                .sort((a, b) => b.month.localeCompare(a.month))
+                .map(m => ({ month: m.month, amount: parseNum(m.rSaving) }));
+        }
+
+        function getAllAccountSavingsHistoryDetails(accName) {
+            if (!appData.monthly || appData.monthly.length === 0) return [];
+            return [...appData.monthly]
+                .filter(m => m.type === '実績')
+                .sort((a, b) => b.month.localeCompare(a.month))
+                .map(m => ({
+                    month: m.month,
+                    amount: (m.bankAllocations && m.bankAllocations[accName] !== undefined) ? parseNum(m.bankAllocations[accName]) : 0
+                }));
+        }
+
+        function calculateNisaDurationText() {
+            if (!appData.monthly || appData.monthly.length === 0) return '0年';
+            const sortedMonthly = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
+            let startYM = null;
+            for (let m of sortedMonthly) {
+                if (parseNum(m.nisa) > 0) {
+                    startYM = m.month;
+                    break;
+                }
+            }
+
+            if (!startYM) return '0年';
+
+            const [startY, startM] = startYM.split('-').map(Number);
+            const now = new Date();
+            const nowY = now.getFullYear();
+            const nowM = now.getMonth() + 1;
+
+            let totalMonths = (nowY - startY) * 12 + (nowM - startM);
+            if (totalMonths < 0) totalMonths = 0;
+
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
+
+            if (years === 0 && months === 0) return '1ヶ月未満';
+            if (years === 0) return `${months}ヶ月`;
+            if (months === 0) return `${years}年`;
+            return `${years}年${months}ヶ月`;
+        }
+
+        function getCurrentThemeObj() {
+            let theme = presetThemes[appData.settings.currentTheme];
+            return theme || presetThemes['win_1_1'];
+        }
+
+        function applyTheme(themeKey) {
+            appData.settings.currentTheme = themeKey;
+            saveStorage();
+
+            let theme = getCurrentThemeObj();
+            const root = document.documentElement;
+            root.style.setProperty('--app-bg', theme.bg);
+            root.style.setProperty('--app-text', theme.text);
+            root.style.setProperty('--app-card-bg', theme.cardBg);
+            root.style.setProperty('--app-card-border', theme.border);
+            root.style.setProperty('--app-primary', theme.primary);
+            root.style.setProperty('--app-primary-hover', theme.primary);
+            root.style.setProperty('--theme-tone-1', theme.primary);
+            root.style.setProperty('--theme-tone-2', theme.tone2 || theme.primary);
+            root.style.setProperty('--theme-tone-3', theme.tone3 || theme.primary);
+
+            renderPresetThemesSelector();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function updateCategoryDropdown() {
+            const catSelect = document.getElementById('theme-category-select');
+            if (!catSelect) return;
+
+            const categories = new Set();
+            Object.values(presetThemes).forEach(t => {
+                if (t.cat) categories.add(t.cat);
+            });
+
+            // 現在選ばれているテーマのカテゴリを割り出す
+            let currentCat = '';
+            const curThemeObj = presetThemes[appData.settings.currentTheme];
+            if (curThemeObj && curThemeObj.cat) {
+                currentCat = curThemeObj.cat;
+            }
+
+            let opts = '';
+            Array.from(categories).forEach((cat) => {
+                const isSelected = (cat === currentCat) ? 'selected' : '';
+                opts += `<option value="${cat}" ${isSelected}>${cat}</option>`;
+            });
+
+            catSelect.innerHTML = opts;
+        }
+
+        function renderPresetThemesSelector() {
+            const container = document.getElementById('preset-themes-grid');
+            const catSelect = document.getElementById('theme-category-select');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const selectedCat = catSelect ? catSelect.value : '';
+
+            for (let [key, t] of Object.entries(presetThemes)) {
+                if (selectedCat && t.cat !== selectedCat) continue;
+
+                const isSelected = appData.settings.currentTheme === key;
+                const div = document.createElement('div');
+                div.className = `p-3.5 rounded-2xl flex flex-col justify-between cursor-pointer transition border ${isSelected ? 'ring-4 ring-emerald-600 bg-emerald-500/10 font-bold shadow-lg scale-[1.01]' : 'opacity-90 hover:opacity-100 hover:scale-[1.005]'}`;
+                div.style.background = isSelected ? 'rgba(16, 185, 129, 0.08)' : t.cardBg;
+                div.style.borderColor = isSelected ? '#10b981' : t.border;
+                div.style.color = t.text;
+                div.onclick = () => applyTheme(key);
+                div.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 border-b pb-2 mb-2 border-current/10">
+                        <span class="text-xs font-bold truncate">${t.name}</span>
+                        ${isSelected ? '<span class="text-[10px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-extrabold shadow-sm shrink-0">✨ 適用中</span>' : ''}
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full border shadow-xs" style="background-color: ${t.primary};" title="メインカラー"></span>
+                            <span class="w-5 h-5 rounded-full border shadow-xs" style="background-color: ${t.tone2 || t.primary};" title="アクセント"></span>
+                            <span class="w-5 h-5 rounded-full border shadow-xs" style="background-color: ${t.tone3 || t.primary};" title="サブカラー"></span>
+                        </div>
+                        <span class="text-[10px] ${isSelected ? 'font-bold text-emerald-600' : 'opacity-70 font-semibold'}">${isSelected ? '選択中のテーマ' : 'タップして適用'}</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function cleanupOldMonthlyData() {
+            if (!appData.monthly || appData.monthly.length <= 12) return;
+            appData.monthly.sort((a, b) => a.month.localeCompare(b.month));
+            if (appData.monthly.length > 12) {
+                appData.monthly = appData.monthly.slice(appData.monthly.length - 12);
+            }
+        }
+
+        function startAddingExpense() {
+            const nameInput = document.getElementById('new-expense-raw-name');
+            const rawName = nameInput.value.trim();
+            if (!rawName) {
+                alert('追加する支出項目の名前を入力してください。');
+                return;
+            }
+
+            let emojiInput = prompt('絵文字を入力してください。');
+            if (!emojiInput || !emojiInput.trim()) return;
+            
+            let emoji = emojiInput.trim();
+            const formattedName = `${emoji} ${rawName}`;
+            const id = 'exp_' + Date.now();
+            appData.expenseCategories.push({ id, name: formattedName });
+            appData.monthly.forEach(m => {
+                if (!m.expenses) m.expenses = {};
+                m.expenses[id] = 0;
+            });
+
+            nameInput.value = '';
+            isMonthFormModified = true;
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+            alert(`🎉 支出項目「${formattedName}」を追加しました！`);
+        }
+
+        function removeExpenseCategory(catId) {
+            if (appData.expenseCategories.length <= 1) {
+                alert('支出項目は最低1つ必要です。');
+                return;
+            }
+            appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
+            isMonthFormModified = true;
+            saveStorage();
+            renderMonthEditor();
+            renderPieChart();
+        }
+
+        function loadStorage() {
+            let saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) {
+                saved = localStorage.getItem('lifeplan_master_persistent_storage_data_v1') || 
+                        localStorage.getItem('lifeplan_master_data_v2026_rev5') || 
+                        localStorage.getItem('lifeplan_master_data');
+            }
+
+            if (saved) {
+                try { 
+                    const parsed = JSON.parse(saved);
+                    if (parsed && typeof parsed === 'object') {
+                        appData = parsed;
+                    }
+                } catch(e) { console.error(e); }
+            }
+
+            if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
+                appData.bankAccounts = [...defaultAccounts];
+            }
+
+            if (!appData.settings.currentTheme) appData.settings.currentTheme = 'win_1_1';
+
+            cleanupOldMonthlyData();
+            sortEventsChronologically();
+            updateTodayDateBadge();
+            updateCategoryDropdown();
+            applyTheme(appData.settings.currentTheme);
+            applyHeroBackgroundUI();
+            applyHeaderIconUI();
+            syncSettingsToUI();
+            updateMonthSelector();
+            renderMonthEditor();
+            renderHistoryTable();
+            renderEventsTable();
+            renderBankAccountsManager();
+            updateCalculations();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function saveStorage() {
+            cleanupOldMonthlyData();
+            sortEventsChronologically();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            updateCalculations();
+            renderHistoryTable();
+            renderCharts();
+            renderPieChart();
+        }
+
+        function syncSettingsToUI() {
+            const defaultSaveEl = document.getElementById('sim-default-monthly-save');
+            if (defaultSaveEl) defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave || 50000);
+            renderPresetThemesSelector();
+        }
+
+        function saveSimulationDefaultSave() {
+            const defaultSaveEl = document.getElementById('sim-default-monthly-save');
+            if (defaultSaveEl) {
+                appData.settings.defaultMonthlySave = parseNum(defaultSaveEl.value) || 50000;
+                defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave);
+                saveStorage();
+            }
+        }
+
+        function renderBankAccountsManager() {
+            const container = document.getElementById('bank-accounts-manager');
+            if (!container) return;
+            container.innerHTML = '';
+            appData.bankAccounts.forEach((acc, i) => {
+                const name = typeof acc === 'string' ? acc : acc.name;
+                const balance = typeof acc === 'object' && acc.initialBalance !== undefined ? acc.initialBalance : 0;
+                const div = document.createElement('div');
+                div.className = "flex flex-col sm:flex-row items-center justify-between theme-card-sm p-3 rounded-xl border text-xs font-semibold gap-2";
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-grow">
+                        <span>🏦</span>
+                        <input type="text" value="${name}" onchange="updateBankAccountName(${i}, this.value)" class="flex-grow theme-card-sm rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none border">
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <span class="opacity-70 text-[11px]">初期残高:</span>
+                        <input type="text" value="${formatNum(balance)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateBankAccountBalance(${i}, this.value);" class="w-28 theme-card-sm rounded-lg px-2 py-1.5 text-right text-xs font-semibold focus:outline-none border">
+                        <span class="opacity-70 text-[11px]">円</span>
+                        <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2">削除</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addNewBankAccount() {
+            const nameInput = document.getElementById('new-bank-account-name');
+            const balanceInput = document.getElementById('new-bank-account-balance');
+            const name = nameInput.value.trim();
+            const initialBalance = parseNum(balanceInput.value) || 0;
+            if (!name) return;
+            appData.bankAccounts.push({ name, initialBalance });
+            nameInput.value = '';
+            balanceInput.value = '';
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function updateBankAccountName(index, newName) {
+            if (typeof appData.bankAccounts[index] === 'string') {
+                appData.bankAccounts[index] = { name: newName.trim(), initialBalance: 0 };
+            } else {
+                appData.bankAccounts[index].name = newName.trim();
+            }
+            saveStorage();
+            renderBankAccountsManager();
+        }
+
+        function updateBankAccountBalance(index, newBalanceVal) {
+            const num = parseNum(newBalanceVal);
+            if (typeof appData.bankAccounts[index] === 'string') {
+                appData.bankAccounts[index] = { name: appData.bankAccounts[index], initialBalance: num };
+            } else {
+                appData.bankAccounts[index].initialBalance = num;
+            }
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
+        }
+
+        function removeBankAccount(index) {
+            appData.bankAccounts.splice(index, 1);
+            saveStorage();
+            renderBankAccountsManager();
+            updateCalculations();
         }
 
         function switchTab(tabId) {
+            const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
+            if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
+                alert("⚠️ 毎月入力画面で変更された内容が保存されていません！\n他のページに移動するには、まず「💾 この内容で保存・反映する」ボタンを押してください。");
+                return;
+            }
+            isMonthFormModified = false;
+
             ['dashboard', 'input', 'charts', 'events', 'accounts', 'theme'].forEach(id => {
-                const tabEl = document.getElementById(`tab-${id}`);
-                const btnEl = document.getElementById(`btn-tab-${id}`);
-                if (tabEl) tabEl.classList.toggle('hidden', id !== tabId);
+                const tabEl = document.getElementById('tab-' + id);
+                const btnEl = document.getElementById('btn-tab-' + id);
+                if (tabEl) tabEl.classList.add('hidden');
                 if (btnEl) {
-                    if (id === tabId) {
-                        btnEl.className = "flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition theme-primary-bg cursor-pointer text-[10px] font-bold";
-                    } else {
-                        btnEl.className = "flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium";
-                    }
+                    btnEl.classList.remove('theme-primary-bg', 'font-bold');
+                    btnEl.classList.add('opacity-70', 'font-medium');
                 }
             });
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.remove('hidden');
+
+            const activeBtn = document.getElementById('btn-tab-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('opacity-70', 'font-medium');
+                activeBtn.classList.add('theme-primary-bg', 'font-bold');
+            }
+
+            if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
+            else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
+            else if (tabId === 'events') { renderEventsTable(); }
+            else if (tabId === 'accounts') { renderBankAccountsManager(); syncSettingsToUI(); }
+            else if (tabId === 'theme') { updateCategoryDropdown(); renderPresetThemesSelector(); }
         }
+
+        function updateMonthSelector() {
+            const selector = document.getElementById('month-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                if (idx === currentEditingIndex) opt.selected = true;
+                selector.appendChild(opt);
+            });
+        }
+
+        function confirmAndSwitchMonth(index) {
+            if (isMonthFormModified) {
+                alert("⚠️ 現在の月の入力内容が保存されていません。保存ボタンを押してから移動してください。");
+                document.getElementById('month-selector').value = currentEditingIndex;
+                return;
+            }
+            isMonthFormModified = false;
+            currentEditingIndex = Number(index);
+            renderMonthEditor();
+        }
+
+        function addNewMonthByDropdown() {
+            if (isMonthFormModified) {
+                alert("⚠️ 保存されていない変更があります。新しい月を追加する前に保存してください。");
+                return;
+            }
+            isMonthFormModified = false;
+
+            let lastMonthStr = "2026-11";
+            let lastMonthData = null;
+            if (appData.monthly.length > 0) {
+                lastMonthData = appData.monthly[appData.monthly.length - 1];
+                lastMonthStr = lastMonthData.month;
+            }
+
+            let [y, m] = lastMonthStr.split('-').map(Number);
+            m += 1;
+            if (m > 12) { m = 1; y++; }
+            const newMonth = `${y}-${String(m).padStart(2, '0')}`;
+
+            let newExpenses = {};
+            appData.expenseCategories.forEach(cat => {
+                newExpenses[cat.id] = lastMonthData && lastMonthData.expenses ? parseNum(lastMonthData.expenses[cat.id]) : 0;
+            });
+
+            let newBankAllocs = {};
+            getAccountNames().forEach(b => {
+                newBankAllocs[b] = lastMonthData && lastMonthData.bankAllocations ? parseNum(lastMonthData.bankAllocations[b]) : 0;
+            });
+
+            appData.monthly.push({ 
+                month: newMonth, 
+                type: '想定', 
+                rIncome: lastMonthData ? parseNum(lastMonthData.rIncome) : 210000, 
+                hIncome: lastMonthData ? parseNum(lastMonthData.hIncome) : 170000, 
+                expenses: newExpenses, 
+                nisa: lastMonthData && lastMonthData.nisa !== undefined ? parseNum(lastMonthData.nisa) : 20000, 
+                rSaving: lastMonthData && lastMonthData.rSaving !== undefined ? parseNum(lastMonthData.rSaving) : 0, 
+                bonus: 0, 
+                extraInc: 0, 
+                memo: '', 
+                bankAllocations: newBankAllocs 
+            });
+
+            currentEditingIndex = appData.monthly.length - 1;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function deleteMonth(index) {
+            if (appData.monthly.length <= 1) return;
+            appData.monthly.splice(index, 1);
+            currentEditingIndex = Math.max(0, index - 1);
+            isMonthFormModified = false;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+        }
+
+        function renderMonthEditor() {
+            const container = document.getElementById('month-editor-container');
+            if (!container) return;
+            const m = appData.monthly[currentEditingIndex];
+            if (!m) return;
+
+            const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
+            let totalExp = 0;
+            if (!m.expenses) m.expenses = {};
+            appData.expenseCategories.forEach(cat => totalExp += parseNum(m.expenses[cat.id]));
+            
+            const nisaAmt = parseNum(m.nisa);
+            const autoSaving = totalInc - totalExp - nisaAmt;
+
+            if (!m.bankAllocations) m.bankAllocations = {};
+            let allocatedSum = 0;
+            getAccountNames().forEach(b => allocatedSum += parseNum(m.bankAllocations[b]));
+
+            const diff = allocatedSum - autoSaving;
+            let diffMessage = '';
+            if (diff === 0) {
+                diffMessage = `<span class="theme-tone-deep font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+            } else if (diff < 0) {
+                diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
+            } else {
+                diffMessage = `<span class="text-rose-500 font-bold">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
+            }
+
+            const isMatched = (diff === 0);
+
+            let banksHtml = '';
+            getAccountNames().forEach(b => {
+                banksHtml += `
+                    <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between border">
+                        <span class="font-semibold text-xs">🏦 ${b}</span>
+                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none border">
+                    </div>
+                `;
+            });
+
+            let expensesHtml = '';
+            appData.expenseCategories.forEach(cat => {
+                expensesHtml += `
+                    <div class="theme-card-sm p-3 rounded-xl flex items-center justify-between gap-2 border">
+                        <div class="flex items-center gap-1.5 truncate">
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print">×</button>
+                            <span class="text-xs font-semibold truncate">${cat.name}</span>
+                        </div>
+                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none shrink-0 border">
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <div class="theme-card-sm p-4 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print">
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">年月</label>
+                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                            ${generateFuture30YearsOptions(m.month)}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">区分</label>
+                        <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
+                            <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※グラフ・貯金残高に反映)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold opacity-70 uppercase tracking-wider mb-1">メモ</label>
+                        <input type="text" id="input-field-memo" value="${m.memo || ''}" oninput="markModified()" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none">
+                    </div>
+                    <div class="flex justify-end sm:justify-start items-end">
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer">削除</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 theme-card-sm p-4 rounded-xl border text-center">
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">総手取り</p>
+                        <p class="text-xs sm:text-base font-bold theme-primary-text mt-0.5" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
+                        <p class="text-xs sm:text-base font-bold theme-tone-light mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-tone-deep mt-0.5 focus:outline-none">
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通)</p>
+                        <p class="text-xs sm:text-base font-bold theme-tone-deep mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
+                    </div>
+                </div>
+
+                <div class="theme-card-sm p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">👤</span>
+                        <div>
+                            <span class="font-bold text-xs">ゲストA貯金額 (※お小遣いからの個人貯金)</span>
+                            <p class="text-[10px] opacity-70">共通手取りからの引き算には影響しません</p>
+                        </div>
+                    </div>
+                    <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-lg p-2 text-right text-xs font-bold theme-primary-text focus:outline-none">
+                </div>
+
+                <div id="allocation-check-box" class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5' : 'border-rose-500 bg-rose-500/10'}">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <h3 class="font-bold text-xs uppercase tracking-wider">
+                            💰 口座割り振りチェック (割り振り計: <span id="live-allocated-sum">¥${allocatedSum.toLocaleString()}</span>)
+                        </h3>
+                        <div id="live-diff-feedback" class="text-xs">${diffMessage}</div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                        ${banksHtml}
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                            <span class="text-xs font-semibold">ゲストA収入 (円)</span>
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                        </div>
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border">
+                            <span class="text-xs font-semibold">ゲストB収入 (円)</span>
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-semibold focus:outline-none">
+                        </div>
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                            <span class="text-xs font-bold">🎁 ボーナス (円)</span>
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                        </div>
+                        <div class="theme-card-sm p-3 rounded-xl flex justify-between items-center border bg-amber-500/10">
+                            <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-lg p-1.5 text-right text-xs font-bold focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center pt-2 border-b border-current/10 pb-1">
+                            <span class="font-bold text-xs">支出項目</span>
+                            <div class="flex gap-2">
+                                <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-lg px-2 py-1 text-xs">
+                                <button onclick="startAddingExpense()" class="bg-amber-600 text-white text-xs px-3 py-1 rounded-lg font-bold">＋ 項目追加</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                            ${expensesHtml}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-current/10 flex justify-end">
+                    <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-lg transition cursor-pointer hover:scale-105 min-h-[44px]">
+                        💾 この内容で保存・反映する
+                    </button>
+                </div>
+            `;
+        }
+
+        function markModified() {
+            isMonthFormModified = true;
+        }
+
+        function updateAllocationRealtimeFeedback() {
+            const rInc = parseNum(document.getElementById('input-field-rIncome')?.value);
+            const hInc = parseNum(document.getElementById('input-field-hIncome')?.value);
+            const bonus = parseNum(document.getElementById('input-field-bonus')?.value);
+            const extraInc = parseNum(document.getElementById('input-field-extraInc')?.value);
+            const totalInc = rInc + hInc + bonus + extraInc;
+
+            let totalExp = 0;
+            appData.expenseCategories.forEach(cat => {
+                totalExp += parseNum(document.getElementById(`input-exp-${cat.id}`)?.value);
+            });
+
+            const nisaAmt = parseNum(document.getElementById('input-field-nisa')?.value);
+            const autoSaving = totalInc - totalExp - nisaAmt;
+
+            let allocatedSum = 0;
+            getAccountNames().forEach(b => {
+                allocatedSum += parseNum(document.getElementById(`input-bank-${b}`)?.value);
+            });
+
+            const diff = allocatedSum - autoSaving;
+            let diffMessage = '';
+            const box = document.getElementById('allocation-check-box');
+
+            if (diff === 0) {
+                diffMessage = `<span class="theme-tone-deep font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5";
+            } else if (diff < 0) {
+                diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
+            } else {
+                diffMessage = `<span class="text-rose-500 font-bold">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
+            }
+
+            const incEl = document.getElementById('live-total-inc');
+            const expEl = document.getElementById('live-total-exp');
+            const savEl = document.getElementById('live-auto-saving');
+            const sumEl = document.getElementById('live-allocated-sum');
+            const feedEl = document.getElementById('live-diff-feedback');
+
+            if (incEl) incEl.innerText = '¥' + totalInc.toLocaleString();
+            if (expEl) expEl.innerText = '¥' + totalExp.toLocaleString();
+            if (savEl) savEl.innerText = '¥' + autoSaving.toLocaleString();
+            if (sumEl) sumEl.innerText = '¥' + allocatedSum.toLocaleString();
+            if (feedEl) feedEl.innerHTML = diffMessage;
+        }
+
+        function saveCurrentMonthForm() {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m) return;
+
+            const rInc = parseNum(document.getElementById('input-field-rIncome').value);
+            const hInc = parseNum(document.getElementById('input-field-hIncome').value);
+            const bonus = parseNum(document.getElementById('input-field-bonus').value);
+            const extraInc = parseNum(document.getElementById('input-field-extraInc').value);
+            const totalInc = rInc + hInc + bonus + extraInc;
+
+            let totalExp = 0;
+            let newExpenses = {};
+            appData.expenseCategories.forEach(cat => {
+                const val = parseNum(document.getElementById(`input-exp-${cat.id}`).value);
+                newExpenses[cat.id] = val;
+                totalExp += val;
+            });
+
+            const nisaAmt = parseNum(document.getElementById('input-field-nisa').value);
+            const rSavingAmt = parseNum(document.getElementById('input-field-rSaving').value);
+            const autoSaving = totalInc - totalExp - nisaAmt;
+
+            let newBankAllocs = {};
+            let allocatedSum = 0;
+            getAccountNames().forEach(b => {
+                const val = parseNum(document.getElementById(`input-bank-${b}`).value);
+                newBankAllocs[b] = val;
+                allocatedSum += val;
+            });
+
+            if (allocatedSum !== autoSaving) {
+                alert(`⚠️ 保存エラー: 今月の貯金額（¥${autoSaving.toLocaleString()}）と、口座への割り振り合計（¥${allocatedSum.toLocaleString()}）が一致していません。ぴったり一致させてから保存してください。`);
+                return;
+            }
+
+            m.month = document.getElementById('input-field-month').value;
+            m.type = document.getElementById('input-field-type').value;
+            m.memo = document.getElementById('input-field-memo').value;
+            m.rIncome = rInc;
+            m.hIncome = hInc;
+            m.bonus = bonus;
+            m.extraInc = extraInc;
+            m.nisa = nisaAmt;
+            m.rSaving = rSavingAmt;
+            m.expenses = newExpenses;
+            m.bankAllocations = newBankAllocs;
+
+            isMonthFormModified = false;
+            saveStorage();
+            updateMonthSelector();
+            renderMonthEditor();
+            alert('🎉 今月の収支データを正常に保存・各タブへ反映しました！');
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
+                let totalExp = 0;
+                if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
+                const nisaAmt = parseNum(m.nisa);
+                const surplus = totalInc - totalExp - nisaAmt;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-current/5 transition font-medium";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold">${m.month}</td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 theme-tone-deep':'bg-amber-500/20 theme-tone-light'}">${m.type}</span></td>
+                    <td class="p-3 text-right font-semibold theme-primary-text">¥${totalInc.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold theme-tone-light">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold theme-tone-deep">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updatePieSelector() {
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            selector.innerHTML = '';
+            appData.monthly.forEach((m, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${m.month} (${m.type})`;
+                selector.appendChild(opt);
+            });
+        }
+
+        function renderPieChart() {
+            const selector = document.getElementById('pie-month-selector');
+            if (!selector) return;
+            const idx = Number(selector.value) || 0;
+            const m = appData.monthly[idx];
+            if (!m) return;
+
+            const ctx = document.getElementById('expensePieChart');
+            if (!ctx) return;
+            if (pieChart) pieChart.destroy();
+
+            let rawItems = [];
+            let totalExp = 0;
+            appData.expenseCategories.forEach(cat => {
+                const val = parseNum(m.expenses?.[cat.id]);
+                rawItems.push({ label: cat.name, val });
+                totalExp += val;
+            });
+
+            rawItems.sort((a, b) => b.val - a.val);
+
+            const theme = getCurrentThemeObj();
+            const rgb = hexToRgbValues(theme.primary);
+            const canvasCtx = ctx.getContext('2d');
+
+            const bgColors = rawItems.map((_, i) => {
+                const count = Math.max(1, rawItems.length);
+                const factor = 1.0 - (i * (0.8 / count));
+                
+                const grad = canvasCtx.createRadialGradient(130, 130, 10, 130, 130, 120);
+                const r1 = Math.min(255, Math.round(rgb.r * factor + (255 * (1 - factor) * 0.4)));
+                const g1 = Math.min(255, Math.round(rgb.g * factor + (255 * (1 - factor) * 0.4)));
+                const b1 = Math.min(255, Math.round(rgb.b * factor + (255 * (1 - factor) * 0.4)));
+
+                grad.addColorStop(0, `rgba(${r1}, ${g1}, ${b1}, 0.98)`);
+                grad.addColorStop(1, `rgba(${Math.round(r1 * 0.75)}, ${Math.round(g1 * 0.75)}, ${Math.round(b1 * 0.75)}, 0.90)`);
+                return grad;
+            });
+
+            pieChart = new Chart(canvasCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: rawItems.map(i => i.label),
+                    datasets: [{ 
+                        data: rawItems.map(i => i.val), 
+                        backgroundColor: bgColors,
+                        borderColor: '#ffffff',
+                        borderWidth: 2.5
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let val = context.raw || 0;
+                                    let pct = totalExp > 0 ? ((val / totalExp) * 100).toFixed(1) : 0;
+                                    return ` ${label}: ¥${val.toLocaleString()} (${pct}%)`;
+                                }
+                            }
+                        }
+                    } 
+                }
+            });
+
+            const listContainer = document.getElementById('expense-breakdown-list');
+            if (listContainer) {
+                let listHtml = '';
+                rawItems.forEach((item, i) => {
+                    const pct = totalExp > 0 ? ((item.val / totalExp) * 100).toFixed(1) : 0;
+                    listHtml += `
+                        <div class="flex items-center justify-between theme-card-sm p-2.5 rounded-xl border text-xs">
+                            <span class="font-semibold">${item.label}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="opacity-70">${pct}%</span>
+                                <span class="font-bold">¥${item.val.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                listContainer.innerHTML = listHtml;
+            }
+        }
+
+        function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
+
+        function parseAiTextAndAddEvent() {
+            const rawText = document.getElementById('ai-raw-text').value;
+            if (!rawText.trim()) return;
+            appData.events.push({ name: '予定イベント', date: '2027-12', cost: 100000, status: '予定', memo: rawText });
+            saveStorage();
+            renderEventsTable();
+            toggleAiParserBox();
+            alert('🎉 イベントを追加しました！');
+        }
+
+        function addNewEvent() {
+            appData.events.push({ name: '新しいイベント', date: '2027-04', cost: 100000, status: '予定', memo: '' });
+            saveStorage();
+            renderEventsTable();
+        }
+
+        function updateEventField(index, key, value) {
+            appData.events[index][key] = (key === 'cost') ? parseNum(value) : value;
+            saveStorage();
+            renderEventsTable();
+        }
+
+        function deleteEvent(index) {
+            appData.events.splice(index, 1);
+            saveStorage();
+            renderEventsTable();
+        }
+
+        function renderEventsTable() {
+            sortEventsChronologically();
+            const tbody = document.getElementById('events-table-body');
+            const cardList = document.getElementById('events-card-list');
+            if (!tbody || !cardList) return;
+            
+            tbody.innerHTML = '';
+            cardList.innerHTML = '';
+
+            if (appData.events.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-70">予定はまだ登録されていません。</td></tr>`;
+                cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-70 rounded-2xl border">予定はまだ登録されていません。</div>`;
+                return;
+            }
+
+            appData.events.forEach((ev, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs font-semibold"></td>
+                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs">${generateFuture30YearsOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-right font-semibold"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs text-center"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-lg p-1.5 text-xs"></td>
+                    <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer">削除</button></td>
+                `;
+                tbody.appendChild(tr);
+
+                const card = document.createElement('div');
+                card.className = "theme-card-sm p-3.5 rounded-2xl border space-y-2.5";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold">
+                        <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0">削除</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">予定時期</label>
+                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs">${generateFuture30YearsOptions(ev.date)}</select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">予定費用 (円)</label>
+                            <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">ステータス</label>
+                            <input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] opacity-70 mb-0.5">メモ</label>
+                            <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs">
+                        </div>
+                    </div>
+                `;
+                cardList.appendChild(card);
+            });
+        }
+
+        function updateCalculations() {
+            const now = new Date();
+            const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            
+            let targetMonthData = appData.monthly.find(m => m.month === currentYM);
+            if (!targetMonthData && appData.monthly.length > 0) {
+                targetMonthData = appData.monthly[appData.monthly.length - 1];
+            }
+
+            const inc = targetMonthData ? (parseNum(targetMonthData.rIncome) + parseNum(targetMonthData.hIncome) + parseNum(targetMonthData.bonus) + parseNum(targetMonthData.extraInc)) : 0;
+            let exp = 0;
+            if (targetMonthData && targetMonthData.expenses) {
+                for (let v of Object.values(targetMonthData.expenses)) exp += parseNum(v);
+            }
+            const nisaAmt = targetMonthData ? parseNum(targetMonthData.nisa) : 0;
+            const surplus = targetMonthData ? (inc - exp - nisaAmt) : 0;
+
+            const gridContainer = document.getElementById('home-kpi-grid');
+            if (gridContainer) {
+                let html = '';
+                appData.bankAccounts.forEach((acc, i) => {
+                    const accName = typeof acc === 'string' ? acc : acc.name;
+                    const currentBal = calculateAccountCurrentBalance(accName);
+                    const allHistory = getAllAccountSavingsHistoryDetails(accName);
+                    
+                    let recent2Html = '';
+
+                    if (allHistory.length === 0) {
+                        recent2Html = `<span class="opacity-50">記録なし</span>`;
+                    } else {
+                        const recent2 = allHistory.slice(0, 2);
+                        recent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                    }
+
+                    const jsonHistory = JSON.stringify(allHistory).replace(/"/g, '&quot;');
+
+                    html += `
+                        <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
+                            <div>
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">🏦 ${accName}</p>
+                                <p class="text-lg sm:text-2xl font-bold tracking-tight mt-1 theme-primary-text">¥${currentBal.toLocaleString()}</p>
+                            </div>
+                            <div class="pt-2 border-t border-current/10 text-[10px] space-y-1">
+                                <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
+                                    <span>直近の貯金額内訳:</span>
+                                    <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る 🔍</span>
+                                </div>
+                                <div class="font-bold theme-tone-deep truncate cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">${recent2Html}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                const rSavingTotal = calculateRSavingTotal();
+                const allRHistory = getAllRSavingHistoryDetails();
+                
+                let rRecent2Html = '';
+
+                if (allRHistory.length === 0) {
+                    rRecent2Html = `<span class="opacity-50">記録なし</span>`;
+                } else {
+                    const rRecent2 = allRHistory.slice(0, 2);
+                    rRecent2Html = rRecent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                }
+
+                const jsonRHistory = JSON.stringify(allRHistory).replace(/"/g, '&quot;');
+
+                html += `
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between space-y-3">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${rSavingTotal.toLocaleString()}</p>
+                        </div>
+                        <div class="pt-2 border-t border-current/10 text-[10px] space-y-1">
+                            <div class="opacity-75 font-medium flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
+                                <span>直近の貯金額内訳:</span>
+                                <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る 🔍</span>
+                            </div>
+                            <div class="font-bold theme-primary-text truncate cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">${rRecent2Html}</div>
+                        </div>
+                    </div>
+                `;
+
+                const nisaDuration = calculateNisaDurationText();
+
+                html += `
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の手取り (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-tone-light tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                                <span class="text-[10px] theme-badge-tone font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaDuration}</span>
+                            </div>
+                            <p class="text-[12px] sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="theme-card p-4 sm:p-5 rounded-2xl">
+                        <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                        <p class="text-lg sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                    </div>
+                `;
+                gridContainer.innerHTML = html;
+            }
+        }
+
+        function renderCharts() {
+            const theme = getCurrentThemeObj();
+
+            const chart1El = document.getElementById('cashFlowChart');
+            if (chart1El) {
+                if (cashChart) cashChart.destroy();
+                let labels = [], balanceData = [], eventBarData = [];
+                
+                let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
+                let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
+
+                let monthlyDataMap = {};
+                if (appData.monthly) {
+                    appData.monthly.forEach(m => {
+                        const mAlloc = m.bankAllocations ? parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']) : 0;
+                        monthlyDataMap[m.month] = { 
+                            saving: mAlloc, 
+                            type: m.type 
+                        };
+                    });
+                }
+
+                let eventMap = {};
+                if (appData.events) {
+                    appData.events.forEach(ev => {
+                        if (ev.date && ev.cost) {
+                            eventMap[ev.date] = (eventMap[ev.date] || 0) + parseNum(ev.cost);
+                        }
+                    });
+                }
+
+                let allYms = new Set(['2026-11']);
+                if (appData.monthly) appData.monthly.forEach(m => allYms.add(m.month));
+                if (appData.events) appData.events.forEach(ev => { if (ev.date) allYms.add(ev.date); });
+
+                let curY = 2026;
+                let curM = 11;
+                for (let i = 0; i < 120; i++) {
+                    curM += 1;
+                    if (curM > 12) { curM = 1; curY++; }
+                    const mmStr = String(curM).padStart(2, '0');
+                    const ymKey = `${curY}-${mmStr}`;
+                    allYms.add(ymKey);
+                }
+
+                let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
+
+                let todayIndex = 0;
+
+                sortedYms.forEach((ymKey, idx) => {
+                    let [y, m] = ymKey.split('-').map(Number);
+                    let label = '';
+                    
+                    const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
+                    if (isTargetLabel) {
+                        label = `${y}年${m}月`;
+                    } else {
+                        label = '';
+                    }
+
+                    labels.push(label);
+
+                    let stepSaving = 0;
+                    if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
+                        stepSaving = monthlyDataMap[ymKey].saving;
+                    } else {
+                        stepSaving = defaultMonthlySave;
+                    }
+
+                    let stepEvCost = eventMap[ymKey] || 0;
+
+                    runningBalance += stepSaving;
+                    runningBalance -= stepEvCost;
+
+                    balanceData.push(runningBalance);
+                    eventBarData.push(stepEvCost);
+                });
+
+                const ctx1 = chart1El.getContext('2d');
+                
+                const areaGradient = ctx1.createLinearGradient(0, 0, 0, 300);
+                areaGradient.addColorStop(0, theme.primary + '50');
+                areaGradient.addColorStop(1, theme.primary + '00');
+
+                const todayLinePlugin = {
+                    id: 'todayLinePlugin',
+                    afterDraw: (chart) => {
+                        if (todayIndex < 0 || todayIndex >= chart.scales.x.ticks.length) return;
+                        const xMeta = chart.getDatasetMeta(0);
+                        if (!xMeta.data[todayIndex]) return;
+                        const pt = xMeta.data[todayIndex];
+                        const ctx = chart.ctx;
+                        
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.setLineDash([4, 4]);
+                        ctx.moveTo(pt.x, chart.chartArea.top);
+                        ctx.lineTo(pt.x, chart.chartArea.bottom);
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = theme.primary;
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+                };
+
+                const pointBgColors = labels.map((_, i) => i === todayIndex ? theme.primary : theme.primary);
+                const pointBorderColors = labels.map(() => 'rgba(255, 255, 255, 0.95)');
+                const pointRadii = labels.map((_, i) => i === todayIndex ? 4.5 : 2.5);
+
+                cashChart = new Chart(ctx1, {
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { 
+                                type: 'line',
+                                label: '貯金推移', 
+                                data: balanceData, 
+                                borderColor: theme.primary, 
+                                backgroundColor: areaGradient,
+                                borderWidth: 2.2, 
+                                fill: true, 
+                                tension: 0.2,
+                                pointBackgroundColor: pointBgColors,
+                                pointBorderColor: pointBorderColors,
+                                pointBorderWidth: 1.5,
+                                pointRadius: pointRadii,
+                                pointHoverRadius: 6,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'bar',
+                                label: '予定費用 (円)',
+                                data: eventBarData,
+                                backgroundColor: theme.primary + 'b3',
+                                borderColor: theme.primary,
+                                borderWidth: 1,
+                                borderRadius: 3,
+                                categoryPercentage: 1.0,
+                                barPercentage: 1.0,
+                                yAxisID: 'y'
+                            }
+                        ]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: { 
+                                    font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 11 },
+                                    callback: function(value) { return '¥' + (value / 10000).toLocaleString() + '万'; }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                offset: true,
+                                ticks: { 
+                                    font: { family: "'Plus Jakarta Sans', 'Noto Sans JP', sans-serif", size: 9 },
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: false
+                                },
+                                grid: {
+                                    display: true,
+                                    drawTicks: true,
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) {
+                                        const idx = context[0].dataIndex;
+                                        return sortedYms[idx] ? sortedYms[idx].replace('-', '年') + '月' : '';
+                                    },
+                                    label: function(context) {
+                                        if (context.dataset.type === 'line') {
+                                            let lbl = ` 貯金推移: ¥${context.raw.toLocaleString()}`;
+                                            if (context.dataIndex === todayIndex) lbl += ' 📍【本日現在】';
+                                            return lbl;
+                                        } else {
+                                            if (context.raw > 0) {
+                                                return ` 予定費用: ¥${context.raw.toLocaleString()}`;
+                                            }
+                                            return null;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    plugins: [todayLinePlugin]
+                });
+            }
+        }
+
+        window.onload = function() { loadStorage(); };
     </script>
 </body>
 </html>
