@@ -49,7 +49,7 @@
         }
 
         .theme-card-sm {
-            background: rgba(255, 255, 255, 0.25) !important;
+            background: rgba(255, 255, 255, 0.35) !important;
             border: 1px solid var(--app-card-border) !important;
             color: var(--app-text) !important;
         }
@@ -329,12 +329,12 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES (COMPACT 51 COLOR PICKUP) ================= -->
+        <!-- ================= TAB 6: THEMES (COMPACT & REDESIGNED) ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-4xl mx-auto space-y-5">
                 <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 カラーテーマ設定 (51選パレット)</h2>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight">カラーテーマ設定</h2>
                         <p class="text-xs opacity-70 mt-0.5">カテゴリーを選び、お好みの配色パレットをタップしてアプリ全体をコーディネートします。</p>
                     </div>
                     <div id="active-theme-indicator" class="text-xs font-bold px-3 py-1.5 rounded-xl theme-primary-bg shadow-sm">
@@ -343,23 +343,17 @@
                 </div>
 
                 <!-- コンパクトドロップダウン選択 -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center theme-card-sm p-3.5 rounded-2xl border">
-                    <div>
-                        <label class="block text-[11px] font-bold opacity-80 mb-1">📂 カラーカテゴリー選択 (全51選)</label>
-                        <select id="compact-theme-select" onchange="selectColorTheme(Number(this.value))" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold opacity-80 mb-1">🎨 選択カテゴリー内の配色パターン (全9種)</label>
-                        <select id="compact-palette-select" onchange="selectPaletteIndex(Number(this.value))" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer"></select>
-                    </div>
+                <div class="theme-card-sm p-3.5 rounded-2xl border">
+                    <label class="block text-[11px] font-bold opacity-80 mb-1">📂 カラーカテゴリー選択</label>
+                    <select id="compact-theme-select" onchange="selectColorTheme(Number(this.value))" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer"></select>
                 </div>
 
-                <!-- リアルタイム・ミニパレットプレビュー一覧 -->
-                <div class="space-y-3 pt-2">
+                <!-- おしゃれでコンパクトな配色見本一覧（横スクロール式ピルカード） -->
+                <div class="space-y-3 pt-1">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> 選択中カテゴリーの配色見本一覧 (ワンタップで適用)
+                        <span>✨</span> 配色パターン一覧 (ワンタップで適用)
                     </h3>
-                    <div id="color-palettes-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div id="color-palettes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                         <!-- JSで動的生成 -->
                     </div>
                 </div>
@@ -1022,10 +1016,9 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= コンパクトカラーピックアップ＆アプリ全体反映 =================
+        // ================= おしゃれ＆コンパクトなカラーパレットUI =================
         function initColorPickupUI() {
             renderCompactThemeSelect();
-            renderCompactPaletteSelect();
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
@@ -1041,23 +1034,11 @@
             select.innerHTML = html;
         }
 
-        function renderCompactPaletteSelect() {
-            const select = document.getElementById('compact-palette-select');
-            if (!select) return;
-            const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
-            let html = '';
-            theme.palettes.forEach((palette, idx) => {
-                html += `<option value="${idx}" ${idx === currentPaletteIndex ? 'selected' : ''}>配色パターン #${idx + 1} (${palette.join(', ')})</option>`;
-            });
-            select.innerHTML = html;
-        }
-
         function selectColorTheme(themeId) {
             currentThemeId = themeId;
             currentPaletteIndex = 0; 
             localStorage.setItem('selected_theme_id', currentThemeId);
             localStorage.setItem('selected_palette_index', currentPaletteIndex);
-            renderCompactPaletteSelect();
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
@@ -1066,8 +1047,6 @@
         function selectPaletteIndex(idx) {
             currentPaletteIndex = idx;
             localStorage.setItem('selected_palette_index', currentPaletteIndex);
-            const paletteSelect = document.getElementById('compact-palette-select');
-            if (paletteSelect) paletteSelect.value = idx;
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
@@ -1081,18 +1060,18 @@
             let html = '';
             theme.palettes.forEach((palette, idx) => {
                 const isSelected = idx === currentPaletteIndex;
-                let colorSwatches = '';
+                let colorBars = '';
                 palette.forEach(hex => {
-                    colorSwatches += `<div class="h-6 flex-1 rounded shadow-xs border border-black/10" style="background-color: ${hex};"></div>`;
+                    colorBars += `<div class="h-3 flex-1 first:rounded-l-sm last:rounded-r-sm" style="background-color: ${hex};"></div>`;
                 });
 
                 html += `
-                    <div onclick="selectPaletteIndex(${idx})" class="p-3 rounded-xl cursor-pointer transition theme-card border relative ${isSelected ? 'ring-2 ring-emerald-500 shadow-md font-bold' : 'hover:opacity-100 opacity-90'} space-y-1.5">
-                        <div class="flex justify-between items-center text-[11px]">
+                    <div onclick="selectPaletteIndex(${idx})" class="p-2.5 rounded-xl cursor-pointer transition theme-card border relative flex flex-col gap-1.5 ${isSelected ? 'ring-2 ring-emerald-500 shadow-md font-bold' : 'hover:opacity-100 opacity-90'}">
+                        <div class="flex justify-between items-center text-[10px] opacity-80">
                             <span>#${idx + 1}</span>
-                            ${isSelected ? '<span class="text-[9px] bg-emerald-500 text-white px-1.5 py-0.2 rounded-full">選択中</span>' : ''}
+                            ${isSelected ? '<span class="text-[8px] bg-emerald-500 text-white px-1.5 py-0.2 rounded-full font-bold">適用中</span>' : ''}
                         </div>
-                        <div class="flex gap-1.5">${colorSwatches}</div>
+                        <div class="flex gap-1 p-1 rounded-lg bg-black/5">${colorBars}</div>
                     </div>
                 `;
             });
@@ -1116,7 +1095,7 @@
             const tone3Color = palette[2] || '#b0957e';
 
             const root = document.documentElement;
-            // アプリ全体の色を動的に完全反映
+            // アプリ全体のカラー変数を動的に完全反映
             root.style.setProperty('--app-primary', primaryColor);
             root.style.setProperty('--app-primary-hover', tone2Color);
             root.style.setProperty('--theme-tone-1', primaryColor);
