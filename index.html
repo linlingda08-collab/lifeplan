@@ -166,9 +166,6 @@
                 </div>
             </div>
 
-            <!-- 🎯 貯金目標プログレスバーカード -->
-            <div id="savings-goal-card" class="theme-card p-4 sm:p-6 rounded-2xl shadow-sm space-y-3"></div>
-
             <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
             <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
@@ -332,38 +329,37 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES (51 COLOR PICKUP) ================= -->
+        <!-- ================= TAB 6: THEMES (COMPACT 51 COLOR PICKUP) ================= -->
         <div id="tab-theme" class="hidden space-y-6">
-            <div class="theme-card p-5 sm:p-6 rounded-2xl max-w-5xl mx-auto space-y-6">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-4xl mx-auto space-y-5">
                 <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 カラーカテゴリー & 51選配色見本</h2>
-                        <p class="text-xs opacity-70 mt-0.5">お好みのテーマを選択し、中にある9種類の配色チップからお好きなカラーパレットを選んでアプリ全体に適用できます。</p>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight">🎨 カラーテーマ設定 (51選パレット)</h2>
+                        <p class="text-xs opacity-70 mt-0.5">カテゴリーを選び、お好みの配色パレットをタップしてアプリ全体をコーディネートします。</p>
                     </div>
                     <div id="active-theme-indicator" class="text-xs font-bold px-3 py-1.5 rounded-xl theme-primary-bg shadow-sm">
                         選択中: レトロカラー (配色 #1)
                     </div>
                 </div>
 
-                <!-- 51テーマ一覧コンテナ -->
-                <div class="space-y-4">
-                    <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 配色カテゴリー選択 (全51選)
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-72 overflow-y-auto custom-scrollbar p-1 border border-current/10 rounded-xl" id="color-themes-grid">
-                        <!-- JSで動的生成 -->
+                <!-- コンパクトドロップダウン選択 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center theme-card-sm p-3.5 rounded-2xl border">
+                    <div>
+                        <label class="block text-[11px] font-bold opacity-80 mb-1">📂 カラーカテゴリー選択 (全51選)</label>
+                        <select id="compact-theme-select" onchange="selectColorTheme(Number(this.value))" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold opacity-80 mb-1">🎨 選択カテゴリー内の配色パターン (全9種)</label>
+                        <select id="compact-palette-select" onchange="selectPaletteIndex(Number(this.value))" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer"></select>
                     </div>
                 </div>
 
-                <!-- 選択したテーマ内の9種類の配色チップ一覧 -->
-                <div class="space-y-4 pt-4 border-t border-current/10">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2" id="selected-theme-title-display">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 選択中のカラーパレット (9種類の配色見本)
-                        </h3>
-                        <span class="text-[11px] opacity-70">使いたい配色をクリックして適用してください</span>
-                    </div>
-                    <div id="color-palettes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- リアルタイム・ミニパレットプレビュー一覧 -->
+                <div class="space-y-3 pt-2">
+                    <h3 class="font-bold text-xs flex items-center gap-1.5">
+                        <span>✨</span> 選択中カテゴリーの配色見本一覧 (ワンタップで適用)
+                    </h3>
+                    <div id="color-palettes-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <!-- JSで動的生成 -->
                     </div>
                 </div>
@@ -371,52 +367,6 @@
         </div>
 
     </main>
-
-    <!-- ================= GOAL EDIT MODAL ================= -->
-    <div id="goal-edit-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeGoalModal()">
-        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between pb-3 border-b border-current/10">
-                <h3 class="font-bold text-base flex items-center gap-2">
-                    <span>⚙️</span> 貯金目標の設定
-                </h3>
-                <button onclick="closeGoalModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
-            </div>
-
-            <!-- イベント連動ボタン -->
-            <div class="theme-card-sm p-3 rounded-xl border space-y-2">
-                <label class="block text-[11px] font-bold opacity-80">📅 「今後の予定」から目標をセット</label>
-                <select id="goal-event-select" onchange="applyGoalFromEvent(this.value)" class="w-full theme-card-sm border rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer">
-                    <option value="">選択してください...</option>
-                </select>
-            </div>
-
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-semibold opacity-70 mb-1">目標の名前</label>
-                    <input type="text" id="edit-goal-title" placeholder="例: 結婚式・新婚旅行" class="w-full theme-card-sm border rounded-xl p-2.5 font-bold focus:outline-none">
-                </div>
-                <div>
-                    <label class="block font-semibold opacity-70 mb-1">目標金額 (円)</label>
-                    <input type="text" id="edit-goal-target" placeholder="1,200,000" onfocus="unformatInput(this)" onblur="formatInput(this)" class="w-full theme-card-sm border rounded-xl p-2.5 font-bold focus:outline-none text-right">
-                </div>
-                <div>
-                    <label class="block font-semibold opacity-70 mb-1">目標時期 (未来30年分より選択)</label>
-                    <select id="edit-goal-date" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer"></select>
-                </div>
-                <div>
-                    <label class="block font-semibold opacity-70 mb-1">比較対象の貯金</label>
-                    <select id="edit-goal-account" class="w-full theme-card-sm border rounded-xl p-2.5 font-semibold focus:outline-none cursor-pointer">
-                        <option value="ALL">全口座の残高の合計</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="pt-3 border-t border-current/10 flex justify-end gap-2">
-                <button onclick="closeGoalModal()" class="theme-card-sm px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer">キャンセル</button>
-                <button onclick="saveGoalSettings()" class="theme-primary-bg px-5 py-2 rounded-xl text-xs font-bold shadow cursor-pointer">保存・反映</button>
-            </div>
-        </div>
-    </div>
 
     <!-- ================= HISTORY POPUP MODAL ================= -->
     <div id="history-popup-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeHistoryModal()">
@@ -692,12 +642,6 @@
                 defaultMonthlySave: 50000,
                 currentTheme: 'set_a_7'
             },
-            goal: {
-                title: '結婚式・新婚旅行',
-                targetAmount: 1200000,
-                targetDate: '2027-10',
-                accountTarget: 'ALL'
-            },
             customThemes: [],
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
@@ -739,7 +683,6 @@
         let videoStream = null;
         let qrScanAnimation = null;
 
-        // 未来30年分の年月選択肢を自動生成する（現在年月起点）
         function generateFuture30YearsOptions(selectedVal) {
             let opts = '';
             const now = new Date();
@@ -1020,14 +963,6 @@
             return initial + allocatedSum;
         }
 
-        function calculateTotalAllAccountsBalance() {
-            let sum = 0;
-            getAccountNames().forEach(name => {
-                sum += calculateAccountCurrentBalance(name);
-            });
-            return sum;
-        }
-
         function calculateRSavingTotal() {
             let total = 0;
             appData.monthly.forEach(m => {
@@ -1087,36 +1022,52 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= 51選カラーピックアップ反映ロジック =================
+        // ================= コンパクトカラーピックアップ＆アプリ全体反映 =================
         function initColorPickupUI() {
-            renderThemeSelectorGrid();
+            renderCompactThemeSelect();
+            renderCompactPaletteSelect();
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
         }
 
-        function renderThemeSelectorGrid() {
-            const grid = document.getElementById('color-themes-grid');
-            if (!grid) return;
+        function renderCompactThemeSelect() {
+            const select = document.getElementById('compact-theme-select');
+            if (!select) return;
             let html = '';
             colorPickupDatabase.forEach(theme => {
-                const isSelected = theme.id === currentThemeId;
-                html += `
-                    <div onclick="selectColorTheme(${theme.id})" class="p-3 rounded-xl cursor-pointer transition border ${isSelected ? 'theme-primary-bg font-bold shadow-md' : 'theme-card-sm hover:opacity-100 opacity-80'} flex items-center justify-between">
-                        <span class="text-xs truncate">${theme.name}</span>
-                        ${isSelected ? '<span class="text-[10px] bg-white/30 px-2 py-0.5 rounded-md">選択中</span>' : ''}
-                    </div>
-                `;
+                html += `<option value="${theme.id}" ${theme.id === currentThemeId ? 'selected' : ''}>${theme.name}</option>`;
             });
-            grid.innerHTML = html;
+            select.innerHTML = html;
+        }
+
+        function renderCompactPaletteSelect() {
+            const select = document.getElementById('compact-palette-select');
+            if (!select) return;
+            const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
+            let html = '';
+            theme.palettes.forEach((palette, idx) => {
+                html += `<option value="${idx}" ${idx === currentPaletteIndex ? 'selected' : ''}>配色パターン #${idx + 1} (${palette.join(', ')})</option>`;
+            });
+            select.innerHTML = html;
         }
 
         function selectColorTheme(themeId) {
             currentThemeId = themeId;
-            currentPaletteIndex = 0; // カテゴリー変更時は最初の配色をデフォルト選択
+            currentPaletteIndex = 0; 
             localStorage.setItem('selected_theme_id', currentThemeId);
             localStorage.setItem('selected_palette_index', currentPaletteIndex);
-            renderThemeSelectorGrid();
+            renderCompactPaletteSelect();
+            renderPalettesGrid();
+            updateActiveIndicator();
+            applySavedPaletteToApp();
+        }
+
+        function selectPaletteIndex(idx) {
+            currentPaletteIndex = idx;
+            localStorage.setItem('selected_palette_index', currentPaletteIndex);
+            const paletteSelect = document.getElementById('compact-palette-select');
+            if (paletteSelect) paletteSelect.value = idx;
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
@@ -1124,204 +1075,56 @@
 
         function renderPalettesGrid() {
             const container = document.getElementById('color-palettes-grid');
-            const titleDisplay = document.getElementById('selected-theme-title-display');
             if (!container) return;
 
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
-            if (titleDisplay) {
-                titleDisplay.innerHTML = `<span class="w-2 h-2 rounded-full theme-primary-bg"></span> ${theme.name} の配色見本 (全9種)`;
-            }
-
             let html = '';
             theme.palettes.forEach((palette, idx) => {
                 const isSelected = idx === currentPaletteIndex;
                 let colorSwatches = '';
                 palette.forEach(hex => {
-                    colorSwatches += `<div class="h-8 flex-1 rounded-md shadow-sm border border-black/10" style="background-color: ${hex};"></div>`;
+                    colorSwatches += `<div class="h-6 flex-1 rounded shadow-xs border border-black/10" style="background-color: ${hex};"></div>`;
                 });
 
                 html += `
-                    <div onclick="selectPaletteIndex(${idx})" class="p-4 rounded-2xl cursor-pointer transition theme-card border relative ${isSelected ? 'ring-2 ring-emerald-500 shadow-lg' : 'hover:scale-[1.02]'} space-y-2">
-                        <div class="flex justify-between items-center text-xs font-bold">
-                            <span>配色パターン #${idx + 1}</span>
-                            ${isSelected ? '<span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full">選択中</span>' : ''}
+                    <div onclick="selectPaletteIndex(${idx})" class="p-3 rounded-xl cursor-pointer transition theme-card border relative ${isSelected ? 'ring-2 ring-emerald-500 shadow-md font-bold' : 'hover:opacity-100 opacity-90'} space-y-1.5">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span>#${idx + 1}</span>
+                            ${isSelected ? '<span class="text-[9px] bg-emerald-500 text-white px-1.5 py-0.2 rounded-full">選択中</span>' : ''}
                         </div>
-                        <div class="flex gap-2">${colorSwatches}</div>
-                        <div class="text-[10px] opacity-70 font-mono">カラー: ${palette.join(', ')}</div>
+                        <div class="flex gap-1.5">${colorSwatches}</div>
                     </div>
                 `;
             });
             container.innerHTML = html;
         }
 
-        function selectPaletteIndex(idx) {
-            currentPaletteIndex = idx;
-            localStorage.setItem('selected_palette_index', currentPaletteIndex);
-            renderPalettesGrid();
-            updateActiveIndicator();
-            applySavedPaletteToApp();
-        }
-
         function updateActiveIndicator() {
             const indicator = document.getElementById('active-theme-indicator');
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             if (indicator) {
-                indicator.innerText = `選択中: ${theme.name} (配色 #${currentPaletteIndex + 1})`;
+                indicator.innerText = `選択中: ${theme.name.split(' ')[0]} (#${currentPaletteIndex + 1})`;
             }
         }
 
         function applySavedPaletteToApp() {
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const palette = theme.palettes[currentPaletteIndex] || theme.palettes[0];
+            
             const primaryColor = palette[0] || '#8c6d53';
-            const deepColor = palette[1] || '#6b523c';
+            const tone2Color = palette[1] || '#6b523c';
+            const tone3Color = palette[2] || '#b0957e';
 
             const root = document.documentElement;
+            // アプリ全体の色を動的に完全反映
             root.style.setProperty('--app-primary', primaryColor);
-            root.style.setProperty('--app-primary-hover', deepColor);
-            root.style.setProperty('--theme-tone-2', deepColor);
+            root.style.setProperty('--app-primary-hover', tone2Color);
+            root.style.setProperty('--theme-tone-1', primaryColor);
+            root.style.setProperty('--theme-tone-2', tone2Color);
+            root.style.setProperty('--theme-tone-3', tone3Color);
 
             if (cashChart) renderCharts();
             if (pieChart) renderPieChart();
-        }
-
-        function openGoalModal() {
-            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
-            
-            document.getElementById('edit-goal-title').value = goal.title || '';
-            document.getElementById('edit-goal-target').value = formatNum(goal.targetAmount || 1200000);
-
-            const dateSelect = document.getElementById('edit-goal-date');
-            if (dateSelect) {
-                dateSelect.innerHTML = generateFuture30YearsOptions(goal.targetDate || '2027-10');
-            }
-
-            const accSelect = document.getElementById('edit-goal-account');
-            if (accSelect) {
-                let opts = '<option value="ALL">全口座の残高の合計</option>';
-                getAccountNames().forEach(name => {
-                    opts += `<option value="${name}">${name}</option>`;
-                });
-                accSelect.innerHTML = opts;
-                accSelect.value = goal.accountTarget || 'ALL';
-            }
-
-            const evSelect = document.getElementById('goal-event-select');
-            if (evSelect) {
-                let opts = '<option value="">選択してください...</option>';
-                if (appData.events && appData.events.length > 0) {
-                    appData.events.forEach((ev, idx) => {
-                        opts += `<option value="${idx}">${ev.name} (¥${formatNum(ev.cost)}) - ${ev.date}</option>`;
-                    });
-                }
-                evSelect.innerHTML = opts;
-            }
-
-            document.getElementById('goal-edit-modal').classList.remove('hidden');
-        }
-
-        function closeGoalModal() {
-            document.getElementById('goal-edit-modal').classList.add('hidden');
-        }
-
-        function applyGoalFromEvent(eventIndex) {
-            if (eventIndex === '') return;
-            const ev = appData.events[Number(eventIndex)];
-            if (!ev) return;
-
-            document.getElementById('edit-goal-title').value = ev.name || '';
-            document.getElementById('edit-goal-target').value = formatNum(ev.cost || 0);
-            if (ev.date) {
-                const dateSelect = document.getElementById('edit-goal-date');
-                if (dateSelect) {
-                    dateSelect.innerHTML = generateFuture30YearsOptions(ev.date);
-                    dateSelect.value = ev.date;
-                }
-            }
-        }
-
-        function saveGoalSettings() {
-            const title = document.getElementById('edit-goal-title').value.trim() || '貯金目標';
-            const targetAmount = parseNum(document.getElementById('edit-goal-target').value) || 1000000;
-            const targetDate = document.getElementById('edit-goal-date').value;
-            const accountTarget = document.getElementById('edit-goal-account').value;
-
-            appData.goal = {
-                title,
-                targetAmount,
-                targetDate,
-                accountTarget
-            };
-
-            saveStorage();
-            closeGoalModal();
-            updateCalculations();
-            alert('🎉 貯金目標の設定を更新しました！');
-        }
-
-        function renderGoalCard() {
-            const goalCard = document.getElementById('savings-goal-card');
-            if (!goalCard) return;
-
-            const goal = appData.goal || { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
-
-            let currentVal = 0;
-            if (goal.accountTarget === 'ALL') {
-                currentVal = calculateTotalAllAccountsBalance();
-            } else {
-                currentVal = calculateAccountCurrentBalance(goal.accountTarget);
-            }
-
-            const target = parseNum(goal.targetAmount) || 1;
-            let percent = Math.min(100, Math.floor((currentVal / target) * 100));
-            if (isNaN(percent)) percent = 0;
-
-            const remaining = Math.max(0, target - currentVal);
-            const isAchieved = currentVal >= target;
-
-            let formattedTargetDate = '';
-            if (goal.targetDate) {
-                const parts = goal.targetDate.split('-');
-                if (parts.length === 2) {
-                    formattedTargetDate = `${parts[0]}年${Number(parts[1])}月`;
-                } else {
-                    formattedTargetDate = goal.targetDate;
-                }
-            }
-
-            goalCard.innerHTML = `
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-current/10 pb-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-base">🎯</span>
-                        <h3 class="font-bold text-xs sm:text-sm">貯金目標: ${goal.title}</h3>
-                        ${formattedTargetDate ? `<span class="text-[10px] theme-primary-bg px-2 py-0.5 rounded-full font-bold">目標: ${formattedTargetDate}</span>` : ''}
-                    </div>
-                    <button onclick="openGoalModal()" class="text-[11px] theme-primary-text underline font-semibold hover:opacity-80 cursor-pointer no-print self-end sm:self-auto">⚙️ 目標を編集</button>
-                </div>
-
-                <div class="space-y-2">
-                    <div class="flex items-end justify-between text-xs">
-                        <div>
-                            <span class="text-[11px] opacity-70">現在の蓄え:</span>
-                            <span class="font-bold text-base sm:text-lg theme-primary-text ml-1">¥${currentVal.toLocaleString()}</span>
-                            <span class="text-[10px] opacity-70">/ 目標 ¥${target.toLocaleString()}</span>
-                        </div>
-                        <div class="text-right font-extrabold text-sm sm:text-base theme-tone-deep">
-                            ${percent}% 達成
-                        </div>
-                    </div>
-
-                    <!-- プログレスバー -->
-                    <div class="w-full h-3 sm:h-3.5 bg-current/10 rounded-full overflow-hidden p-0.5 shadow-inner">
-                        <div class="h-full theme-primary-bg rounded-full transition-all duration-1000 ease-out shadow" style="width: ${percent}%;"></div>
-                    </div>
-
-                    <div class="flex justify-between items-center text-[10px] opacity-80 font-medium pt-0.5">
-                        <span>${isAchieved ? '🎉 おめでとうございます！目標金額を達成しました！' : `あと ¥${remaining.toLocaleString()} で目標達成！`}</span>
-                        <span class="opacity-60">対象: ${goal.accountTarget === 'ALL' ? '全口座合計' : goal.accountTarget}</span>
-                    </div>
-                </div>
-            `;
         }
 
         function cleanupOldMonthlyData() {
@@ -1400,15 +1203,10 @@
                 appData.bankAccounts = [...defaultAccounts];
             }
 
-            if (!appData.goal) {
-                appData.goal = { title: '結婚式・新婚旅行', targetAmount: 1200000, targetDate: '2027-10', accountTarget: 'ALL' };
-            }
-
             cleanupOldMonthlyData();
             sortEventsChronologically();
             updateTodayDateBadge();
             
-            // 51選カラーピックアップUI初期化
             initColorPickupUI();
 
             applyHeroBackgroundUI();
@@ -2133,8 +1931,6 @@
             }
             const nisaAmt = targetMonthData ? parseNum(targetMonthData.nisa) : 0;
             const surplus = targetMonthData ? (inc - exp - nisaAmt) : 0;
-
-            renderGoalCard();
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
