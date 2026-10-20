@@ -336,26 +336,30 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES (NEW 4-COLOR PALETTE) ================= -->
+        <!-- ================= TAB 6: THEMES (PULLDOWN & CIRCLE THUMBNAILS) ================= -->
         <div id="tab-theme" class="hidden space-y-6">
-            <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-5xl mx-auto space-y-5">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">カラーテーマ設定</h2>
-                        <p class="text-xs opacity-70 mt-0.5">一覧からお好みの4色パレットをタップして、アプリ全体を華やかに着せ替えできます。</p>
-                    </div>
-                    <div id="active-theme-indicator" class="text-xs font-bold px-3 py-1.5 rounded-xl theme-primary-bg shadow-sm">
-                        選択中: 雨上がりのミントキャンディ配色
+                        <p class="text-xs opacity-70 mt-0.5">お好みのカラーテーマをプルダウンから選択して、アプリ全体の雰囲気を変更できます。</p>
                     </div>
                 </div>
 
-                <!-- 各テーマタイトル＋4色サムネイル一覧（グリッド表示） -->
-                <div class="space-y-3 pt-1">
-                    <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> カラーテーマ一覧 (全配色)
-                    </h3>
-                    <div id="color-palettes-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <!-- JSで動的生成 -->
+                <div class="theme-card-sm p-5 rounded-2xl border space-y-4">
+                    <label class="block font-bold text-xs opacity-80">🎨 カラーテーマの選択</label>
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <select id="color-theme-select" onchange="onColorThemeSelectChange(this.value)" class="flex-grow theme-card-sm rounded-xl px-3.5 py-3 text-xs font-semibold border focus:outline-none cursor-pointer w-full">
+                            <!-- JSで動的生成 -->
+                        </select>
+                    </div>
+
+                    <!-- 選択中テーマの4色円形サムネイルプレビュー -->
+                    <div class="pt-4 border-t border-current/10 space-y-2">
+                        <span class="text-xs font-bold opacity-70">選択中の配色プレビュー</span>
+                        <div id="selected-theme-preview" class="flex items-center gap-3 p-3 rounded-xl theme-card-sm border">
+                            <!-- JSで動的生成 -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -719,20 +723,6 @@
             }
         }
 
-        function hexToRgbValues(hex) {
-            if (!hex) return { r: 0, g: 148, b: 136 };
-            let c = hex.replace('#', '');
-            if (c.length === 3) c = c.split('').map(x => x + x).join('');
-            if (c.length >= 6) {
-                return {
-                    r: parseInt(c.substring(0, 2), 16),
-                    g: parseInt(c.substring(2, 4), 16),
-                    b: parseInt(c.substring(4, 6), 16)
-                };
-            }
-            return { r: 0, g: 148, b: 136 };
-        }
-
         function updateTodayDateBadge() {
             const badge = document.getElementById('today-date-badge');
             if (!badge) return;
@@ -1036,52 +1026,52 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= 刷新された4色カラーテーマUI =================
+        // ================= 刷新された4色カラーテーマUI（プルダウン形式 ＆ 円形サムネイル） =================
         function initColorPickupUI() {
-            renderPalettesGrid();
-            updateActiveIndicator();
+            renderThemeSelect();
+            updateSelectedThemePreview();
             applySavedPaletteToApp();
         }
 
         function selectColorTheme(themeId) {
-            currentThemeId = themeId;
+            currentThemeId = Number(themeId);
             localStorage.setItem('selected_theme_id', currentThemeId);
-            renderPalettesGrid();
-            updateActiveIndicator();
+            updateSelectedThemePreview();
             applySavedPaletteToApp();
         }
 
-        function renderPalettesGrid() {
-            const container = document.getElementById('color-palettes-grid');
-            if (!container) return;
+        function renderThemeSelect() {
+            const selectEl = document.getElementById('color-theme-select');
+            if (!selectEl) return;
 
             let html = '';
             colorPickupDatabase.forEach(theme => {
                 const isSelected = theme.id === currentThemeId;
-                let colorBars = '';
-                theme.colors.forEach(hex => {
-                    colorBars += `<div class="h-5 flex-1 rounded-sm shadow-xs" style="background-color: ${hex};" title="${hex}"></div>`;
-                });
-
-                html += `
-                    <div onclick="selectColorTheme(${theme.id})" class="p-3 rounded-2xl cursor-pointer transition theme-card border relative flex flex-col gap-2 ${isSelected ? 'ring-2 ring-[var(--app-c2)] shadow-lg font-bold scale-[1.02]' : 'hover:scale-102 hover:shadow-md opacity-90'}">
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="font-bold truncate pr-1">${theme.name}</span>
-                            ${isSelected ? '<span class="text-[9px] bg-[var(--app-c2)] text-white px-2 py-0.5 rounded-full font-bold shrink-0">選択中</span>' : ''}
-                        </div>
-                        <div class="flex gap-1.5 p-1.5 rounded-xl bg-black/5 border border-black/5">${colorBars}</div>
-                    </div>
-                `;
+                html += `<option value="${theme.id}" ${isSelected ? 'selected' : ''}>${theme.name}</option>`;
             });
-            container.innerHTML = html;
+            selectEl.innerHTML = html;
         }
 
-        function updateActiveIndicator() {
-            const indicator = document.getElementById('active-theme-indicator');
+        function onColorThemeSelectChange(val) {
+            selectColorTheme(val);
+        }
+
+        function updateSelectedThemePreview() {
+            const previewEl = document.getElementById('selected-theme-preview');
+            if (!previewEl) return;
+
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
-            if (indicator) {
-                indicator.innerText = `選択中: ${theme.name}`;
-            }
+            let circlesHtml = '';
+            theme.colors.forEach(hex => {
+                circlesHtml += `<div class="w-8 h-8 rounded-full shadow-sm border border-black/10 shrink-0" style="background-color: ${hex};" title="${hex}"></div>`;
+            });
+
+            previewEl.innerHTML = `
+                <div class="flex items-center gap-3 w-full">
+                    <div class="flex gap-2 shrink-0">${circlesHtml}</div>
+                    <div class="font-bold text-xs truncate">${theme.name}</div>
+                </div>
+            `;
         }
 
         function applySavedPaletteToApp() {
