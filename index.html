@@ -22,15 +22,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style id="dynamic-theme-style">
         :root {
-            --app-bg: linear-gradient(135deg, #fbf7f4 0%, #f4ede6 100%);
-            --app-text: #2c2421;
-            --app-card-bg: rgba(255, 255, 255, 0.9);
-            --app-card-border: rgba(228, 218, 208, 0.8);
-            --app-primary: #8c6d53;
-            --app-primary-hover: #785d46;
-            --theme-tone-1: #8c6d53;
-            --theme-tone-2: #6b523c;
-            --theme-tone-3: #b0957e;
+            --app-c1: #E0F2F1;
+            --app-c2: #009488;
+            --app-c3: #004D40;
+            --app-c4: #FFBACD;
+            --app-bg: linear-gradient(135deg, var(--app-c1) 0%, #ffffff 100%);
+            --app-text: #1a202c;
+            --app-card-bg: rgba(255, 255, 255, 0.85);
+            --app-card-border: var(--app-c2);
         }
 
         body {
@@ -39,43 +38,50 @@
             color: var(--app-text) !important;
             min-height: 100vh;
             padding-bottom: 85px;
+            transition: background 0.3s ease;
         }
 
         .theme-card {
             background: var(--app-card-bg) !important;
-            border: 1px solid var(--app-card-border) !important;
+            border: 1.5px solid var(--app-c2) !important;
             backdrop-filter: blur(12px);
             color: var(--app-text) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .theme-card-sm {
-            background: rgba(255, 255, 255, 0.35) !important;
-            border: 1px solid var(--app-card-border) !important;
+            background: rgba(255, 255, 255, 0.5) !important;
+            border: 1px solid var(--app-c2) !important;
             color: var(--app-text) !important;
         }
 
         .theme-primary-bg {
-            background-color: var(--app-primary) !important;
+            background-color: var(--app-c2) !important;
             color: #ffffff !important;
         }
         .theme-primary-bg:hover {
-            background-color: var(--app-primary-hover) !important;
+            background-color: var(--app-c3) !important;
+        }
+
+        .theme-accent-bg {
+            background-color: var(--app-c4) !important;
+            color: #1a202c !important;
         }
 
         .theme-primary-text {
-            color: var(--app-primary) !important;
+            color: var(--app-c2) !important;
         }
 
-        .theme-tone-deep {
-            color: var(--theme-tone-2) !important;
+        .theme-deep-text {
+            color: var(--app-c3) !important;
         }
 
-        .theme-tone-light {
-            color: var(--theme-tone-3) !important;
+        .theme-accent-text {
+            color: var(--app-c4) !important;
         }
 
         .theme-badge-tone {
-            background-color: var(--theme-tone-2);
+            background-color: var(--app-c3);
             color: #ffffff;
         }
 
@@ -84,8 +90,9 @@
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: rgba(150, 150, 150, 0.3);
+            background-color: var(--app-c2);
             border-radius: 9999px;
+            opacity: 0.5;
         }
 
         button, select, input, label {
@@ -103,7 +110,7 @@
 <body class="min-h-screen flex flex-col antialiased">
 
     <!-- Header / Top Bar -->
-    <header class="no-print theme-card sticky top-0 z-40 transition-all border-b">
+    <header class="no-print theme-card sticky top-0 z-40 transition-all border-b shadow-sm">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
                 <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更">
@@ -171,11 +178,11 @@
             <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 貯金推移
+                        <span class="w-2.5 h-2.5 rounded-full theme-primary-bg"></span> 貯金推移
                     </h3>
                     <div class="flex items-center gap-3 text-[11px] font-medium">
                         <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full theme-primary-bg inline-block"></span> 現金残高</span>
-                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 bg-rose-500 rounded-xs inline-block"></span> 予定費用</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 theme-accent-bg rounded-xs inline-block border"></span> 予定費用</span>
                     </div>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2 pt-2">
@@ -214,7 +221,7 @@
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 支出の内訳 (金額の高い順)
+                            <span class="w-2.5 h-2.5 rounded-full theme-primary-bg"></span> 支出の内訳 (金額の高い順)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none cursor-pointer"></select>
                     </div>
@@ -231,7 +238,7 @@
 
                 <div class="theme-card p-4 sm:p-6 rounded-2xl flex flex-col">
                     <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full theme-primary-bg"></span> 過去の収支履歴一覧 (直近12ヶ月分)
+                        <span class="w-2.5 h-2.5 rounded-full theme-primary-bg"></span> 過去の収支履歴一覧 (直近12ヶ月分)
                     </h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-xl border border-current/10">
                         <table class="w-full text-xs text-left border-collapse whitespace-nowrap sm:whitespace-normal">
@@ -279,7 +286,7 @@
                     </div>
                     <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border"></textarea>
                     <div class="flex justify-end">
-                        <button type="button" onclick="parseAiTextAndAddEvent()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-4 py-2.5 rounded-xl font-bold transition shadow cursor-pointer min-h-[40px]">
+                        <button type="button" onclick="parseAiTextAndAddEvent()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow cursor-pointer min-h-[40px]">
                             📥 解析して今後の予定に追加する
                         </button>
                     </div>
@@ -329,31 +336,25 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES (COMPACT & REDESIGNED) ================= -->
+        <!-- ================= TAB 6: THEMES (NEW 4-COLOR PALETTE) ================= -->
         <div id="tab-theme" class="hidden space-y-6">
-            <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-4xl mx-auto space-y-5">
+            <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-5xl mx-auto space-y-5">
                 <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">カラーテーマ設定</h2>
-                        <p class="text-xs opacity-70 mt-0.5">カテゴリーを選び、お好みの配色パレットをタップしてアプリ全体をコーディネートします。</p>
+                        <p class="text-xs opacity-70 mt-0.5">一覧からお好みの4色パレットをタップして、アプリ全体を華やかに着せ替えできます。</p>
                     </div>
                     <div id="active-theme-indicator" class="text-xs font-bold px-3 py-1.5 rounded-xl theme-primary-bg shadow-sm">
-                        選択中: レトロカラー (配色 #1)
+                        選択中: 雨上がりのミントキャンディ配色
                     </div>
                 </div>
 
-                <!-- コンパクトドロップダウン選択 -->
-                <div class="theme-card-sm p-3.5 rounded-2xl border">
-                    <label class="block text-[11px] font-bold opacity-80 mb-1">📂 カラーカテゴリー選択</label>
-                    <select id="compact-theme-select" onchange="selectColorTheme(Number(this.value))" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer"></select>
-                </div>
-
-                <!-- おしゃれでコンパクトな配色見本一覧（横スクロール式ピルカード） -->
+                <!-- 各テーマタイトル＋4色サムネイル一覧（グリッド表示） -->
                 <div class="space-y-3 pt-1">
                     <h3 class="font-bold text-xs flex items-center gap-1.5">
-                        <span>✨</span> 配色パターン一覧 (ワンタップで適用)
+                        <span>✨</span> カラーテーマ一覧 (全配色)
                     </h3>
-                    <div id="color-palettes-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                    <div id="color-palettes-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         <!-- JSで動的生成 -->
                     </div>
                 </div>
@@ -372,7 +373,6 @@
                 <button onclick="closeHistoryModal()" class="opacity-70 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
             
-            <!-- 年別フィルター選択ドロップダウン -->
             <div class="flex items-center justify-between gap-2 shrink-0 no-print">
                 <label class="text-xs font-semibold opacity-70">絞り込み表示:</label>
                 <select id="history-modal-year-filter" onchange="filterHistoryModalByYear()" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer">
@@ -405,7 +405,7 @@
                 <button onclick="startPeerSend()" class="w-full theme-primary-bg text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
                     <span>📤</span> 送信：同期用QRコードを表示
                 </button>
-                <button onclick="startPeerReceive()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
+                <button onclick="startPeerReceive()" class="w-full theme-accent-bg text-xs font-bold py-3.5 rounded-2xl transition shadow cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
                     <span>📷</span> 受信：相手のQRコードをスキャン
                 </button>
             </div>
@@ -437,61 +437,83 @@
 
         let currentModalRawHistory = [];
 
-        // 51種類のカラーテーマ & 各9種類の配色パレット定義
+        // PDF全75ページから抽出・構築した4色テーマデータベース
         const colorPickupDatabase = [
-            { id: 1, name: "RETRO COLOR (レトロカラー)", palettes: [["#C8624B", "#E6D4CC", "#C89EB4"], ["#688897", "#D2AC6C", "#EEE6E5"], ["#32463C", "#334E64", "#8FAE9F"], ["#F8DDBE", "#EEE9D2", "#A8BD9A"], ["#BC8E90", "#BC8151", "#B6A567"], ["#A8A0B6", "#4F6045", "#5F75A1"], ["#96BFBC", "#70504B", "#F0E0A0"], ["#E8EDDA", "#FEFBE7", "#D88F80"], ["#D4A2A6", "#C56E66", "#91676A"]] },
-            { id: 2, name: "ブラウンを使った可愛い配色", palettes: [["#5F3E36", "#F3F2D1", "#9E6563"], ["#544A54", "#D5998D", "#7E5A5C"], ["#AC7C73", "#647458", "#997E62"], ["#AE818A", "#E7E3D8", "#856652"], ["#ACC2C9", "#E2E8D8", "#978865"], ["#9DB19D", "#786C66", "#D0CED0"], ["#8F7F62", "#DB9F8D", "#DCC677"], ["#CFC793", "#6C968E", "#735F54"], ["#EEBBAF", "#AA9776", "#715353"]] },
-            { id: 3, name: "ロマンティックなパープル配色", palettes: [["#CFB4C5", "#DDC3DC", "#8D3B51"], ["#998BBE", "#857A8C", "#4B2680"], ["#7E5B9F", "#BC9FD7", "#B2618E"], ["#AD76C7", "#F4AF62", "#F1A4D8"], ["#B86E8C", "#DCB0CB", "#F2DDDA"], ["#F39DF4", "#2E2979", "#9B95EB"], ["#E6A1AB", "#C1A8D0", "#99D7FF"], ["#E9DFDA", "#905999", "#99846B"], ["#8CAFA9", "#CBAEDE", "#4A4AB3"]] },
-            { id: 4, name: "今っぽい冬カラー (WINTER)", palettes: [["#9EBDC8", "#9D7E8F", "#C6C1D6"], ["#E6D9C4", "#B59179", "#DCCED5"], ["#99A6BF", "#5676B5", "#D9A9B9"], ["#ECB486", "#DAABA0", "#EAE4C4"], ["#EAE8DA", "#D0CFE6", "#3C466B"], ["#4A717D", "#AABAD4", "#D85C5B"], ["#C9C6DE", "#F0CABF", "#D2A380"], ["#A4AECC", "#35422F", "#E6BFAB"], ["#596884", "#C35E58", "#9BA8AB"]] },
-            { id: 5, name: "レトロポップな可愛い配色", palettes: [["#109A91", "#D5642A", "#1F663F"], ["#FDAB3C", "#F56B25", "#F6A79A"], ["#FFEDC0", "#F47406", "#9E7460"], ["#D3C085", "#FA9EB7", "#7D1841"], ["#DD3A31", "#EEE3BF", "#2EBCB7"], ["#F8F47B", "#ED520A", "#0F0F6D"], ["#809664", "#DFB34F", "#8F7664"], ["#6BC6E6", "#A84673", "#21219B"], ["#DC4440", "#5298B2", "#F7B150"]] },
-            { id: 6, name: "すみれいろ (くすんだ菫色)", palettes: [["#8072C0", "#9887D0", "#BCAAA4"], ["#8B7D8B", "#CFD8DC", "#9C82C0"], ["#A899A8", "#E1BEE7", "#D2B4DE"], ["#7B6BAB", "#A992A0", "#D1C4E9"], ["#F5F5DC", "#8A7BB9", "#C8E6C9"], ["#73628A", "#D0ECE7", "#FFE0B2"], ["#5C527F", "#90A4AE", "#F2DDE3"], ["#A1887F", "#685282", "#DCEDC8"], ["#E0D0E0", "#7B5C8F", "#F0F4C3"]] },
-            { id: 7, name: "1色プラスしたモノトーン配色", palettes: [["#221A1C", "#F4F8FA", "#005CAF"], ["#1B1D1A", "#FFF5F7", "#E91E63"], ["#15191C", "#87A96B", "#FAF6F4"], ["#FAF8F2", "#1A1821", "#C85A32"], ["#211F1A", "#F8F7FF", "#E5A93C"], ["#241D1A", "#A78BFA", "#F2FAFA"], ["#141C1D", "#00A3AF", "#FAF2F4"], ["#1F1316", "#7A1F3D", "#FAF6F2"], ["#241E19", "#E67E22", "#FAF6F2"]] },
-            { id: 8, name: "ふんわりクラウド配色", palettes: [["#F6CFE2", "#BFDFFF", "#E8F3FF"], ["#D8F3E8", "#E3D8FF", "#FADDEE"], ["#E8F3FF", "#CFE6FF", "#FFEOD6"], ["#E9F6E8", "#FFE1D6", "#E8F3FF"], ["#D7E2F5", "#FFF2D6", "#E8F3FF"], ["#E6ECFF", "#FFDCE7", "#E9F6E8"], ["#E8E1FF", "#FFF3C8", "#F6CFE2"], ["#FFF0DA", "#E1D5FB", "#EAF4FF"], ["#D6EAF8", "#FFE4D8", "#FFE1EC"]] },
-            { id: 9, name: "赤色をつかった可愛い配色", palettes: [["#D63241", "#FFC0C3", "#9AC9DA"], ["#A40024", "#B3DEE1", "#DCE1DE"], ["#EF6A6A", "#D0D686", "#E6A298"], ["#CD483B", "#768BAB", "#F9F6E0"], ["#E04333", "#E5C8F1", "#68BCF1"], ["#D05945", "#DFF671", "#99A9F7"], ["#A01A1A", "#D6D1C6", "#EAC15C"], ["#600505", "#546725", "#FCEDB3"], ["#CA422E", "#59443B", "#9E7961"]] },
-            { id: 10, name: "大人カワイイ グレージュ配色", palettes: [["#E1BFC7", "#C7D3DD", "#D8D3E6"], ["#9DB2A0", "#E3D4C3", "#7F8F7A"], ["#3F3F3F", "#A65B3E", "#5A4538"], ["#C9E0D6", "#D8CFC5", "#E6C3A5"], ["#D7A9B5", "#2F3A46", "#C2A13D"], ["#5F7486", "#7E9BA8", "#4A3B34"], ["#B9AEC9", "#8A8F63", "#8FA7B3"], ["#C7B29B", "#EFE7DC", "#4F7F7A"], ["#6B6763", "#8B4F5A", "#D97A6C"]] },
-            { id: 11, name: "オリエンタルなエメラルド配色", palettes: [["#E91E63", "#00896C", "#37ACB5"], ["#007B5E", "#FF5722", "#C2185B"], ["#FFC107", "#3F51B5", "#00695C"], ["#2E7D32", "#D32F2F", "#7B1FA2"], ["#FF8F00", "#00A86B", "#E91E63"], ["#009688", "#F44336", "#FFEB3B"], ["#8D6E63", "#AFB42B", "#8E24AA"], ["#455A64", "#388E3C", "#2E774F"], ["#648860", "#795548", "#5D4037"]] },
-            { id: 12, name: "バーガンディの可愛い配色", palettes: [["#8B7D8B", "#9C566A", "#561B24"], ["#4A1521", "#4F5D6C", "#8695A4"], ["#561B24", "#A1887F", "#C8E6C9"], ["#90A4AE", "#42121D", "#3A333D"], ["#7B5C8F", "#632230", "#D29DAA"], ["#521827", "#CFD8DC", "#657492"], ["#561B24", "#A992A0", "#E9E38A"], ["#3D101A", "#BCAAA4", "#697582"], ["#685282", "#561B24", "#E1D7D8"]] },
-            { id: 13, name: "水色をつかった可愛い配色", palettes: [["#C7E6EB", "#65AAED", "#FFDED7"], ["#ACBBE2", "#CAEAFF", "#F1E9F4"], ["#BBE5F1", "#9ECC89", "#F7ECBA"], ["#87D9F9", "#CDCED0", "#A8FA7A"], ["#FFCAA6", "#A7DEF0", "#6C8EA8"], ["#FEC6DF", "#F7F4B7", "#A5EFEB"], ["#EDFF77", "#C1F4F3", "#418DF9"], ["#ACE7EB", "#E4E9EC", "#FCCDD6"], ["#A7D8D2", "#FFD392", "#C8F7C0"]] },
-            { id: 14, name: "メロウなラベンダー配色", palettes: [["#BCABE7", "#E8CAE3", "#E9C6D0"], ["#EED8C3", "#F3CDE0", "#BFB6DB"], ["#E4DADD", "#BCD2E6", "#BEB2DC"], ["#EBF1BC", "#CEE7B8", "#C8BCE5"], ["#F4F8FB", "#C5E8DF", "#B5A8DA"], ["#C3B7E4", "#F6D4CA", "#EBB7EF"], ["#DBD6DF", "#D5BFA6", "#FFF6DB"], ["#B9AFD4", "#C9BEE0", "#B6E8FF"], ["#C4DAED", "#FFF5EA", "#C6B8E9"]] },
-            { id: 15, name: "雨の日の可愛い水彩配色", palettes: [["#6593A5", "#D4E3F1", "#ACEBFF"], ["#0195D5", "#5EBFEO", "#A5B7DD"], ["#8ACED2", "#C9CBA5", "#C2DED7"], ["#A6EA9F", "#9ED4DB", "#7AC4B2"], ["#489D98", "#49C7BC", "#D0E4E1"], ["#ABEADA", "#10AADA", "#A7D1FF"], ["#8ACED2", "#2F7184", "#44A8F4"], ["#C9CBA5", "#23A1C2", "#D0C4E5"], ["#C2DED7", "#90DDEA", "#7A97DF"]] },
-            { id: 16, name: "ファンタジックな魔法使い配色", palettes: [["#5EBCAF", "#94D3DE", "#FAF7F8"], ["#3269A0", "#7446CE", "#A9C961"], ["#EFE9D9", "#E8E83A", "#97D685"], ["#E0E06E", "#8C96ED", "#2C35BD"], ["#C44BD1", "#5A2BCC", "#A68758"], ["#8ECEF4", "#D86955", "#F9B8F9"], ["#DFBCC1", "#A0E2D5", "#B375BC"], ["#1A4B9F", "#E3EAF7", "#CCB998"], ["#3488E0", "#B4EE9C", "#00927E"]] },
-            { id: 17, name: "ぽかぽかカラー (WARM IMAGE)", palettes: [["#E9A62F", "#F3DEC0", "#CE8668"], ["#962E2D", "#C5682C", "#E0DCA5"], ["#58432D", "#E2C741", "#D6A669"], ["#DA8D76", "#D8B5AA", "#E0C688"], ["#F6DECE", "#912D41", "#D57861"], ["#D38280", "#DB9777", "#CE6F80"], ["#C7572A", "#B0523A", "#8A6247"], ["#DDB67A", "#EED37C", "#C88881"], ["#7C5250", "#BD5D54", "#F6EB92"]] },
-            { id: 18, name: "アースカラー (EARTH IMAGE)", palettes: [["#6D885A", "#9A92A3", "#79A3B1"], ["#7F8F8E", "#6D5A5C", "#91A38F"], ["#C9CEB5", "#88665D", "#C9B797"], ["#927A82", "#BE947A", "#CFD7D9"], ["#646578", "#4D636A", "#233352"], ["#ABAEB1", "#736A51", "#C1AE8C"], ["#97A09C", "#7D877C", "#A0ADCC"], ["#B47463", "#586D55", "#E1C9A3"], ["#DDC1B7", "#415D52", "#5D6371"]] },
-            { id: 19, name: "2025年トレンド モカ・ムース", palettes: [["#A47864", "#E4D8C6", "#82ACAD"], ["#A47864", "#968C96", "#CD9E97"], ["#A47864", "#7A93C9", "#8C9670"], ["#A47864", "#968B6E", "#F4EBDE"], ["#A47864", "#BDC4B5", "#AA9C8C"], ["#A47864", "#BE95AA", "#D2BEB4"], ["#A47864", "#969989", "#BFBA7C"], ["#A47864", "#8CA096", "#DEDCB5"], ["#A47864", "#646E5A", "#A3B4A0"]] },
-            { id: 20, name: "光彩カラー (SHINE IMAGE)", palettes: [["#9083F0", "#F9D955", "#E87C8B"], ["#FCF69A", "#DCFADB", "#E4C1E8"], ["#8BF7EE", "#DD6AC2", "#FBE980"], ["#E89CAA", "#FAE3AD", "#78DFDE"], ["#F6CDBB", "#DDEDF0", "#D1D7F1"], ["#DABBEE", "#FCFAD8", "#C3EBF7"], ["#AA95B5", "#D8B1B5", "#FCF0CA"], ["#FFD552", "#D88595", "#56BCE3"], ["#9EF0EC", "#BA79CB", "#9AD0EB"]] },
-            { id: 21, name: "ネイビーを使った可愛い配色", palettes: [["#344163", "#D6A9B5", "#9DB2A0"], ["#EFE7DC", "#E3D4C3", "#8FA7B3"], ["#D8CFC5", "#3A4A72", "#31435C"], ["#C2A13D", "#3E4A68", "#283351"], ["#26B58A", "#3F3F3F", "#9FB8AC"], ["#BEB9B3", "#C6C2D6", "#2F3E57"], ["#38455E", "#C07A55", "#D1B45A"], ["#AEB4BB", "#8B4F5A", "#E6DED2"], ["#2D3F63", "#3C4661", "#FOE9E0"]] },
-            { id: 22, name: "クリスマスカラー", palettes: [["#B74B2E", "#FOF1D1", "#C9A78B"], ["#576D5E", "#DDDED6", "#B66955"], ["#CE5739", "#5A774B", "#C49462"], ["#EDC375", "#EAE6DA", "#424337"], ["#D1717A", "#D5DCE1", "#698760"], ["#E0DED6", "#273D41", "#A23514"], ["#F3E0D0", "#577E68", "#D98E87"], ["#205461", "#BD5E3A", "#E1BB76"], ["#6AB5AD", "#234563", "#D8F2FD"]] },
-            { id: 23, name: "同系色の可愛いグラデ配色", palettes: [["#FFD7D7", "#FF9395", "#F06163"], ["#FFEBEB", "#FFB5CE", "#F47EA6"], ["#EADAFF", "#B19CD9", "#8B6CCD"], ["#DCD7FF", "#EBEFFF", "#D1FFFA"], ["#8797FF", "#A4D4FF", "#8CEEEE"], ["#2427EE", "#71A0F7", "#5AC5C5"], ["#D6FFD9", "#FEFFEB", "#FFEFDC"], ["#8AF192", "#EFE96E", "#FFAC62"], ["#45BB5B", "#E0C439", "#C78035"]] },
-            { id: 24, name: "アンニュイなカラー", palettes: [["#78658B", "#9EA6BC", "#687897"], ["#DDE5EC", "#ABB9A1", "#D7DADB"], ["#C7CCBE", "#B5B278", "#6B887E"], ["#BACBD2", "#EEDADA", "#D0CFD2"], ["#D4BCCE", "#E9DBB3", "#97A4A8"], ["#929CAE", "#DFE7B2", "#COBCA9"], ["#EEE89A", "#E1C4B2", "#96A598"], ["#B59CA5", "#9CB8B8", "#A8A7A4"], ["#EFE4D1", "#CEC3D4", "#A7A9D0"]] },
-            { id: 25, name: "もぎたてシトラス配色", palettes: [["#FEBDA8", "#B3CB37", "#C1EAC3"], ["#FFB300", "#8BD03B", "#FF5252"], ["#FCDB22", "#FF9800", "#2BE98D"], ["#CCFF00", "#FF4081", "#00BOFF"], ["#EEBF07", "#F5AAC3", "#85D1EA"], ["#FFEOB2", "#F5ECDC", "#9ACD32"], ["#CBD628", "#E3B4D1", "#E6EE91"], ["#ECC500", "#F8BBD0", "#B2EBF2"], ["#FFD700", "#FA6C3F", "#4CAF50"]] },
-            { id: 26, name: "お正月カラー (めでたい)", palettes: [["#AD8469", "#E27B28", "#EAE5D3"], ["#AD5C69", "#7C8766", "#E83C31"], ["#EEDFA1", "#F7D5B4", "#69B193"], ["#61688A", "#F2785B", "#D0CEC5"], ["#D95A55", "#C6B183", "#F6DEB8"], ["#AC8372", "#E9CAB9", "#FF8A7A"], ["#69706A", "#F3E5CC", "#606289"], ["#EDE99D", "#BC5C53", "#F2D08B"], ["#EF835D", "#DFBAZA", "#798159"]] },
-            { id: 27, name: "藍色の可愛い配色", palettes: [["#A3B1C6", "#D9E1E8", "#004C71"], ["#CFD8DC", "#004C71", "#C3AACE"], ["#004C71", "#F1CD99", "#FAEFB1"], ["#004C71", "#FCE4EC", "#D1C4E9"], ["#FFF1F5", "#A2D2E2", "#004C71"], ["#F0F4C3", "#D2B4DE", "#004C71"], ["#708090", "#003350", "#BCAAA4"], ["#8B7D8B", "#CDDDC4", "#002840"], ["#1A3E54", "#4E5D6C", "#B1B7BD"]] },
-            { id: 28, name: "イエローを使った可愛い配色", palettes: [["#FFF056", "#70EE7C", "#EEB86A"], ["#A2B3D6", "#F4D66A", "#778999"], ["#FF8387", "#DBB2CB", "#EAE5D0"], ["#609870", "#D79159", "#A1E6EF"], ["#F5EB7A", "#F4D86A", "#E5A09E"], ["#F3E281", "#E87D9D", "#D2ECDA"], ["#F0D980", "#F5C699", "#E59ED0"], ["#B5CFE1", "#F4F090", "#5E809D"], ["#A6A78C", "#AFA7E4", "#E5C557"]] },
-            { id: 29, name: "可憐なアプリコット配色", palettes: [["#FFE5D1", "#CDDDFB", "#B2EBF2"], ["#FOF4FF", "#FFCCBC", "#F8BBD0"], ["#E1F5FE", "#FEF9E7", "#FFB74D"], ["#F4C0A4", "#F5F5DC", "#CFD8DC"], ["#D1C4E9", "#F7B977", "#F3CAD4"], ["#F8BBD0", "#97DC99", "#F7AB5E"], ["#DFE7EB", "#F2B483", "#DOECE7"], ["#E7AD90", "#D1C4E9", "#F2E6CE"], ["#A6C6DE", "#A6DEE8", "#EBB58D"]] },
-            { id: 30, name: "バレンタインカラー", palettes: [["#5A1C49", "#FB9E9F", "#FODCDE"], ["#AA4B65", "#6A2F33", "#D87A6C"], ["#E7E1E3", "#DD5C54", "#BB4852"], ["#53380A", "#EAAFBO", "#EEC171"], ["#E68E7C", "#732639", "#9FCCBC"], ["#FFEED3", "#B34732", "#AF8D5C"], ["#EDB7B7", "#AE342E", "#E75837"], ["#F1B398", "#723022", "#EFD9D1"], ["#4A548F", "#8B3932", "#DBA1A6"]] },
-            { id: 31, name: "2026トレンド クラウドダンサー", palettes: [["#FOEEE9", "#E48E79", "#AD9883"], ["#FFF4D8", "#F3A829", "#FOEEE9"], ["#F5D3C8", "#92AAB6", "#FOEEE9"], ["#B1D8B9", "#FB6401", "#FOEEE9"], ["#FBBA16", "#5CE476", "#CADC70"], ["#FOEEE9", "#00492C", "#FOEEE9"], ["#8C74C0", "#215DB1", "#FOEEE9"], ["#82CBD1", "#FOEEE9", "#F5BBD3"], ["#FOEEE9", "#DB4E66", "#DCE2F0"]] },
-            { id: 32, name: "華やかな和風配色 (謹賀新年)", palettes: [["#E1E1D2", "#EBAC1E", "#CAC888"], ["#FODFE3", "#383764", "#DB4233"], ["#E5052F", "#F9E1BE", "#6BD28F"], ["#E6FFFF", "#147379", "#F2E6D6"], ["#84D7C1", "#CAA57B", "#C0644F"], ["#F46C32", "#923434", "#F9BEBO"], ["#BEB414", "#FFD84D", "#DADE18"], ["#34A0B4", "#3E3D9B", "#184106"], ["#FFF2E6", "#E6561D", "#C2B37C"]] },
-            { id: 33, name: "ふんわりライラック配色", palettes: [["#E9E1FF", "#DFF3EA", "#FFDCE7"], ["#FFF3C8", "#E3D9FF", "#D6ECFF"], ["#E6DDFF", "#DFFOFF", "#FFE2D6"], ["#CFEDE3", "#FFF1C9", "#E4DAFF"], ["#E9F6E8", "#FFD6E4", "#E8EOFF"], ["#E6F2FF", "#EAE3FF", "#FFD9DE"], ["#DFE6F1", "#FFE1C9", "#E3F1FF"], ["#E5DBFF", "#E7DEFF", "#FFE7EC"], ["#FFE6F2", "#DFF3F1", "#E2D8FF"]] },
-            { id: 34, name: "雨上がりのみずいろ配色", palettes: [["#FCE4EC", "#FFF9C4", "#A2D2E2"], ["#9DE6F0", "#E8F5E9", "#FFF3E0"], ["#AFE8B1", "#73D9E1", "#F1B7C9"], ["#F5F5DC", "#D1C4E9", "#69BCD1"], ["#E1BEE7", "#6EDODB", "#FFCDD2"], ["#BCAAA4", "#8EACB5", "#E0F2F1"], ["#FFEOB2", "#CFD8DC", "#6297A7"], ["#D2B4DE", "#A4C2CB", "#F0F4C3"], ["#7BBBC8", "#F8D9E2", "#F8BBD0"]] },
-            { id: 35, name: "ネオンな配色 (POP)", palettes: [["#FFFE00", "#8587F8", "#014FA3"], ["#3DA896", "#FB76FB", "#FD608F"], ["#358AC3", "#EC1278", "#FFF55E"], ["#4D1AE1", "#E4E0DF", "#39BCDO"], ["#1BBDC7", "#BA479C", "#FFD502"], ["#A2ABB3", "#F92F03", "#252652"], ["#F3CEE1", "#FF9604", "#5E96EA"], ["#D4014A", "#DEABE4", "#9AF349"], ["#FE5B64", "#47FFBC", "#EFE2BF"]] },
-            { id: 36, name: "ネオンカラー (NEON IMAGE)", palettes: [["#DB75A4", "#7CBC9A", "#D7986D"], ["#32A997", "#AB5394", "#C7D651"], ["#8CBCA3", "#6168A2", "#D85D90"], ["#5E92B2", "#9B422E", "#BDAC48"], ["#93D788", "#E8563B", "#AA4165"], ["#CB6F44", "#56B5CB", "#D9EAD9"], ["#0017F2", "#C8236B", "#D2CF61"], ["#D76144", "#00ABE1", "#79A1B7"], ["#D5E7E5", "#F1E937", "#CB5E4D"]] },
-            { id: 37, name: "透明感のある寒色の配色", palettes: [["#6593A5", "#D4E3F1", "#ACEBFF"], ["#A6EA9F", "#9ED4DB", "#7AC4B2"], ["#0195D5", "#5EBFEO", "#A5B7DD"], ["#6BCAD3", "#97C5D2", "#DDEFF7"], ["#489098", "#ABEADA", "#49C7BC"], ["#10AADA", "#DOE4E1", "#A7D1FF"], ["#8BA3C5", "#2F7184", "#44A8F4"], ["#E3EFDD", "#23A1C2", "#D0C4E5"], ["#3B7ACD", "#90DDEA", "#7A97DF"]] },
-            { id: 38, name: "平成レトロカラー", palettes: [["#DC428B", "#F7E0EA", "#27362D"], ["#C7F8D3", "#E5CE6E", "#D973B7"], ["#3B7EBO", "#E5EAEB", "#A2D052"], ["#CD9BD2", "#7F8B93", "#98549B"], ["#083920", "#A1EDE6", "#DFE4ED"], ["#DF4385", "#97CD3F", "#5695CC"], ["#E1939D", "#B5FFCB", "#779B56"], ["#40722B", "#C3D855", "#D66B47"], ["#E6EE2A", "#ACD0A5", "#F4C545"]] },
-            { id: 39, name: "萌黄色の可愛い配色", palettes: [["#FFF6DB", "#C6E495", "#FFE3EC"], ["#CCE791", "#9FC79A", "#E4E9F1"], ["#C1B2A4", "#C6DF94", "#D5E3F2"], ["#FFE3DB", "#9AC595", "#E5EAAA"], ["#CAE6BO", "#F8CDCF", "#F6F2ED"], ["#E2EACF", "#D0E0AA", "#F9D9E3"], ["#D9C7A3", "#D0E681", "#F7CEE3"], ["#E3D8FF", "#C8E18B", "#FFF3DD"], ["#77DBD1", "#BOE771", "#FAC4CD"]] },
-            { id: 40, name: "グリーンを使った可愛い配色", palettes: [["#3F9C54", "#DE6079", "#E7E7E3"], ["#5E7960", "#FFDF76", "#78A95B"], ["#648B45", "#9ABE74", "#C3CE6A"], ["#84C46E", "#COEBE6", "#78A991"], ["#3C828F", "#A989B8", "#F7FOB5"], ["#A6CEC1", "#68BC83", "#EEEFAF"], ["#438B48", "#DD792E", "#DDDEEO"], ["#50804C", "#ECE0A7", "#BD513A"], ["#7BA980", "#E7A93B", "#E2D050"]] },
-            { id: 41, name: "淡いクリーム色の可愛い配色", palettes: [["#FFF5E2", "#88AFB5", "#F4D97E"], ["#B4D8BE", "#FFF1DF", "#C1D1C4"], ["#F9D3BE", "#C48E6A", "#FDF6E6"], ["#E1CFAE", "#EFB187", "#FF875F"], ["#FFEFD8", "#F2D18A", "#DBE9AB"], ["#FAF3DD", "#A5D1C1", "#FFFAE3"], ["#84C1B9", "#FFF1C8", "#FAC1B6"], ["#FFF6ED", "#F8E8E8", "#F99895"], ["#ABD5A4", "#BEC4E4", "#EFE7CC"]] },
-            { id: 42, name: "モダンな和風の抹茶配色", palettes: [["#E8DCC0", "#7D8E6A", "#63744C"], ["#AB95AE", "#AE696A", "#B9BCB3"], ["#5B697D", "#E4D9BC", "#6E815F"], ["#B54D50", "#EDEOCC", "#C2957B"], ["#556C3D", "#63784A", "#97A2B4"], ["#55743F", "#D4C7BB", "#D3C7BD"], ["#C6A863", "#617A48", "#C4C7CC"], ["#415C2A", "#CCC8C1", "#789858"], ["#CFD2C8", "#C48B5C", "#4E5D77"]] },
-            { id: 43, name: "ドリーミーなパステルピンク配色", palettes: [["#DAD3EE", "#FFE4D4", "#F8D3E3"], ["#D8F3EA", "#F8F3D1", "#F6C6DA"], ["#C1B2A4", "#D6F0F7", "#F6CFE0"], ["#D7EBFF", "#CFF3E7", "#F9D9E6"], ["#FFF3DD", "#C7B8A7", "#F6BFD4"], ["#E6E6EB", "#DAD3FF", "#F7CFE0"], ["#FFDCCB", "#E3D8FF", "#F4AFCB"], ["#FFF2B8", "#CFE3FF", "#F5B7D2"], ["#BCD9FC", "#E7DAFF", "#F8C5DA"]] },
-            { id: 44, name: "華やかなカシスベリー配色", palettes: [["#962769", "#FFD700", "#FF5722"], ["#911446", "#C2185B", "#FBC02D"], ["#00A86B", "#3F51B5", "#5E2142"], ["#CF1F5F", "#6A1B9A", "#FF8F00"], ["#4DB6AC", "#FFEB3B", "#2E7D32"], ["#AD1457", "#C2185B", "#009688"], ["#5D4037", "#8D6E63", "#795548"], ["#B02B53", "#4527A0", "#891346"], ["#8A2B61", "#1D8348", "#145A32"]] },
-            { id: 45, name: "WEBカラーの可愛い配色", palettes: [["#547DED", "#FF83E1", "#FFD653"], ["#FFAOBF", "#BC74FF", "#FB631E"], ["#E2D9DB", "#D5FB05", "#606060"], ["#0088E8", "#FDCCBD", "#FF5000"], ["#1BC702", "#FF9201", "#FF83C5"], ["#4EDCCE", "#4A49FF", "#FFB0A7"], ["#A8C7E4", "#ADFF4F", "#DODDD4"], ["#E2F142", "#CCCCE4", "#7896FF"], ["#FF7E53", "#FFDOBB", "#59E3B1"]] },
-            { id: 46, name: "赤×青の可愛い配色", palettes: [["#F91644", "#E3F2FD", "#2F5CFE"], ["#448AFF", "#FF5252", "#E91E4A"], ["#3AAFED", "#75789A", "#AFB2BE"], ["#ED2A2A", "#E8FOFE", "#F23459"], ["#00A2E8", "#4D96FF", "#2196F3"], ["#0A1128", "#FF6B6B", "#E0D8DA"], ["#4433F7", "#FF3366", "#6ACBD8"], ["#E81E46", "#1E90FF", "#BB2C44"], ["#C8D6F3", "#3E3E41", "#F91644"]] },
-            { id: 47, name: "浅葱色の可愛い配色", palettes: [["#FCE4EC", "#FFF9C4", "#52B2BA"], ["#E1F5FE", "#66C2C2", "#FFDCE7"], ["#00A3AF", "#FFCDD2", "#C8E6C9"], ["#00B7C3", "#DFF3EA", "#E1BEE7"], ["#F5F5DC", "#409096", "#D1C4E9"], ["#D0ECE7", "#FFEOB2", "#3A8E9E"], ["#56BAC5", "#CFD8DC", "#FFF1F5"], ["#66B2BA", "#BCAAA4", "#DCEDC8"], ["#D2B4DE", "#4A959E", "#F0F4C3"]] },
-            { id: 48, name: "水色×黄色の可愛い配色", palettes: [["#F4C430", "#00A8E8", "#00B4D8"], ["#3782D1", "#EEC110", "#F4E73A"], ["#CFD4DB", "#F3D512", "#0096C7"], ["#00A8E8", "#EED534", "#F3CE28"], ["#F4C430", "#00B4D8", "#FB8500"], ["#63D6C1", "#FF6F59", "#2CBAE8"], ["#F4C430", "#E63946", "#1FBBDB"], ["#FF5A60", "#FFB703", "#F4C430"], ["#35B7E8", "#00B4D8", "#ED45A1"]] },
-            { id: 49, name: "オトナなチャコール配色", palettes: [["#212529", "#35577D", "#333A35"], ["#343A40", "#2B303A", "#222524"], ["#652534", "#1C1E21", "#2A4C28"], ["#645693", "#1F1E24", "#262522"], ["#7D6D56", "#585453", "#24201F"], ["#544841", "#383530", "#3A2420"], ["#5E6C91", "#282C37", "#1A1C23"], ["#161417", "#BCAFDE", "#3F3844"], ["#3D333A", "#252126", "#AF608D"]] }
+            { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#009488", "#004D40", "#FFBACD"] },
+            { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFEBEB", "#F47EA6", "#8B6CCD", "#B19CD9"] },
+            { id: 3, name: "丘の上の澄んだ夕焼け配色", colors: ["#E0F2FE", "#E9A62F", "#1B263B", "#D98E87"] },
+            { id: 4, name: "じりじり照りつける真夏日配色", colors: ["#FFF2D6", "#E57373", "#D32F2F", "#4A148C"] },
+            { id: 5, name: "シティポップ・ボーイ配色", colors: ["#ECE5D5", "#3B82F6", "#212051", "#FF6B6B"] },
+            { id: 6, name: "夕暮れに溶ける季節配色", colors: ["#E8EAF6", "#5C6BC0", "#1A237E", "#FFB74D"] },
+            { id: 7, name: "スターライトブルー配色", colors: ["#E1F5FE", "#0288D1", "#01579B", "#FFD54F"] },
+            { id: 8, name: "優しい和モダン配色", colors: ["#F1F8E9", "#689F38", "#33691E", "#721595"] },
+            { id: 9, name: "星のミスティック配色", colors: ["#EDE7F6", "#7E57C2", "#2E2D98", "#JF2664"] },
+            { id: 10, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#1B5E20", "#FFCE55"] },
+            { id: 11, name: "都会のブルーアワー配色", colors: ["#E6ECF2", "#3E5066", "#1A2A3A", "#846417"] },
+            { id: 12, name: "ソーダ水と夕暮れの配色", colors: ["#F1F5F9", "#0284C7", "#0C4A6E", "#F97316"] },
+            { id: 13, name: "古民家カフェ配色", colors: ["#FAECDB", "#9A3412", "#1F2937", "#BFCF86"] },
+            { id: 14, name: "もぎたてライチの果実配色", colors: ["#FFF1F2", "#E11D48", "#881337", "#E0F201"] },
+            { id: 15, name: "夏色ファミリーキャンプ配色", colors: ["#F0FDF4", "#388E3C", "#1B5E20", "#488EC1"] },
+            { id: 16, name: "弾けるシャインマスカット配色", colors: ["#FOFAEE", "#3A7054", "#1B4D3E", "#3AFE32"] },
+            { id: 17, name: "カフェラテムード配色", colors: ["#F2E8DB", "#A88B74", "#4A3728", "#D9C3B0"] },
+            { id: 18, name: "レモン彗星配色", colors: ["#F7FEE7", "#194660", "#0F2D3F", "#DBE78F"] },
+            { id: 19, name: "静かな駅の朝配色", colors: ["#F9F5F3", "#FPC3D4", "#BAD1FY", "#FFE38F"] },
+            { id: 20, name: "ソフトモーブ配色", colors: ["#EFE0L2", "#767891", "#3E3F58", "#FENDI1"] },
+            { id: 21, name: "デイリーブルーコーデ配色", colors: ["#EBF5FB", "# CAD802", "#1B4F72", "#64MOCI"] },
+            { id: 22, name: "チョコミントな配色", colors: ["#E0F2F1", "#614633", "#3E2723", "#C22790"] },
+            { id: 23, name: "マーメイド・パステル配色", colors: ["#E0F7FA", "#507890", "#1A3644", "#F48FB1"] },
+            { id: 24, name: "センチメンタル・グリーン配色", colors: ["#F0FDF4", "#487860", "#1E3A2B", "#A5D6A7"] },
+            { id: 25, name: "雨宿りのレトロカフェ配色", colors: ["#C6F3E6", "#AD6C44", "#33271F", "#065366"] },
+            { id: 26, name: "朝焼けのグラデーション配色", colors: ["#FEEEDF", "#F4C8D3", "#140303", "#D67A14"] },
+            { id: 27, name: "星降る夜の七夕配色", colors: ["#E0F2FE", "#1A4D2E", "#001133", "#FFF170"] },
+            { id: 28, name: "風そよぐみずみずしい草露配色", colors: ["#E8F5E9", "#63FZFD", "#085609", "#BZDFTB"] },
+            { id: 29, name: "紫陽花小路配色", colors: ["#D9D5DF", "#UD9188", "#1E184B", "#VOLV01"] },
+            { id: 30, name: "夏薫るシトラスアイス配色", colors: ["#F6F6D2", "#14DB64", "#0A5C28", "#F4DD64"] },
+            { id: 31, name: "爽やかなピスタチオラテ配色", colors: ["#E3FBEA", "#845309", "#451A03", "#B0HFAC"] },
+            { id: 32, name: "初夏のジェラート配色", colors: ["#FFFBEB", "#009488", "#004D40", "#FEF08A"] },
+            { id: 33, name: "黄昏のラジカセ・ドライブ配色", colors: ["#FFEDD5", "#54227C", "#2D0A4E", "#FF9900"] },
+            { id: 34, name: "夕暮れの駄菓子屋配色", colors: ["#F8E6B8", "#991818", "#4C0519", "#D17116"] },
+            { id: 35, name: "雨のメトロポリス配色", colors: ["#CBD7D9", "#475569", "#1C2850", "#0EA5E9"] },
+            { id: 36, name: "朝のハチミットースト配色", colors: ["#FEF08A", "#CABAD0", "#451A03", "#FDB047"] },
+            { id: 37, name: "異国のバザール配色", colors: ["#F6F1E9", "#991818", "#4C0519", "#D1B260"] },
+            { id: 38, name: "星屑が溶けるソーダの海配色", colors: ["#E0F2FE", "#316281", "#0F172A", "#F00C1A"] },
+            { id: 39, name: "雨宿りの紫陽花配色", colors: ["#E3F2FD", "#ASESFC", "#188BE1", "#EBBBDO"] },
+            { id: 40, name: "ふんわり桃っぽ配色", colors: ["#FFF0F5", "#F41509", "#880020", "#THEBEB"] },
+            { id: 41, name: "真夏のナイト・プール配色", colors: ["#E0F2F1", "#237297", "#232F49", "#00E5FF"] },
+            { id: 42, name: "華やかなシャンパンゴールド配色", colors: ["#FDFCFO", "#EEE6BB", "#8A7300", "#DIARSI"] },
+            { id: 43, name: "深海に沈むサンゴ配色", colors: ["#E0F2FE", "#112953", "#08142A", "#F05411"] },
+            { id: 44, name: "夕暮れどきのシトラス配色", colors: ["#FFF7ED", "#EA580C", "#3E5066", "#FDBA74"] },
+            { id: 45, name: "月夜のサファイア配色", colors: ["#E0F2FE", "#1B263B", "#0D131D", "#E0B1DD"] },
+            { id: 46, name: "焼きたてカヌレのビター配色", colors: ["#F7EFE2", "#8C6A5E", "#4A3732", "#3C0A5E"] },
+            { id: 47, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#346073", "#2B2D42", "#F20705"] },
+            { id: 48, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#122A22", "#A7F3D0"] },
+            { id: 49, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#095249"] },
+            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#0259DE", "#012C70", "#FF6B6B"] },
+            { id: 51, name: "曇り空のまどろみ配色", colors: ["#F1F5F9", "#64748B", "#1E293B", "#94A3B8"] },
+            { id: 52, name: "深夜の目醒め配色", colors: ["#ECEFF1", "#3A609F", "#0B1838", "#4E4177"] },
+            { id: 53, name: "キャンディ・スプリング配色", colors: ["#F9F5F3", "#FPC3D4", "#FFE38F", "#8AD717"] },
+            { id: 54, name: "クールラベンダー配色", colors: ["#ECEED8", "#707488", "#40386B", "#A5B4FC"] },
+            { id: 55, name: "不思議なメルヘン配色", colors: ["#FAF5FF", "#C084FC", "#581C87", "#SPALAC"] },
+            { id: 56, name: "春を待つ窓辺配色", colors: ["#FDF2F8", "#F472B6", "#831843", "#613100"] },
+            { id: 57, name: "ささやく深海ブルー配色", colors: ["#E0F2FE", "#196F8A", "#123747", "#079781"] },
+            { id: 58, name: "キャンディポップ配色", colors: ["#FFFBEB", "#D8762F", "#1D2A5E", "#F6DBB7"] },
+            { id: 59, name: "メルティ・ガール配色", colors: ["#FFF1F2", "#CB4447", "#881337", "#FDECAC"] },
+            { id: 60, name: "夜風とラベンダー配色", colors: ["#F3E8FF", "#213661", "#261734", "#EMBISB"] },
+            { id: 61, name: "琥珀糖のかけら配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#104880"] },
+            { id: 62, name: "冬凪のグラデーション配色", colors: ["#F8FAFC", "#64748B", "#121417", "#38BDF8"] },
+            { id: 63, name: "深呼吸ブルー配色", colors: ["#FOF9FF", "#197084", "#151920", "#597614"] },
+            { id: 64, name: "砂漠のターコイズ配色", colors: ["#FEF3C7", "#BA7455", "#512211", "#ED1299"] },
+            { id: 65, name: "好好♡チャイナポップ配色", colors: ["#FFF1F2", "#084328", "#022013", "#De875a"] },
+            { id: 66, name: "北欧スケッチ配色", colors: ["#F8FAFC", "#475569", "#0F172A", "#38BDF8"] },
+            { id: 67, name: "波音ノート配色", colors: ["#F0F9FF", "#2C5E79", "#153344", "#155611"] },
+            { id: 68, name: "浴衣リボンと金魚掬い配色", colors: ["#FFF1F2", "#FBCFE8", "#881337", "#67EXFO"] },
+            { id: 69, name: "魔法の国の白薔薇の園配色", colors: ["#FDF5E6", "#E7DEE1", "#DABAR0", "#5A3D41"] },
+            { id: 70, name: "ナイトブラー配色", colors: ["#F1F5F9", "#64748B", "#0F172A", "#Rede21"] },
+            { id: 71, name: "ノスタルジックトーキョー配色", colors: ["#F8FAFC", "#475569", "#121212", "#FF0055"] },
+            { id: 72, name: "あの日の放課後配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#179010"] }
         ];
 
         let currentThemeId = Number(localStorage.getItem('selected_theme_id')) || 1;
-        let currentPaletteIndex = Number(localStorage.getItem('selected_palette_index')) || 0;
 
         function parseNum(val) {
             if (val === null || val === undefined) return 0;
@@ -633,10 +655,8 @@
                 heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
-                defaultMonthlySave: 50000,
-                currentTheme: 'set_a_7'
+                defaultMonthlySave: 50000
             },
-            customThemes: [],
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
                 { id: 'food', name: '🍚 食費' },
@@ -700,7 +720,7 @@
         }
 
         function hexToRgbValues(hex) {
-            if (!hex) return { r: 140, g: 109, b: 83 };
+            if (!hex) return { r: 0, g: 148, b: 136 };
             let c = hex.replace('#', '');
             if (c.length === 3) c = c.split('').map(x => x + x).join('');
             if (c.length >= 6) {
@@ -710,7 +730,7 @@
                     b: parseInt(c.substring(4, 6), 16)
                 };
             }
-            return { r: 140, g: 109, b: 83 };
+            return { r: 0, g: 148, b: 136 };
         }
 
         function updateTodayDateBadge() {
@@ -1016,37 +1036,16 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= おしゃれ＆コンパクトなカラーパレットUI =================
+        // ================= 刷新された4色カラーテーマUI =================
         function initColorPickupUI() {
-            renderCompactThemeSelect();
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
-        }
-
-        function renderCompactThemeSelect() {
-            const select = document.getElementById('compact-theme-select');
-            if (!select) return;
-            let html = '';
-            colorPickupDatabase.forEach(theme => {
-                html += `<option value="${theme.id}" ${theme.id === currentThemeId ? 'selected' : ''}>${theme.name}</option>`;
-            });
-            select.innerHTML = html;
         }
 
         function selectColorTheme(themeId) {
             currentThemeId = themeId;
-            currentPaletteIndex = 0; 
             localStorage.setItem('selected_theme_id', currentThemeId);
-            localStorage.setItem('selected_palette_index', currentPaletteIndex);
-            renderPalettesGrid();
-            updateActiveIndicator();
-            applySavedPaletteToApp();
-        }
-
-        function selectPaletteIndex(idx) {
-            currentPaletteIndex = idx;
-            localStorage.setItem('selected_palette_index', currentPaletteIndex);
             renderPalettesGrid();
             updateActiveIndicator();
             applySavedPaletteToApp();
@@ -1056,22 +1055,21 @@
             const container = document.getElementById('color-palettes-grid');
             if (!container) return;
 
-            const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             let html = '';
-            theme.palettes.forEach((palette, idx) => {
-                const isSelected = idx === currentPaletteIndex;
+            colorPickupDatabase.forEach(theme => {
+                const isSelected = theme.id === currentThemeId;
                 let colorBars = '';
-                palette.forEach(hex => {
-                    colorBars += `<div class="h-3 flex-1 first:rounded-l-sm last:rounded-r-sm" style="background-color: ${hex};"></div>`;
+                theme.colors.forEach(hex => {
+                    colorBars += `<div class="h-5 flex-1 rounded-sm shadow-xs" style="background-color: ${hex};" title="${hex}"></div>`;
                 });
 
                 html += `
-                    <div onclick="selectPaletteIndex(${idx})" class="p-2.5 rounded-xl cursor-pointer transition theme-card border relative flex flex-col gap-1.5 ${isSelected ? 'ring-2 ring-emerald-500 shadow-md font-bold' : 'hover:opacity-100 opacity-90'}">
-                        <div class="flex justify-between items-center text-[10px] opacity-80">
-                            <span>#${idx + 1}</span>
-                            ${isSelected ? '<span class="text-[8px] bg-emerald-500 text-white px-1.5 py-0.2 rounded-full font-bold">適用中</span>' : ''}
+                    <div onclick="selectColorTheme(${theme.id})" class="p-3 rounded-2xl cursor-pointer transition theme-card border relative flex flex-col gap-2 ${isSelected ? 'ring-2 ring-[var(--app-c2)] shadow-lg font-bold scale-[1.02]' : 'hover:scale-102 hover:shadow-md opacity-90'}">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold truncate pr-1">${theme.name}</span>
+                            ${isSelected ? '<span class="text-[9px] bg-[var(--app-c2)] text-white px-2 py-0.5 rounded-full font-bold shrink-0">選択中</span>' : ''}
                         </div>
-                        <div class="flex gap-1 p-1 rounded-lg bg-black/5">${colorBars}</div>
+                        <div class="flex gap-1.5 p-1.5 rounded-xl bg-black/5 border border-black/5">${colorBars}</div>
                     </div>
                 `;
             });
@@ -1082,25 +1080,24 @@
             const indicator = document.getElementById('active-theme-indicator');
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             if (indicator) {
-                indicator.innerText = `選択中: ${theme.name.split(' ')[0]} (#${currentPaletteIndex + 1})`;
+                indicator.innerText = `選択中: ${theme.name}`;
             }
         }
 
         function applySavedPaletteToApp() {
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
-            const palette = theme.palettes[currentPaletteIndex] || theme.palettes[0];
-            
-            const primaryColor = palette[0] || '#8c6d53';
-            const tone2Color = palette[1] || '#6b523c';
-            const tone3Color = palette[2] || '#b0957e';
+            const colors = theme.colors;
+
+            const c1 = colors[0] || '#E0F2F1';
+            const c2 = colors[1] || '#009488';
+            const c3 = colors[2] || '#004D40';
+            const c4 = colors[3] || '#FFBACD';
 
             const root = document.documentElement;
-            // アプリ全体のカラー変数を動的に完全反映
-            root.style.setProperty('--app-primary', primaryColor);
-            root.style.setProperty('--app-primary-hover', tone2Color);
-            root.style.setProperty('--theme-tone-1', primaryColor);
-            root.style.setProperty('--theme-tone-2', tone2Color);
-            root.style.setProperty('--theme-tone-3', tone3Color);
+            root.style.setProperty('--app-c1', c1);
+            root.style.setProperty('--app-c2', c2);
+            root.style.setProperty('--app-c3', c3);
+            root.style.setProperty('--app-c4', c4);
 
             if (cashChart) renderCharts();
             if (pieChart) renderPieChart();
@@ -1430,7 +1427,7 @@
             const diff = allocatedSum - autoSaving;
             let diffMessage = '';
             if (diff === 0) {
-                diffMessage = `<span class="theme-tone-deep font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                diffMessage = `<span class="theme-deep-text font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
             } else if (diff < 0) {
                 diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
             } else {
@@ -1493,15 +1490,15 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">生活費合計</p>
-                        <p class="text-xs sm:text-base font-bold theme-tone-light mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
+                        <p class="text-xs sm:text-base font-bold theme-deep-text mt-0.5" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">NISA積立</p>
-                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-tone-deep mt-0.5 focus:outline-none">
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-lg p-1 text-center text-xs sm:text-sm font-bold theme-deep-text mt-0.5 focus:outline-none">
                     </div>
                     <div>
                         <p class="text-[11px] font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通)</p>
-                        <p class="text-xs sm:text-base font-bold theme-tone-deep mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
+                        <p class="text-xs sm:text-base font-bold theme-deep-text mt-0.5" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -1516,7 +1513,7 @@
                     <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-lg p-2 text-right text-xs font-bold theme-primary-text focus:outline-none">
                 </div>
 
-                <div id="allocation-check-box" class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5' : 'border-rose-500 bg-rose-500/10'}">
+                <div id="allocation-check-box" class="theme-card-sm p-4 rounded-xl space-y-3 border ${isMatched ? 'border-[var(--app-c2)] bg-[var(--app-c2)]/5' : 'border-rose-500 bg-rose-500/10'}">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                         <h3 class="font-bold text-xs uppercase tracking-wider">
                             💰 口座割り振りチェック (割り振り計: <span id="live-allocated-sum">¥${allocatedSum.toLocaleString()}</span>)
@@ -1553,7 +1550,7 @@
                             <span class="font-bold text-xs">支出項目</span>
                             <div class="flex gap-2">
                                 <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-lg px-2 py-1 text-xs">
-                                <button onclick="startAddingExpense()" class="bg-amber-600 text-white text-xs px-3 py-1 rounded-lg font-bold">＋ 項目追加</button>
+                                <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3 py-1 rounded-lg font-bold">＋ 項目追加</button>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -1599,8 +1596,8 @@
             const box = document.getElementById('allocation-check-box');
 
             if (diff === 0) {
-                diffMessage = `<span class="theme-tone-deep font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
-                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-[var(--theme-tone-2)] bg-[var(--theme-tone-2)]/5";
+                diffMessage = `<span class="theme-deep-text font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-[var(--app-c2)] bg-[var(--app-c2)]/5";
             } else if (diff < 0) {
                 diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
                 if (box) box.className = "theme-card-sm p-4 rounded-xl space-y-3 border border-rose-500 bg-rose-500/10";
@@ -1691,10 +1688,10 @@
                 tr.className = "hover:bg-current/5 transition font-medium";
                 tr.innerHTML = `
                     <td class="p-3 font-semibold">${m.month}</td>
-                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 theme-tone-deep':'bg-amber-500/20 theme-tone-light'}">${m.type}</span></td>
+                    <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${m.type==='実績'?'bg-emerald-500/20 theme-deep-text':'bg-amber-500/20 theme-primary-text'}">${m.type}</span></td>
                     <td class="p-3 text-right font-semibold theme-primary-text">¥${totalInc.toLocaleString()}</td>
-                    <td class="p-3 text-right font-semibold theme-tone-light">¥${totalExp.toLocaleString()}</td>
-                    <td class="p-3 text-right font-bold theme-tone-deep">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-right font-semibold theme-deep-text">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right font-bold theme-deep-text">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
                         <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer border">編集</button>
                     </td>
@@ -1737,24 +1734,10 @@
             rawItems.sort((a, b) => b.val - a.val);
 
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
-            const palette = themeObj.palettes[currentPaletteIndex] || themeObj.palettes[0];
-            const primaryHex = palette[0] || '#8c6d53';
-            const rgb = hexToRgbValues(primaryHex);
+            const colors = themeObj.colors;
             const canvasCtx = ctx.getContext('2d');
 
-            const bgColors = rawItems.map((_, i) => {
-                const count = Math.max(1, rawItems.length);
-                const factor = 1.0 - (i * (0.8 / count));
-                
-                const grad = canvasCtx.createRadialGradient(130, 130, 10, 130, 130, 120);
-                const r1 = Math.min(255, Math.round(rgb.r * factor + (255 * (1 - factor) * 0.4)));
-                const g1 = Math.min(255, Math.round(rgb.g * factor + (255 * (1 - factor) * 0.4)));
-                const b1 = Math.min(255, Math.round(rgb.b * factor + (255 * (1 - factor) * 0.4)));
-
-                grad.addColorStop(0, `rgba(${r1}, ${g1}, ${b1}, 0.98)`);
-                grad.addColorStop(1, `rgba(${Math.round(r1 * 0.75)}, ${Math.round(g1 * 0.75)}, ${Math.round(b1 * 0.75)}, 0.90)`);
-                return grad;
-            });
+            const bgColors = rawItems.map((_, i) => colors[i % colors.length]);
 
             pieChart = new Chart(canvasCtx, {
                 type: 'doughnut',
@@ -1764,7 +1747,7 @@
                         data: rawItems.map(i => i.val), 
                         backgroundColor: bgColors,
                         borderColor: '#ffffff',
-                        borderWidth: 2.5
+                        borderWidth: 2
                     }]
                 },
                 options: { 
@@ -1940,7 +1923,7 @@
                                     <span>直近の貯金額内訳:</span>
                                     <span class="text-[9px] theme-primary-text underline font-bold">全履歴を見る 🔍</span>
                                 </div>
-                                <div class="font-bold theme-tone-deep truncate cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">${recent2Html}</div>
+                                <div class="font-bold theme-deep-text truncate cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">${recent2Html}</div>
                             </div>
                         </div>
                     `;
@@ -1987,7 +1970,7 @@
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
                         <div>
                             <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                            <p class="text-lg sm:text-2xl font-bold theme-tone-light tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-bold theme-deep-text tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-2xl flex flex-col justify-between">
@@ -1996,12 +1979,12 @@
                                 <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
                                 <span class="text-[10px] theme-badge-tone font-bold px-1.5 py-0.5 rounded-md">期間: ${nisaDuration}</span>
                             </div>
-                            <p class="text-[12px] sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                            <p class="text-[12px] sm:text-2xl font-bold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-2xl">
                         <p class="text-[11px] sm:text-xs font-semibold opacity-70 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                        <p class="text-lg sm:text-2xl font-bold theme-tone-deep tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                        <p class="text-lg sm:text-2xl font-bold theme-deep-text tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                     </div>
                 `;
                 gridContainer.innerHTML = html;
@@ -2010,8 +1993,9 @@
 
         function renderCharts() {
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
-            const palette = themeObj.palettes[currentPaletteIndex] || themeObj.palettes[0];
-            const primaryHex = palette[0] || '#8c6d53';
+            const colors = themeObj.colors;
+            const primaryHex = colors[1] || '#009488';
+            const accentHex = colors[3] || '#FFBACD';
 
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
@@ -2088,7 +2072,7 @@
 
                 const ctx1 = chart1El.getContext('2d');
                 const areaGradient = ctx1.createLinearGradient(0, 0, 0, 300);
-                areaGradient.addColorStop(0, primaryHex + '50');
+                areaGradient.addColorStop(0, primaryHex + '60');
                 areaGradient.addColorStop(1, primaryHex + '00');
 
                 const todayLinePlugin = {
@@ -2122,11 +2106,11 @@
                                 data: balanceData, 
                                 borderColor: primaryHex, 
                                 backgroundColor: areaGradient,
-                                borderWidth: 2.2, 
+                                borderWidth: 2.5, 
                                 fill: true, 
                                 tension: 0.2,
                                 pointBackgroundColor: primaryHex,
-                                pointBorderColor: 'rgba(255, 255, 255, 0.95)',
+                                pointBorderColor: '#ffffff',
                                 pointBorderWidth: 1.5,
                                 pointRadius: 2.5,
                                 pointHoverRadius: 6,
@@ -2136,7 +2120,7 @@
                                 type: 'bar',
                                 label: '予定費用 (円)',
                                 data: eventBarData,
-                                backgroundColor: primaryHex + 'b3',
+                                backgroundColor: accentHex,
                                 borderColor: primaryHex,
                                 borderWidth: 1,
                                 borderRadius: 3,
