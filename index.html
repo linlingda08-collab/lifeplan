@@ -109,8 +109,8 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (背景色完全一致・シームレス演出) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#181818] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
+    <!-- ================= 起動時オープニング動画 (白系統でシームレスな背景統一) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#F7F7F7] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline></video>
     </div>
 
@@ -2450,7 +2450,7 @@
                     setTimeout(dismissSplash, 1500);
                 });
             } else {
-                setTimeout(dismissSplash, 1500);
+                dismissSplash();
             }
         };
     </script>
