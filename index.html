@@ -109,9 +109,12 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (スプラッシュ画面: 高画質・変形防止) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#111827] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
-        <video id="splash-video" src="./splash.mov" class="w-full h-full object-contain" autoplay muted playsinline></video>
+    <!-- ================= 起動時オープニング動画 (シームレス背景ぼかし演出) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
+        <!-- 背景に敷くぼかした同じ動画（余分な隙間を動画の色でシームレスに埋める） -->
+        <video src="./splash.mov" class="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-75 scale-125 pointer-events-none" autoplay muted loop playsinline></video>
+        <!-- メインの高画質動画（中央に綺麗に収める・変形なし） -->
+        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline></video>
     </div>
 
     <!-- Header / Top Bar -->
@@ -2437,17 +2440,14 @@
             }
 
             if (video) {
-                // 動画の再生が終了したら自動でフェードアウト
                 video.onended = function() {
                     dismissSplash();
                 };
 
-                // 万が一動画の読み込みや再生に時間がかかった場合のフォールバック（最大3.5秒で自動消去）
                 setTimeout(() => {
                     dismissSplash();
                 }, 3500);
 
-                // 再生トライ
                 video.play().catch(e => {
                     console.log("自動再生ブロック等:", e);
                     setTimeout(dismissSplash, 1500);
