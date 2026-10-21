@@ -109,16 +109,16 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (上下個別色合わせ・完璧な同化版) ================= -->
+    <!-- ================= 起動時オープニング動画 (境界完全消失・ソフトグラデーションフェード版) ================= -->
     <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
-        <!-- メイン動画：object-containで綺麗に中央配置 -->
+        <!-- メイン動画：サイズ・比率（object-contain）を保ったまま中央表示 -->
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain bg-white" autoplay muted playsinline></video>
-        
-        <!-- 上部のエッジを隠すカバー帯 (上部の色味：白) -->
-        <div class="absolute top-0 left-0 right-0 h-[15%] z-20 pointer-events-none bg-white"></div>
-        
-        <!-- 下部のエッジを隠すカバー帯 (下部の色味：動画下のカラーに合わせて調整) -->
-        <div class="absolute bottom-0 left-0 right-0 h-[15%] z-20 pointer-events-none bg-[#F2F2F2]"></div>
+
+        <!-- 上部：背景の純白(#FFFFFF)へと自然に溶け込ませるフェード -->
+        <div class="absolute top-0 left-0 right-0 h-[20%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.8) 50%, transparent 100%);"></div>
+
+        <!-- 下部：境界の線だけをピンポイントで滑らかにかき消すグラデーションフェード -->
+        <div class="absolute bottom-0 left-0 right-0 h-[30%] z-20 pointer-events-none" style="background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.9) 35%, rgba(255,255,255,0.4) 70%, transparent 100%);"></div>
     </div>
 
     <!-- Header / Top Bar -->
