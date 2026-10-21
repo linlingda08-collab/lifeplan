@@ -99,6 +99,16 @@
             touch-action: manipulation;
         }
 
+        /* 起動時スプラッシュ画面の縦持ち・横持ち自動切替レスポンシブ制御 */
+        @media (orientation: portrait) {
+            .splash-portrait-only { display: block !important; }
+            .splash-landscape-only { display: none !important; }
+        }
+        @media (orientation: landscape) {
+            .splash-portrait-only { display: none !important; }
+            .splash-landscape-only { display: block !important; }
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
@@ -108,6 +118,14 @@
     </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased">
+
+    <!-- ================= 起動時表紙 (スプラッシュ画面) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#e5eff5] transition-opacity duration-700 pointer-events-auto select-none">
+        <!-- 縦持ち用画像 (IMG_2466.png) -->
+        <img src="./IMG_2466.png" class="splash-portrait-only w-full h-full object-cover" alt="表紙 (縦)">
+        <!-- 横持ち用画像 (IMG_2465.png) -->
+        <img src="./IMG_2465.png" class="splash-landscape-only w-full h-full object-cover" alt="表紙 (横)">
+    </div>
 
     <!-- Header / Top Bar -->
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b shadow-md">
@@ -373,7 +391,7 @@
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15 shrink-0">
                 <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text" id="history-modal-title">
-                    <span>📜</span> 全貯金履歴
+                    <span>📜</span> 全履歴
                 </h3>
                 <button onclick="closeHistoryModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
@@ -2368,7 +2386,20 @@
             }
         }
 
-        window.onload = function() { loadStorage(); };
+        // アプリ起動時の初期化および表紙（スプラッシュ画面）制御
+        window.onload = function() { 
+            loadStorage();
+
+            // 起動から 2.5秒間 表紙を表示し、その後ふんわりフェードアウトして削除
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    splash.style.pointerEvents = 'none';
+                    setTimeout(() => { splash.remove(); }, 700);
+                }
+            }, 2500);
+        };
     </script>
 </body>
 </html>
