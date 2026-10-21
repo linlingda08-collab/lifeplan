@@ -109,12 +109,13 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (iPhone縦持ち完全対応・グラデーションシームレス背景) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#F7F7F7] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background: linear-gradient(to bottom, #F7F7F7 0%, #FFFFFF 30%, #FFFFFF 70%, #F7F7F7 100%);">
-        <!-- ぼかした拡大動画を背景レイヤーに敷き詰めてグラデーションのように馴染ませる演出 -->
-        <video id="splash-bg-blur" src="./splash.mov" class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-60 scale-110 pointer-events-none" autoplay muted playsinline></video>
-        <!-- メイン動画 -->
-        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline></video>
+    <!-- ================= 起動時オープニング動画 (エッジ・境界線完全消去版) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
+        <!-- メイン動画：object-containで綺麗に中央配置しつつ、背景を真っ白に統一 -->
+        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain bg-white" autoplay muted playsinline></video>
+        
+        <!-- 上下から白いグラデーションを深く重ねて、動画の上下の枠線を完全に溶かすマスク -->
+        <div class="absolute inset-0 z-20 pointer-events-none" style="background: linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0.85) 15%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.85) 85%, #FFFFFF 100%);"></div>
     </div>
 
     <!-- Header / Top Bar -->
