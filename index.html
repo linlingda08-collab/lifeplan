@@ -109,16 +109,16 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (境界完全消失・ソフトグラデーションフェード版) ================= -->
+    <!-- ================= 起動時オープニング動画 (縦持ち・横持ち両対応境界完全消滅版) ================= -->
     <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
-        <!-- メイン動画：サイズ・比率（object-contain）を保ったまま中央表示 -->
+        <!-- メイン動画：中央配置 -->
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain bg-white" autoplay muted playsinline></video>
 
-        <!-- 上部：背景の純白(#FFFFFF)へと自然に溶け込ませるフェード -->
-        <div class="absolute top-0 left-0 right-0 h-[20%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.8) 50%, transparent 100%);"></div>
+        <!-- 上部グラデーションフェード（縦持ち・横持ち双方の余白に対応） -->
+        <div class="absolute top-0 left-0 right-0 h-[28%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0.6) 75%, transparent 100%);"></div>
 
-        <!-- 下部：境界の線だけをピンポイントで滑らかにかき消すグラデーションフェード -->
-        <div class="absolute bottom-0 left-0 right-0 h-[30%] z-20 pointer-events-none" style="background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.9) 35%, rgba(255,255,255,0.4) 70%, transparent 100%);"></div>
+        <!-- 下部グラデーションフェード（縦持ち時に広がる下の境界線を徹底的に打ち消し） -->
+        <div class="absolute bottom-0 left-0 right-0 h-[38%] z-20 pointer-events-none" style="background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.98) 40%, rgba(255,255,255,0.7) 70%, transparent 100%);"></div>
     </div>
 
     <!-- Header / Top Bar -->
@@ -1329,6 +1329,14 @@
                 alert('支出項目は最低1つ必要です。');
                 return;
             }
+            
+            const categoryObj = appData.expenseCategories.find(c => c.id === catId);
+            const catName = categoryObj ? categoryObj.name : 'この項目';
+
+            if (!confirm(`⚠️ 警告: 支出項目「${catName}」を本当に削除してよろしいですか？\n※過去のデータも含めてこの項目が削除されます。`)) {
+                return;
+            }
+
             appData.expenseCategories = appData.expenseCategories.filter(c => c.id !== catId);
             isMonthFormModified = true;
             saveStorage();
@@ -1480,6 +1488,13 @@
         }
 
         function removeBankAccount(index) {
+            const accObj = appData.bankAccounts[index];
+            const accName = typeof accObj === 'string' ? accObj : (accObj ? accObj.name : 'この口座');
+
+            if (!confirm(`⚠️ 警告: 口座「${accName}」を本当に削除してよろしいですか？`)) {
+                return;
+            }
+
             appData.bankAccounts.splice(index, 1);
             saveStorage();
             renderBankAccountsManager();
@@ -1594,7 +1609,18 @@
         }
 
         function deleteMonth(index) {
-            if (appData.monthly.length <= 1) return;
+            if (appData.monthly.length <= 1) {
+                alert('データ保持のため、最低1ヶ月分のデータは削除できません。');
+                return;
+            }
+
+            const mData = appData.monthly[index];
+            const mName = mData ? mData.month : 'この月';
+
+            if (!confirm(`⚠️ 警告: ${mName}の収支データを本当に削除してよろしいですか？`)) {
+                return;
+            }
+
             appData.monthly.splice(index, 1);
             currentEditingIndex = Math.max(0, index - 1);
             isMonthFormModified = false;
@@ -1648,7 +1674,7 @@
                 expensesHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between gap-2 border shadow-sm">
                         <div class="flex items-center gap-2 truncate">
-                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print">×</button>
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
                             <span class="text-xs font-bold truncate">${cat.name}</span>
                         </div>
                         <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-xl p-2 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
@@ -2027,6 +2053,13 @@
         }
 
         function deleteEvent(index) {
+            const ev = appData.events[index];
+            const evName = ev ? ev.name : 'このイベント';
+
+            if (!confirm(`⚠️ 警告: 予定「${evName}」を本当に削除してよろしいですか？`)) {
+                return;
+            }
+
             appData.events.splice(index, 1);
             saveStorage();
             renderEventsTable();
