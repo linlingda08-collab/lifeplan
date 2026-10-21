@@ -28,7 +28,7 @@
             --app-c4: #FFBACD;
             --app-bg: linear-gradient(135deg, var(--app-c1) 0%, #ffffff 100%);
             --app-text: #1a202c;
-            --app-card-bg: rgba(255, 255, 255, 0.90);
+            --app-card-bg: rgba(255, 255, 255, 0.92);
             --app-card-border: var(--app-c2);
         }
 
@@ -46,11 +46,11 @@
             border: 2px solid var(--app-c2) !important;
             backdrop-filter: blur(12px);
             color: var(--app-text) !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
         }
 
         .theme-card-sm {
-            background: rgba(255, 255, 255, 0.7) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
             border: 1.5px solid var(--app-c2) !important;
             color: var(--app-text) !important;
         }
@@ -199,7 +199,7 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/15 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">毎月の収支計算</h2>
-                        <p class="text-xs opacity-75 mt-0.5">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
+                        <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm"></select>
@@ -231,7 +231,7 @@
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold opacity-75 uppercase tracking-wider mb-2">項目の詳細金額リスト (金額が高い順)</h4>
+                        <h4 class="text-xs font-bold opacity-80 uppercase tracking-wider mb-2">項目の詳細金額リスト (金額が高い順)</h4>
                         <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                     </div>
                 </div>
@@ -265,7 +265,7 @@
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/15 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">今後の予定</h2>
-                        <p class="text-xs opacity-75 mt-0.5">登録したイベントの時期と費用は、ホームの折れ線グラフおよび残高に自動連動します。</p>
+                        <p class="text-xs opacity-80 mt-0.5 font-medium">登録したイベントの時期と費用は、ホームの折れ線グラフおよび残高に自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto relative z-40">
                         <button type="button" onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95">
@@ -282,7 +282,7 @@
                         <h4 class="font-bold text-xs flex items-center gap-1.5 theme-primary-text">
                             <span>✨</span> Gemini回答の自動解析
                         </h4>
-                        <button type="button" onclick="toggleAiParserBox()" class="opacity-75 hover:opacity-100 text-xs font-bold p-1 cursor-pointer">×</button>
+                        <button type="button" onclick="toggleAiParserBox()" class="opacity-80 hover:opacity-100 text-xs font-bold p-1 cursor-pointer">×</button>
                     </div>
                     <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border shadow-inner"></textarea>
                     <div class="flex justify-end">
@@ -316,11 +316,11 @@
             <div class="theme-card p-5 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">銀行口座の管理 ＆ 将来予測設定</h2>
-                    <p class="text-xs opacity-75 mt-0.5">口座の管理と、ホームグラフの未来予測に使う「将来の標準毎月貯金額」を設定できます。</p>
+                    <p class="text-xs opacity-80 mt-0.5 font-medium">口座の管理と、ホームグラフの未来予測に使う「将来の標準毎月貯金額」を設定できます。</p>
                 </div>
 
                 <div class="theme-card-sm p-4 rounded-2xl space-y-2 border shadow-sm">
-                    <label class="block font-bold text-xs opacity-90">📈 将来の標準毎月貯金額 (円) <span class="text-[10px] opacity-75">(※未確定月のグラフ推移計算に使用)</span></label>
+                    <label class="block font-bold text-xs opacity-90">📈 将来の標準毎月貯金額 (円) <span class="text-[10px] opacity-80">(※未確定月のグラフ推移計算に使用)</span></label>
                     <input type="text" id="sim-default-monthly-save" value="50,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationDefaultSave();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                 </div>
 
@@ -342,7 +342,7 @@
                 <div class="border-b border-current/15 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">カラーテーマ設定</h2>
-                        <p class="text-xs opacity-75 mt-0.5">お好みのカラーテーマを選択して、アプリ全体の雰囲気を変更できます。</p>
+                        <p class="text-xs opacity-80 mt-0.5 font-medium">お好みのカラーテーマを選択して、アプリ全体の雰囲気を変更できます。</p>
                     </div>
                 </div>
 
@@ -355,7 +355,7 @@
                             <div id="selected-theme-display" class="flex items-center gap-3 truncate">
                                 <!-- JSで動的生成 -->
                             </div>
-                            <span class="text-xs opacity-70 shrink-0">▼</span>
+                            <span class="text-xs opacity-80 shrink-0">▼</span>
                         </div>
                         
                         <div id="custom-select-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 theme-card rounded-2xl border shadow-2xl max-h-72 overflow-y-auto custom-scrollbar z-50 p-1.5 space-y-1">
@@ -375,11 +375,11 @@
                 <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text" id="history-modal-title">
                     <span>📜</span> 全貯金履歴
                 </h3>
-                <button onclick="closeHistoryModal()" class="opacity-75 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
+                <button onclick="closeHistoryModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
             
             <div class="flex items-center justify-between gap-2 shrink-0 no-print">
-                <label class="text-xs font-bold opacity-75">絞り込み表示:</label>
+                <label class="text-xs font-bold opacity-80">絞り込み表示:</label>
                 <select id="history-modal-year-filter" onchange="filterHistoryModalByYear()" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm">
                     <option value="ALL">📅 すべての年</option>
                 </select>
@@ -400,11 +400,11 @@
                 <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text">
                     <span>📱</span> ダイレクトP2Pデータ同期
                 </h3>
-                <button onclick="closeSyncModal()" class="opacity-75 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
+                <button onclick="closeSyncModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
 
             <div id="sync-mode-select" class="space-y-3">
-                <p class="text-xs opacity-85 leading-relaxed font-medium">
+                <p class="text-xs opacity-90 leading-relaxed font-semibold">
                     クラウド不要・容量無制限！送信側のQRコードをカメラで読み取るだけで、端末同士が直接接続し全データを一瞬で同期します。
                 </p>
                 <button onclick="startPeerSend()" class="w-full theme-primary-bg text-xs font-bold py-3.5 rounded-2xl transition shadow-md cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
@@ -420,7 +420,7 @@
                     <div id="qr-canvas-container" class="w-48 h-48 flex items-center justify-center mx-auto"></div>
                 </div>
                 <div class="text-xs font-bold theme-primary-text" id="sync-sender-status">接続待ち受け中...</div>
-                <p class="text-[11px] opacity-75">受信側で「カメラをスキャン」し、このコードを写してください。</p>
+                <p class="text-[11px] opacity-84">受信側で「カメラをスキャン」し、このコードを写してください。</p>
                 <button onclick="closeSyncModal()" class="opacity-90 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer shadow-sm">閉じる</button>
             </div>
 
@@ -442,7 +442,6 @@
 
         let currentModalRawHistory = [];
 
-        // 色見本3のPDF全111ページにわたる配色パターン集の全カテゴリー完全網羅データ
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
             { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFF2E9", "#F47EA6", "#8B6CCD", "#B19CD9"] },
@@ -628,7 +627,7 @@
             if (!contentEl) return;
 
             if (!currentModalRawHistory || currentModalRawHistory.length === 0) {
-                contentEl.innerHTML = `<div class="p-6 text-center opacity-65">実績データがありません</div>`;
+                contentEl.innerHTML = `<div class="p-6 text-center opacity-75">実績データがありません</div>`;
                 return;
             }
 
@@ -638,7 +637,7 @@
             }
 
             if (filtered.length === 0) {
-                contentEl.innerHTML = `<div class="p-6 text-center opacity-65">${selectedYearFilter}年の実績データはありません</div>`;
+                contentEl.innerHTML = `<div class="p-6 text-center opacity-75">${selectedYearFilter}年の実績データはありません</div>`;
                 return;
             }
 
@@ -670,7 +669,7 @@
                             <span class="flex items-center gap-1.5">
                                 <span id="modal-year-icon-${year}">${isFirst ? '▼' : '▶'}</span>
                                 <span>${year}年</span>
-                                <span class="text-[10px] opacity-75 font-normal">(${list.length}ヶ月分)</span>
+                                <span class="text-[10px] opacity-80 font-normal">(${list.length}ヶ月分)</span>
                             </span>
                             <span class="theme-primary-text font-bold">計 ¥${yearTotal.toLocaleString()}</span>
                         </button>
@@ -1069,7 +1068,7 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= カラーテーマUI & グラデーション選定ロジック =================
+        // ================= カラーテーマUI & スマート視認性コントラスト自動調整ロジック =================
         function initColorPickupUI() {
             renderCustomThemeDropdown();
             updateSelectedThemeDisplay();
@@ -1170,11 +1169,9 @@
             return darkest;
         }
 
-        // 白・極薄い色を視認可能なトーンに自動補正・調整する関数
         function sanitizeColorForChart(hex) {
             const rgb = hexToRgb(hex);
             const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-            // 白または極端に明るい色（輝度230以上）の場合、視認性を確保できる少し濃いトーンにシフト
             if (brightness > 230) {
                 const factor = 0.75;
                 return rgbToHex(rgb.r * factor, rgb.g * factor, rgb.b * factor);
@@ -1205,11 +1202,28 @@
             const c3 = colors[2] || '#004D40';
             const c4 = colors[3] || '#FFBACD';
 
+            // 背景色（c1）の輝度を計算し、文字やカードの見やすさをスマート自動調整
+            const c1Rgb = hexToRgb(c1);
+            const c1Brightness = (c1Rgb.r * 299 + c1Rgb.g * 587 + c1Rgb.b * 114) / 1000;
+
+            let cardBg = 'rgba(255, 255, 255, 0.92)';
+            let textColor = '#1a202c';
+
+            // 背景が非常に明るい、または白系統の場合、カードの不透明度を高めて文字をくっきりさせる
+            if (c1Brightness > 220) {
+                cardBg = 'rgba(255, 255, 255, 0.95)';
+            } else if (c1Brightness < 130) {
+                // 背景がやや濃い場合の対策
+                cardBg = 'rgba(255, 255, 255, 0.90)';
+            }
+
             const root = document.documentElement;
             root.style.setProperty('--app-c1', c1);
             root.style.setProperty('--app-c2', c2);
             root.style.setProperty('--app-c3', c3);
             root.style.setProperty('--app-c4', c4);
+            root.style.setProperty('--app-card-bg', cardBg);
+            root.style.setProperty('--app-text', textColor);
 
             if (cashChart) renderCharts();
             if (pieChart) renderPieChart();
@@ -1349,9 +1363,9 @@
                         <input type="text" value="${name}" onchange="updateBankAccountName(${i}, this.value)" class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        <span class="opacity-75 text-[11px]">初期残高:</span>
+                        <span class="opacity-80 text-[11px]">初期残高:</span>
                         <input type="text" value="${formatNum(balance)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateBankAccountBalance(${i}, this.value);" class="w-28 theme-card-sm rounded-xl px-2.5 py-2 text-right text-xs font-bold focus:outline-none border shadow-inner">
-                        <span class="opacity-75 text-[11px]">円</span>
+                        <span class="opacity-80 text-[11px]">円</span>
                         <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2">削除</button>
                     </div>
                 `;
@@ -1574,20 +1588,20 @@
             container.innerHTML = `
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
-                        <label class="block text-[11px] font-bold opacity-75 uppercase tracking-wider mb-1">年月</label>
+                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">年月</label>
                         <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold opacity-75 uppercase tracking-wider mb-1">区分</label>
+                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">区分</label>
                         <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
                             <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※グラフ・貯金残高に反映)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold opacity-75 uppercase tracking-wider mb-1">メモ</label>
+                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">メモ</label>
                         <input type="text" id="input-field-memo" value="${m.memo || ''}" oninput="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none shadow-inner">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
@@ -1597,19 +1611,19 @@
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 theme-card-sm p-4 rounded-2xl border text-center shadow-sm">
                     <div>
-                        <p class="text-[11px] font-bold opacity-75 uppercase tracking-wider">総手取り</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">総手取り</p>
                         <p class="text-xs sm:text-base font-extrabold theme-primary-text mt-1" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-75 uppercase tracking-wider">生活費合計</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">生活費合計</p>
                         <p class="text-xs sm:text-base font-extrabold theme-deep-text mt-1" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-75 uppercase tracking-wider">NISA積立</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">NISA積立</p>
                         <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-1.5 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-75 uppercase tracking-wider">今月の貯金(共通)</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">今月の貯金(共通)</p>
                         <p class="text-xs sm:text-base font-extrabold theme-deep-text mt-1" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
@@ -1619,7 +1633,7 @@
                         <span class="text-base">👤</span>
                         <div>
                             <span class="font-bold text-xs">ゲストA貯金額 (※お小遣いからの個人貯金)</span>
-                            <p class="text-[10px] opacity-75">共通手取りからの引き算には影響しません</p>
+                            <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                         </div>
                     </div>
                     <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
@@ -1893,7 +1907,7 @@
                                 <span class="font-bold truncate">${item.label}</span>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="opacity-75">${pct}%</span>
+                                <span class="opacity-80">${pct}%</span>
                                 <span class="font-bold">¥${item.val.toLocaleString()}</span>
                             </div>
                         </div>
@@ -1943,8 +1957,8 @@
             cardList.innerHTML = '';
 
             if (appData.events.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-75">予定はまだ登録されていません。</td></tr>`;
-                cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-75 rounded-2xl border shadow-sm">予定はまだ登録されていません。</div>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-80">予定はまだ登録されていません。</td></tr>`;
+                cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-80 rounded-2xl border shadow-sm">予定はまだ登録されていません。</div>`;
                 return;
             }
 
@@ -1969,21 +1983,21 @@
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block text-[10px] opacity-75 mb-0.5 font-bold">予定時期</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">予定時期</label>
                             <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">${generateFuture30YearsOptions(ev.date)}</select>
                         </div>
                         <div>
-                            <label class="block text-[10px] opacity-75 mb-0.5 font-bold">予定費用 (円)</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">予定費用 (円)</label>
                             <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block text-[10px] opacity-75 mb-0.5 font-bold">ステータス</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">ステータス</label>
                             <input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center font-bold shadow-inner">
                         </div>
                         <div>
-                            <label class="block text-[10px] opacity-75 mb-0.5 font-bold">メモ</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">メモ</label>
                             <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
                         </div>
                     </div>
@@ -2019,7 +2033,7 @@
                     
                     let recent2Html = '';
                     if (allHistory.length === 0) {
-                        recent2Html = `<span class="opacity-50">記録なし</span>`;
+                        recent2Html = `<span class="opacity-60">記録なし</span>`;
                     } else {
                         const recent2 = allHistory.slice(0, 2);
                         recent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
@@ -2030,11 +2044,11 @@
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                             <div>
-                                <p class="text-[11px] sm:text-xs font-bold opacity-75 uppercase tracking-wider truncate">🏦 ${accName}</p>
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
                                 <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 theme-primary-text">¥${currentBal.toLocaleString()}</p>
                             </div>
                             <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
-                                <div class="opacity-80 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
+                                <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
                                     <span>直近の貯金額内訳:</span>
                                     <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
                                 </div>
@@ -2049,7 +2063,7 @@
                 
                 let rRecent2Html = '';
                 if (allRHistory.length === 0) {
-                    rRecent2Html = `<span class="opacity-50">記録なし</span>`;
+                    rRecent2Html = `<span class="opacity-60">記録なし</span>`;
                 } else {
                     const rRecent2 = allRHistory.slice(0, 2);
                     rRecent2Html = rRecent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
@@ -2060,11 +2074,11 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-75 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${rSavingTotal.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
-                            <div class="opacity-80 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
+                            <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
                                 <span>直近の貯金額内訳:</span>
                                 <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
                             </div>
@@ -2078,27 +2092,27 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-75 uppercase tracking-wider">今月の手取り (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の手取り (${targetMonthData ? targetMonthData.month : currentYM})</p>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-75 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
                             <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-75 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
                                 <span class="text-[10px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-lg shadow-sm">期間: ${nisaDuration}</span>
                             </div>
                             <p class="text-[12px] sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
                     <div class="theme-card p-4 sm:p-5 rounded-3xl shadow-lg">
-                        <p class="text-[11px] sm:text-xs font-bold opacity-75 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                        <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
                         <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                     </div>
                 `;
