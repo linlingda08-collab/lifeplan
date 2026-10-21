@@ -600,7 +600,7 @@
             const filterEl = document.getElementById('history-modal-year-filter');
             const modalEl = document.getElementById('history-popup-modal');
 
-            if (titleEl) titleEl.innerHTML = `<span>📜</span> ${title} の全貯金履歴`;
+            if (titleEl) titleEl.innerHTML = `<span>📜</span> ${title} の全履歴`;
 
             if (filterEl) {
                 const years = Array.from(new Set(currentModalRawHistory.map(d => d.month.split('-')[0]))).sort((a, b) => b.localeCompare(a));
@@ -726,7 +726,7 @@
                     month: '2026-11', type: '想定', 
                     rIncome: 210000, hIncome: 170000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
-                    nisa: 20000, rSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
+                    nisa: 20000, rSaving: 0, lifeSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
                     bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 }
                 }
             ],
@@ -1025,6 +1025,24 @@
                 .filter(m => m.type === '実績')
                 .sort((a, b) => b.month.localeCompare(a.month))
                 .map(m => ({ month: m.month, amount: parseNum(m.rSaving) }));
+        }
+
+        function calculateLifeSavingTotal() {
+            let total = 0;
+            appData.monthly.forEach(m => {
+                if (m.type === '実績') {
+                    total += parseNum(m.lifeSaving);
+                }
+            });
+            return total;
+        }
+
+        function getAllLifeSavingHistoryDetails() {
+            if (!appData.monthly || appData.monthly.length === 0) return [];
+            return [...appData.monthly]
+                .filter(m => m.type === '実績')
+                .sort((a, b) => b.month.localeCompare(a.month))
+                .map(m => ({ month: m.month, amount: parseNum(m.lifeSaving) }));
         }
 
         function getAllAccountSavingsHistoryDetails(accName) {
@@ -1507,6 +1525,7 @@
                 expenses: newExpenses, 
                 nisa: lastMonthData && lastMonthData.nisa !== undefined ? parseNum(lastMonthData.nisa) : 20000, 
                 rSaving: lastMonthData && lastMonthData.rSaving !== undefined ? parseNum(lastMonthData.rSaving) : 0, 
+                lifeSaving: lastMonthData && lastMonthData.lifeSaving !== undefined ? parseNum(lastMonthData.lifeSaving) : 0, 
                 bonus: 0, 
                 extraInc: 0, 
                 memo: '', 
@@ -1625,15 +1644,27 @@
                     </div>
                 </div>
 
-                <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="text-base">👤</span>
-                        <div>
-                            <span class="font-bold text-xs">ゲストA貯金額 (※お小遣いからの個人貯金)</span>
-                            <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">👤</span>
+                            <div>
+                                <span class="font-bold text-xs">ゲストA貯金額</span>
+                                <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
+                            </div>
                         </div>
+                        <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                     </div>
-                    <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                    <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">🏦</span>
+                            <div>
+                                <span class="font-bold text-xs">生活用(三井住友銀行)</span>
+                                <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
+                            </div>
+                        </div>
+                        <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                    </div>
                 </div>
 
                 <div id="allocation-check-box" class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm ${isMatched ? 'border-[var(--app-c2)] bg-[var(--app-c2)]/10' : 'border-rose-500 bg-rose-500/10'}">
@@ -1762,6 +1793,7 @@
 
             const nisaAmt = parseNum(document.getElementById('input-field-nisa').value);
             const rSavingAmt = parseNum(document.getElementById('input-field-rSaving').value);
+            const lifeSavingAmt = parseNum(document.getElementById('input-field-lifeSaving').value);
             const autoSaving = totalInc - totalExp - nisaAmt;
 
             let newBankAllocs = {};
@@ -1786,6 +1818,7 @@
             m.extraInc = extraInc;
             m.nisa = nisaAmt;
             m.rSaving = rSavingAmt;
+            m.lifeSaving = lifeSavingAmt;
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
@@ -2046,7 +2079,7 @@
                             </div>
                             <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                                 <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
-                                    <span>直近の貯金額内訳:</span>
+                                    <span>直近の内訳:</span>
                                     <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
                                 </div>
                                 <div class="font-extrabold theme-deep-text truncate cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">${recent2Html}</div>
@@ -2076,10 +2109,39 @@
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
-                                <span>直近の貯金額内訳:</span>
+                                <span>直近の内訳:</span>
                                 <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
                             </div>
                             <div class="font-extrabold theme-primary-text truncate cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">${rRecent2Html}</div>
+                        </div>
+                    </div>
+                `;
+
+                const lifeSavingTotal = calculateLifeSavingTotal();
+                const allLifeHistory = getAllLifeSavingHistoryDetails();
+                
+                let lifeRecent2Html = '';
+                if (allLifeHistory.length === 0) {
+                    lifeRecent2Html = `<span class="opacity-60">記録なし</span>`;
+                } else {
+                    const recent2 = allLifeHistory.slice(0, 2);
+                    lifeRecent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
+                }
+
+                const jsonLifeHistory = JSON.stringify(allLifeHistory).replace(/"/g, '&quot;');
+
+                html += `
+                    <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${lifeSavingTotal.toLocaleString()}</p>
+                        </div>
+                        <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
+                            <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">
+                                <span>直近の内訳:</span>
+                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
+                            </div>
+                            <div class="font-extrabold theme-primary-text truncate cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">${lifeRecent2Html}</div>
                         </div>
                     </div>
                 `;
