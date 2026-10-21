@@ -442,7 +442,7 @@
 
         let currentModalRawHistory = [];
 
-        // 色見本3のPDF全111ページにわたる配色パターン集の全カテゴリー完全網羅データ（白系統も含めて一切除外なし）
+        // 色見本3のPDF全111ページにわたる配色パターン集の全カテゴリー完全網羅データ
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
             { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFF2E9", "#F47EA6", "#8B6CCD", "#B19CD9"] },
@@ -1170,15 +1170,28 @@
             return darkest;
         }
 
+        // 白・極薄い色を視認可能なトーンに自動補正・調整する関数
+        function sanitizeColorForChart(hex) {
+            const rgb = hexToRgb(hex);
+            const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+            // 白または極端に明るい色（輝度230以上）の場合、視認性を確保できる少し濃いトーンにシフト
+            if (brightness > 230) {
+                const factor = 0.75;
+                return rgbToHex(rgb.r * factor, rgb.g * factor, rgb.b * factor);
+            }
+            return hex;
+        }
+
         function generateGradientColors(baseHex, count) {
-            const baseRgb = hexToRgb(baseHex);
+            const sanitizedBase = sanitizeColorForChart(baseHex);
+            const baseRgb = hexToRgb(sanitizedBase);
             let colors = [];
             for (let i = 0; i < count; i++) {
                 const factor = 1 + (i * 0.12);
                 const r = Math.min(255, Math.floor(baseRgb.r * factor + (i * 10)));
                 const g = Math.min(255, Math.floor(baseRgb.g * factor + (i * 10)));
                 const b = Math.min(255, Math.floor(baseRgb.b * factor + (i * 15)));
-                colors.push(rgbToHex(r, g, b));
+                colors.push(sanitizeColorForChart(rgbToHex(r, g, b)));
             }
             return colors;
         }
