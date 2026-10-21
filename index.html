@@ -109,13 +109,16 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (上下グラデーションマスク・自然同化版) ================= -->
+    <!-- ================= 起動時オープニング動画 (上下個別色合わせ・完璧な同化版) ================= -->
     <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
-        <!-- メイン動画：適度なサイズ（object-contain）で全体を崩さず綺麗に表示 -->
+        <!-- メイン動画：object-containで綺麗に中央配置 -->
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain bg-white" autoplay muted playsinline></video>
         
-        <!-- 上下の境界線を白のグラデーションで優しくぼかし、異なる色やエッジを完全に溶け込ませるマスク -->
-        <div class="absolute inset-0 z-20 pointer-events-none" style="background: linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0.85) 6%, rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,0.85) 94%, #FFFFFF 100%);"></div>
+        <!-- 上部のエッジを隠すカバー帯 (上部の色味：白) -->
+        <div class="absolute top-0 left-0 right-0 h-[15%] z-20 pointer-events-none bg-white"></div>
+        
+        <!-- 下部のエッジを隠すカバー帯 (下部の色味：動画下のカラーに合わせて調整) -->
+        <div class="absolute bottom-0 left-0 right-0 h-[15%] z-20 pointer-events-none bg-[#F2F2F2]"></div>
     </div>
 
     <!-- Header / Top Bar -->
@@ -440,7 +443,7 @@
                     <div id="qr-canvas-container" class="w-48 h-48 flex items-center justify-center mx-auto"></div>
                 </div>
                 <div class="text-xs font-bold theme-primary-text" id="sync-sender-status">接続待ち受け中...</div>
-                <p class="text-[11px] opacity-84">受信側でアプリの公式サイトの「カメラをスキャン」し、このコードを写してください。</p>
+                <p class="text-[11px] opacity-84">受信側でアプリの「カメラをスキャン」し、このコードを写してください。</p>
                 <button onclick="closeSyncModal()" class="opacity-90 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer shadow-sm">閉じる</button>
             </div>
 
