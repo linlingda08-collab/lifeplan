@@ -109,8 +109,11 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (白系統でシームレスな背景統一) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#F7F7F7] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
+    <!-- ================= 起動時オープニング動画 (iPhone縦持ち完全対応・グラデーションシームレス背景) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#F7F7F7] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background: linear-gradient(to bottom, #F7F7F7 0%, #FFFFFF 30%, #FFFFFF 70%, #F7F7F7 100%);">
+        <!-- ぼかした拡大動画を背景レイヤーに敷き詰めてグラデーションのように馴染ませる演出 -->
+        <video id="splash-bg-blur" src="./splash.mov" class="absolute inset-0 w-full h-full object-cover filter blur-2xl opacity-60 scale-110 pointer-events-none" autoplay muted playsinline></video>
+        <!-- メイン動画 -->
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline></video>
     </div>
 
@@ -2454,5 +2457,4 @@
             }
         };
     </script>
-</body>
 </html>
