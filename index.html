@@ -109,13 +109,13 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (エッジ・境界線完全消去版) ================= -->
+    <!-- ================= 起動時オープニング動画 (上下エッジ完全消去・シームレス版) ================= -->
     <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
-        <!-- メイン動画：object-containで綺麗に中央配置しつつ、背景を真っ白に統一 -->
-        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain bg-white" autoplay muted playsinline></video>
+        <!-- メイン動画：scale-105でわずかに拡大して上下のフチを画面外に隠し、背景を真っ白に統一 -->
+        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain scale-105 bg-white" autoplay muted playsinline></video>
         
-        <!-- 上下から白いグラデーションを深く重ねて、動画の上下の枠線を完全に溶かすマスク -->
-        <div class="absolute inset-0 z-20 pointer-events-none" style="background: linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0.85) 15%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.85) 85%, #FFFFFF 100%);"></div>
+        <!-- 上下から白いグラデーションを深く重ねて、上下両方の枠線を完全に溶かすマスク -->
+        <div class="absolute inset-0 z-20 pointer-events-none" style="background: linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0.9) 12%, rgba(255,255,255,0) 28%, rgba(255,255,255,0) 72%, rgba(255,255,255,0.9) 88%, #FFFFFF 100%);"></div>
     </div>
 
     <!-- Header / Top Bar -->
@@ -440,7 +440,7 @@
                     <div id="qr-canvas-container" class="w-48 h-48 flex items-center justify-center mx-auto"></div>
                 </div>
                 <div class="text-xs font-bold theme-primary-text" id="sync-sender-status">接続待ち受け中...</div>
-                <p class="text-[11px] opacity-84">受信側で「カメラをスキャン」し、このコードを写してください。</p>
+                <p class="text-[11px] opacity-84">受信側でアプリの「カメラをスキャン」し、このコードを写してください。</p>
                 <button onclick="closeSyncModal()" class="opacity-90 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer shadow-sm">閉じる</button>
             </div>
 
