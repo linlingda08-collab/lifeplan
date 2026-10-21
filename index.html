@@ -109,11 +109,8 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (シームレス背景ぼかし演出) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
-        <!-- 背景に敷くぼかした同じ動画（余分な隙間を動画の色でシームレスに埋める） -->
-        <video src="./splash.mov" class="absolute inset-0 w-full h-full object-cover filter blur-3xl opacity-75 scale-125 pointer-events-none" autoplay muted loop playsinline></video>
-        <!-- メインの高画質動画（中央に綺麗に収める・変形なし） -->
+    <!-- ================= 起動時オープニング動画 (背景色完全一致・シームレス演出) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#181818] transition-opacity duration-700 pointer-events-auto select-none overflow-hidden">
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline></video>
     </div>
 
