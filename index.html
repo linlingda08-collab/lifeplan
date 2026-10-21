@@ -47,22 +47,10 @@
             backdrop-filter: blur(12px);
             color: var(--app-text) !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
-            position: relative;
-            overflow: hidden;
-        }
-        /* テーマカラーのアクセントをカード上部に細く走らせる装飾 */
-        .theme-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--app-c2), var(--app-c3), var(--app-c4));
         }
 
         .theme-card-sm {
-            background: rgba(255, 255, 255, 0.88) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
             border: 1.5px solid var(--app-c2) !important;
             color: var(--app-text) !important;
         }
@@ -78,14 +66,6 @@
         .theme-accent-bg {
             background-color: var(--app-c4) !important;
             color: #1a202c !important;
-        }
-        .theme-accent-bg:hover {
-            opacity: 0.9;
-        }
-
-        .theme-sub-bg {
-            background-color: var(--app-c3) !important;
-            color: #ffffff !important;
         }
 
         .theme-primary-text {
@@ -124,7 +104,6 @@
             body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
             .print-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             .a4-print-target { width: 100% !important; border: none !important; box-shadow: none !important; background: #ffffff !important; }
-            .theme-card::before { display: none !important; }
         }
     </style>
 </head>
@@ -134,17 +113,17 @@
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
             <div class="flex items-center space-x-2.5">
-                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 rounded-xl theme-sub-bg flex items-center justify-center font-bold text-base shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center border border-white/30" title="タップしてアイコン変更">
+                <div onclick="promptHeaderIcon()" id="header-icon-box" class="h-9 w-9 rounded-xl theme-primary-bg flex items-center justify-center font-bold text-base shadow-md cursor-pointer hover:scale-105 transition overflow-hidden bg-cover bg-center" title="タップしてアイコン変更">
                     <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold tracking-tight leading-tight theme-deep-text">ライフプラン</h1>
+                    <h1 class="text-sm font-bold tracking-tight leading-tight theme-primary-text">ライフプラン</h1>
                 </div>
             </div>
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <button onclick="openSyncModal()" class="theme-primary-bg px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer border border-white/20" title="ダイレクトP2P同期">
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer" title="ダイレクトP2P同期">
                     <span>📱</span> <span>データ同期</span>
                 </button>
             </div>
@@ -156,19 +135,19 @@
         <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition theme-primary-bg cursor-pointer text-[10px] font-bold shadow-sm">
             <span class="text-base">🏠</span> ホーム
         </button>
-        <button onclick="switchTab('input')" id="btn-tab-input" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-75 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('input')" id="btn-tab-input" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">📝</span> 毎月入力
         </button>
-        <button onclick="switchTab('charts')" id="btn-tab-charts" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-75 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('charts')" id="btn-tab-charts" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">📊</span> グラフ
         </button>
-        <button onclick="switchTab('events')" id="btn-tab-events" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-75 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('events')" id="btn-tab-events" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">📅</span> 予定
         </button>
-        <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-75 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('accounts')" id="btn-tab-accounts" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🏦</span> 口座
         </button>
-        <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-75 hover:opacity-100 cursor-pointer text-[10px] font-medium">
+        <button onclick="switchTab('theme')" id="btn-tab-theme" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition opacity-70 hover:opacity-100 cursor-pointer text-[10px] font-medium">
             <span class="text-base">🎨</span> テーマ
         </button>
     </nav>
@@ -178,8 +157,8 @@
 
         <!-- ================= TAB 1: HOME ================= -->
         <div id="tab-dashboard" class="space-y-6">
-            <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-sub-bg p-6 sm:p-8 text-white shadow-2xl bg-cover bg-center transition-all border-2 border-white/30">
-                <div id="hero-overlay" class="absolute inset-0 bg-black/20 backdrop-blur-[1px]"></div>
+            <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-2xl bg-cover bg-center transition-all border-2 border-white/30">
+                <div id="hero-overlay" class="absolute inset-0 bg-black/15 backdrop-blur-[1px]"></div>
                 <div class="absolute right-3 top-3 z-20 no-print flex gap-2">
                     <label class="bg-white/25 hover:bg-white/35 text-white text-[10px] sm:text-[11px] font-bold px-3 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/40 flex items-center gap-1.5 shadow-md">
                         <span>📷</span> 背景変更
@@ -187,7 +166,7 @@
                     </label>
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
-                    <div id="today-date-badge" class="inline-block theme-accent-bg px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 shadow-md text-slate-900 border border-white/50">
+                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white">
                         📅 本日の日付: 読込中...
                     </div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg">ライフプランシミュレーション</h2>
@@ -198,7 +177,7 @@
 
             <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-                    <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 theme-deep-text">
+                    <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金推移
                     </h3>
                     <div class="flex items-center gap-3 text-[11px] font-bold">
@@ -219,7 +198,7 @@
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6 a4-print-target">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/15 gap-3 no-print">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-deep-text">毎月の収支計算</h2>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">毎月の収支計算</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -241,7 +220,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 theme-deep-text">
+                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 支出の内訳 (金額の高い順)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-sm"></select>
@@ -258,7 +237,7 @@
                 </div>
 
                 <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col">
-                    <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2 theme-deep-text">
+                    <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 過去の収支履歴一覧 (直近12ヶ月分)
                     </h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-2xl border border-current/15">
@@ -285,14 +264,14 @@
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6">
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/15 gap-3">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-deep-text">今後の予定</h2>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">今後の予定</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">登録したイベントの時期と費用は、ホームの折れ線グラフおよび残高に自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto relative z-40">
                         <button type="button" onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95">
                             <span>🤖</span> Gemini回答から自動反映
                         </button>
-                        <button type="button" onclick="addNewEvent()" class="theme-accent-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer shrink-0 min-h-[44px] active:scale-95 text-slate-900">
+                        <button type="button" onclick="addNewEvent()" class="theme-accent-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer shrink-0 min-h-[44px] active:scale-95">
                             <span>＋</span> 追加
                         </button>
                     </div>
@@ -300,7 +279,7 @@
 
                 <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 hidden shadow-xl relative z-20">
                     <div class="flex items-center justify-between pb-2 border-b border-current/15">
-                        <h4 class="font-bold text-xs flex items-center gap-1.5 theme-deep-text">
+                        <h4 class="font-bold text-xs flex items-center gap-1.5 theme-primary-text">
                             <span>✨</span> Gemini回答の自動解析
                         </h4>
                         <button type="button" onclick="toggleAiParserBox()" class="opacity-80 hover:opacity-100 text-xs font-bold p-1 cursor-pointer">×</button>
@@ -336,7 +315,7 @@
         <div id="tab-accounts" class="hidden space-y-6">
             <div class="theme-card p-5 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight theme-deep-text">銀行口座の管理 ＆ 将来予測設定</h2>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">銀行口座の管理 ＆ 将来予測設定</h2>
                     <p class="text-xs opacity-80 mt-0.5 font-medium">口座の管理と、ホームグラフの未来予測に使う「将来の標準毎月貯金額」を設定できます。</p>
                 </div>
 
@@ -346,7 +325,7 @@
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold text-xs mb-1 theme-deep-text">🏦 登録口座一覧</h3>
+                    <h3 class="font-bold text-xs mb-1 theme-primary-text">🏦 登録口座一覧</h3>
                     <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/15">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border shadow-inner">
@@ -362,7 +341,7 @@
             <div class="theme-card p-4 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-deep-text">カラーテーマ設定</h2>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">カラーテーマ設定</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">お好みのカラーテーマを選択して、アプリ全体の雰囲気を変更できます。</p>
                     </div>
                 </div>
@@ -393,7 +372,7 @@
     <div id="history-popup-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeHistoryModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15 shrink-0">
-                <h3 class="font-bold text-base flex items-center gap-2 theme-deep-text" id="history-modal-title">
+                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text" id="history-modal-title">
                     <span>📜</span> 全貯金履歴
                 </h3>
                 <button onclick="closeHistoryModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
@@ -418,7 +397,7 @@
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
-                <h3 class="font-bold text-base flex items-center gap-2 theme-deep-text">
+                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text">
                     <span>📱</span> ダイレクトP2Pデータ同期
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
@@ -431,7 +410,7 @@
                 <button onclick="startPeerSend()" class="w-full theme-primary-bg text-xs font-bold py-3.5 rounded-2xl transition shadow-md cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
                     <span>📤</span> 送信：同期用QRコードを表示
                 </button>
-                <button onclick="startPeerReceive()" class="w-full theme-accent-bg text-xs font-bold py-3.5 rounded-2xl transition shadow-md cursor-pointer flex items-center justify-center gap-2 min-h-[44px] text-slate-900">
+                <button onclick="startPeerReceive()" class="w-full theme-accent-bg text-xs font-bold py-3.5 rounded-2xl transition shadow-md cursor-pointer flex items-center justify-center gap-2 min-h-[44px]">
                     <span>📷</span> 受信：相手のQRコードをスキャン
                 </button>
             </div>
@@ -1448,7 +1427,7 @@
                 if (tabEl) tabEl.classList.add('hidden');
                 if (btnEl) {
                     btnEl.classList.remove('theme-primary-bg', 'font-bold', 'shadow-sm');
-                    btnEl.classList.add('opacity-75', 'font-medium');
+                    btnEl.classList.add('opacity-70', 'font-medium');
                 }
             });
             const targetTab = document.getElementById('tab-' + tabId);
@@ -1456,7 +1435,7 @@
 
             const activeBtn = document.getElementById('btn-tab-' + tabId);
             if (activeBtn) {
-                activeBtn.classList.remove('opacity-75', 'font-medium');
+                activeBtn.classList.remove('opacity-70', 'font-medium');
                 activeBtn.classList.add('theme-primary-bg', 'font-bold', 'shadow-sm');
             }
 
