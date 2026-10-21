@@ -336,29 +336,30 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES (PULLDOWN WITH PREVIEW & FILTERED) ================= -->
+        <!-- ================= TAB 6: THEMES (CUSTOM VISUAL DROPDOWN WITH THUMBNAILS) ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-2xl max-w-2xl mx-auto space-y-6">
                 <div class="border-b border-current/10 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight">カラーテーマ設定</h2>
-                        <p class="text-xs opacity-70 mt-0.5">お好みのカラーテーマをプルダウンから選択して、アプリ全体の雰囲気を変更できます。</p>
+                        <p class="text-xs opacity-70 mt-0.5">お好みのカラーテーマを選択して、アプリ全体の雰囲気を変更できます。</p>
                     </div>
                 </div>
 
                 <div class="theme-card-sm p-5 rounded-2xl border space-y-4">
                     <label class="block font-bold text-xs opacity-80">🎨 カラーテーマの選択</label>
-                    <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <select id="color-theme-select" onchange="onColorThemeSelectChange(this.value)" class="flex-grow theme-card-sm rounded-xl px-3.5 py-3 text-xs font-semibold border focus:outline-none cursor-pointer w-full">
-                            <!-- JSで動的生成 -->
-                        </select>
-                    </div>
-
-                    <!-- 選択中テーマの4色円形サムネイルプレビュー -->
-                    <div class="pt-4 border-t border-current/10 space-y-2">
-                        <span class="text-xs font-bold opacity-70">選択中の配色プレビュー</span>
-                        <div id="selected-theme-preview" class="flex items-center gap-3 p-3 rounded-xl theme-card-sm border">
-                            <!-- JSで動的生成 -->
+                    
+                    <!-- カスタムビジュアルセレクター -->
+                    <div class="relative">
+                        <div id="custom-select-trigger" onclick="toggleThemeDropdown()" class="w-full theme-card-sm rounded-xl px-3.5 py-3 text-xs font-semibold border flex items-center justify-between cursor-pointer shadow-sm">
+                            <div id="selected-theme-display" class="flex items-center gap-3 truncate">
+                                <!-- JSで動的生成 -->
+                            </div>
+                            <span class="text-xs opacity-60 shrink-0">▼</span>
+                        </div>
+                        
+                        <div id="custom-select-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 theme-card rounded-2xl border shadow-2xl max-h-72 overflow-y-auto custom-scrollbar z-50 p-1.5 space-y-1">
+                            <!-- JSで動的生成（各項目の横にカラーサムネイルを表示） -->
                         </div>
                     </div>
                 </div>
@@ -441,8 +442,8 @@
 
         let currentModalRawHistory = [];
 
-        // 全配色データベース（色見本1および色見本2の新規配色を追加、白系統色が2つ以上あるものは除外）
-        const rawColorPickupDatabase = [
+        // 全配色データベース（色見本1 および 色見本2.pdf の全テーマを完全網羅、除外フィルターなし）
+        const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#009488", "#004D40", "#FFBACD"] },
             { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFEBEB", "#F47EA6", "#8B6CCD", "#B19CD9"] },
             { id: 3, name: "丘の上の澄んだ夕焼け配色", colors: ["#E0F2FE", "#E9A62F", "#1B263B", "#D98E87"] },
@@ -451,72 +452,80 @@
             { id: 6, name: "夕暮れに溶ける季節配色", colors: ["#E8EAF6", "#5C6BC0", "#1A237E", "#FFB74D"] },
             { id: 7, name: "スターライトブルー配色", colors: ["#E1F5FE", "#0288D1", "#01579B", "#FFD54F"] },
             { id: 8, name: "優しい和モダン配色", colors: ["#F1F8E9", "#689F38", "#33691E", "#721595"] },
-            { id: 9, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#1B5E20", "#FFCE55"] },
-            { id: 10, name: "都会のブルーアワー配色", colors: ["#E6ECF2", "#3E5066", "#1A2A3A", "#846417"] },
-            { id: 11, name: "ソーダ水と夕暮れの配色", colors: ["#F1F5F9", "#0284C7", "#0C4A6E", "#F97316"] },
-            { id: 12, name: "古民家カフェ配色", colors: ["#FAECDB", "#9A3412", "#1F2937", "#BFCF86"] },
-            { id: 13, name: "もぎたてライチの果実配色", colors: ["#FFF1F2", "#E11D48", "#881337", "#E0F201"] },
-            { id: 14, name: "夏色ファミリーキャンプ配色", colors: ["#F0FDF4", "#388E3C", "#1B5E20", "#488EC1"] },
-            { id: 15, name: "カフェラテムード配色", colors: ["#F2E8DB", "#A88B74", "#4A3728", "#D9C3B0"] },
-            { id: 16, name: "チョコミントな配色", colors: ["#E0F2F1", "#614633", "#3E2723", "#C22790"] },
-            { id: 17, name: "マーメイド・パステル配色", colors: ["#E0F7FA", "#507890", "#1A3644", "#F48FB1"] },
-            { id: 18, name: "センチメンタル・グリーン配色", colors: ["#F0FDF4", "#487860", "#1E3A2B", "#A5D6A7"] },
-            { id: 19, name: "雨宿りのレトロカフェ配色", colors: ["#C6F3E6", "#AD6C44", "#33271F", "#065366"] },
-            { id: 20, name: "星降る夜の七夕配色", colors: ["#E0F2FE", "#1A4D2E", "#001133", "#FFF170"] },
-            { id: 21, name: "初夏のジェラート配色", colors: ["#FFFBEB", "#009488", "#004D40", "#FEF08A"] },
-            { id: 22, name: "黄昏のラジカセ・ドライブ配色", colors: ["#FFEDD5", "#54227C", "#2D0A4E", "#FF9900"] },
-            { id: 23, name: "夕暮れの駄菓子屋配色", colors: ["#F8E6B8", "#991818", "#4C0519", "#D17116"] },
-            { id: 24, name: "雨のメトロポリス配色", colors: ["#CBD7D9", "#475569", "#1C2850", "#0EA5E9"] },
-            { id: 25, name: "真夏のナイト・プール配色", colors: ["#E0F2F1", "#237297", "#232F49", "#00E5FF"] },
-            { id: 26, name: "深海に沈むサンゴ配色", colors: ["#E0F2FE", "#112953", "#08142A", "#F05411"] },
-            { id: 27, name: "夕暮れどきのシトラス配色", colors: ["#FFF7ED", "#EA580C", "#3E5066", "#FDBA74"] },
-            { id: 28, name: "月夜のサファイア配色", colors: ["#E0F2FE", "#1B263B", "#0D131D", "#E0B1DD"] },
-            { id: 29, name: "焼きたてカヌレのビター配色", colors: ["#F7EFE2", "#8C6A5E", "#4A3732", "#3C0A5E"] },
-            { id: 30, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#346073", "#2B2D42", "#F20705"] },
-            { id: 31, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#122A22", "#A7F3D0"] },
-            { id: 32, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#095249"] },
-            { id: 33, name: "海とヒトデの配色", colors: ["#FFE1D7", "#0259DE", "#012C70", "#FF6B6B"] },
-            { id: 34, name: "春を待つ窓辺配色", colors: ["#FDF2F8", "#F472B6", "#831843", "#613100"] },
-            { id: 35, name: "ささやく深海ブルー配色", colors: ["#E0F2FE", "#196F8A", "#123747", "#079781"] },
-            { id: 36, name: "キャンディポップ配色", colors: ["#FFFBEB", "#D8762F", "#1D2A5E", "#F6DBB7"] },
-            { id: 37, name: "メルティ・ガール配色", colors: ["#FFF1F2", "#CB4447", "#881337", "#FDECAC"] },
-            { id: 38, name: "琥珀糖のかけら配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#104880"] },
-            { id: 39, name: "深呼吸ブルー配色", colors: ["#F0F9FF", "#197084", "#151920", "#597614"] },
-            { id: 40, name: "ノスタルジックトーキョー配色", colors: ["#F8FAFC", "#475569", "#121212", "#FF0055"] },
-            // 新規追加テーマ (色見本2.pdf より)
-            { id: 41, name: "NOGUCHIベージュ配色", colors: ["#EDE8E3", "#514935", "#907E6E", "#514935"] },
-            { id: 42, name: "ブルー・ブルー配色", colors: ["#296AA2", "#405986", "#252F66", "#252166"] },
-            { id: 43, name: "スモーキーローズ配色", colors: ["#9A8276", "#5A5557", "#9A8276", "#5A5557"] },
-            { id: 44, name: "マスタードオーカー配色", colors: ["#947858", "#947858", "#978866", "#978866"] }
+            { id: 9, name: "星のミスティック配色", colors: ["#EDE7F6", "#7E57C2", "#2E2D98", "#BF2664"] },
+            { id: 10, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#1B5E20", "#FFCE55"] },
+            { id: 11, name: "都会のブルーアワー配色", colors: ["#E6ECF2", "#3E5066", "#1A2A3A", "#846417"] },
+            { id: 12, name: "ソーダ水と夕暮れの配色", colors: ["#F1F5F9", "#0284C7", "#0C4A6E", "#F97316"] },
+            { id: 13, name: "古民家カフェ配色", colors: ["#FAECDB", "#9A3412", "#1F2937", "#BFCF86"] },
+            { id: 14, name: "もぎたてライチの果実配色", colors: ["#FFF1F2", "#E11D48", "#881337", "#E0F201"] },
+            { id: 15, name: "夏色ファミリーキャンプ配色", colors: ["#F0FDF4", "#388E3C", "#1B5E20", "#488EC1"] },
+            { id: 16, name: "弾けるシャインマスカット配色", colors: ["#F0FAEE", "#3A7054", "#1B4D3E", "#3AFE32"] },
+            { id: 17, name: "カフェラテムード配色", colors: ["#F2E8DB", "#A88B74", "#4A3728", "#D9C3B0"] },
+            { id: 18, name: "レモン彗星配色", colors: ["#F7FEE7", "#194660", "#0F2D3F", "#DBE78F"] },
+            { id: 19, name: "静かな駅の朝配色", colors: ["#F9F5F3", "#F0C3D4", "#BAD1FE", "#FFE38F"] },
+            { id: 20, name: "ソフトモーブ配色", colors: ["#EFE0E2", "#767891", "#3E3F58", "#FCD6E1"] },
+            { id: 21, name: "デイリーブルーコーデ配色", colors: ["#EBF5FB", "#5499C7", "#1B4F72", "#A9CCE3"] },
+            { id: 22, name: "チョコミントな配色", colors: ["#E0F2F1", "#614633", "#3E2723", "#C22790"] },
+            { id: 23, name: "マーメイド・パステル配色", colors: ["#E0F7FA", "#507890", "#1A3644", "#F48FB1"] },
+            { id: 24, name: "センチメンタル・グリーン配色", colors: ["#F0FDF4", "#487860", "#1E3A2B", "#A5D6A7"] },
+            { id: 25, name: "雨宿りのレトロカフェ配色", colors: ["#C6F3E6", "#AD6C44", "#33271F", "#065366"] },
+            { id: 26, name: "朝焼けのグラデーション配色", colors: ["#FEEEDF", "#F4C8D3", "#140303", "#D67A14"] },
+            { id: 27, name: "星降る夜の七夕配色", colors: ["#E0F2FE", "#1A4D2E", "#001133", "#FFF170"] },
+            { id: 28, name: "風そよぐみずみずしい草露配色", colors: ["#E8F5E9", "#63BF8D", "#085609", "#B2DFDB"] },
+            { id: 29, name: "紫陽花小路配色", colors: ["#D9D5DF", "#7D9188", "#1E184B", "#C5B3E6"] },
+            { id: 30, name: "夏薫るシトラスアイス配色", colors: ["#F6F6D2", "#14DB64", "#0A5C28", "#F4DD64"] },
+            { id: 31, name: "爽やかなピスタチオラテ配色", colors: ["#E3FBEA", "#845309", "#451A03", "#B0EFAC"] },
+            { id: 32, name: "初夏のジェラート配色", colors: ["#FFFBEB", "#009488", "#004D40", "#FEF08A"] },
+            { id: 33, name: "黄昏のラジカセ・ドライブ配色", colors: ["#FFEDD5", "#54227C", "#2D0A4E", "#FF9900"] },
+            { id: 34, name: "夕暮れの駄菓子屋配色", colors: ["#F8E6B8", "#991818", "#4C0519", "#D17116"] },
+            { id: 35, name: "雨のメトロポリス配色", colors: ["#CBD7D9", "#475569", "#1C2850", "#0EA5E9"] },
+            { id: 36, name: "朝のハチミツトースト配色", colors: ["#FEF08A", "#CA8A04", "#451A03", "#FDB047"] },
+            { id: 37, name: "異国のバザール配色", colors: ["#F6F1E9", "#991818", "#4C0519", "#D1B260"] },
+            { id: 38, name: "星屑が溶けるソーダの海配色", colors: ["#E0F2FE", "#316281", "#0F172A", "#38BDF8"] },
+            { id: 39, name: "雨宿りの紫陽花配色", colors: ["#E3F2FD", "#64B5F6", "#1D4ED8", "#93C5FD"] },
+            { id: 40, name: "ふんわり桃っぽ配色", colors: ["#FFF0F5", "#F43F5E", "#881337", "#FDA4AF"] },
+            { id: 41, name: "真夏のナイト・プール配色", colors: ["#E0F2F1", "#237297", "#232F49", "#00E5FF"] },
+            { id: 42, name: "華やかなシャンパンゴールド配色", colors: ["#FDFCFO", "#EEE6BB", "#8A7300", "#D4AF37"] },
+            { id: 43, name: "深海に沈むサンゴ配色", colors: ["#E0F2FE", "#112953", "#08142A", "#F05411"] },
+            { id: 44, name: "夕暮れどきのシトラス配色", colors: ["#FFF7ED", "#EA580C", "#3E5066", "#FDBA74"] },
+            { id: 45, name: "月夜のサファイア配色", colors: ["#E0F2FE", "#1B263B", "#0D131D", "#E0B1DD"] },
+            { id: 46, name: "焼きたてカヌレのビター配色", colors: ["#F7EFE2", "#8C6A5E", "#4A3732", "#3C0A5E"] },
+            { id: 47, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#346073", "#2B2D42", "#EF4444"] },
+            { id: 48, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#122A22", "#A7F3D0"] },
+            { id: 49, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#095249"] },
+            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#0259DE", "#012C70", "#FF6B6B"] },
+            { id: 51, name: "曇り空のまどろみ配色", colors: ["#F1F5F9", "#64748B", "#1E293B", "#94A3B8"] },
+            { id: 52, name: "深夜の目醒め配色", colors: ["#ECEFF1", "#3A609F", "#0B1838", "#4E4177"] },
+            { id: 53, name: "キャンディ・スプリング配色", colors: ["#F9F5F3", "#F0C3D4", "#FFE38F", "#8AD717"] },
+            { id: 54, name: "クールラベンダー配色", colors: ["#ECEED8", "#707488", "#40386B", "#A5B4FC"] },
+            { id: 55, name: "不思議なメルヘン配色", colors: ["#FAF5FF", "#C084FC", "#581C87", "#E879F9"] },
+            { id: 56, name: "春を待つ窓辺配色", colors: ["#FDF2F8", "#F472B6", "#831843", "#FBCFE8"] },
+            { id: 57, name: "ささやく深海ブルー配色", colors: ["#E0F2FE", "#196F8A", "#123747", "#079781"] },
+            { id: 58, name: "キャンディポップ配色", colors: ["#FFFBEB", "#D8762F", "#1D2A5E", "#F6DBB7"] },
+            { id: 59, name: "メルティ・ガール配色", colors: ["#FFF1F2", "#CB4447", "#881337", "#FDECAC"] },
+            { id: 60, name: "夜風とラベンダー配色", colors: ["#F3E8FF", "#213661", "#261734", "#9333EA"] },
+            { id: 61, name: "琥珀糖のかけら配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#104880"] },
+            { id: 62, name: "冬凪のグラデーション配色", colors: ["#F8FAFC", "#64748B", "#121417", "#38BDF8"] },
+            { id: 63, name: "深呼吸ブルー配色", colors: ["#F0F9FF", "#197084", "#151920", "#38BDF8"] },
+            { id: 64, name: "砂漠のターコイズ配色", colors: ["#FEF3C7", "#BA7455", "#512211", "#0D9488"] },
+            { id: 65, name: "好好♡チャイナポップ配色", colors: ["#FFF1F2", "#084328", "#022013", "#E8755A"] },
+            { id: 66, name: "北欧スケッチ配色", colors: ["#F8FAFC", "#475569", "#0F172A", "#38BDF8"] },
+            { id: 67, name: "波音ノート配色", colors: ["#F0F9FF", "#2C5E79", "#153344", "#38BDF8"] },
+            { id: 68, name: "浴衣リボンと金魚掬い配色", colors: ["#FFF1F2", "#FBCFE8", "#881337", "#EF4444"] },
+            { id: 69, name: "魔法の国の白薔薇の園配色", colors: ["#FDF5E6", "#E7DEE1", "#8C7882", "#5A3D41"] },
+            { id: 70, name: "ナイトブラー配色", colors: ["#F1F5F9", "#64748B", "#0F172A", "#8B5CF6"] },
+            { id: 71, name: "ノスタルジックトーキョー配色", colors: ["#F8FAFC", "#475569", "#121212", "#FF0055"] },
+            { id: 72, name: "あの日の放課後配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#3B82F6"] },
+            // 色見本2.pdf の配色（除外なしですべて完全網羅）
+            { id: 73, name: "NOGUCHIベージュ配色", colors: ["#EDE8E3", "#514935", "#907E6E", "#3A3424"] },
+            { id: 74, name: "ブルー・ブルー配色", colors: ["#296AA2", "#405986", "#252F66", "#1A1E4B"] },
+            { id: 75, name: "スモーキーローズ配色", colors: ["#9A8276", "#5A5557", "#B59E92", "#3F3C3D"] },
+            { id: 76, name: "マスタードオーカー配色", colors: ["#947858", "#C29B6E", "#978866", "#61573F"] }
         ];
-
-        // 判定関数：色が白系統（極めて明るい色）かどうか
-        function isWhiteOrNearWhite(hex) {
-            if (!hex) return false;
-            let c = hex.replace('#', '');
-            if (c.length === 3) c = c.split('').map(x => x + x).join('');
-            if (c.length >= 6) {
-                const r = parseInt(c.substring(0, 2), 16);
-                const g = parseInt(c.substring(2, 4), 16);
-                const b = parseInt(c.substring(4, 6), 16);
-                // RGBすべてが240以上、または明るさが非常に高いものを白系統とみなす
-                if (r >= 240 && g >= 240 && b >= 240) return true;
-            }
-            return false;
-        }
-
-        // 4色中2色以上が白系統のテーマを除外してフィルター
-        const colorPickupDatabase = rawColorPickupDatabase.filter(theme => {
-            let whiteCount = 0;
-            theme.colors.forEach(hex => {
-                if (isWhiteOrNearWhite(hex)) whiteCount++;
-            });
-            return whiteCount < 2;
-        });
 
         let currentThemeId = Number(localStorage.getItem('selected_theme_id')) || 1;
         if (!colorPickupDatabase.some(t => t.id === currentThemeId)) {
-            currentThemeId = colorPickupDatabase[0] ? colorPickupDatabase[0].id : 1;
+            currentThemeId = colorPickupDatabase[0].id;
         }
 
         function parseNum(val) {
@@ -1026,52 +1035,77 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= カラーテーマUI（プルダウン形式 ＆ 円形サムネイル ＆ プレビュー連動） =================
+        // ================= カラーテーマUI（カスタムビジュアルプルダウン：選択肢リストから配色を視覚的に判別可能） =================
         function initColorPickupUI() {
-            renderThemeSelect();
-            updateSelectedThemePreview();
+            renderCustomThemeDropdown();
+            updateSelectedThemeDisplay();
             applySavedPaletteToApp();
         }
+
+        function toggleThemeDropdown() {
+            const dropdown = document.getElementById('custom-select-dropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function(e) {
+            const trigger = document.getElementById('custom-select-trigger');
+            const dropdown = document.getElementById('custom-select-dropdown');
+            if (trigger && dropdown && !trigger.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
 
         function selectColorTheme(themeId) {
             currentThemeId = Number(themeId);
             localStorage.setItem('selected_theme_id', currentThemeId);
-            updateSelectedThemePreview();
+            updateSelectedThemeDisplay();
+            renderCustomThemeDropdown();
             applySavedPaletteToApp();
+            const dropdown = document.getElementById('custom-select-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
         }
 
-        function renderThemeSelect() {
-            const selectEl = document.getElementById('color-theme-select');
-            if (!selectEl) return;
-
-            let html = '';
-            colorPickupDatabase.forEach(theme => {
-                const isSelected = theme.id === currentThemeId;
-                html += `<option value="${theme.id}" ${isSelected ? 'selected' : ''}>${theme.name}</option>`;
-            });
-            selectEl.innerHTML = html;
-        }
-
-        function onColorThemeSelectChange(val) {
-            selectColorTheme(val);
-        }
-
-        function updateSelectedThemePreview() {
-            const previewEl = document.getElementById('selected-theme-preview');
-            if (!previewEl) return;
+        function updateSelectedThemeDisplay() {
+            const displayEl = document.getElementById('selected-theme-display');
+            if (!displayEl) return;
 
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             let circlesHtml = '';
             theme.colors.forEach(hex => {
-                circlesHtml += `<div class="w-7 h-7 rounded-full shadow-sm border border-black/15 shrink-0" style="background-color: ${hex};" title="${hex}"></div>`;
+                circlesHtml += `<div class="w-6 h-6 rounded-full shadow-sm border border-black/15 shrink-0" style="background-color: ${hex};" title="${hex}"></div>`;
             });
 
-            previewEl.innerHTML = `
-                <div class="flex items-center justify-between w-full gap-3">
-                    <div class="font-bold text-xs truncate">${theme.name}</div>
+            displayEl.innerHTML = `
+                <div class="flex items-center gap-3 w-full">
                     <div class="flex gap-1.5 shrink-0">${circlesHtml}</div>
+                    <div class="font-bold text-xs truncate">${theme.name}</div>
                 </div>
             `;
+        }
+
+        function renderCustomThemeDropdown() {
+            const dropdown = document.getElementById('custom-select-dropdown');
+            if (!dropdown) return;
+
+            let html = '';
+            colorPickupDatabase.forEach(theme => {
+                const isSelected = theme.id === currentThemeId;
+                let circlesHtml = '';
+                theme.colors.forEach(hex => {
+                    circlesHtml += `<div class="w-5 h-5 rounded-full shadow-sm border border-black/15 shrink-0" style="background-color: ${hex};"></div>`;
+                });
+
+                html += `
+                    <div onclick="selectColorTheme(${theme.id})" class="flex items-center justify-between p-2.5 rounded-xl transition cursor-pointer hover:bg-current/10 ${isSelected ? 'theme-primary-bg font-bold' : ''}">
+                        <div class="flex items-center gap-2.5 truncate">
+                            <div class="flex gap-1 shrink-0">${circlesHtml}</div>
+                            <span class="text-xs truncate">${theme.name}</span>
+                        </div>
+                        ${isSelected ? '<span class="text-xs">✓</span>' : ''}
+                    </div>
+                `;
+            });
+            dropdown.innerHTML = html;
         }
 
         function applySavedPaletteToApp() {
