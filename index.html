@@ -23,7 +23,7 @@
     <style id="dynamic-theme-style">
         :root {
             --app-c1: #E0F2F1;
-            --app-c2: #009488;
+            --app-c2: #4DB6AC;
             --app-c3: #004D40;
             --app-c4: #FFBACD;
             --app-bg: linear-gradient(135deg, var(--app-c1) 0%, #ffffff 100%);
@@ -166,7 +166,7 @@
                     </label>
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
-                    <div class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white">
+                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white">
                         📅 本日の日付: 読込中...
                     </div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg">ライフプランシミュレーション</h2>
@@ -442,81 +442,80 @@
 
         let currentModalRawHistory = [];
 
-        // 全配色データベース（色見本1 および 色見本2.pdf の全テーマを完全網羅、除外なし）
+        // 色見本3（PDF全ページ）の配色データを完全網羅したデータベース（白系統も含めて一切除外なし）
         const colorPickupDatabase = [
-            { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#009488", "#004D40", "#FFBACD"] },
-            { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFEBEB", "#F47EA6", "#8B6CCD", "#B19CD9"] },
-            { id: 3, name: "丘の上の澄んだ夕焼け配色", colors: ["#E0F2FE", "#E9A62F", "#1B263B", "#D98E87"] },
-            { id: 4, name: "じりじり照りつける真夏日配色", colors: ["#FFF2D6", "#E57373", "#D32F2F", "#4A148C"] },
-            { id: 5, name: "シティポップ・ボーイ配色", colors: ["#ECE5D5", "#3B82F6", "#212051", "#FF6B6B"] },
-            { id: 6, name: "夕暮れに溶ける季節配色", colors: ["#E8EAF6", "#5C6BC0", "#1A237E", "#FFB74D"] },
-            { id: 7, name: "スターライトブルー配色", colors: ["#E1F5FE", "#0288D1", "#01579B", "#FFD54F"] },
-            { id: 8, name: "優しい和モダン配色", colors: ["#F1F8E9", "#689F38", "#33691E", "#721595"] },
-            { id: 9, name: "星のミスティック配色", colors: ["#EDE7F6", "#7E57C2", "#2E2D98", "#BF2664"] },
-            { id: 10, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#1B5E20", "#FFCE55"] },
-            { id: 11, name: "都会のブルーアワー配色", colors: ["#E6ECF2", "#3E5066", "#1A2A3A", "#846417"] },
-            { id: 12, name: "ソーダ水と夕暮れの配色", colors: ["#F1F5F9", "#0284C7", "#0C4A6E", "#F97316"] },
-            { id: 13, name: "古民家カフェ配色", colors: ["#FAECDB", "#9A3412", "#1F2937", "#BFCF86"] },
-            { id: 14, name: "もぎたてライチの果実配色", colors: ["#FFF1F2", "#E11D48", "#881337", "#E0F201"] },
-            { id: 15, name: "夏色ファミリーキャンプ配色", colors: ["#F0FDF4", "#388E3C", "#1B5E20", "#488EC1"] },
-            { id: 16, name: "弾けるシャインマスカット配色", colors: ["#F0FAEE", "#3A7054", "#1B4D3E", "#3AFE32"] },
-            { id: 17, name: "カフェラテムード配色", colors: ["#F2E8DB", "#A88B74", "#4A3728", "#D9C3B0"] },
-            { id: 18, name: "レモン彗星配色", colors: ["#F7FEE7", "#194660", "#0F2D3F", "#DBE78F"] },
-            { id: 19, name: "静かな駅の朝配色", colors: ["#F9F5F3", "#F0C3D4", "#BAD1FE", "#FFE38F"] },
-            { id: 20, name: "ソフトモーブ配色", colors: ["#EFE0E2", "#767891", "#3E3F58", "#FCD6E1"] },
-            { id: 21, name: "デイリーブルーコーデ配色", colors: ["#EBF5FB", "#5499C7", "#1B4F72", "#A9CCE3"] },
-            { id: 22, name: "チョコミントな配色", colors: ["#E0F2F1", "#614633", "#3E2723", "#C22790"] },
-            { id: 23, name: "マーメイド・パステル配色", colors: ["#E0F7FA", "#507890", "#1A3644", "#F48FB1"] },
-            { id: 24, name: "センチメンタル・グリーン配色", colors: ["#F0FDF4", "#487860", "#1E3A2B", "#A5D6A7"] },
-            { id: 25, name: "雨宿りのレトロカフェ配色", colors: ["#C6F3E6", "#AD6C44", "#33271F", "#065366"] },
-            { id: 26, name: "朝焼けのグラデーション配色", colors: ["#FEEEDF", "#F4C8D3", "#140303", "#D67A14"] },
-            { id: 27, name: "星降る夜の七夕配色", colors: ["#E0F2FE", "#1A4D2E", "#001133", "#FFF170"] },
-            { id: 28, name: "風そよぐみずみずしい草露配色", colors: ["#E8F5E9", "#63BF8D", "#085609", "#B2DFDB"] },
-            { id: 29, name: "紫陽花小路配色", colors: ["#D9D5DF", "#7D9188", "#1E184B", "#C5B3E6"] },
-            { id: 30, name: "夏薫るシトラスアイス配色", colors: ["#F6F6D2", "#14DB64", "#0A5C28", "#F4DD64"] },
-            { id: 31, name: "爽やかなピスタチオラテ配色", colors: ["#E3FBEA", "#845309", "#451A03", "#B0EFAC"] },
-            { id: 32, name: "初夏のジェラート配色", colors: ["#FFFBEB", "#009488", "#004D40", "#FEF08A"] },
-            { id: 33, name: "黄昏のラジカセ・ドライブ配色", colors: ["#FFEDD5", "#54227C", "#2D0A4E", "#FF9900"] },
-            { id: 34, name: "夕暮れの駄菓子屋配色", colors: ["#F8E6B8", "#991818", "#4C0519", "#D17116"] },
-            { id: 35, name: "雨のメトロポリス配色", colors: ["#CBD7D9", "#475569", "#1C2850", "#0EA5E9"] },
-            { id: 36, name: "朝のハチミツトースト配色", colors: ["#FEF08A", "#CA8A04", "#451A03", "#FDB047"] },
-            { id: 37, name: "異国のバザール配色", colors: ["#F6F1E9", "#991818", "#4C0519", "#D1B260"] },
-            { id: 38, name: "星屑が溶けるソーダの海配色", colors: ["#E0F2FE", "#316281", "#0F172A", "#38BDF8"] },
-            { id: 39, name: "雨宿りの紫陽花配色", colors: ["#E3F2FD", "#64B5F6", "#1D4ED8", "#93C5FD"] },
-            { id: 40, name: "ふんわり桃っぽ配色", colors: ["#FFF0F5", "#F43F5E", "#881337", "#FDA4AF"] },
-            { id: 41, name: "真夏のナイト・プール配色", colors: ["#E0F2F1", "#237297", "#232F49", "#00E5FF"] },
-            { id: 42, name: "華やかなシャンパンゴールド配色", colors: ["#FDFCFO", "#EEE6BB", "#8A7300", "#D4AF37"] },
-            { id: 43, name: "深海に沈むサンゴ配色", colors: ["#E0F2FE", "#112953", "#08142A", "#F05411"] },
-            { id: 44, name: "夕暮れどきのシトラス配色", colors: ["#FFF7ED", "#EA580C", "#3E5066", "#FDBA74"] },
-            { id: 45, name: "月夜のサファイア配色", colors: ["#E0F2FE", "#1B263B", "#0D131D", "#E0B1DD"] },
-            { id: 46, name: "焼きたてカヌレのビター配色", colors: ["#F7EFE2", "#8C6A5E", "#4A3732", "#3C0A5E"] },
-            { id: 47, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#346073", "#2B2D42", "#EF4444"] },
-            { id: 48, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#122A22", "#A7F3D0"] },
-            { id: 49, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#095249"] },
-            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#0259DE", "#012C70", "#FF6B6B"] },
-            { id: 51, name: "曇り空のまどろみ配色", colors: ["#F1F5F9", "#64748B", "#1E293B", "#94A3B8"] },
-            { id: 52, name: "深夜の目醒め配色", colors: ["#ECEFF1", "#3A609F", "#0B1838", "#4E4177"] },
-            { id: 53, name: "キャンディ・スプリング配色", colors: ["#F9F5F3", "#F0C3D4", "#FFE38F", "#8AD717"] },
-            { id: 54, name: "クールラベンダー配色", colors: ["#ECEED8", "#707488", "#40386B", "#A5B4FC"] },
-            { id: 55, name: "不思議なメルヘン配色", colors: ["#FAF5FF", "#C084FC", "#581C87", "#E879F9"] },
-            { id: 56, name: "春を待つ窓辺配色", colors: ["#FDF2F8", "#F472B6", "#831843", "#FBCFE8"] },
-            { id: 57, name: "ささやく深海ブルー配色", colors: ["#E0F2FE", "#196F8A", "#123747", "#079781"] },
-            { id: 58, name: "キャンディポップ配色", colors: ["#FFFBEB", "#D8762F", "#1D2A5E", "#F6DBB7"] },
-            { id: 59, name: "メルティ・ガール配色", colors: ["#FFF1F2", "#CB4447", "#881337", "#FDECAC"] },
-            { id: 60, name: "夜風とラベンダー配色", colors: ["#F3E8FF", "#213661", "#261734", "#9333EA"] },
-            { id: 61, name: "琥珀糖のかけら配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#104880"] },
-            { id: 62, name: "冬凪のグラデーション配色", colors: ["#F8FAFC", "#64748B", "#121417", "#38BDF8"] },
-            { id: 63, name: "深呼吸ブルー配色", colors: ["#F0F9FF", "#197084", "#151920", "#38BDF8"] },
-            { id: 64, name: "砂漠のターコイズ配色", colors: ["#FEF3C7", "#BA7455", "#512211", "#0D9488"] },
-            { id: 65, name: "好好♡チャイナポップ配色", colors: ["#FFF1F2", "#084328", "#022013", "#E8755A"] },
-            { id: 66, name: "北欧スケッチ配色", colors: ["#F8FAFC", "#475569", "#0F172A", "#38BDF8"] },
-            { id: 67, name: "波音ノート配色", colors: ["#F0F9FF", "#2C5E79", "#153344", "#38BDF8"] },
-            { id: 68, name: "浴衣リボンと金魚掬い配色", colors: ["#FFF1F2", "#FBCFE8", "#881337", "#EF4444"] },
-            { id: 69, name: "魔法の国の白薔薇の園配色", colors: ["#FDF5E6", "#E7DEE1", "#8C7882", "#5A3D41"] },
-            { id: 70, name: "ナイトブラー配色", colors: ["#F1F5F9", "#64748B", "#0F172A", "#8B5CF6"] },
-            { id: 71, name: "ノスタルジックトーキョー配色", colors: ["#F8FAFC", "#475569", "#121212", "#FF0055"] },
-            { id: 72, name: "あの日の放課後配色", colors: ["#FEF3C7", "#D97706", "#78350F", "#3B82F6"] },
-            // 色見本2.pdf の配色（除外なしですべて完全網羅）
+            { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
+            { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFF2E9", "#F47EA6", "#8B6CCD", "#B19CD9"] },
+            { id: 3, name: "丘の上の澄んだ夕焼け配色", colors: ["#E0F2FE", "#E07A5F", "#F4A261", "#1B263B"] },
+            { id: 4, name: "じりじり照りつける真夏日配色", colors: ["#FFF2D6", "#D32F2F", "#F57C00", "#4A148C"] },
+            { id: 5, name: "シティポップ・ボーイ配色", colors: ["#ECE5D5", "#212C5F", "#DA6744", "#B4C562"] },
+            { id: 6, name: "夕暮れに溶ける季節配色", colors: ["#E8EAF6", "#4A8D9F", "#95A79E", "#EEB0BA"] },
+            { id: 7, name: "スターライトブルー配色", colors: ["#E1F5FE", "#81AID4", "#75C9C9", "#88B9DD"] },
+            { id: 8, name: "優しい和モダン配色", colors: ["#F5EFE6", "#92A593", "#CCDBD8", "#EAC9CF"] },
+            { id: 9, name: "星のミスティック配色", colors: ["#EDE7F6", "#1F2B63", "#8383DE", "#D7BFDF"] },
+            { id: 10, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#92C3A5", "#FFCE55"] },
+            { id: 11, name: "都会のブルーアワー配色", colors: ["#E6ECF2", "#3E5066", "#B4C4D9", "#9C8BBE"] },
+            { id: 12, name: "ソーダ水と夕暮れの配色", colors: ["#F1F5F9", "#CBD5E1", "#A5F3FC", "#FB923C"] },
+            { id: 13, name: "古民家カフェ配色", colors: ["#F4ECDB", "#1F2937", "#9A3412", "#EFCF86"] },
+            { id: 14, name: "もぎたてライチの果実配色", colors: ["#FFF1F2", "#C62828", "#EF5350", "#E0F2F1"] },
+            { id: 15, name: "夏色ファミリーキャンプ配色", colors: ["#F0FDF4", "#388E3C", "#29B6F6", "#FFA726"] },
+            { id: 16, name: "弾けるシャインマスカット配色", colors: ["#F6FAEE", "#3A7D32", "#72C04D", "#D8E65D"] },
+            { id: 17, name: "カフェラテムード配色", colors: ["#F2E8DB", "#B28772", "#DDA886", "#A8A29C"] },
+            { id: 18, name: "レモン彗星配色", colors: ["#F7FEE7", "#194660", "#74C3A0", "#3DAA97"] },
+            { id: 19, name: "静かな駅の朝配色", colors: ["#F9F5F3", "#FFE38F", "#FFC3D4", "#8AD7F7"] },
+            { id: 20, name: "ソフトモーブ配色", colors: ["#EFEEF2", "#767891", "#D9B3C4", "#C7C6D1"] },
+            { id: 21, name: "デイリーブルーコーデ配色", colors: ["#EBF5FB", "#AFA397", "#C6D8C2", "#849DBB"] },
+            { id: 22, name: "チョコミントな配色", colors: ["#E0F2F1", "#614633", "#C22730", "#BBDFCF"] },
+            { id: 23, name: "マーメイド・パステル配色", colors: ["#E0F7FA", "#5C789D", "#7CAFCE", "#E2BDAD"] },
+            { id: 24, name: "センチメンタル・グリーン配色", colors: ["#F0FDF4", "#99B9A4", "#B1CBC3", "#0C10D1"] },
+            { id: 25, name: "雨宿りのレトロカフェ配色", colors: ["#C6F3E6", "#33271F", "#A06C44", "#7DC8D0"] },
+            { id: 26, name: "朝焼けのグラデーション配色", colors: ["#FEEEDF", "#B67AB4", "#F4C3D3", "#F8A3BF"] },
+            { id: 27, name: "星降る夜の七夕配色", colors: ["#E0F2FE", "#001133", "#1A4D2E", "#FFF176"] },
+            { id: 28, name: "風そよぐみずみずしい草露配色", colors: ["#E8F5E9", "#B2DFDB", "#E3F2FD", "#C8E6C9"] },
+            { id: 29, name: "紫陽花小路配色", colors: ["#D9D8DF", "#1E1B4B", "#A78BFA", "#0D9488"] },
+            { id: 30, name: "夏薫るシトラスアイス配色", colors: ["#F6F6D2", "#EE8D2C", "#F4DD64", "#5FCF63"] },
+            { id: 31, name: "爽やかなピスタチオラテ配色", colors: ["#E3FBEA", "#451A03", "#B45309", "#86EFAC"] },
+            { id: 32, name: "初夏のジェラート配色", colors: ["#FFFBEB", "#0D9488", "#38BDF8", "#FEF08A"] },
+            { id: 33, name: "黄昏のラジカセ・ドライブ配色", colors: ["#FFEDD5", "#54227C", "#F5883D", "#9D73CE"] },
+            { id: 34, name: "夕暮れの駄菓子屋配色", colors: ["#F8E6B8", "#4C0519", "#D97706", "#991B1B"] },
+            { id: 35, name: "雨のメトロポリス配色", colors: ["#CBD7D7", "#1C2B50", "#475569", "#0EA5E9"] },
+            { id: 36, name: "朝のハチミツトースト配色", colors: ["#FEF08A", "#451A03", "#CA8A04", "#FDE047"] },
+            { id: 37, name: "異国のバザール配色", colors: ["#F6F1E9", "#1488A6", "#991B1B", "#D6B28D"] },
+            { id: 38, name: "星屑が溶けるソーダの海配色", colors: ["#E0F2FE", "#0F172A", "#316281", "#5FDDC9"] },
+            { id: 39, name: "雨宿りの紫陽花配色", colors: ["#E3F2FD", "#1D4ED8", "#B3E5FC", "#F8BBD0"] },
+            { id: 40, name: "ふんわり桃っぽ配色", colors: ["#FFF0F5", "#881337", "#F43F5E", "#FDA4AF"] },
+            { id: 41, name: "真夏のナイト・プール配色", colors: ["#E0F2F1", "#232F49", "#237297", "#38B2AC"] },
+            { id: 42, name: "華やかなシャンパンゴールド配色", colors: ["#FDFCFO", "#D4AF37", "#E2E8F0", "#EEE6BB"] },
+            { id: 43, name: "深海に沈むサンゴ配色", colors: ["#E0F2FE", "#112953", "#F054A0", "#F98D3A"] },
+            { id: 44, name: "夕暮れどきのシトラス配色", colors: ["#FFF7ED", "#3E5066", "#EA580C", "#FDBA74"] },
+            { id: 45, name: "月夜のサファイア配色", colors: ["#E0F2FE", "#1B263B", "#778DA9", "#C3BE6F"] },
+            { id: 46, name: "焼きたてカヌレのビター配色", colors: ["#F7EFE2", "#4A3732", "#8C6A5E", "#D7C087"] },
+            { id: 47, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#2B2D42", "#3A6073", "#E94E3A"] },
+            { id: 48, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#8CB19B", "#E4D6A5"] },
+            { id: 49, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#78350F", "#D97706", "#63AC86"] },
+            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#012C70", "#0259DE", "#FF6647"] },
+            { id: 51, name: "曇り空のまどろみ配色", colors: ["#F1F5F9", "#1E293B", "#64748B", "#94A3B8"] },
+            { id: 52, name: "深夜の目醒め配色", colors: ["#ECEFF1", "#0B1838", "#4E4177", "#3A609F"] },
+            { id: 53, name: "キャンディ・スプリング配色", colors: ["#F9F5F3", "#F0C3D4", "#FFE38F", "#8AD7F7"] },
+            { id: 54, name: "クールラベンダー配色", colors: ["#ECEED8", "#40386B", "#7C72BB", "#BDC59C"] },
+            { id: 55, name: "不思議なメルヘン配色", colors: ["#FAF5FF", "#581C87", "#A48AC2", "#5FADAC"] },
+            { id: 56, name: "春を待つ窓辺配色", colors: ["#FDF2F8", "#831843", "#F472B6", "#FBCFE8"] },
+            { id: 57, name: "ささやく深海ブルー配色", colors: ["#E0F2FE", "#123747", "#196F8A", "#079FBF"] },
+            { id: 58, name: "キャンディポップ配色", colors: ["#FFFBEB", "#1D2A5E", "#D8762F", "#F6DBB7"] },
+            { id: 59, name: "メルティ・ガール配色", colors: ["#FFF1F2", "#881337", "#CB4447", "#FDECAC"] },
+            { id: 60, name: "夜風とラベンダー配色", colors: ["#F3E8FF", "#261734", "#213661", "#B8A5D2"] },
+            { id: 61, name: "琥珀糖のかけら配色", colors: ["#FEF3C7", "#78350F", "#D97706", "#8AD9D5"] },
+            { id: 62, name: "冬凪のグラデーション配色", colors: ["#F8FAFC", "#121417", "#64748B", "#38BDF8"] },
+            { id: 63, name: "深呼吸ブルー配色", colors: ["#F0F9FF", "#151920", "#197084", "#38BDF8"] },
+            { id: 64, name: "砂漠のターコイズ配色", colors: ["#FEF3C7", "#512211", "#BA7353", "#0D9488"] },
+            { id: 65, name: "好好♡チャイナポップ配色", colors: ["#FFF1F2", "#022013", "#084328", "#E8755A"] },
+            { id: 66, name: "北欧スケッチ配色", colors: ["#F8FAFC", "#0F172A", "#475569", "#38BDF8"] },
+            { id: 67, name: "波音ノート配色", colors: ["#F0F9FF", "#153344", "#2C5E79", "#38BDF8"] },
+            { id: 68, name: "浴衣リボンと金魚掬い配色", colors: ["#FFF1F2", "#881337", "#FBCFE8", "#EF4444"] },
+            { id: 69, name: "魔法の国の白薔薇の園配色", colors: ["#FDF5E6", "#5A3D41", "#8C7882", "#C3A650"] },
+            { id: 70, name: "ナイトブラー配色", colors: ["#F1F5F9", "#0F172A", "#64748B", "#8B5CF6"] },
+            { id: 71, name: "ノスタルジックトーキョー配色", colors: ["#F8FAFC", "#121212", "#475569", "#FF0055"] },
+            { id: 72, name: "NOGUCHIパープル配色", colors: ["#C2B4FF", "#828EA6", "#4A3F65", "#261A4FF"] },
             { id: 73, name: "NOGUCHIベージュ配色", colors: ["#EDE8E3", "#514935", "#907E6E", "#3A3424"] },
             { id: 74, name: "ブルー・ブルー配色", colors: ["#296AA2", "#405986", "#252F66", "#1A1E4B"] },
             { id: 75, name: "スモーキーローズ配色", colors: ["#9A8276", "#5A5557", "#B59E92", "#3F3C3D"] },
@@ -1126,7 +1125,7 @@
 
         // 4色の中から最も「濃い（明るさが低い）」色を軸色として選定する関数
         function getDarkestColor(colors) {
-            let darkest = colors[0] || '#009488';
+            let darkest = colors[0] || '#4DB6AC';
             let minBrightness = 999;
             colors.forEach(hex => {
                 const rgb = hexToRgb(hex);
@@ -1145,7 +1144,6 @@
             const baseRgb = hexToRgb(baseHex);
             let colors = [];
             for (let i = 0; i < count; i++) {
-                // 項目ごとに少しずつトーン（明度・彩度）を変化させてグラデーションを作成
                 const factor = 1 + (i * 0.12);
                 const r = Math.min(255, Math.floor(baseRgb.r * factor + (i * 10)));
                 const g = Math.min(255, Math.floor(baseRgb.g * factor + (i * 10)));
@@ -1161,7 +1159,7 @@
 
             // アプリ全体のカラフルな配色構成（4色をダイナミックに配置）
             const c1 = colors[0] || '#E0F2F1'; // ベース背景トーン
-            const c2 = colors[1] || '#009488'; // プライマリ・ボタン
+            const c2 = colors[1] || '#4DB6AC'; // プライマリ・ボタン
             const c3 = colors[2] || '#004D40'; // ディープテキスト・強調
             const c4 = colors[3] || '#FFBACD'; // アクセント
 
@@ -2070,7 +2068,7 @@
         function renderCharts() {
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const colors = themeObj.colors;
-            const primaryHex = colors[1] || '#009488';
+            const primaryHex = colors[1] || '#4DB6AC';
             const accentHex = colors[3] || '#FFBACD';
 
             const chart1El = document.getElementById('cashFlowChart');
