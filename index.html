@@ -109,6 +109,32 @@
             .splash-landscape-only { display: block !important; }
         }
 
+        /* 🌸 お出迎えアニメーション（ぽよんと弾む演出） */
+        @keyframes welcomeBounce {
+            0% {
+                transform: scale(0.92);
+                opacity: 0;
+            }
+            30% {
+                transform: scale(1.03);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.98);
+            }
+            70% {
+                transform: scale(1.01);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .welcome-animated-img {
+            animation: welcomeBounce 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            will-change: transform, opacity;
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
@@ -119,12 +145,12 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時表紙 (スプラッシュ画面) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#e5eff5] transition-opacity duration-500 pointer-events-auto select-none">
+    <!-- ================= 起動時表紙 (スプラッシュ画面: お出迎えアニメーション付き) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#e5eff5] transition-opacity duration-500 pointer-events-auto select-none overflow-hidden">
         <!-- 縦持ち用画像 (IMG_2466.png) -->
-        <img src="./IMG_2466.png" class="splash-portrait-only w-full h-full object-cover" alt="表紙 (縦)">
+        <img src="./IMG_2466.png" class="splash-portrait-only welcome-animated-img w-full h-full object-cover" alt="表紙 (縦)">
         <!-- 横持ち用画像 (IMG_2465.png) -->
-        <img src="./IMG_2465.png" class="splash-landscape-only w-full h-full object-cover" alt="表紙 (横)">
+        <img src="./IMG_2465.png" class="splash-landscape-only welcome-animated-img w-full h-full object-cover" alt="表紙 (横)">
     </div>
 
     <!-- Header / Top Bar -->
@@ -589,15 +615,13 @@
 
         // 日替わりランダムテーマ決定 ＆ 手動変更保持ロジック
         function setupDailyRandomTheme() {
-            const todayStr = new Date().toISOString().split('T')[0]; // 例: "2026-10-21"
+            const todayStr = new Date().toISOString().split('T')[0];
             const savedDate = localStorage.getItem('theme_selected_date');
             const savedThemeId = localStorage.getItem('selected_theme_id');
 
             if (savedDate === todayStr && savedThemeId) {
-                // 今日すでに手動で変更または決定されたテーマがあればそれを継続使用
                 currentThemeId = Number(savedThemeId);
             } else {
-                // 日付が変わったら、日付の文字列を元にした決定論的ハッシュ値で日替わりランダムテーマを自動選出
                 let hash = 0;
                 for (let i = 0; i < todayStr.length; i++) {
                     hash = (hash << 5) - hash + todayStr.charCodeAt(i);
@@ -606,7 +630,6 @@
                 const index = Math.abs(hash) % colorPickupDatabase.length;
                 currentThemeId = colorPickupDatabase[index].id;
                 
-                // 今日のランダムテーマとして記録
                 localStorage.setItem('selected_theme_id', currentThemeId);
                 localStorage.setItem('theme_selected_date', todayStr);
             }
@@ -1162,7 +1185,7 @@
             currentThemeId = Number(themeId);
             const todayStr = new Date().toISOString().split('T')[0];
             localStorage.setItem('selected_theme_id', currentThemeId);
-            localStorage.setItem('theme_selected_date', todayStr); // 手動変更したら今日の日付で固定保存
+            localStorage.setItem('theme_selected_date', todayStr);
             updateSelectedThemeDisplay();
             renderCustomThemeDropdown();
             applySavedPaletteToApp();
@@ -2258,7 +2281,7 @@
                 let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
                 let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
                 let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
-                let totalBonus2People = bonusPerPerson * 2; // 2人分のボーナス合計
+                let totalBonus2People = bonusPerPerson * 2;
 
                 let monthlyDataMap = {};
                 if (appData.monthly) {
@@ -2314,7 +2337,6 @@
                         stepSaving = monthlyDataMap[ymKey].saving;
                     } else {
                         stepSaving = defaultMonthlySave;
-                        // 未確定月において、6月または12月の場合はボーナス2人分を自動加算
                         if ((m === 6 || m === 12) && totalBonus2People > 0) {
                             stepSaving += totalBonus2People;
                         }
@@ -2443,7 +2465,7 @@
         window.onload = function() { 
             loadStorage();
 
-            // 起動から 1.5秒間 表紙を表示し、その後テンポよくフェードアウトして削除
+            // 起動時のアニメーション（1.5秒間弾んでお出迎えしてから、スムーズにフェードアウト）
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
