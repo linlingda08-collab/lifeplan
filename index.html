@@ -120,7 +120,7 @@
 <body class="min-h-screen flex flex-col antialiased">
 
     <!-- ================= 起動時表紙 (スプラッシュ画面) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#e5eff5] transition-opacity duration-700 pointer-events-auto select-none">
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#e5eff5] transition-opacity duration-500 pointer-events-auto select-none">
         <!-- 縦持ち用画像 (IMG_2466.png) -->
         <img src="./IMG_2466.png" class="splash-portrait-only w-full h-full object-cover" alt="表紙 (縦)">
         <!-- 横持ち用画像 (IMG_2465.png) -->
@@ -334,12 +334,23 @@
             <div class="theme-card p-5 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3">
                     <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">銀行口座の管理 ＆ 将来予測設定</h2>
-                    <p class="text-xs opacity-80 mt-0.5 font-medium">口座の管理と、ホームグラフの未来予測に使う「将来の標準毎月貯金額」を設定できます。</p>
+                    <p class="text-xs opacity-80 mt-0.5 font-medium">口座の管理と、ホームグラフの未来予測に使う設定を行えます。</p>
                 </div>
 
-                <div class="theme-card-sm p-4 rounded-2xl space-y-2 border shadow-sm">
-                    <label class="block font-bold text-xs opacity-90">📈 将来の標準毎月貯金額 (円) <span class="text-[10px] opacity-80">(※未確定月のグラフ推移計算に使用)</span></label>
-                    <input type="text" id="sim-default-monthly-save" value="50,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationDefaultSave();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                <!-- 将来の標準毎月貯金額 & ボーナス設定 -->
+                <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
+                    <h3 class="font-bold text-xs theme-primary-text">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1">標準毎月貯金額 (円)</label>
+                            <input type="text" id="sim-default-monthly-save" value="50,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1">🎁 ボーナス額 (年2回 / 1人あたり)</label>
+                            <input type="text" id="sim-bonus-per-person" value="0" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                            <p class="text-[9px] opacity-75 mt-1">※毎年6月・12月に「1人分×2人＝2人分」が自動加算されます</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
@@ -360,7 +371,7 @@
                 <div class="border-b border-current/15 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">カラーテーマ設定</h2>
-                        <p class="text-xs opacity-80 mt-0.5 font-medium">お好みのカラーテーマを選択して、アプリ全体の雰囲気を変更できます。</p>
+                        <p class="text-xs opacity-80 mt-0.5 font-medium">毎日ランダムでテーマが変わります。手動で変更するとその日は固定表示されます。</p>
                     </div>
                 </div>
 
@@ -574,9 +585,31 @@
             { id: 111, name: "オーシャンブリーズ配色", colors: ["#ECFEFF", "#CFFAFE", "#22D3EE", "#0891B2"] }
         ];
 
-        let currentThemeId = Number(localStorage.getItem('selected_theme_id')) || 1;
-        if (!colorPickupDatabase.some(t => t.id === currentThemeId)) {
-            currentThemeId = colorPickupDatabase[0].id;
+        let currentThemeId = 1;
+
+        // 日替わりランダムテーマ決定 ＆ 手動変更保持ロジック
+        function setupDailyRandomTheme() {
+            const todayStr = new Date().toISOString().split('T')[0]; // 例: "2026-10-21"
+            const savedDate = localStorage.getItem('theme_selected_date');
+            const savedThemeId = localStorage.getItem('selected_theme_id');
+
+            if (savedDate === todayStr && savedThemeId) {
+                // 今日すでに手動で変更または決定されたテーマがあればそれを継続使用
+                currentThemeId = Number(savedThemeId);
+            } else {
+                // 日付が変わったら、日付の文字列を元にした決定論的ハッシュ値で日替わりランダムテーマを自動選出
+                let hash = 0;
+                for (let i = 0; i < todayStr.length; i++) {
+                    hash = (hash << 5) - hash + todayStr.charCodeAt(i);
+                    hash |= 0;
+                }
+                const index = Math.abs(hash) % colorPickupDatabase.length;
+                currentThemeId = colorPickupDatabase[index].id;
+                
+                // 今日のランダムテーマとして記録
+                localStorage.setItem('selected_theme_id', currentThemeId);
+                localStorage.setItem('theme_selected_date', todayStr);
+            }
         }
 
         function parseNum(val) {
@@ -719,7 +752,8 @@
                 heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
-                defaultMonthlySave: 50000
+                defaultMonthlySave: 50000,
+                bonusPerPerson: 0
             },
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
@@ -1126,7 +1160,9 @@
 
         function selectColorTheme(themeId) {
             currentThemeId = Number(themeId);
+            const todayStr = new Date().toISOString().split('T')[0];
             localStorage.setItem('selected_theme_id', currentThemeId);
+            localStorage.setItem('theme_selected_date', todayStr); // 手動変更したら今日の日付で固定保存
             updateSelectedThemeDisplay();
             renderCustomThemeDropdown();
             applySavedPaletteToApp();
@@ -1342,6 +1378,7 @@
             sortEventsChronologically();
             updateTodayDateBadge();
             
+            setupDailyRandomTheme();
             initColorPickupUI();
 
             applyHeroBackgroundUI();
@@ -1370,15 +1407,25 @@
         function syncSettingsToUI() {
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
             if (defaultSaveEl) defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave || 50000);
+
+            const bonusEl = document.getElementById('sim-bonus-per-person');
+            if (bonusEl) bonusEl.value = formatNum(appData.settings.bonusPerPerson || 0);
         }
 
-        function saveSimulationDefaultSave() {
+        function saveSimulationSettings() {
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
             if (defaultSaveEl) {
                 appData.settings.defaultMonthlySave = parseNum(defaultSaveEl.value) || 50000;
                 defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave);
-                saveStorage();
             }
+
+            const bonusEl = document.getElementById('sim-bonus-per-person');
+            if (bonusEl) {
+                appData.settings.bonusPerPerson = parseNum(bonusEl.value) || 0;
+                bonusEl.value = formatNum(appData.settings.bonusPerPerson);
+            }
+
+            saveStorage();
         }
 
         function renderBankAccountsManager() {
@@ -2210,6 +2257,8 @@
                 
                 let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
                 let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
+                let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
+                let totalBonus2People = bonusPerPerson * 2; // 2人分のボーナス合計
 
                 let monthlyDataMap = {};
                 if (appData.monthly) {
@@ -2265,6 +2314,10 @@
                         stepSaving = monthlyDataMap[ymKey].saving;
                     } else {
                         stepSaving = defaultMonthlySave;
+                        // 未確定月において、6月または12月の場合はボーナス2人分を自動加算
+                        if ((m === 6 || m === 12) && totalBonus2People > 0) {
+                            stepSaving += totalBonus2People;
+                        }
                     }
 
                     let stepEvCost = eventMap[ymKey] || 0;
@@ -2390,15 +2443,15 @@
         window.onload = function() { 
             loadStorage();
 
-            // 起動から 2.5秒間 表紙を表示し、その後ふんわりフェードアウトして削除
+            // 起動から 1.5秒間 表紙を表示し、その後テンポよくフェードアウトして削除
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 if (splash) {
                     splash.style.opacity = '0';
                     splash.style.pointerEvents = 'none';
-                    setTimeout(() => { splash.remove(); }, 700);
+                    setTimeout(() => { splash.remove(); }, 500);
                 }
-            }, 2500);
+            }, 1500);
         };
     </script>
 </body>
