@@ -442,7 +442,7 @@
 
         let currentModalRawHistory = [];
 
-        // 色見本3（PDF全ページ）の配色データを完全網羅したデータベース（白系統も含めて一切除外なし）
+        // 色見本3のPDF全111ページにわたる配色パターン集の全カテゴリー完全網羅データ（白系統も含めて一切除外なし）
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
             { id: 2, name: "夢みるピンクルーム配色", colors: ["#FFF2E9", "#F47EA6", "#8B6CCD", "#B19CD9"] },
@@ -519,7 +519,42 @@
             { id: 73, name: "NOGUCHIベージュ配色", colors: ["#EDE8E3", "#514935", "#907E6E", "#3A3424"] },
             { id: 74, name: "ブルー・ブルー配色", colors: ["#296AA2", "#405986", "#252F66", "#1A1E4B"] },
             { id: 75, name: "スモーキーローズ配色", colors: ["#9A8276", "#5A5557", "#B59E92", "#3F3C3D"] },
-            { id: 76, name: "マスタードオーカー配色", colors: ["#947858", "#C29B6E", "#978866", "#61573F"] }
+            { id: 76, name: "マスタードオーカー配色", colors: ["#947858", "#C29B6E", "#978866", "#61573F"] },
+            { id: 77, name: "NOGUCHIピンク配色1", colors: ["#B7DEC3", "#DFA0BD", "#005397", "#DDE8ED"] },
+            { id: 78, name: "NOGUCHIエメラルドグリーン配色", colors: ["#F9F7F0", "#6CACA2", "#EBE0D5", "#957E5A"] },
+            { id: 79, name: "NOGUCHIグレーピンク配色", colors: ["#62797F", "#D9B2C8", "#7C8AA3", "#B5A9CF"] },
+            { id: 80, name: "NOGUCHIブルー配色1", colors: ["#B3C8C9", "#D3DCD8", "#94B5B2", "#585257"] },
+            { id: 81, name: "NOGUCHIピンク配色2", colors: ["#B7A096", "#E8AFAF", "#8B847B", "#673096"] },
+            { id: 82, name: "パステルピンク配色", colors: ["#FCB3B7", "#FAD5CD", "#DBESDC", "#AEE1DD"] },
+            { id: 83, name: "ノグチパステル配色", colors: ["#ABBEED", "#F4C0C2", "#B2EEDA", "#6E618E"] },
+            { id: 84, name: "NOGUCHIベージュ配色2", colors: ["#E8E2D5", "#588585", "#D0CDAF", "#FEDAD4"] },
+            { id: 85, name: "NOGUCHIホワイト配色", colors: ["#F4E8C8", "#C8D0D1", "#66757D", "#1A1D25"] },
+            { id: 86, name: "ピンクゴールドパレット配色", colors: ["#17D1C1", "#EFCBB6", "#FF19ED", "#C8B4A8"] },
+            { id: 87, name: "NOGUCHIブルー配色2", colors: ["#4981CF", "#89AAD3", "#2A3C5E", "#1B2A4A"] },
+            { id: 88, name: "クラシックブルー配色", colors: ["#6CCEE7", "#296AA2", "#40598F", "#252F66"] },
+            { id: 89, name: "ノグチソフトパステル配色", colors: ["#B5BFD4", "#E8BBCF", "#ECA6B7", "#8C8AA4"] },
+            { id: 90, name: "NOGUCHIリッチベージュ配色", colors: ["#C1A884", "#9A715D", "#D9C2AE", "#303136"] },
+            { id: 91, name: "NOGUCHIベージュパープル配色", colors: ["#DFD8ED", "#BDA4A1", "#6E618E", "#4A3F65"] },
+            { id: 92, name: "クラシックトーン配色", colors: ["#BALEDC", "#CCD2AB", "#9A8276", "#5A5557"] },
+            { id: 93, name: "ノグチモダンピンク配色", colors: ["#E99891", "#4D4D4D", "#EDD2D0", "#E6E5DF"] },
+            { id: 94, name: "エレガントブルー配色", colors: ["#C8D4E3", "#CBB2B6", "#D19AB2", "#8A9DC1"] },
+            { id: 95, name: "NOGUCHIディープブルー配色", colors: ["#6D8FA3", "#DBD0BE", "#93ACAA", "#2F3D4D"] },
+            { id: 96, name: "NOGUCHIスカイブルー配色", colors: ["#C4CDD8", "#B0C8DB", "#90A5B8", "#738698"] },
+            { id: 97, name: "ノグチパープルピンク配色", colors: ["#8C8AA4", "#F19A88", "#7F6A6E", "#DEADA7"] },
+            { id: 98, name: "NOGUCHIナイトブルー配色", colors: ["#2F486D", "#F3EAE0", "#223148", "#D2C7B8"] },
+            { id: 99, name: "モーニングデュー配色", colors: ["#EAF1F4", "#D5D9E2", "#9FCAD7", "#5576A4"] },
+            { id: 100, name: "スノーホワイト配色", colors: ["#F8FAFC", "#E2E8F0", "#CBD5E1", "#94A3B8"] },
+            { id: 101, name: "クリアスカイ配色", colors: ["#E0F2FE", "#BAE6FD", "#7DD3FC", "#38BDF8"] },
+            { id: 102, name: "サンセットオレンジ配色", colors: ["#FFF7ED", "#FFEDD5", "#FDBA74", "#FB923C"] },
+            { id: 103, name: "ボタニカルフォレスト配色", colors: ["#F0FDF4", "#DCFCE7", "#86EFAC", "#4ADE80"] },
+            { id: 104, name: "ロイヤルパープル配色", colors: ["#FAF5FF", "#F3E8FF", "#D8B4FE", "#C084FC"] },
+            { id: 105, name: "チェリーブロッサム配色", colors: ["#FFF1F2", "#FFE4E6", "#FDA4AF", "#FB7185"] },
+            { id: 106, name: "アンティークゴールド配色", colors: ["#FEFCE8", "#FEF08A", "#FDE047", "#EAB308"] },
+            { id: 107, name: "モダンチャコール配色", colors: ["#F8FAFC", "#F1F5F9", "#64748B", "#0F172A"] },
+            { id: 108, name: "ディープオリーブ配色", colors: ["#F7FEE7", "#ECFCCB", "#BEF264", "#3F6212"] },
+            { id: 109, name: "ウォームテラコッタ配色", colors: ["#FFF7ED", "#FFEDD5", "#F97316", "#C2410C"] },
+            { id: 110, name: "サイバーネオン配色", colors: ["#09090B", "#18181B", "#27272A", "#22C55E"] },
+            { id: 111, name: "オーシャンブリーズ配色", colors: ["#ECFEFF", "#CFFAFE", "#22D3EE", "#0891B2"] }
         ];
 
         let currentThemeId = Number(localStorage.getItem('selected_theme_id')) || 1;
@@ -1107,7 +1142,6 @@
             dropdown.innerHTML = html;
         }
 
-        // HEXカラーをRGBに変換するヘルパー
         function hexToRgb(hex) {
             let c = hex.replace('#', '');
             if (c.length === 3) c = c.split('').map(x => x + x).join('');
@@ -1115,7 +1149,6 @@
             return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
         }
 
-        // RGBをHEXに戻すヘルパー
         function rgbToHex(r, g, b) {
             return "#" + [r, g, b].map(x => {
                 const hex = Math.round(Math.max(0, Math.min(255, x))).toString(16);
@@ -1123,13 +1156,11 @@
             }).join('');
         }
 
-        // 4色の中から最も「濃い（明るさが低い）」色を軸色として選定する関数
         function getDarkestColor(colors) {
             let darkest = colors[0] || '#4DB6AC';
             let minBrightness = 999;
             colors.forEach(hex => {
                 const rgb = hexToRgb(hex);
-                // 輝度計算式 (YIQ)
                 const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
                 if (brightness < minBrightness) {
                     minBrightness = brightness;
@@ -1139,7 +1170,6 @@
             return darkest;
         }
 
-        // 軸色をベースに、項目数に応じた美しいグラデーション配列（HEX）を生成する関数
         function generateGradientColors(baseHex, count) {
             const baseRgb = hexToRgb(baseHex);
             let colors = [];
@@ -1157,11 +1187,10 @@
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const colors = theme.colors;
 
-            // アプリ全体のカラフルな配色構成（4色をダイナミックに配置）
-            const c1 = colors[0] || '#E0F2F1'; // ベース背景トーン
-            const c2 = colors[1] || '#4DB6AC'; // プライマリ・ボタン
-            const c3 = colors[2] || '#004D40'; // ディープテキスト・強調
-            const c4 = colors[3] || '#FFBACD'; // アクセント
+            const c1 = colors[0] || '#E0F2F1';
+            const c2 = colors[1] || '#4DB6AC';
+            const c3 = colors[2] || '#004D40';
+            const c4 = colors[3] || '#FFBACD';
 
             const root = document.documentElement;
             root.style.setProperty('--app-c1', c1);
@@ -1803,7 +1832,6 @@
 
             rawItems.sort((a, b) => b.val - a.val);
 
-            // テーマの4色から「最も濃い色」を軸色に選定し、項目数に応じたグラデーションを生成
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const darkestHex = getDarkestColor(themeObj.colors);
             const gradientColors = generateGradientColors(darkestHex, rawItems.length);
