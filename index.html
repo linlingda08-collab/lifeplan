@@ -109,16 +109,16 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (背景完全同化・境界完全消滅版) ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background-color: #f1f1f1;">
+    <!-- ================= 起動時オープニング動画 (背景完全白統一・境界線完全消滅版) ================= -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background-color: #ffffff;">
         <!-- メイン動画：中央配置 -->
-        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline style="background-color: #f1f1f1;"></video>
+        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline style="background-color: #ffffff;"></video>
 
-        <!-- 上部グラデーションフェード -->
-        <div class="absolute top-0 left-0 right-0 h-[28%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #f1f1f1 0%, rgba(241,241,241,0.95) 45%, rgba(241,241,241,0.6) 75%, transparent 100%);"></div>
+        <!-- 上部グラデーションフェード（純白に統一） -->
+        <div class="absolute top-0 left-0 right-0 h-[25%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.95) 50%, transparent 100%);"></div>
 
-        <!-- 下部グラデーションフェード -->
-        <div class="absolute bottom-0 left-0 right-0 h-[38%] z-20 pointer-events-none" style="background: linear-gradient(to top, #f1f1f1 0%, rgba(241,241,241,0.98) 40%, rgba(241,241,241,0.7) 70%, transparent 100%);"></div>
+        <!-- 下部グラデーションフェード（純白に統一） -->
+        <div class="absolute bottom-0 left-0 right-0 h-[30%] z-20 pointer-events-none" style="background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.98) 40%, transparent 100%);"></div>
     </div>
 
     <!-- Header / Top Bar -->
