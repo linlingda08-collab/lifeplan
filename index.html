@@ -193,8 +193,11 @@
                         <!-- JSで動的挿入 -->
                     </div>
                 </div>
-                <div class="flex items-center gap-4 text-[11px] font-bold px-1">
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full theme-primary-bg inline-block shadow-sm"></span> 現金残高</span>
+                <div class="flex flex-wrap items-center gap-4 text-[11px] font-bold px-1">
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-1.5 theme-primary-bg inline-block rounded-xs shadow-sm"></span> 実績</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0 border-t-2 border-dashed border-gray-600 inline-block"></span> 口座推定値 (目標)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500/30 inline-block rounded-xs border border-emerald-500/50"></span> 上振れ (剰余)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-rose-500/30 inline-block rounded-xs border border-rose-500/50"></span> 下振れ (赤字)</span>
                     <span class="flex items-center gap-1.5"><span class="w-3 h-3 theme-accent-bg rounded-xs inline-block border shadow-sm"></span> 予定費用</span>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2 pt-2">
@@ -277,7 +280,7 @@
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/15 gap-3">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">今後の予定</h2>
-                        <p class="text-xs opacity-80 mt-0.5 font-medium">登録したイベントの時期と費用は、ホームの折れ線グラフおよび残高に自動連動します。</p>
+                        <p class="text-xs opacity-80 mt-0.5 font-medium">登録したイベントの時期と費用は、ホームの折れ線グラフおよび貯金に自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto relative z-40">
                         <button type="button" onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95">
@@ -1680,7 +1683,7 @@
                         <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-1.5 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">今月の貯金(共通)</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">今月の貯金</p>
                         <p class="text-xs sm:text-base font-extrabold theme-deep-text mt-1" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
@@ -2100,7 +2103,6 @@
 
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
 
-            // 今月の各数値（実績の場合は入力値、想定の場合はシミュレーション推定値を適用）
             const rInc = isActual ? parseNum(currentMonthData.rIncome) : 210000;
             const hInc = isActual ? parseNum(currentMonthData.hIncome) : 170000;
             const bonus = isActual ? parseNum(currentMonthData.bonus) : 0;
@@ -2111,7 +2113,7 @@
             if (isActual && currentMonthData && currentMonthData.expenses) {
                 for (let v of Object.values(currentMonthData.expenses)) exp += parseNum(v);
             } else {
-                exp = 304500; // 想定の標準生活費
+                exp = 304500;
             }
 
             const nisaAmt = isActual && currentMonthData ? parseNum(currentMonthData.nisa) : 20000;
@@ -2121,14 +2123,12 @@
             if (gridContainer) {
                 let html = '';
                 
-                // 登録銀行口座カード
                 appData.bankAccounts.forEach((acc) => {
                     const accName = typeof acc === 'string' ? acc : acc.name;
                     let currentMonthAlloc = 0;
                     if (isActual && currentMonthData && currentMonthData.bankAllocations && currentMonthData.bankAllocations[accName] !== undefined) {
                         currentMonthAlloc = parseNum(currentMonthData.bankAllocations[accName]);
                     } else {
-                        // 想定の場合は均等または推定割り当て
                         currentMonthAlloc = Math.floor(defaultMonthlySave / appData.bankAccounts.length);
                     }
                     
@@ -2154,7 +2154,6 @@
                     `;
                 });
 
-                // ゲストA貯金カード
                 const currentMonthRSaving = isActual && currentMonthData ? parseNum(currentMonthData.rSaving) : 0;
                 const allRHistory = getAllRSavingHistoryDetails();
                 const jsonRHistory = JSON.stringify(allRHistory).replace(/"/g, '&quot;');
@@ -2177,7 +2176,6 @@
                     </div>
                 `;
 
-                // 生活用(三井住友銀行)カード
                 const currentMonthLifeSaving = isActual && currentMonthData ? parseNum(currentMonthData.lifeSaving) : 0;
                 const allLifeHistory = getAllLifeSavingHistoryDetails();
                 const jsonLifeHistory = JSON.stringify(allLifeHistory).replace(/"/g, '&quot;');
@@ -2202,7 +2200,6 @@
 
                 const nisaDuration = calculateNisaDurationText();
 
-                // 今月の手取りカード
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
                         <div>
@@ -2251,7 +2248,7 @@
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl shadow-lg">
-                        <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金(共通) (${currentYM})</p>
+                        <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金 (${currentYM})</p>
                         <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                     </div>
                 `;
@@ -2268,9 +2265,12 @@
             const chart1El = document.getElementById('cashFlowChart');
             if (chart1El) {
                 if (cashChart) cashChart.destroy();
-                let labels = [], balanceData = [], eventBarData = [];
+                let labels = [], actualBalanceData = [], estimatedBalanceData = [], eventBarData = [];
                 
-                let runningBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
+                let initialBal = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
+                let runningActual = initialBal;
+                let runningEstimated = initialBal;
+
                 let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
                 let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
                 let totalBonus2People = bonusPerPerson * 2;
@@ -2278,17 +2278,14 @@
                 let monthlyDataMap = {};
                 if (appData.monthly) {
                     appData.monthly.forEach(m => {
-                        const mAlloc = m.bankAllocations ? parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']) : 0;
                         const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
                         let totalExp = 0;
                         if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
                         const surplus = totalInc - totalExp - parseNum(m.nisa);
 
                         monthlyDataMap[m.month] = { 
-                            saving: m.type === '実績' ? mAlloc : defaultMonthlySave, 
-                            type: m.type,
-                            totalInc: totalInc,
-                            surplus: m.type === '実績' ? surplus : defaultMonthlySave
+                            saving: surplus, 
+                            type: m.type
                         };
                     });
                 }
@@ -2308,7 +2305,7 @@
 
                 let curY = 2026;
                 let curM = 11;
-                for (let i = 0; i < 120; i++) {
+                for (let i = 0; i < 60; i++) {
                     curM += 1;
                     if (curM > 12) { curM = 1; curY++; }
                     const mmStr = String(curM).padStart(2, '0');
@@ -2317,80 +2314,59 @@
                 }
 
                 let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
-                let todayIndex = 0;
+                let lastActualIndex = -1;
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
-                    let label = '';
                     const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
-                    if (isTargetLabel) {
-                        label = `${y}年${m}月`;
-                    } else {
-                        label = '';
-                    }
-
-                    labels.push(label);
-
-                    let stepSaving = 0;
-                    if (monthlyDataMap[ymKey]) {
-                        stepSaving = monthlyDataMap[ymKey].saving;
-                    } else {
-                        stepSaving = defaultMonthlySave;
-                        if ((m === 6 || m === 12) && totalBonus2People > 0) {
-                            stepSaving += totalBonus2People;
-                        }
-                    }
+                    labels.push(isTargetLabel ? `${y}年${m}月` : '');
 
                     let stepEvCost = eventMap[ymKey] || 0;
 
-                    runningBalance += stepSaving;
-                    runningBalance -= stepEvCost;
+                    // 口座推定値ラインの計算
+                    let estimatedStep = defaultMonthlySave;
+                    if ((m === 6 || m === 12) && totalBonus2People > 0) {
+                        estimatedStep += totalBonus2People;
+                    }
+                    runningEstimated += (estimatedStep - stepEvCost);
+                    estimatedBalanceData.push(runningEstimated);
 
-                    balanceData.push(runningBalance);
+                    // 実績ラインの計算（実績が設定されている月のみ加算、未確定の未来はnull）
+                    const mData = monthlyDataMap[ymKey];
+                    if (mData && mData.type === '実績') {
+                        runningActual += (mData.saving - stepEvCost);
+                        actualBalanceData.push(runningActual);
+                        lastActualIndex = idx;
+                    } else if (idx === 0 && (!mData || mData.type !== '実績')) {
+                        // 開始月で実績がない場合は初期値
+                        actualBalanceData.push(initialBal);
+                        lastActualIndex = 0;
+                    } else {
+                        actualBalanceData.push(null);
+                    }
+
                     eventBarData.push(stepEvCost);
                 });
 
-                const startYM = '2026-11';
-                const startMonthIdx = sortedYms.indexOf(startYM);
-                const currentBalanceVal = startMonthIdx >= 0 ? balanceData[startMonthIdx] : runningBalance;
-                const startMonthData = monthlyDataMap[startYM];
-                const startMonthSurplus = startMonthData ? startMonthData.surplus : defaultMonthlySave;
-                const startMonthType = startMonthData ? startMonthData.type : '想定';
+                // 最新実績月での比較情報
+                const targetIdx = lastActualIndex >= 0 ? lastActualIndex : 0;
+                const latestActualVal = actualBalanceData[targetIdx] !== null ? actualBalanceData[targetIdx] : estimatedBalanceData[targetIdx];
+                const latestEstVal = estimatedBalanceData[targetIdx];
+                const diffVal = latestActualVal - latestEstVal;
+                const diffText = diffVal >= 0 ? `＋¥${diffVal.toLocaleString()} (上振れ)` : `¥${diffVal.toLocaleString()} (赤字)`;
+                const diffColorClass = diffVal >= 0 ? 'text-emerald-600' : 'text-rose-600';
 
                 const summaryBadgeEl = document.getElementById('chart-current-summary-badge');
                 if (summaryBadgeEl) {
                     summaryBadgeEl.innerHTML = `
-                        <span class="theme-primary-text font-extrabold">📅 2026年11月 (${startMonthType}):</span>
-                        <span class="flex items-center gap-1"><span class="opacity-75">残高推移:</span> <strong class="theme-deep-text">¥${currentBalanceVal.toLocaleString()}</strong></span>
-                        <span class="flex items-center gap-1"><span class="opacity-75">今月貯金:</span> <strong class="theme-deep-text">¥${startMonthSurplus.toLocaleString()}</strong></span>
+                        <span class="theme-primary-text font-extrabold">📅 最新実績 (${sortedYms[targetIdx]}):</span>
+                        <span class="flex items-center gap-1"><span class="opacity-75">実績:</span> <strong class="theme-deep-text">¥${latestActualVal.toLocaleString()}</strong></span>
+                        <span class="flex items-center gap-1"><span class="opacity-75">目標推定:</span> <strong class="opacity-90">¥${latestEstVal.toLocaleString()}</strong></span>
+                        <span class="flex items-center gap-1"><span class="opacity-75">乖離:</span> <strong class="${diffColorClass}">${diffText}</strong></span>
                     `;
                 }
 
                 const ctx1 = chart1El.getContext('2d');
-                const areaGradient = ctx1.createLinearGradient(0, 0, 0, 300);
-                areaGradient.addColorStop(0, primaryHex + '80');
-                areaGradient.addColorStop(1, primaryHex + '05');
-
-                const todayLinePlugin = {
-                    id: 'todayLinePlugin',
-                    afterDraw: (chart) => {
-                        if (todayIndex < 0 || todayIndex >= chart.scales.x.ticks.length) return;
-                        const xMeta = chart.getDatasetMeta(0);
-                        if (!xMeta.data[todayIndex]) return;
-                        const pt = xMeta.data[todayIndex];
-                        const ctx = chart.ctx;
-                        
-                        ctx.save();
-                        ctx.beginPath();
-                        ctx.setLineDash([4, 4]);
-                        ctx.moveTo(pt.x, chart.chartArea.top);
-                        ctx.lineTo(pt.x, chart.chartArea.bottom);
-                        ctx.lineWidth = 2.5;
-                        ctx.strokeStyle = primaryHex;
-                        ctx.stroke();
-                        ctx.restore();
-                    }
-                };
 
                 cashChart = new Chart(ctx1, {
                     data: {
@@ -2398,19 +2374,32 @@
                         datasets: [
                             { 
                                 type: 'line',
-                                label: '貯金推移', 
-                                data: balanceData, 
+                                label: '実績 貯金推移', 
+                                data: actualBalanceData, 
                                 borderColor: primaryHex, 
-                                backgroundColor: areaGradient,
-                                borderWidth: 3, 
-                                fill: true, 
-                                tension: 0.2,
+                                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                                borderWidth: 3.5, 
+                                fill: { target: 1, above: 'rgba(16, 185, 129, 0.2)', below: 'rgba(244, 63, 94, 0.25)' },
+                                tension: 0.25,
                                 pointBackgroundColor: primaryHex,
                                 pointBorderColor: '#ffffff',
                                 pointBorderWidth: 2,
-                                pointRadius: 3,
+                                pointRadius: 4,
                                 pointHoverRadius: 7,
-                                yAxisID: 'y'
+                                spanGaps: false,
+                                z: 10
+                            },
+                            { 
+                                type: 'line',
+                                label: '口座推定値 (目標)', 
+                                data: estimatedBalanceData, 
+                                borderColor: '#64748B', 
+                                borderDash: [6, 4],
+                                borderWidth: 2, 
+                                fill: false, 
+                                tension: 0.25,
+                                pointRadius: 0,
+                                z: 5
                             },
                             {
                                 type: 'bar',
@@ -2422,7 +2411,8 @@
                                 borderRadius: 4,
                                 categoryPercentage: 1.0,
                                 barPercentage: 1.0,
-                                yAxisID: 'y'
+                                yAxisID: 'y',
+                                z: 1
                             }
                         ]
                     },
@@ -2457,21 +2447,21 @@
                                         const idx = context[0].dataIndex;
                                         return sortedYms[idx] ? sortedYms[idx].replace('-', '年') + '月' : '';
                                     },
-                                    label: function(context) {
-                                        if (context.dataset.type === 'line') {
-                                            return ` 貯金推移: ¥${context.raw.toLocaleString()}`;
-                                        } else {
-                                            if (context.raw > 0) {
-                                                return ` 予定費用: ¥${context.raw.toLocaleString()}`;
-                                            }
-                                            return null;
+                                    afterBody: function(context) {
+                                        const idx = context[0].dataIndex;
+                                        const actVal = actualBalanceData[idx];
+                                        const estVal = estimatedBalanceData[idx];
+                                        if (actVal !== null && actVal !== undefined) {
+                                            const diff = actVal - estVal;
+                                            const diffStr = diff >= 0 ? `＋¥${diff.toLocaleString()} (上振れ)` : `¥${diff.toLocaleString()} (赤字)`;
+                                            return [`--- 乖離分析 ---`, `口座推定値: ¥${estVal.toLocaleString()}`, `計画との差額: ${diffStr}`];
                                         }
+                                        return [`口座推定値: ¥${estVal.toLocaleString()}`];
                                     }
                                 }
                             }
                         }
-                    },
-                    plugins: [todayLinePlugin]
+                    }
                 });
             }
         }
