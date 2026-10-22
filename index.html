@@ -111,7 +111,7 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (保留中) ================= -->
+    <!-- ================= 起動時オープニング動画 ================= -->
     <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background-color: #ffffff;">
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline style="background-color: #ffffff;"></video>
         <div class="absolute top-0 left-0 right-0 h-[25%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.95) 50%, transparent 100%);"></div>
@@ -189,7 +189,6 @@
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金推移グラフ
                     </h3>
-                    <!-- 今月の折れ線グラフの実績・推移の数字を表示するインフォバッジ -->
                     <div id="chart-current-summary-badge" class="theme-card-sm px-3.5 py-2 rounded-2xl text-xs font-bold border shadow-sm flex flex-wrap items-center gap-3">
                         <!-- JSで動的挿入 -->
                     </div>
@@ -1033,43 +1032,12 @@
             return 0;
         }
 
-        function calculateAccountCurrentBalance(accName) {
-            let initial = getAccountInitialBalance(accName);
-            let allocatedSum = 0;
-            appData.monthly.forEach(m => {
-                if (m.type === '実績' && m.bankAllocations && m.bankAllocations[accName] !== undefined) {
-                    allocatedSum += parseNum(m.bankAllocations[accName]);
-                }
-            });
-            return initial + allocatedSum;
-        }
-
-        function calculateRSavingTotal() {
-            let total = 0;
-            appData.monthly.forEach(m => {
-                if (m.type === '実績') {
-                    total += parseNum(m.rSaving);
-                }
-            });
-            return total;
-        }
-
         function getAllRSavingHistoryDetails() {
             if (!appData.monthly || appData.monthly.length === 0) return [];
             return [...appData.monthly]
                 .filter(m => m.type === '実績')
                 .sort((a, b) => b.month.localeCompare(a.month))
                 .map(m => ({ month: m.month, amount: parseNum(m.rSaving) }));
-        }
-
-        function calculateLifeSavingTotal() {
-            let total = 0;
-            appData.monthly.forEach(m => {
-                if (m.type === '実績') {
-                    total += parseNum(m.lifeSaving);
-                }
-            });
-            return total;
         }
 
         function getAllLifeSavingHistoryDetails() {
@@ -1121,7 +1089,6 @@
             return `${years}年${months}ヶ月`;
         }
 
-        // ================= カラーテーマUI & スマート視認性コントラスト自動調整ロジック =================
         function initColorPickupUI() {
             renderCustomThemeDropdown();
             updateSelectedThemeDisplay();
@@ -2117,7 +2084,6 @@
             });
         }
 
-        // 試験期間・運用上の起点月（2026-11）を確実に「今月」として取得するロジック
         function getCurrentMonthData() {
             const startYM = '2026-11';
             let mData = appData.monthly.find(m => m.month === startYM);
@@ -2130,31 +2096,41 @@
         function updateCalculations() {
             const currentMonthData = getCurrentMonthData();
             const currentYM = currentMonthData ? currentMonthData.month : '2026-11';
+            const isActual = currentMonthData && currentMonthData.type === '実績';
 
-            // 今月の各収入
-            const rInc = currentMonthData ? parseNum(currentMonthData.rIncome) : 0;
-            const hInc = currentMonthData ? parseNum(currentMonthData.hIncome) : 0;
-            const bonus = currentMonthData ? parseNum(currentMonthData.bonus) : 0;
-            const extraInc = currentMonthData ? parseNum(currentMonthData.extraInc) : 0;
+            const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
+
+            // 今月の各数値（実績の場合は入力値、想定の場合はシミュレーション推定値を適用）
+            const rInc = isActual ? parseNum(currentMonthData.rIncome) : 210000;
+            const hInc = isActual ? parseNum(currentMonthData.hIncome) : 170000;
+            const bonus = isActual ? parseNum(currentMonthData.bonus) : 0;
+            const extraInc = isActual ? parseNum(currentMonthData.extraInc) : 0;
             const totalInc = rInc + hInc + bonus + extraInc;
 
             let exp = 0;
-            if (currentMonthData && currentMonthData.expenses) {
+            if (isActual && currentMonthData && currentMonthData.expenses) {
                 for (let v of Object.values(currentMonthData.expenses)) exp += parseNum(v);
+            } else {
+                exp = 304500; // 想定の標準生活費
             }
-            const nisaAmt = currentMonthData ? parseNum(currentMonthData.nisa) : 0;
-            const surplus = totalInc - exp - nisaAmt;
+
+            const nisaAmt = isActual && currentMonthData ? parseNum(currentMonthData.nisa) : 20000;
+            const surplus = isActual ? (totalInc - exp - nisaAmt) : defaultMonthlySave;
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
                 let html = '';
                 
-                // 登録銀行口座カード（今月割り振り額を表示）
+                // 登録銀行口座カード
                 appData.bankAccounts.forEach((acc) => {
                     const accName = typeof acc === 'string' ? acc : acc.name;
-                    const currentMonthAlloc = (currentMonthData && currentMonthData.bankAllocations && currentMonthData.bankAllocations[accName] !== undefined) 
-                        ? parseNum(currentMonthData.bankAllocations[accName]) 
-                        : 0;
+                    let currentMonthAlloc = 0;
+                    if (isActual && currentMonthData && currentMonthData.bankAllocations && currentMonthData.bankAllocations[accName] !== undefined) {
+                        currentMonthAlloc = parseNum(currentMonthData.bankAllocations[accName]);
+                    } else {
+                        // 想定の場合は均等または推定割り当て
+                        currentMonthAlloc = Math.floor(defaultMonthlySave / appData.bankAccounts.length);
+                    }
                     
                     const allHistory = getAllAccountSavingsHistoryDetails(accName);
                     const jsonHistory = JSON.stringify(allHistory).replace(/"/g, '&quot;');
@@ -2162,11 +2138,11 @@
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                             <div>
-                                <div class="flex items-center justify-between gap-1">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                     <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">${currentYM}分</span>
+                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${currentYM}</span>
                                 </div>
-                                <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
+                                <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1.5 sm:mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
                             </div>
                             <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                                 <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
@@ -2178,19 +2154,19 @@
                     `;
                 });
 
-                // ゲストA貯金カード（今月分）
-                const currentMonthRSaving = currentMonthData ? parseNum(currentMonthData.rSaving) : 0;
+                // ゲストA貯金カード
+                const currentMonthRSaving = isActual && currentMonthData ? parseNum(currentMonthData.rSaving) : 0;
                 const allRHistory = getAllRSavingHistoryDetails();
                 const jsonRHistory = JSON.stringify(allRHistory).replace(/"/g, '&quot;');
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between gap-1">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">${currentYM}分</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${currentYM}</span>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
@@ -2201,19 +2177,19 @@
                     </div>
                 `;
 
-                // 生活用(三井住友銀行)カード（今月分）
-                const currentMonthLifeSaving = currentMonthData ? parseNum(currentMonthData.lifeSaving) : 0;
+                // 生活用(三井住友銀行)カード
+                const currentMonthLifeSaving = isActual && currentMonthData ? parseNum(currentMonthData.lifeSaving) : 0;
                 const allLifeHistory = getAllLifeSavingHistoryDetails();
                 const jsonLifeHistory = JSON.stringify(allLifeHistory).replace(/"/g, '&quot;');
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between gap-1">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">${currentYM}分</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${currentYM}</span>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">
@@ -2266,11 +2242,11 @@
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between gap-1">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">今月のNISA積立 (${currentYM})</p>
-                                <span class="text-[9px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">期間: ${nisaDuration}</span>
+                                <span class="text-[9px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">期間: ${nisaDuration}</span>
                             </div>
-                            <p class="text-[12px] sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1.5 sm:mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
 
@@ -2303,11 +2279,16 @@
                 if (appData.monthly) {
                     appData.monthly.forEach(m => {
                         const mAlloc = m.bankAllocations ? parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']) : 0;
+                        const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
+                        let totalExp = 0;
+                        if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
+                        const surplus = totalInc - totalExp - parseNum(m.nisa);
+
                         monthlyDataMap[m.month] = { 
-                            saving: mAlloc, 
+                            saving: m.type === '実績' ? mAlloc : defaultMonthlySave, 
                             type: m.type,
-                            totalInc: parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc),
-                            surplus: (parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc)) - Object.values(m.expenses||{}).reduce((a,b)=>a+parseNum(b),0) - parseNum(m.nisa)
+                            totalInc: totalInc,
+                            surplus: m.type === '実績' ? surplus : defaultMonthlySave
                         };
                     });
                 }
@@ -2351,7 +2332,7 @@
                     labels.push(label);
 
                     let stepSaving = 0;
-                    if (monthlyDataMap[ymKey] && monthlyDataMap[ymKey].type === '実績') {
+                    if (monthlyDataMap[ymKey]) {
                         stepSaving = monthlyDataMap[ymKey].saving;
                     } else {
                         stepSaving = defaultMonthlySave;
@@ -2374,11 +2355,12 @@
                 const currentBalanceVal = startMonthIdx >= 0 ? balanceData[startMonthIdx] : runningBalance;
                 const startMonthData = monthlyDataMap[startYM];
                 const startMonthSurplus = startMonthData ? startMonthData.surplus : defaultMonthlySave;
+                const startMonthType = startMonthData ? startMonthData.type : '想定';
 
                 const summaryBadgeEl = document.getElementById('chart-current-summary-badge');
                 if (summaryBadgeEl) {
                     summaryBadgeEl.innerHTML = `
-                        <span class="theme-primary-text font-extrabold">📅 2026年11月(スタート)の推移・実績:</span>
+                        <span class="theme-primary-text font-extrabold">📅 2026年11月 (${startMonthType}):</span>
                         <span class="flex items-center gap-1"><span class="opacity-75">残高推移:</span> <strong class="theme-deep-text">¥${currentBalanceVal.toLocaleString()}</strong></span>
                         <span class="flex items-center gap-1"><span class="opacity-75">今月貯金:</span> <strong class="theme-deep-text">¥${startMonthSurplus.toLocaleString()}</strong></span>
                     `;
@@ -2494,7 +2476,6 @@
             }
         }
 
-        // アプリ起動時の初期化および動画オープニング制御
         window.onload = function() { 
             loadStorage();
 
