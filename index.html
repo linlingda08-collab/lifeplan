@@ -83,6 +83,8 @@
         .theme-badge-tone {
             background-color: var(--app-c3);
             color: #ffffff;
+            white-space: nowrap !important;
+            word-break: keep-all !important;
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -2120,7 +2122,7 @@
             const startYM = '2026-11';
             let mData = appData.monthly.find(m => m.month === startYM);
             if (!mData && appData.monthly.length > 0) {
-                mData = appData.monthly[0]; // なければ先頭
+                mData = appData.monthly[0];
             }
             return mData;
         }
@@ -2160,9 +2162,9 @@
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                             <div>
-                                <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-between gap-1">
                                     <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">${currentYM}分</span>
+                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">${currentYM}分</span>
                                 </div>
                                 <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
                             </div>
@@ -2184,9 +2186,9 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">${currentYM}分</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">${currentYM}分</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
                         </div>
@@ -2207,9 +2209,9 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">${currentYM}分</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">${currentYM}分</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
                         </div>
@@ -2224,7 +2226,7 @@
 
                 const nisaDuration = calculateNisaDurationText();
 
-                // 今月の手取りカード (手取り内訳を詳細にインライン表示)
+                // 今月の手取りカード
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
                         <div>
@@ -2264,9 +2266,9 @@
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月のNISA積立 (${currentYM})</p>
-                                <span class="text-[10px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-lg shadow-sm">期間: ${nisaDuration}</span>
+                            <div class="flex items-center justify-between gap-1">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">今月のNISA積立 (${currentYM})</p>
+                                <span class="text-[9px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">期間: ${nisaDuration}</span>
                             </div>
                             <p class="text-[12px] sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
@@ -2367,7 +2369,6 @@
                     eventBarData.push(stepEvCost);
                 });
 
-                // グラフ上部に表示する「今月（2026-11）」の実績・推移の数値を計算
                 const startYM = '2026-11';
                 const startMonthIdx = sortedYms.indexOf(startYM);
                 const currentBalanceVal = startMonthIdx >= 0 ? balanceData[startMonthIdx] : runningBalance;
