@@ -109,15 +109,10 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 (背景完全白統一・境界線完全消滅版) ================= -->
+    <!-- ================= 起動時オープニング動画 (保留中) ================= -->
     <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background-color: #ffffff;">
-        <!-- メイン動画：中央配置 -->
         <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline style="background-color: #ffffff;"></video>
-
-        <!-- 上部グラデーションフェード（純白に統一） -->
         <div class="absolute top-0 left-0 right-0 h-[25%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.95) 50%, transparent 100%);"></div>
-
-        <!-- 下部グラデーションフェード（純白に統一） -->
         <div class="absolute bottom-0 left-0 right-0 h-[30%] z-20 pointer-events-none" style="background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.98) 40%, transparent 100%);"></div>
     </div>
 
@@ -331,7 +326,6 @@
                     <p class="text-xs opacity-80 mt-0.5 font-medium">口座の管理と、ホームグラフの未来予測に使う設定を行えます。</p>
                 </div>
 
-                <!-- 将来の標準毎月貯金額 & ボーナス設定 -->
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
                     <h3 class="font-bold text-xs theme-primary-text">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -359,7 +353,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES (CUSTOM VISUAL DROPDOWN WITH THUMBNAILS) ================= -->
+        <!-- ================= TAB 6: THEMES ================= -->
         <div id="tab-theme" class="hidden space-y-6">
             <div class="theme-card p-4 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -371,19 +365,12 @@
 
                 <div class="theme-card-sm p-5 rounded-2xl border space-y-4 shadow-sm">
                     <label class="block font-bold text-xs opacity-90">🎨 カラーテーマの選択</label>
-                    
-                    <!-- カスタムビジュアルセレクター -->
                     <div class="relative">
                         <div id="custom-select-trigger" onclick="toggleThemeDropdown()" class="w-full theme-card-sm rounded-2xl px-4 py-3 text-xs font-bold border flex items-center justify-between cursor-pointer shadow-md hover:scale-[1.01] transition">
-                            <div id="selected-theme-display" class="flex items-center gap-3 truncate">
-                                <!-- JSで動的生成 -->
-                            </div>
+                            <div id="selected-theme-display" class="flex items-center gap-3 truncate"></div>
                             <span class="text-xs opacity-80 shrink-0">▼</span>
                         </div>
-                        
-                        <div id="custom-select-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 theme-card rounded-2xl border shadow-2xl max-h-72 overflow-y-auto custom-scrollbar z-50 p-1.5 space-y-1">
-                            <!-- JSで動的生成（各項目の横にカラーサムネイルを表示） -->
-                        </div>
+                        <div id="custom-select-dropdown" class="hidden absolute top-full left-0 right-0 mt-2 theme-card rounded-2xl border shadow-2xl max-h-72 overflow-y-auto custom-scrollbar z-50 p-1.5 space-y-1"></div>
                     </div>
                 </div>
             </div>
@@ -2124,142 +2111,168 @@
             });
         }
 
-        function updateCalculations() {
+        // 本日の日付に一致する月データを取得（無ければ直近の月データ）
+        function getCurrentMonthData() {
             const now = new Date();
             const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            
-            let targetMonthData = appData.monthly.find(m => m.month === currentYM);
-            if (!targetMonthData && appData.monthly.length > 0) {
-                targetMonthData = appData.monthly[appData.monthly.length - 1];
+            let mData = appData.monthly.find(m => m.month === currentYM);
+            if (!mData && appData.monthly.length > 0) {
+                mData = appData.monthly[appData.monthly.length - 1];
             }
+            return mData;
+        }
 
-            const inc = targetMonthData ? (parseNum(targetMonthData.rIncome) + parseNum(targetMonthData.hIncome) + parseNum(targetMonthData.bonus) + parseNum(targetMonthData.extraInc)) : 0;
+        function updateCalculations() {
+            const currentMonthData = getCurrentMonthData();
+            const currentYM = currentMonthData ? currentMonthData.month : `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+            // 今月の各収入
+            const rInc = currentMonthData ? parseNum(currentMonthData.rIncome) : 0;
+            const hInc = currentMonthData ? parseNum(currentMonthData.hIncome) : 0;
+            const bonus = currentMonthData ? parseNum(currentMonthData.bonus) : 0;
+            const extraInc = currentMonthData ? parseNum(currentMonthData.extraInc) : 0;
+            const totalInc = rInc + hInc + bonus + extraInc;
+
             let exp = 0;
-            if (targetMonthData && targetMonthData.expenses) {
-                for (let v of Object.values(targetMonthData.expenses)) exp += parseNum(v);
+            if (currentMonthData && currentMonthData.expenses) {
+                for (let v of Object.values(currentMonthData.expenses)) exp += parseNum(v);
             }
-            const nisaAmt = targetMonthData ? parseNum(targetMonthData.nisa) : 0;
-            const surplus = targetMonthData ? (inc - exp - nisaAmt) : 0;
+            const nisaAmt = currentMonthData ? parseNum(currentMonthData.nisa) : 0;
+            const surplus = totalInc - exp - nisaAmt;
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
                 let html = '';
-                appData.bankAccounts.forEach((acc, i) => {
+                
+                // 登録銀行口座カード（今月割り振り額を表示）
+                appData.bankAccounts.forEach((acc) => {
                     const accName = typeof acc === 'string' ? acc : acc.name;
-                    const currentBal = calculateAccountCurrentBalance(accName);
-                    const allHistory = getAllAccountSavingsHistoryDetails(accName);
+                    // 本日の日付が含まれる月(今月)の割り振り金額を取得
+                    const currentMonthAlloc = (currentMonthData && currentMonthData.bankAllocations && currentMonthData.bankAllocations[accName] !== undefined) 
+                        ? parseNum(currentMonthData.bankAllocations[accName]) 
+                        : 0;
                     
-                    let recent2Html = '';
-                    if (allHistory.length === 0) {
-                        recent2Html = `<span class="opacity-60">記録なし</span>`;
-                    } else {
-                        const recent2 = allHistory.slice(0, 2);
-                        recent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
-                    }
-
+                    const allHistory = getAllAccountSavingsHistoryDetails(accName);
                     const jsonHistory = JSON.stringify(allHistory).replace(/"/g, '&quot;');
 
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                             <div>
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 theme-primary-text">¥${currentBal.toLocaleString()}</p>
+                                <div class="flex items-center justify-between">
+                                    <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
+                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">${currentYM}分</span>
+                                </div>
+                                <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
                             </div>
                             <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                                 <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
-                                    <span>直近の内訳:</span>
-                                    <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
+                                    <span>過去の積み上げ履歴:</span>
+                                    <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴 🔍</span>
                                 </div>
-                                <div class="font-extrabold theme-deep-text truncate cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">${recent2Html}</div>
                             </div>
                         </div>
                     `;
                 });
 
-                const rSavingTotal = calculateRSavingTotal();
+                // ゲストA貯金カード（今月分）
+                const currentMonthRSaving = currentMonthData ? parseNum(currentMonthData.rSaving) : 0;
                 const allRHistory = getAllRSavingHistoryDetails();
-                
-                let rRecent2Html = '';
-                if (allRHistory.length === 0) {
-                    rRecent2Html = `<span class="opacity-60">記録なし</span>`;
-                } else {
-                    const rRecent2 = allRHistory.slice(0, 2);
-                    rRecent2Html = rRecent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
-                }
-
                 const jsonRHistory = JSON.stringify(allRHistory).replace(/"/g, '&quot;');
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${rSavingTotal.toLocaleString()}</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">${currentYM}分</span>
+                            </div>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
-                                <span>直近の内訳:</span>
-                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
+                                <span>過去の積み上げ履歴:</span>
+                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴 🔍</span>
                             </div>
-                            <div class="font-extrabold theme-primary-text truncate cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">${rRecent2Html}</div>
                         </div>
                     </div>
                 `;
 
-                const lifeSavingTotal = calculateLifeSavingTotal();
+                // 生活用(三井住友銀行)カード（今月分）
+                const currentMonthLifeSaving = currentMonthData ? parseNum(currentMonthData.lifeSaving) : 0;
                 const allLifeHistory = getAllLifeSavingHistoryDetails();
-                
-                let lifeRecent2Html = '';
-                if (allLifeHistory.length === 0) {
-                    lifeRecent2Html = `<span class="opacity-60">記録なし</span>`;
-                } else {
-                    const recent2 = allLifeHistory.slice(0, 2);
-                    lifeRecent2Html = recent2.map(d => `<span class="inline-block mr-2">${d.month.replace('-', '年')}月: ¥${d.amount.toLocaleString()}</span>`).join('');
-                }
-
                 const jsonLifeHistory = JSON.stringify(allLifeHistory).replace(/"/g, '&quot;');
 
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${lifeSavingTotal.toLocaleString()}</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">${currentYM}分</span>
+                            </div>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">
-                                <span>直近の内訳:</span>
-                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴を見る 🔍</span>
+                                <span>過去の積み上げ履歴:</span>
+                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴 🔍</span>
                             </div>
-                            <div class="font-extrabold theme-primary-text truncate cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">${lifeRecent2Html}</div>
                         </div>
                     </div>
                 `;
 
                 const nisaDuration = calculateNisaDurationText();
 
+                // 2. 今月の手取りカード (手取り内訳を詳細にインライン表示)
                 html += `
-                    <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
+                    <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の手取り (${targetMonthData ? targetMonthData.month : currentYM})</p>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${inc.toLocaleString()}</p>
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の手取り (${currentYM})</p>
+                            </div>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${totalInc.toLocaleString()}</p>
+                        </div>
+                        <!-- 手取りの内訳リスト -->
+                        <div class="pt-2 border-t border-current/15 text-[10px] space-y-1 font-bold opacity-90">
+                            <div class="flex justify-between items-center">
+                                <span>👤 ゲストA収入:</span>
+                                <span>¥${rInc.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span>👤 ゲストB収入:</span>
+                                <span>¥${hInc.toLocaleString()}</span>
+                            </div>
+                            ${bonus > 0 ? `
+                            <div class="flex justify-between items-center theme-accent-text">
+                                <span>🎁 ボーナス:</span>
+                                <span>¥${bonus.toLocaleString()}</span>
+                            </div>` : ''}
+                            ${extraInc > 0 ? `
+                            <div class="flex justify-between items-center theme-accent-text">
+                                <span>✨ 臨時収入:</span>
+                                <span>¥${extraInc.toLocaleString()}</span>
+                            </div>` : ''}
                         </div>
                     </div>
+
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の生活費 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の生活費 (${currentYM})</p>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
+
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
                             <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月のNISA積立 (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月のNISA積立 (${currentYM})</p>
                                 <span class="text-[10px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-lg shadow-sm">期間: ${nisaDuration}</span>
                             </div>
                             <p class="text-[12px] sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
+
                     <div class="theme-card p-4 sm:p-5 rounded-3xl shadow-lg">
-                        <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金(共通) (${targetMonthData ? targetMonthData.month : currentYM})</p>
+                        <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金(共通) (${currentYM})</p>
                         <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
                     </div>
                 `;
