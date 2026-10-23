@@ -111,13 +111,6 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-    <!-- ================= 起動時オープニング動画 ================= -->
-    <div id="splash-screen" class="fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-700 pointer-events-auto select-none overflow-hidden" style="background-color: #ffffff;">
-        <video id="splash-video" src="./splash.mov" class="relative z-10 w-full h-full object-contain" autoplay muted playsinline style="background-color: #ffffff;"></video>
-        <div class="absolute top-0 left-0 right-0 h-[25%] z-20 pointer-events-none" style="background: linear-gradient(to bottom, #ffffff 0%, rgba(255,255,255,0.95) 50%, transparent 100%);"></div>
-        <div class="absolute bottom-0 left-0 right-0 h-[30%] z-20 pointer-events-none" style="background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.98) 40%, transparent 100%);"></div>
-    </div>
-
     <!-- Header / Top Bar -->
     <header class="no-print theme-card sticky top-0 z-40 transition-all border-b shadow-md">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex justify-between items-center gap-2">
@@ -576,6 +569,13 @@
 
         let currentThemeId = 1;
 
+        function getCurrentActualYM() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        }
+
         function setupDailyRandomTheme() {
             const todayStr = new Date().toISOString().split('T')[0];
             const savedDate = localStorage.getItem('theme_selected_date');
@@ -811,7 +811,7 @@
             const d = now.getDate();
             const days = ['日', '月', '火', '水', '木', '金', '土'];
             const w = days[now.getDay()];
-            badge.innerText = `📅 本日の日付: ${y}年${m}月${d}日 (${w}) ※運用起点: 2026-11`;
+            badge.innerText = `📅 本日の日付: ${y}年${m}月${d}日 (${w})`;
         }
 
         function changeHeroBackground(e) {
@@ -1037,24 +1037,27 @@
 
         function getAllRSavingHistoryDetails() {
             if (!appData.monthly || appData.monthly.length === 0) return [];
+            const actualNowYM = getCurrentActualYM();
             return [...appData.monthly]
-                .filter(m => m.type === '実績')
+                .filter(m => m.type === '実績' && m.month <= actualNowYM)
                 .sort((a, b) => b.month.localeCompare(a.month))
                 .map(m => ({ month: m.month, amount: parseNum(m.rSaving) }));
         }
 
         function getAllLifeSavingHistoryDetails() {
             if (!appData.monthly || appData.monthly.length === 0) return [];
+            const actualNowYM = getCurrentActualYM();
             return [...appData.monthly]
-                .filter(m => m.type === '実績')
+                .filter(m => m.type === '実績' && m.month <= actualNowYM)
                 .sort((a, b) => b.month.localeCompare(a.month))
                 .map(m => ({ month: m.month, amount: parseNum(m.lifeSaving) }));
         }
 
         function getAllAccountSavingsHistoryDetails(accName) {
             if (!appData.monthly || appData.monthly.length === 0) return [];
+            const actualNowYM = getCurrentActualYM();
             return [...appData.monthly]
-                .filter(m => m.type === '実績')
+                .filter(m => m.type === '実績' && m.month <= actualNowYM)
                 .sort((a, b) => b.month.localeCompare(a.month))
                 .map(m => ({
                     month: m.month,
@@ -1064,10 +1067,11 @@
 
         function calculateNisaDurationText() {
             if (!appData.monthly || appData.monthly.length === 0) return '0年';
+            const actualNowYM = getCurrentActualYM();
             const sortedMonthly = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
             let startYM = null;
             for (let m of sortedMonthly) {
-                if (parseNum(m.nisa) > 0) {
+                if (m.month <= actualNowYM && parseNum(m.nisa) > 0) {
                     startYM = m.month;
                     break;
                 }
@@ -1657,7 +1661,7 @@
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">区分</label>
                         <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
-                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※グラフ・貯金残高に反映)</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※暦が到達時にホームへ反映)</option>
                         </select>
                     </div>
                     <div>
@@ -2088,8 +2092,11 @@
         }
 
         function getCurrentMonthData() {
-            const startYM = '2026-11';
-            let mData = appData.monthly.find(m => m.month === startYM);
+            const actualNowYM = getCurrentActualYM();
+            let mData = appData.monthly.find(m => m.month === actualNowYM && m.type === '実績');
+            if (!mData) {
+                mData = appData.monthly.find(m => m.month === actualNowYM);
+            }
             if (!mData && appData.monthly.length > 0) {
                 mData = appData.monthly[0];
             }
@@ -2098,8 +2105,11 @@
 
         function updateCalculations() {
             const currentMonthData = getCurrentMonthData();
-            const currentYM = currentMonthData ? currentMonthData.month : '2026-11';
-            const isActual = currentMonthData && currentMonthData.type === '実績';
+            const actualNowYM = getCurrentActualYM();
+            const currentYM = currentMonthData ? currentMonthData.month : actualNowYM;
+            
+            // 「実績」かつ「実際の暦が到達している（または過去月である）」場合のみ実績値として採用
+            const isActual = currentMonthData && currentMonthData.type === '実績' && currentMonthData.month <= actualNowYM;
 
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
 
@@ -2238,12 +2248,12 @@
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
-                        <div>
+                        <div class="space-y-1">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">今月のNISA積立 (${currentYM})</p>
-                                <span class="text-[9px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">期間: ${nisaDuration}</span>
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立 (${currentYM})</p>
+                                <span class="text-[9px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-md self-start shrink-0 whitespace-nowrap">期間: ${nisaDuration}</span>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1.5 sm:mt-1">¥${nisaAmt.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight pt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                     </div>
 
@@ -2274,6 +2284,8 @@
                 let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
                 let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
                 let totalBonus2People = bonusPerPerson * 2;
+
+                const actualNowYM = getCurrentActualYM();
 
                 let monthlyDataMap = {};
                 if (appData.monthly) {
@@ -2331,13 +2343,13 @@
                     runningEstimated += (estimatedStep - stepEvCost);
                     estimatedBalanceData.push(runningEstimated);
 
-                    // 実績ラインの計算（実績が設定されている月のみ加算、未確定の未来はnull）
+                    // 実績ラインの計算（「実績」かつ「実際の暦がその月に到達している」場合のみ追加）
                     const mData = monthlyDataMap[ymKey];
-                    if (mData && mData.type === '実績') {
+                    if (mData && mData.type === '実績' && ymKey <= actualNowYM) {
                         runningActual += (mData.saving - stepEvCost);
                         actualBalanceData.push(runningActual);
                         lastActualIndex = idx;
-                    } else if (idx === 0 && (!mData || mData.type !== '実績')) {
+                    } else if (idx === 0 && ymKey <= actualNowYM) {
                         // 開始月で実績がない場合は初期値
                         actualBalanceData.push(initialBal);
                         lastActualIndex = 0;
@@ -2468,34 +2480,6 @@
 
         window.onload = function() { 
             loadStorage();
-
-            const video = document.getElementById('splash-video');
-            const splash = document.getElementById('splash-screen');
-
-            function dismissSplash() {
-                if (splash && splash.style.opacity !== '0') {
-                    splash.style.opacity = '0';
-                    splash.style.pointerEvents = 'none';
-                    setTimeout(() => { splash.remove(); }, 700);
-                }
-            }
-
-            if (video) {
-                video.onended = function() {
-                    dismissSplash();
-                };
-
-                setTimeout(() => {
-                    dismissSplash();
-                }, 3500);
-
-                video.play().catch(e => {
-                    console.log("自動再生ブロック等:", e);
-                    setTimeout(dismissSplash, 1500);
-                });
-            } else {
-                dismissSplash();
-            }
         };
     </script>
 </html>
