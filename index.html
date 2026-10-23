@@ -565,7 +565,6 @@
             { id: 109, name: "ウォームテラコッタ配色", colors: ["#FFF7ED", "#FFEDD5", "#F97316", "#C2410C"] },
             { id: 110, name: "サイバーネオン配色", colors: ["#09090B", "#18181B", "#27272A", "#22C55E"] },
             { id: 111, name: "オーシャンブリーズ配色", colors: ["#ECFEFF", "#CFFAFE", "#22D3EE", "#0891B2"] },
-            // 色見本4 追加パレット群
             { id: 112, name: "陽だまりの影", colors: ["#22160d", "#a34000", "#9aa740", "#fae9a7"] },
             { id: 113, name: "街色のワルツ", colors: ["#604d51", "#6294a1", "#d2a590", "#9ee3f2"] },
             { id: 114, name: "翠の奥行き", colors: ["#010656", "#014089", "#5eb6ca", "#b7d3c4"] },
@@ -696,6 +695,26 @@
                 localStorage.setItem('selected_theme_id', currentThemeId);
                 localStorage.setItem('theme_selected_date', todayStr);
             }
+
+            // --- 背景パターンも開くたび（または日替わりで）ランダムに決定 ---
+            setupDailyBackgroundPattern(todayStr);
+        }
+
+        function setupDailyBackgroundPattern(todayStr) {
+            const savedPatternDate = localStorage.getItem('bg_pattern_date');
+            const savedPatternIndex = localStorage.getItem('bg_pattern_index');
+
+            let patternIndex = 0;
+            if (savedPatternDate === todayStr && savedPatternIndex !== null) {
+                patternIndex = Number(savedPatternIndex);
+            } else {
+                // 3つのパターン（0: グラデーション, 1: 方眼グリッド, 2: ドット方眼）からランダム選択
+                patternIndex = Math.floor(Math.random() * 3);
+                localStorage.setItem('bg_pattern_index', patternIndex);
+                localStorage.setItem('bg_pattern_date', todayStr);
+            }
+
+            window.currentBgPatternIndex = patternIndex;
         }
 
         function parseNum(val) {
@@ -1351,6 +1370,24 @@
             root.style.setProperty('--app-c4', c4);
             root.style.setProperty('--app-card-bg', cardBg);
             root.style.setProperty('--app-text', textColor);
+
+            // --- 背景パターンの動的割り当て（テーマカラーと連動） ---
+            let bgStyle = `linear-gradient(135deg, ${c1} 0%, #ffffff 100%)`;
+            let bgSize = 'auto';
+
+            const patternIdx = window.currentBgPatternIndex !== undefined ? window.currentBgPatternIndex : 0;
+            if (patternIdx === 1) {
+                // 極細方眼グリッド
+                bgStyle = `linear-gradient(to right, color-mix(in srgb, ${c2} 12%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, ${c2} 12%, transparent) 1px, transparent 1px)`;
+                bgSize = '24px 24px';
+            } else if (patternIdx === 2) {
+                // ドット方眼
+                bgStyle = `radial-gradient(circle, color-mix(in srgb, ${c2} 25%, transparent) 1px, transparent 1px)`;
+                bgSize = '20px 20px';
+            }
+
+            root.style.setProperty('--app-bg', bgStyle);
+            document.body.style.backgroundSize = bgSize;
 
             if (cashChart) renderCharts();
             if (pieChart) renderPieChart();
