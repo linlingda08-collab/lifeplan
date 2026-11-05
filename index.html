@@ -384,12 +384,12 @@
 
     </main>
 
-    <!-- ================= PREDICTION MODAL (グラフ年月選択の確認用ポップアップ) ================= -->
+    <!-- ================= PREDICTION MODAL (計算根拠付きポップアップ) ================= -->
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
-        <div class="theme-card max-w-sm w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
+        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
                 <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text">
-                    <span>💡</span> 貯金到達見込み確認
+                    <span>💡</span> 貯金到達見込みの計算根拠
                 </h3>
                 <button onclick="closePredictionModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
@@ -713,7 +713,7 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
-        // ポップアップ制御用
+        // ポップアップ制御用（計算根拠の明文化）
         function openPredictionModal() {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
@@ -724,34 +724,44 @@
             const content = document.getElementById('prediction-modal-content');
             if (!modal || !content) return;
 
-            // 現在の三菱口座残高（初期残高または最新実績）をベースにする
-            let baseBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
-            if (appData.monthly && appData.monthly.length > 0) {
-                const sorted = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
-                const lastReal = sorted.reverse().find(m => m.type === '実績');
-                if (lastReal && lastReal.bankAllocations && lastReal.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
-                    // ここではシンプルに初期残高＋今までの標準積み上げまたは簡易試算ベース
-                }
-            }
-
+            const baseBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
             const defaultSave = parseNum(appData.settings.defaultMonthlySave) || 50000;
             const monthlySaveForAccount = Math.floor(defaultSave / 2);
 
-            // 2027年1月からの経過月数を計算
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const startY = 2027, startM = 1;
             let diffMonths = (targetY - startY) * 12 + (targetM - startM);
             if (diffMonths < 0) diffMonths = 0;
 
-            const estimatedAccumulated = baseBalance + (monthlySaveForAccount * diffMonths);
+            const accumulatedAdd = monthlySaveForAccount * diffMonths;
+            const estimatedAccumulated = baseBalance + accumulatedAdd;
 
             content.innerHTML = `
-                <div class="theme-card-sm p-3.5 rounded-2xl space-y-2 border shadow-sm">
-                    <p class="font-bold text-xs theme-primary-text">📅 指定年月: ${targetY}年${targetM}月</p>
-                    <p class="text-[11px] opacity-90">基準残高 ＋ (標準毎月貯金額 × 経過月数)</p>
-                    <div class="pt-2 border-t border-current/15 flex justify-between items-center">
-                        <span class="font-bold">貯金到達見込み:</span>
-                        <span class="font-extrabold text-sm theme-primary-text">¥${estimatedAccumulated.toLocaleString()}</span>
+                <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm">
+                    <div class="flex items-center justify-between pb-2 border-b border-current/15">
+                        <span class="font-extrabold theme-primary-text text-sm">📅 指定年月: ${targetY}年${targetM}月</span>
+                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md">経過月数: ${diffMonths}ヶ月</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs font-medium">
+                        <div class="flex justify-between">
+                            <span class="opacity-80">① 基準残高 (三菱初期残高):</span>
+                            <span class="font-bold">¥${baseBalance.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="opacity-80">② 標準毎月貯金額 (三菱割当):</span>
+                            <span class="font-bold">¥${monthlySaveForAccount.toLocaleString()} /月</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="opacity-80">③ 積み上げ額 (② × 経過月数):</span>
+                            <span class="font-bold">¥${accumulatedAdd.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-current/15 bg-current/5 p-3 rounded-xl space-y-1">
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">計算式: ① 基準残高 ＋ ③ 積み上げ額</p>
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-xs">貯金到達見込み合計:</span>
+                            <span class="font-extrabold text-base theme-primary-text">¥${estimatedAccumulated.toLocaleString()}</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -2324,18 +2334,18 @@
                         </div>
                     </div>
 
-                    <!-- ★改行を適用した「今月のNISA積立」カード -->
-                    <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
-                        <div class="space-y-1">
-                            <div class="flex flex-col justify-start items-start gap-1">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立 (${currentYM})</p>
-                                <span class="text-[9px] theme-badge-tone font-extrabold px-2 py-0.5 rounded-md whitespace-nowrap">期間: ${nisaDuration}</span>
-                            </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight pt-1">¥${nisaAmt.toLocaleString()}</p>
+                    <!-- ★レイアウト改善した「今月のNISA積立」カード (改行とゆとりを持たせた構造) -->
+                    <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立 (${currentYM})</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                        </div>
+                        <div class="pt-2 border-t border-current/15">
+                            <span class="inline-block text-[10px] theme-badge-tone font-extrabold px-2.5 py-1 rounded-lg">期間: ${nisaDuration}</span>
                         </div>
                     </div>
 
-                    <!-- ★改行を適用した「今月の貯金」カード -->
+                    <!-- ★レイアウト改善した「今月の貯金」カード (完全に上下2行に分離して見やすく整理) -->
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
                             <div class="flex items-center justify-between">
@@ -2344,14 +2354,14 @@
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${surplus.toLocaleString()}</p>
                         </div>
-                        <div class="pt-2 border-t border-current/15 text-[10px] space-y-1.5 font-bold">
+                        <div class="pt-2 border-t border-current/15 text-[11px] space-y-2 font-bold">
                             <div class="flex justify-between items-center">
                                 <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full theme-primary-bg inline-block"></span> 🏦 貯金用 (三菱):</span>
                                 <span class="theme-primary-text font-extrabold">¥${savingAccAlloc.toLocaleString()}</span>
                             </div>
-                            <div class="flex flex-col items-start gap-0.5 sm:flex-row sm:justify-between sm:items-center">
-                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full theme-accent-bg inline-block"></span> 🏦 ゆとり用 (イオン):</span>
-                                <span class="opacity-90 font-extrabold">¥${yutoriAccAlloc.toLocaleString()}</span>
+                            <div class="flex flex-col items-start gap-0.5 bg-current/5 p-2 rounded-xl">
+                                <span class="flex items-center gap-1 opacity-90"><span class="w-2 h-2 rounded-full theme-accent-bg inline-block"></span> 🏦 ゆとり用 (イオン):</span>
+                                <span class="font-extrabold self-end text-xs">¥${yutoriAccAlloc.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
