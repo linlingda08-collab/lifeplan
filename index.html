@@ -169,7 +169,7 @@
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
                     <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white">
-                        📅 テスト表示中 (2027年1月期)
+                        <!-- JSで動的にテスト／本番表示切替 -->
                     </div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg">ライフプランシミュレーション</h2>
                 </div>
@@ -178,19 +178,28 @@
             <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
             <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金推移グラフ
+                        <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金用 (三菱UFJ銀行) 推移グラフ
                     </h3>
-                    <div id="chart-current-summary-badge" class="theme-card-sm px-3.5 py-2 rounded-2xl text-xs font-bold border shadow-sm flex flex-wrap items-center gap-3">
-                        <!-- JSで動的挿入 -->
+                    
+                    <!-- 追加機能: 年月選択ドロップダウン -->
+                    <div class="flex items-center gap-2 self-start sm:self-auto">
+                        <label class="text-xs font-bold opacity-80 whitespace-nowrap">🔍 表示年月:</label>
+                        <select id="chart-month-selector" onchange="onChartMonthSelected(this.value)" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm"></select>
                     </div>
                 </div>
+
+                <!-- 選択年月の推移数値カード -->
+                <div id="chart-selected-month-details" class="theme-card-sm p-3.5 rounded-2xl border shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <!-- JSで動的挿入 -->
+                </div>
+
                 <div class="flex flex-wrap items-center gap-4 text-[11px] font-bold px-1">
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-1.5 theme-primary-bg inline-block rounded-xs shadow-sm"></span> 実績</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-0 border-t-2 border-dashed border-gray-600 inline-block"></span> 口座推定値 (目標)</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500/30 inline-block rounded-xs border border-emerald-500/50"></span> 上振れ (剰余)</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-rose-500/30 inline-block rounded-xs border border-rose-500/50"></span> 下振れ (赤字)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-1.5 theme-primary-bg inline-block rounded-xs shadow-sm"></span> 実績 (貯金用)</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-0 border-t-2 border-dashed border-gray-600 inline-block"></span> 目標推定値</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500/30 inline-block rounded-xs border border-emerald-500/50"></span> 上振れ</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-rose-500/30 inline-block rounded-xs border border-rose-500/50"></span> 下振れ</span>
                     <span class="flex items-center gap-1.5"><span class="w-3 h-3 theme-accent-bg rounded-xs inline-block border shadow-sm"></span> 予定費用</span>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2 pt-2">
@@ -452,6 +461,7 @@
         const STORAGE_KEY = 'lifeplan_master_persistent_storage_data_v1';
 
         let currentModalRawHistory = [];
+        let globalChartDataStore = { yms: [], actuals: [], estimates: [], events: [], monthlyMap: {} };
 
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
@@ -503,181 +513,26 @@
             { id: 47, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#2B2D42", "#3A6073", "#E94E3A"] },
             { id: 48, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#8CB19B", "#E4D6A5"] },
             { id: 49, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#78350F", "#D97706", "#63AC86"] },
-            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#012C70", "#0259DE", "#FF6647"] },
-            { id: 51, name: "曇り空のまどろみ配色", colors: ["#F1F5F9", "#1E293B", "#64748B", "#94A3B8"] },
-            { id: 52, name: "深夜の目醒め配色", colors: ["#ECEFF1", "#0B1838", "#4E4177", "#3A609F"] },
-            { id: 53, name: "キャンディ・スプリング配色", colors: ["#F9F5F3", "#F0C3D4", "#FFE38F", "#8AD7F7"] },
-            { id: 54, name: "クールラベンダー配色", colors: ["#ECEED8", "#40386B", "#7C72BB", "#BDC59C"] },
-            { id: 55, name: "不思議なメルヘン配色", colors: ["#FAF5FF", "#581C87", "#A48AC2", "#5FADAC"] },
-            { id: 56, name: "春を待つ窓辺配色", colors: ["#FDF2F8", "#831843", "#F472B6", "#FBCFE8"] },
-            { id: 57, name: "ささやく深海ブルー配色", colors: ["#E0F2FE", "#123747", "#196F8A", "#079FBF"] },
-            { id: 58, name: "キャンディポップ配色", colors: ["#FFFBEB", "#1D2A5E", "#D8762F", "#F6DBB7"] },
-            { id: 59, name: "メルティ・ガール配色", colors: ["#FFF1F2", "#881337", "#CB4447", "#FDECAC"] },
-            { id: 60, name: "夜風とラベンダー配色", colors: ["#F3E8FF", "#261734", "#213661", "#B8A5D2"] },
-            { id: 61, name: "琥珀糖のかけら配色", colors: ["#FEF3C7", "#78350F", "#D97706", "#8AD9D5"] },
-            { id: 62, name: "冬凪のグラデーション配色", colors: ["#F8FAFC", "#121417", "#64748B", "#38BDF8"] },
-            { id: 63, name: "深呼吸ブルー配色", colors: ["#F0F9FF", "#151920", "#197084", "#38BDF8"] },
-            { id: 64, name: "砂漠のターコイズ配色", colors: ["#FEF3C7", "#512211", "#BA7353", "#0D9488"] },
-            { id: 65, name: "好好♡チャイナポップ配色", colors: ["#FFF1F2", "#022013", "#084328", "#E8755A"] },
-            { id: 66, name: "北欧スケッチ配色", colors: ["#F8FAFC", "#0F172A", "#475569", "#38BDF8"] },
-            { id: 67, name: "波音ノート配色", colors: ["#F0F9FF", "#153344", "#2C5E79", "#38BDF8"] },
-            { id: 68, name: "浴衣リボンと金魚掬い配色", colors: ["#FFF1F2", "#881337", "#FBCFE8", "#EF4444"] },
-            { id: 69, name: "魔法の国の白薔薇の園配色", colors: ["#FDF5E6", "#5A3D41", "#8C7882", "#C3A650"] },
-            { id: 70, name: "ナイトブラー配色", colors: ["#F1F5F9", "#0F172A", "#64748B", "#8B5CF6"] },
-            { id: 71, name: "ノスタルジックトーキョー配色", colors: ["#F8FAFC", "#121212", "#475569", "#FF0055"] },
-            { id: 72, name: "NOGUCHIパープル配色", colors: ["#C2B4FF", "#828EA6", "#4A3F65", "#261A4FF"] },
-            { id: 73, name: "NOGUCHIベージュ配色", colors: ["#EDE8E3", "#514935", "#907E6E", "#3A3424"] },
-            { id: 74, name: "ブルー・ブルー配色", colors: ["#296AA2", "#405986", "#252F66", "#1A1E4B"] },
-            { id: 75, name: "スモーキーローズ配色", colors: ["#9A8276", "#5A5557", "#B59E92", "#3F3C3D"] },
-            { id: 76, name: "マスタードオーカー配色", colors: ["#947858", "#C29B6E", "#978866", "#61573F"] },
-            { id: 77, name: "NOGUCHIピンク配色1", colors: ["#B7DEC3", "#DFA0BD", "#005397", "#DDE8ED"] },
-            { id: 78, name: "NOGUCHIエメラルドグリーン配色", colors: ["#F9F7F0", "#6CACA2", "#EBE0D5", "#957E5A"] },
-            { id: 79, name: "NOGUCHIグレーピンク配色", colors: ["#62797F", "#D9B2C8", "#7C8AA3", "#B5A9CF"] },
-            { id: 80, name: "NOGUCHIブルー配色1", colors: ["#B3C8C9", "#D3DCD8", "#94B5B2", "#585257"] },
-            { id: 81, name: "NOGUCHIピンク配色2", colors: ["#B7A096", "#E8AFAF", "#8B847B", "#673096"] },
-            { id: 82, name: "パステルピンク配色", colors: ["#FCB3B7", "#FAD5CD", "#DBESDC", "#AEE1DD"] },
-            { id: 83, name: "ノグチパステル配色", colors: ["#ABBEED", "#F4C0C2", "#B2EEDA", "#6E618E"] },
-            { id: 84, name: "NOGUCHIベージュ配色2", colors: ["#E8E2D5", "#588585", "#D0CDAF", "#FEDAD4"] },
-            { id: 85, name: "NOGUCHIホワイト配色", colors: ["#F4E8C8", "#C8D0D1", "#66757D", "#1A1D25"] },
-            { id: 86, name: "ピンクゴールドパレット配色", colors: ["#17D1C1", "#EFCBB6", "#FF19ED", "#C8B4A8"] },
-            { id: 87, name: "NOGUCHIブルー配色2", colors: ["#4981CF", "#89AAD3", "#2A3C5E", "#1B2A4A"] },
-            { id: 88, name: "クラシックブルー配色", colors: ["#6CCEE7", "#296AA2", "#40598F", "#252F66"] },
-            { id: 89, name: "ノグチソフトパステル配色", colors: ["#B5BFD4", "#E8BBCF", "#ECA6B7", "#8C8AA4"] },
-            { id: 90, name: "NOGUCHIリッチベージュ配色", colors: ["#C1A884", "#9A715D", "#D9C2AE", "#303136"] },
-            { id: 91, name: "NOGUCHIベージュパープル配色", colors: ["#DFD8ED", "#BDA4A1", "#6E618E", "#4A3F65"] },
-            { id: 92, name: "クラシックトーン配色", colors: ["#BALEDC", "#CCD2AB", "#9A8276", "#5A5557"] },
-            { id: 93, name: "ノグチモダンピンク配色", colors: ["#E99891", "#4D4D4D", "#EDD2D0", "#E6E5DF"] },
-            { id: 94, name: "エレガントブルー配色", colors: ["#C8D4E3", "#CBB2B6", "#D19AB2", "#8A9DC1"] },
-            { id: 95, name: "NOGUCHIディープブルー配色", colors: ["#6D8FA3", "#DBD0BE", "#93ACAA", "#2F3D4D"] },
-            { id: 96, name: "NOGUCHIスカイブルー配色", colors: ["#C4CDD8", "#B0C8DB", "#90A5B8", "#738698"] },
-            { id: 97, name: "ノグチパープルピンク配色", colors: ["#8C8AA4", "#F19A88", "#7F6A6E", "#DEADA7"] },
-            { id: 98, name: "NOGUCHIナイトブルー配色", colors: ["#2F486D", "#F3EAE0", "#223148", "#D2C7B8"] },
-            { id: 99, name: "モーニングデュー配色", colors: ["#EAF1F4", "#D5D9E2", "#9FCAD7", "#5576A4"] },
-            { id: 100, name: "スノーホワイト配色", colors: ["#F8FAFC", "#E2E8F0", "#CBD5E1", "#94A3B8"] },
-            { id: 101, name: "クリアスカイ配色", colors: ["#E0F2FE", "#BAE6FD", "#7DD3FC", "#38BDF8"] },
-            { id: 102, name: "サンセットオレンジ配色", colors: ["#FFF7ED", "#FFEDD5", "#FDBA74", "#FB923C"] },
-            { id: 103, name: "ボタニカルフォレスト配色", colors: ["#F0FDF4", "#DCFCE7", "#86EFAC", "#4ADE80"] },
-            { id: 104, name: "ロイヤルパープル配色", colors: ["#FAF5FF", "#F3E8FF", "#D8B4FE", "#C084FC"] },
-            { id: 105, name: "チェリーブロッサム配色", colors: ["#FFF1F2", "#FFE4E6", "#FDA4AF", "#FB7185"] },
-            { id: 106, name: "アンティークゴールド配色", colors: ["#FEFCE8", "#FEF08A", "#FDE047", "#EAB308"] },
-            { id: 107, name: "モダンチャコール配色", colors: ["#F8FAFC", "#F1F5F9", "#64748B", "#0F172A"] },
-            { id: 108, name: "ディープオリーブ配色", colors: ["#F7FEE7", "#ECFCCB", "#BEF264", "#3F6212"] },
-            { id: 109, name: "ウォームテラコッタ配色", colors: ["#FFF7ED", "#FFEDD5", "#F97316", "#C2410C"] },
-            { id: 110, name: "サイバーネオン配色", colors: ["#09090B", "#18181B", "#27272A", "#22C55E"] },
-            { id: 111, name: "オーシャンブリーズ配色", colors: ["#ECFEFF", "#CFFAFE", "#22D3EE", "#0891B2"] },
-            { id: 112, name: "陽だまりの影", colors: ["#22160d", "#a34000", "#9aa740", "#fae9a7"] },
-            { id: 113, name: "街色のワルツ", colors: ["#604d51", "#6294a1", "#d2a590", "#9ee3f2"] },
-            { id: 114, name: "翠の奥行き", colors: ["#010656", "#014089", "#5eb6ca", "#b7d3c4"] },
-            { id: 115, name: "紫影の庭", colors: ["#254031", "#3f3356", "#5f4588", "#d2d1df"] },
-            { id: 116, name: "色玉のひみつ箱", colors: ["#0924ac", "#660604", "#cd9000", "#0f7610"] },
-            { id: 117, name: "色褪せない日常", colors: ["#44453f", "#9f3726", "#d97c12", "#dbc7b9"] },
-            { id: 118, name: "花飾りのミント", colors: ["#deb073", "#994986", "#fade4b", "#d3d3ca"] },
-            { id: 119, name: "花野を染める", colors: ["#686943", "#ef9b83", "#a29474", "#dfe5e5"] },
-            { id: 120, name: "花舞うひととき", colors: ["#740105", "#ed9f01", "#ce4630", "#eed696"] },
-            { id: 121, name: "花影をゆらす風", colors: ["#4e4c09", "#95a04b", "#dca604", "#ecd56c"] },
-            { id: 122, name: "色褪せない遊景", colors: ["#c62b04", "#f17f38", "#c19f43", "#568466"] },
-            { id: 123, name: "紫雫のホリデー", colors: ["#764768", "#676998", "#bc63b0", "#edafdf"] },
-            { id: 124, name: "苺と甘い夢", colors: ["#ad0000", "#eca2a2", "#869481", "#d6b89b"] },
-            { id: 125, name: "茜空の航路", colors: ["#2c1d14", "#716c9c", "#af7b7a", "#8a9cb5"] },
-            { id: 126, name: "紅砂のゆらぎ", colors: ["#e30122", "#5f2222", "#88413e", "#967169"] },
-            { id: 127, name: "若葉の体温", colors: ["#7d6c52", "#526c57", "#83a08c", "#9fa796"] },
-            { id: 128, name: "薄明の空彩", colors: ["#786181", "#b05e76", "#e97f83", "#fb9c6c"] },
-            { id: 129, name: "硝子色の街", colors: ["#243237", "#81959f", "#a5bec1", "#c7d8df"] },
-            { id: 130, name: "秋灯フローラ", colors: ["#4b1610", "#a76e36", "#a58d68", "#c5c1bf"] },
-            { id: 131, name: "秋晴れのレール", colors: ["#030303", "#604532", "#495222", "#fab122"] },
-            { id: 132, name: "水底のセレナーデ", colors: ["#01162b", "#003854", "#6a90b4", "#9442bf"] },
-            { id: 133, name: "残照メロウ", colors: ["#796380", "#677eaa", "#f38c78", "#df9ba8"] },
-            { id: 134, name: "沈光フライト", colors: ["#363228", "#a05235", "#658449", "#405235"] },
-            { id: 135, name: "氷脈の息吹", colors: ["#2e445f", "#4c78a3", "#71acce", "#6fb5cf"] },
-            { id: 136, name: "水際の翡翠色", colors: ["#3b584b", "#52796c", "#819685", "#c3c0aa"] },
-            { id: 137, name: "海の子守唄", colors: ["#404e5b", "#677b8f", "#8fa0b8", "#948f8c"] },
-            { id: 138, name: "淡光のシュシュ", colors: ["#7c8992", "#aab1b1", "#806d5c", "#9b8c7d"] },
-            { id: 139, name: "海風のメモリー", colors: ["#2c3943", "#77726f", "#9dabb4", "#e5d4ca"] },
-            { id: 140, name: "格子に滲む光", colors: ["#545840", "#888a7f", "#696647", "#c4caca"] },
-            { id: 141, name: "波紋の幻想", colors: ["#006863", "#489d98", "#49c7bc", "#a0d4ed"] },
-            { id: 142, name: "森が眠る色", colors: ["#383f4f", "#647699", "#869247", "#ddc4b9"] },
-            { id: 143, name: "波間のニュアンス", colors: ["#4e5c5c", "#7e96a2", "#a8a7a0", "#eaccbc"] },
-            { id: 144, name: "恋菓のテーブル", colors: ["#926e5c", "#ce043c", "#f99fa0", "#e6d0cb"] },
-            { id: 145, name: "星屑の海", colors: ["#0b1838", "#4d4177", "#3a60a0", "#884560"] },
-            { id: 146, name: "星屑の標本", colors: ["#262e4c", "#45538a", "#724972", "#b199db"] },
-            { id: 147, name: "影の経過", colors: ["#121212", "#736469", "#adacab", "#cdcbcc"] },
-            { id: 148, name: "夢喰いの灯", colors: ["#000000", "#3d1a82", "#984060", "#ab447a"] },
-            { id: 149, name: "夕凪の息", colors: ["#1d2532", "#688499", "#9fa8ac", "#d39278"] },
-            { id: 150, name: "夕凪のヨット", colors: ["#082746", "#507276", "#91abb5", "#b58c3c"] },
-            { id: 151, name: "夜更けのパティスリー", colors: ["#1c1c1f", "#571a19", "#862323", "#5e5f5c"] },
-            { id: 152, name: "南風の影", colors: ["#0d2e35", "#3c576d", "#82818f", "#f76993"] },
-            { id: 153, name: "咲き添う煌めき", colors: ["#040000", "#78353b", "#465363", "#a8825c"] },
-            { id: 154, name: "夜色の油彩", colors: ["#08121a", "#193954", "#2a5d84", "#568eac"] },
-            { id: 155, name: "冬砂糖のきらめき", colors: ["#563734", "#986769", "#cbb6c7", "#ccae95"] },
-            { id: 156, name: "果実の夜想曲", colors: ["#232229", "#624068", "#956bcc", "#d20465"] },
-            { id: 157, name: "クリームに包まれて", colors: ["#994d47", "#66281f", "#9d8361", "#bfb9a3"] },
-            { id: 158, name: "ラムネの花束", colors: ["#006a74", "#007b9c", "#3fbbd3", "#7cb5c9"] },
-            { id: 159, name: "光雨のオーシャン", colors: ["#335060", "#937479", "#d67c77", "#d3436c"] },
-            { id: 160, name: "真夜中の花宴", colors: ["#080808", "#424937", "#623c6e", "#deadab"] },
-            { id: 161, name: "春風の花瓶", colors: ["#747a3c", "#e9d67c", "#f37358", "#686528"] },
-            { id: 162, name: "冬支度の光片", colors: ["#a75800", "#da8908", "#658259", "#bea898"] },
-            { id: 163, name: "褪せた青の休暇", colors: ["#216271", "#3c8fa4", "#9cac85", "#bfb0a8"] },
-            { id: 164, name: "なみうたの記憶", colors: ["#30545c", "#069580", "#81acb9", "#c4dce1"] },
-            { id: 165, name: "ひとときの隠れ家", colors: ["#090404", "#05435f", "#904719", "#dec08e"] },
-            { id: 166, name: "アボカド日和", colors: ["#7f3b07", "#355410", "#65c472", "#e5d699"] },
-            { id: 167, name: "アメジスト의静寂", colors: ["#392738", "#5d2d6e", "#a769a8", "#bb8db1"] },
-            { id: 168, name: "アーストーンの朝", colors: ["#21211f", "#5c483c", "#b4835a", "#96857d"] },
-            { id: 169, name: "エメラルドの祝宴", colors: ["#030608", "#1a584d", "#8c7647", "#d1c08b"] },
-            { id: 170, name: "カフェの香り", colors: ["#4d4d4b", "#895447", "#428065", "#cfbfaf"] },
-            { id: 171, name: "カフェ越しの街", colors: ["#221616", "#696522", "#5e7986", "#dcaf8a"] },
-            { id: 172, name: "ガラス越しの安らぎ", colors: ["#727453", "#5a7f3c", "#8aaa79", "#b8bcab"] },
-            { id: 173, name: "フィルムの中の果実", colors: ["#c41c07", "#340101", "#940201", "#1198cd"] },
-            { id: 174, name: "ベリーショコラの夢", colors: ["#4e2d2c", "#c7332f", "#9cb769", "#dcbfb3"] },
-            { id: 175, name: "マーマレードのくちづけ", colors: ["#734933", "#fd5a01", "#ce5c03", "#d19975"] },
-            { id: 176, name: "ノクターンの欠片", colors: ["#010000", "#502457", "#998799", "#ac8cab"] },
-            { id: 177, name: "ネオンの靴音", colors: ["#1b1e1f", "#a21e5b", "#ef50b5", "#bdc2e1"] },
-            { id: 178, name: "ネオンの花芽", colors: ["#870503", "#d90d8e", "#433636", "#e9a4d9"] },
-            { id: 179, name: "トロピカルの影", colors: ["#000000", "#60bda3", "#546f45", "#db8900"] },
-            { id: 180, name: "グリッターの魔法", colors: ["#201d39", "#514575", "#a79dda", "#ffc451"] },
-            { id: 181, name: "モーヴの渚で", colors: ["#0b0f13", "#7ca2d5", "#9e96ca", "#f8a9cc"] },
-            { id: 182, name: "ロマンスの残り香", colors: ["#2b2c1a", "#782420", "#b75c60", "#a38253"] },
-            { id: 183, name: "乙女の薔薇園", colors: ["#743641", "#b25c69", "#bb818a", "#cfa17d"] },
-            { id: 184, name: "レトロな恋", colors: ["#5f3e30", "#3f5247", "#ca6cbe", "#67d4cf"] },
-            { id: 185, name: "光の沈殿", colors: ["#5f7dc6", "#6d97cd", "#d89b8f", "#f2b37d"] },
-            { id: 186, name: "光差す境界", colors: ["#1a130e", "#8b6a44", "#ef7300", "#dfb486"] },
-            { id: 187, name: "光憩の宿", colors: ["#a15809", "#dda547", "#539189", "#72bdc0"] },
-            { id: 188, name: "冬灯りのラテ", colors: ["#c65b7a", "#c8967d", "#ef8fb4", "#e8b7bd"] },
-            { id: 189, name: "光差す角道", colors: ["#643a11", "#ca7828", "#dfc03d", "#04d1d6"] },
-            { id: 190, name: "午後のシトラス", colors: ["#4f1d02", "#c49f6c", "#f3c01e", "#fde26b"] },
-            { id: 191, name: "凍湖の空気", colors: ["#2c301e", "#457076", "#7b918f", "#a8bcc1"] },
-            { id: 192, name: "午後三時の宝石", colors: ["#6c1a21", "#692c2c", "#cea257", "#d1bf9a"] },
-            { id: 193, name: "午睡のカフェ", colors: ["#71521c", "#bc8f4d", "#d5c341", "#ecdec5"] },
-            { id: 194, name: "和みの彩り", colors: ["#1f1f1f", "#2c6c24", "#7aa520", "#cddd77"] },
-            { id: 195, name: "可憐のひとかけら", colors: ["#551f38", "#8f653b", "#967c7f", "#bdb2c3"] },
-            { id: 196, name: "壁に残る夕映え", colors: ["#793409", "#c96c23", "#717678", "#ad9e66"] },
-            { id: 197, name: "夢の反射", colors: ["#24081f", "#7d0d51", "#994c76", "#797876"] },
-            { id: 198, name: "夢境のグラデーション", colors: ["#7181c8", "#872b84", "#b7d3f4", "#f1cfed"] },
-            { id: 199, name: "影のボタニカ", colors: ["#020713", "#124372", "#134a4a", "#62725b"] },
-            { id: 200, name: "彩火の花束", colors: ["#9e1100", "#c45349", "#d55611", "#699351"] },
-            { id: 201, name: "実り色の序章", colors: ["#ca5908", "#fe7527", "#d49650", "#e7d4b5"] },
-            { id: 202, name: "幻羽のパステル", colors: ["#0180f8", "#74c0e7", "#a0bed2", "#a8bffe"] },
-            { id: 203, name: "幸運の焼き色", colors: ["#175634", "#46a29e", "#b1bf66", "#baab7e"] },
-            { id: 204, name: "掌の翡翠", colors: ["#232121", "#545042", "#5b836f", "#a5bfb0"] },
-            { id: 205, name: "日向のオレンジ", colors: ["#636620", "#d4985d", "#a98c6a", "#cdb295"] },
-            { id: 206, name: "日常の隙間に", colors: ["#659477", "#cc8561", "#fad7bc", "#ced9c6"] },
-            { id: 207, name: "寂寥の花束", colors: ["#210f0a", "#581214", "#424C3F", "#9F1922"] },
-            { id: 208, name: "太陽を見上げて", colors: ["#754c01", "#596e4c", "#9ec9d0", "#e0bb01"] },
-            { id: 209, name: "太陽のレモネード", colors: ["#df7c15", "#828549", "#d4be02", "#fae68f"] },
-            { id: 210, name: "天河の宝石", colors: ["#172945", "#1a7a5f", "#1c6b82", "#d2d4cf"] },
-            { id: 211, name: "夢見草のお茶会", colors: ["#5f2807", "#636607", "#cfaf01", "#eadab7"] }
+            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#012C70", "#0259DE", "#FF6647"] }
         ];
 
         let currentThemeId = 1;
 
-        // ★修正: 12月25日までは「2027-01」をテスト用の現在地として強制認識させ、動作確認できるようにする関数
+        // ★12/25運用開始までの判定ロジック
         function getCurrentActualYM() {
             const now = new Date();
             const realYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-            // 2026年12月25日以前の場合は、テスト用に「2027-01」を現在地として返す
+            // 2026年12月25日以前のテスト期間中は強制的に「2027-01」を基準月として扱う
             if (realYM < '2027-01') {
                 return '2027-01';
             }
             return realYM;
+        }
+
+        function isTestPeriod() {
+            const now = new Date();
+            const realYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            return realYM < '2027-01';
         }
 
         function setupDailyRandomTheme() {
@@ -927,7 +782,12 @@
         function updateTodayDateBadge() {
             const badge = document.getElementById('today-date-badge');
             if (!badge) return;
-            badge.innerText = `📅 テスト表示中: 2027年1月期 (動作確認モード)`;
+            if (isTestPeriod()) {
+                badge.innerText = `📅 テスト表示中: 2027年1月期 (動作確認モード)`;
+            } else {
+                const now = new Date();
+                badge.innerText = `📅 本日: ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+            }
         }
 
         function changeHeroBackground(e) {
@@ -1458,7 +1318,7 @@
                     }
                 } catch(e) { console.error(e); }
             }
-            
+
             if (appData.bankAccounts) {
                 appData.bankAccounts = appData.bankAccounts.filter(acc => {
                     const name = typeof acc === 'string' ? acc : acc.name;
@@ -2272,6 +2132,18 @@
             const nisaAmt = isActual && currentMonthData ? parseNum(currentMonthData.nisa) : 20000;
             const surplus = isActual ? (totalInc - exp - nisaAmt) : defaultMonthlySave;
 
+            // 口座ごとの割り振り額
+            let savingAccAlloc = 0;
+            let yutoriAccAlloc = 0;
+
+            if (isActual && currentMonthData && currentMonthData.bankAllocations) {
+                savingAccAlloc = parseNum(currentMonthData.bankAllocations['貯金用(三菱UFJ銀行)']);
+                yutoriAccAlloc = parseNum(currentMonthData.bankAllocations['ゆとり用(イオン銀行)']);
+            } else {
+                savingAccAlloc = Math.floor(surplus / 2);
+                yutoriAccAlloc = surplus - savingAccAlloc;
+            }
+
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
                 let html = '';
@@ -2400,9 +2272,25 @@
                         </div>
                     </div>
 
-                    <div class="theme-card p-4 sm:p-5 rounded-3xl shadow-lg">
-                        <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金 (${currentYM})</p>
-                        <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1.5">¥${surplus.toLocaleString()}</p>
+                    <!-- ★拡張: 内訳が分かる「今月の貯金」カード -->
+                    <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
+                        <div>
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金 (${currentYM})</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md">余剰金計</span>
+                            </div>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${surplus.toLocaleString()}</p>
+                        </div>
+                        <div class="pt-2 border-t border-current/15 text-[10px] space-y-1.5 font-bold">
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full theme-primary-bg inline-block"></span> 🏦 貯金用 (三菱):</span>
+                                <span class="theme-primary-text font-extrabold">¥${savingAccAlloc.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full theme-accent-bg inline-block"></span> 🏦 ゆとり用 (イオン):</span>
+                                <span class="opacity-90 font-extrabold">¥${yutoriAccAlloc.toLocaleString()}</span>
+                            </div>
+                        </div>
                     </div>
                 `;
                 gridContainer.innerHTML = html;
@@ -2433,13 +2321,20 @@
                 let monthlyDataMap = {};
                 if (appData.monthly) {
                     appData.monthly.forEach(m => {
-                        const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
-                        let totalExp = 0;
-                        if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
-                        const surplus = totalInc - totalExp - parseNum(m.nisa);
+                        // ★修正: 貯金用(三菱UFJ銀行)の確定割り振り額のみを抽出
+                        let savingAllocAmt = 0;
+                        if (m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
+                            savingAllocAmt = parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']);
+                        } else {
+                            const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
+                            let totalExp = 0;
+                            if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
+                            const surplus = totalInc - totalExp - parseNum(m.nisa);
+                            savingAllocAmt = Math.floor(surplus / 2);
+                        }
 
                         monthlyDataMap[m.month] = { 
-                            saving: surplus, 
+                            saving: savingAllocAmt, 
                             type: m.type
                         };
                     });
@@ -2478,9 +2373,9 @@
 
                     let stepEvCost = eventMap[ymKey] || 0;
 
-                    let estimatedStep = defaultMonthlySave;
+                    let estimatedStep = Math.floor(defaultMonthlySave / 2);
                     if ((m === 6 || m === 12) && totalBonus2People > 0) {
-                        estimatedStep += totalBonus2People;
+                        estimatedStep += Math.floor(totalBonus2People / 2);
                     }
                     runningEstimated += (estimatedStep - stepEvCost);
                     estimatedBalanceData.push(runningEstimated);
@@ -2500,22 +2395,17 @@
                     eventBarData.push(stepEvCost);
                 });
 
-                const targetIdx = lastActualIndex >= 0 ? lastActualIndex : 0;
-                const latestActualVal = actualBalanceData[targetIdx] !== null ? actualBalanceData[targetIdx] : estimatedBalanceData[targetIdx];
-                const latestEstVal = estimatedBalanceData[targetIdx];
-                const diffVal = latestActualVal - latestEstVal;
-                const diffText = diffVal >= 0 ? `＋¥${diffVal.toLocaleString()} (上振れ)` : `¥${diffVal.toLocaleString()} (赤字)`;
-                const diffColorClass = diffVal >= 0 ? 'text-emerald-600' : 'text-rose-600';
+                // グローバルデータストアの更新
+                globalChartDataStore = {
+                    yms: sortedYms,
+                    actuals: actualBalanceData,
+                    estimates: estimatedBalanceData,
+                    events: eventBarData,
+                    monthlyMap: monthlyDataMap
+                };
 
-                const summaryBadgeEl = document.getElementById('chart-current-summary-badge');
-                if (summaryBadgeEl) {
-                    summaryBadgeEl.innerHTML = `
-                        <span class="theme-primary-text font-extrabold">📅 最新実績 (${sortedYms[targetIdx]}):</span>
-                        <span class="flex items-center gap-1"><span class="opacity-75">実績:</span> <strong class="theme-deep-text">¥${latestActualVal.toLocaleString()}</strong></span>
-                        <span class="flex items-center gap-1"><span class="opacity-75">目標推定:</span> <strong class="opacity-90">¥${latestEstVal.toLocaleString()}</strong></span>
-                        <span class="flex items-center gap-1"><span class="opacity-75">乖離:</span> <strong class="${diffColorClass}">${diffText}</strong></span>
-                    `;
-                }
+                // 年月選択ドロップダウンの構築
+                updateChartMonthDropdown(sortedYms);
 
                 const ctx1 = chart1El.getContext('2d');
 
@@ -2525,7 +2415,7 @@
                         datasets: [
                             { 
                                 type: 'line',
-                                label: '実績 貯金推移', 
+                                label: '実績 (貯金用)', 
                                 data: actualBalanceData, 
                                 borderColor: primaryHex, 
                                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
@@ -2542,7 +2432,7 @@
                             },
                             { 
                                 type: 'line',
-                                label: '口座推定値 (目標)', 
+                                label: '目標推定値', 
                                 data: estimatedBalanceData, 
                                 borderColor: '#64748B', 
                                 borderDash: [6, 4],
@@ -2604,10 +2494,11 @@
                                         const estVal = estimatedBalanceData[idx];
                                         if (actVal !== null && actVal !== undefined) {
                                             const diff = actVal - estVal;
+                                            // ★文言修正: 「乖離分析」→「差額分析」
                                             const diffStr = diff >= 0 ? `＋¥${diff.toLocaleString()} (上振れ)` : `¥${diff.toLocaleString()} (赤字)`;
-                                            return [`--- 乖離分析 ---`, `口座推定値: ¥${estVal.toLocaleString()}`, `計画との差額: ${diffStr}`];
+                                            return [`--- 差額分析 ---`, `目標推定値: ¥${estVal.toLocaleString()}`, `計画との差額: ${diffStr}`];
                                         }
-                                        return [`口座推定値: ¥${estVal.toLocaleString()}`];
+                                        return [`目標推定値: ¥${estVal.toLocaleString()}`];
                                     }
                                 }
                             }
@@ -2615,6 +2506,64 @@
                     }
                 });
             }
+        }
+
+        // 追加機能: 年月選択ドロップダウンの更新と選択イベント
+        function updateChartMonthDropdown(yms) {
+            const selector = document.getElementById('chart-month-selector');
+            if (!selector) return;
+            const currentSelected = selector.value || getCurrentActualYM();
+            
+            let opts = '';
+            yms.forEach(ym => {
+                const [y, m] = ym.split('-');
+                opts += `<option value="${ym}" ${ym === currentSelected ? 'selected' : ''}>${y}年${m}月</option>`;
+            });
+            selector.innerHTML = opts;
+            
+            onChartMonthSelected(selector.value || yms[0]);
+        }
+
+        function onChartMonthSelected(ym) {
+            const detailsBox = document.getElementById('chart-selected-month-details');
+            if (!detailsBox || !globalChartDataStore.yms) return;
+
+            const idx = globalChartDataStore.yms.indexOf(ym);
+            if (idx === -1) return;
+
+            const actVal = globalChartDataStore.actuals[idx];
+            const estVal = globalChartDataStore.estimates[idx];
+            const evCost = globalChartDataStore.events[idx] || 0;
+            const mData = globalChartDataStore.monthlyMap[ym];
+
+            const currentSaveAmt = mData ? mData.saving : Math.floor((parseNum(appData.settings.defaultMonthlySave) || 50000) / 2);
+
+            const displayTotal = (actVal !== null && actVal !== undefined) ? actVal : estVal;
+            const isActualValue = (actVal !== null && actVal !== undefined);
+
+            const diffVal = displayTotal - estVal;
+            // ★文言修正: 「乖離」→「差額」
+            const diffText = diffVal >= 0 ? `＋¥${diffVal.toLocaleString()}` : `¥${diffVal.toLocaleString()}`;
+            const diffColorClass = diffVal >= 0 ? 'text-emerald-600' : 'text-rose-600';
+
+            detailsBox.innerHTML = `
+                <div>
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">貯金累計額 (${ym})</p>
+                    <p class="text-xs sm:text-base font-extrabold theme-primary-text mt-0.5">¥${displayTotal.toLocaleString()} <span class="text-[9px] font-normal opacity-75">(${isActualValue ? '実績' : '推定'})</span></p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">今月の貯金額 (貯金用)</p>
+                    <p class="text-xs sm:text-base font-extrabold theme-deep-text mt-0.5">¥${currentSaveAmt.toLocaleString()}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">予定費用 (イベント)</p>
+                    <p class="text-xs sm:text-base font-extrabold theme-accent-text mt-0.5">${evCost > 0 ? '¥' + evCost.toLocaleString() : 'なし'}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">目標との差額</p>
+                    <p class="text-xs sm:text-base font-extrabold ${diffColorClass} mt-0.5">${diffText}</p>
+                </div>
+            `;
         }
 
         window.onload = function() { 
