@@ -648,7 +648,7 @@
             { id: 192, name: "午後三時の宝石", colors: ["#6c1a21", "#692c2c", "#cea257", "#d1bf9a"] },
             { id: 193, name: "午睡のカフェ", colors: ["#71521c", "#bc8f4d", "#d5c341", "#ecdec5"] },
             { id: 194, name: "和みの彩り", colors: ["#1f1f1f", "#2c6c24", "#7aa520", "#cddd77"] },
-            { id: 195, name: "可憐のひとかけら", colors: ["#551f38", "#8f653b", "#967c7f", "#bdb2c3"] },
+            { id: 195, name: "可憐のひとかけら", colors: ["#551f38", "#8f653b", "#967C7F", "#bdb2c3"] },
             { id: 196, name: "壁に残る夕映え", colors: ["#793409", "#c96c23", "#717678", "#ad9e66"] },
             { id: 197, name: "夢の反射", colors: ["#24081f", "#7d0d51", "#994c76", "#797876"] },
             { id: 198, name: "夢境のグラデーション", colors: ["#7181c8", "#872b84", "#b7d3f4", "#f1cfed"] },
@@ -696,7 +696,6 @@
                 localStorage.setItem('theme_selected_date', todayStr);
             }
 
-            // --- 背景パターンも開くたび（または日替わりで）ランダムに決定 ---
             setupDailyBackgroundPattern(todayStr);
         }
 
@@ -708,7 +707,6 @@
             if (savedPatternDate === todayStr && savedPatternIndex !== null) {
                 patternIndex = Number(savedPatternIndex);
             } else {
-                // 3つのパターン（0: グラデーション, 1: 方眼グリッド, 2: ドット方眼）からランダム選択
                 patternIndex = Math.floor(Math.random() * 3);
                 localStorage.setItem('bg_pattern_index', patternIndex);
                 localStorage.setItem('bg_pattern_date', todayStr);
@@ -880,10 +878,10 @@
             ],
             monthly: [
                 { 
-                    month: '2026-11', type: '想定', 
+                    month: '2027-01', type: '実績', 
                     rIncome: 210000, hIncome: 170000, 
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
-                    nisa: 20000, rSaving: 0, lifeSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2026年11月スタート)',
+                    nisa: 20000, rSaving: 0, lifeSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2027年1月期スタート)',
                     bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 }
                 }
             ],
@@ -1371,17 +1369,14 @@
             root.style.setProperty('--app-card-bg', cardBg);
             root.style.setProperty('--app-text', textColor);
 
-            // --- 背景パターンの動的割り当て（テーマカラーと連動） ---
             let bgStyle = `linear-gradient(135deg, ${c1} 0%, #ffffff 100%)`;
             let bgSize = 'auto';
 
             const patternIdx = window.currentBgPatternIndex !== undefined ? window.currentBgPatternIndex : 0;
             if (patternIdx === 1) {
-                // 極細方眼グリッド
                 bgStyle = `linear-gradient(to right, color-mix(in srgb, ${c2} 12%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, ${c2} 12%, transparent) 1px, transparent 1px)`;
                 bgSize = '24px 24px';
             } else if (patternIdx === 2) {
-                // ドット方眼
                 bgStyle = `radial-gradient(circle, color-mix(in srgb, ${c2} 25%, transparent) 1px, transparent 1px)`;
                 bgSize = '20px 20px';
             }
@@ -1475,6 +1470,20 @@
 
             if (!appData.bankAccounts || appData.bankAccounts.length === 0) {
                 appData.bankAccounts = [...defaultAccounts];
+            }
+
+            // 2026年以前のデータをフィルタリングして除外（2027年以降に統一）
+            if (appData.monthly) {
+                appData.monthly = appData.monthly.filter(m => m.month >= '2027-01');
+                if (appData.monthly.length === 0) {
+                    appData.monthly = [{ 
+                        month: '2027-01', type: '実績', 
+                        rIncome: 210000, hIncome: 170000, 
+                        expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
+                        nisa: 20000, rSaving: 0, lifeSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2027年1月期スタート)',
+                        bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 }
+                    }];
+                }
             }
 
             cleanupOldMonthlyData();
@@ -1670,7 +1679,7 @@
             }
             isMonthFormModified = false;
 
-            let lastMonthStr = "2026-11";
+            let lastMonthStr = "2027-01";
             let lastMonthData = null;
             if (appData.monthly.length > 0) {
                 lastMonthData = appData.monthly[appData.monthly.length - 1];
@@ -2246,7 +2255,6 @@
             const actualNowYM = getCurrentActualYM();
             const currentYM = currentMonthData ? currentMonthData.month : actualNowYM;
             
-            // 「実績」かつ「実際の暦が到達している（または過去月である）」場合のみ実績値として採用
             const isActual = currentMonthData && currentMonthData.type === '実績' && currentMonthData.month <= actualNowYM;
 
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
@@ -2449,12 +2457,12 @@
                     });
                 }
 
-                let allYms = new Set(['2026-11']);
+                let allYms = new Set(['2027-01']);
                 if (appData.monthly) appData.monthly.forEach(m => allYms.add(m.month));
                 if (appData.events) appData.events.forEach(ev => { if (ev.date) allYms.add(ev.date); });
 
-                let curY = 2026;
-                let curM = 11;
+                let curY = 2027;
+                let curM = 1;
                 for (let i = 0; i < 60; i++) {
                     curM += 1;
                     if (curM > 12) { curM = 1; curY++; }
@@ -2468,12 +2476,11 @@
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
-                    const isTargetLabel = (ymKey === '2026-11' || m === 1 || m === 4 || m === 7 || m === 10);
+                    const isTargetLabel = (ymKey === '2027-01' || m === 1 || m === 4 || m === 7 || m === 10);
                     labels.push(isTargetLabel ? `${y}年${m}月` : '');
 
                     let stepEvCost = eventMap[ymKey] || 0;
 
-                    // 口座推定値ラインの計算
                     let estimatedStep = defaultMonthlySave;
                     if ((m === 6 || m === 12) && totalBonus2People > 0) {
                         estimatedStep += totalBonus2People;
@@ -2481,14 +2488,12 @@
                     runningEstimated += (estimatedStep - stepEvCost);
                     estimatedBalanceData.push(runningEstimated);
 
-                    // 実績ラインの計算（「実績」かつ「実際の暦がその月に到達している」場合のみ追加）
                     const mData = monthlyDataMap[ymKey];
                     if (mData && mData.type === '実績' && ymKey <= actualNowYM) {
                         runningActual += (mData.saving - stepEvCost);
                         actualBalanceData.push(runningActual);
                         lastActualIndex = idx;
                     } else if (idx === 0 && ymKey <= actualNowYM) {
-                        // 開始月で実績がない場合は初期値
                         actualBalanceData.push(initialBal);
                         lastActualIndex = 0;
                     } else {
@@ -2498,7 +2503,6 @@
                     eventBarData.push(stepEvCost);
                 });
 
-                // 最新実績月での比較情報
                 const targetIdx = lastActualIndex >= 0 ? lastActualIndex : 0;
                 const latestActualVal = actualBalanceData[targetIdx] !== null ? actualBalanceData[targetIdx] : estimatedBalanceData[targetIdx];
                 const latestEstVal = estimatedBalanceData[targetIdx];
