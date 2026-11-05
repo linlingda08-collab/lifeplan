@@ -169,7 +169,7 @@
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
                     <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white">
-                        📅 本日の日付: 読込中...
+                        📅 テスト表示中 (2027年1月期)
                     </div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg">ライフプランシミュレーション</h2>
                 </div>
@@ -620,7 +620,7 @@
             { id: 164, name: "なみうたの記憶", colors: ["#30545c", "#069580", "#81acb9", "#c4dce1"] },
             { id: 165, name: "ひとときの隠れ家", colors: ["#090404", "#05435f", "#904719", "#dec08e"] },
             { id: 166, name: "アボカド日和", colors: ["#7f3b07", "#355410", "#65c472", "#e5d699"] },
-            { id: 167, name: "アメジストの静寂", colors: ["#392738", "#5d2d6e", "#a769a8", "#bb8db1"] },
+            { id: 167, name: "アメジスト의静寂", colors: ["#392738", "#5d2d6e", "#a769a8", "#bb8db1"] },
             { id: 168, name: "アーストーンの朝", colors: ["#21211f", "#5c483c", "#b4835a", "#96857d"] },
             { id: 169, name: "エメラルドの祝宴", colors: ["#030608", "#1a584d", "#8c7647", "#d1c08b"] },
             { id: 170, name: "カフェの香り", colors: ["#4d4d4b", "#895447", "#428065", "#cfbfaf"] },
@@ -648,7 +648,7 @@
             { id: 192, name: "午後三時の宝石", colors: ["#6c1a21", "#692c2c", "#cea257", "#d1bf9a"] },
             { id: 193, name: "午睡のカフェ", colors: ["#71521c", "#bc8f4d", "#d5c341", "#ecdec5"] },
             { id: 194, name: "和みの彩り", colors: ["#1f1f1f", "#2c6c24", "#7aa520", "#cddd77"] },
-            { id: 195, name: "可憐のひとかけら", colors: ["#551f38", "#8f653b", "#967C7F", "#bdb2c3"] },
+            { id: 195, name: "可憐のひとかけら", colors: ["#551f38", "#8f653b", "#967c7f", "#bdb2c3"] },
             { id: 196, name: "壁に残る夕映え", colors: ["#793409", "#c96c23", "#717678", "#ad9e66"] },
             { id: 197, name: "夢の反射", colors: ["#24081f", "#7d0d51", "#994c76", "#797876"] },
             { id: 198, name: "夢境のグラデーション", colors: ["#7181c8", "#872b84", "#b7d3f4", "#f1cfed"] },
@@ -669,11 +669,15 @@
 
         let currentThemeId = 1;
 
+        // ★修正: 12月25日までは「2027-01」をテスト用の現在地として強制認識させ、動作確認できるようにする関数
         function getCurrentActualYM() {
             const now = new Date();
-            const y = now.getFullYear();
-            const m = String(now.getMonth() + 1).padStart(2, '0');
-            return `${y}-${m}`;
+            const realYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            // 2026年12月25日以前の場合は、テスト用に「2027-01」を現在地として返す
+            if (realYM < '2027-01') {
+                return '2027-01';
+            }
+            return realYM;
         }
 
         function setupDailyRandomTheme() {
@@ -923,13 +927,7 @@
         function updateTodayDateBadge() {
             const badge = document.getElementById('today-date-badge');
             if (!badge) return;
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = now.getMonth() + 1;
-            const d = now.getDate();
-            const days = ['日', '月', '火', '水', '木', '金', '土'];
-            const w = days[now.getDay()];
-            badge.innerText = `📅 本日の日付: ${y}年${m}月${d}日 (${w})`;
+            badge.innerText = `📅 テスト表示中: 2027年1月期 (動作確認モード)`;
         }
 
         function changeHeroBackground(e) {
@@ -1472,7 +1470,6 @@
                 appData.bankAccounts = [...defaultAccounts];
             }
 
-            // 2026年以前のデータをフィルタリングして除外（2027年以降に統一）
             if (appData.monthly) {
                 appData.monthly = appData.monthly.filter(m => m.month >= '2027-01');
                 if (appData.monthly.length === 0) {
@@ -1808,7 +1805,7 @@
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">区分</label>
                         <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
-                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※暦が到達時にホームへ反映)</option>
+                            <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※ホームへ即時反映)</option>
                         </select>
                     </div>
                     <div>
