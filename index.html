@@ -179,6 +179,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金用 (三菱UFJ銀行) 推移グラフ
+                        <span class="text-[10px] opacity-75 font-normal">（※任意の月をタップで詳細確認）</span>
                     </h3>
                     
                     <div class="flex items-center gap-2 self-start sm:self-auto">
@@ -334,11 +335,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1">標準毎月貯金額 (円)</label>
-                            <input type="text" id="sim-default-monthly-save" value="50,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                            <input type="text" id="sim-default-monthly-save" value="40,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                         </div>
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1">🎁 ボーナス額 (年2回 / 1人あたり)</label>
-                            <input type="text" id="sim-bonus-per-person" value="0" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                            <input type="text" id="sim-bonus-per-person" value="300,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                             <p class="text-[9px] opacity-75 mt-1">※毎年6月・12月に「1人分×2人＝2人分」が自動加算されます</p>
                         </div>
                     </div>
@@ -381,7 +382,7 @@
 
     </main>
 
-    <!-- ================= PREDICTION MODAL (ボーナス・イベント・実際数値反映版) ================= -->
+    <!-- ================= PREDICTION MODAL (三菱全額・ボーナス全額・実際の数式完全一致版) ================= -->
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
@@ -708,10 +709,15 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
-        // ================= ★修正: ボーナス・イベント・実際の数値を完全連携したポップアップ制御 =================
-        function openPredictionModal() {
+        // ================= ★完全版ポップアップ制御（全額三菱・全額ボーナス・実際の数式完全一致） =================
+        function openPredictionModal(specifiedYM) {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
+
+            if (specifiedYM) {
+                selector.value = specifiedYM;
+            }
+
             const targetYM = selector.value;
             if (!targetYM) return;
 
@@ -723,9 +729,11 @@
 
             // ① 基準残高: 口座初期残高 ＋ 確定済みの毎月実績（口座割り振り: 貯金用(三菱UFJ銀行)）
             let actualAccumulatedSum = 0;
+            let actualCount = 0;
             if (appData.monthly && appData.monthly.length > 0) {
                 appData.monthly.forEach(m => {
                     if (m.type === '実績' && m.month <= targetYM) {
+                        actualCount++;
                         if (m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
                             actualAccumulatedSum += parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']);
                         }
@@ -734,12 +742,10 @@
             }
             const currentBaseBalance = baseInitialBalance + actualAccumulatedSum;
 
-            // ② 標準毎月貯金額 & ボーナス設定
-            const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
-            const mSavePerAccount = Math.floor(defaultMonthlySave / 2); // 三菱割当分
-            const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
-            const bonusTwoPeople = bonusPerPerson * 2;
-            const bonusPerAccount = Math.floor(bonusTwoPeople / 2); // 三菱割当ボーナス分
+            // ② 標準毎月貯金額 & ボーナス設定（★分割せず三菱に全額全反映）
+            const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
+            const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
+            const bonusTwoPeople = bonusPerPerson * 2; // 600,000円
 
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const startY = 2027, startM = 1;
@@ -758,11 +764,15 @@
                 }
             }
 
-            // ③ 毎月積み上げ額 (三菱割当分 × 経過月数)
-            const monthlyAccumulatedAdd = mSavePerAccount * diffMonths;
+            // 未確定の残り積立月数
+            let unconfirmedMonths = diffMonths - actualCount;
+            if (unconfirmedMonths < 0) unconfirmedMonths = 0;
 
-            // ④ ボーナス加算総額 (三菱割当ボーナス分 × 経過回数)
-            const bonusAccumulatedAdd = bonusPerAccount * bonusCount;
+            // ③ 毎月積立額 (標準積立額 × 未確定月数)
+            const monthlyAccumulatedAdd = defaultMonthlySave * unconfirmedMonths;
+
+            // ④ ボーナス加算総額 (60万円 × 経過回数)
+            const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
 
             // ⑤ 予定費用（イベント費用のマイナス分）
             let totalEventCost = 0;
@@ -774,13 +784,16 @@
                 });
             }
 
-            // 🎯 貯金到達見込み合計 ＝ ①基準残高 ＋ ③積立 ＋ ④ボーナス － ⑤イベント費用
+            // 🎯 貯金到達見込み合計 ＝ ①基準残高 ＋ ③未確定積立 ＋ ④ボーナス － ⑤イベント費用
             const estimatedAccumulated = currentBaseBalance + monthlyAccumulatedAdd + bonusAccumulatedAdd - totalEventCost;
 
             // 実際の数値を使った計算式の文字列作成
-            let formulaMathStr = `¥${currentBaseBalance.toLocaleString()} + ¥${mSavePerAccount.toLocaleString()}×${diffMonths}ヶ月`;
+            let formulaMathStr = `¥${currentBaseBalance.toLocaleString()}`;
+            if (unconfirmedMonths > 0) {
+                formulaMathStr += ` + ¥${defaultMonthlySave.toLocaleString()}×${unconfirmedMonths}ヶ月`;
+            }
             if (bonusCount > 0) {
-                formulaMathStr += ` + ¥${bonusPerAccount.toLocaleString()}×${bonusCount}回`;
+                formulaMathStr += ` + ¥${bonusTwoPeople.toLocaleString()}×${bonusCount}回`;
             }
             if (totalEventCost > 0) {
                 formulaMathStr += ` - ¥${totalEventCost.toLocaleString()}`;
@@ -795,22 +808,22 @@
                     <div class="space-y-2 text-xs font-medium">
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="opacity-80 block">① 基準残高 (初期残高＋確定実績):</span>
-                                <span class="text-[9px] opacity-60">※口座初期残高 ＋ 実績の確定分</span>
+                                <span class="opacity-80 block">① 基準残高 (初期残高 ＋ 確定実績):</span>
+                                <span class="text-[9px] opacity-60">※初期残高 ¥${baseInitialBalance.toLocaleString()} ＋ 確定実績${actualCount}ヶ月分</span>
                             </div>
                             <span class="font-bold shrink-0 mt-0.5">¥${currentBaseBalance.toLocaleString()}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="opacity-80">② 標準毎月貯金 (三菱割当):</span>
-                            <span class="font-bold">¥${mSavePerAccount.toLocaleString()} /月</span>
+                            <span class="opacity-80">② 標準毎月貯金額 (口座タブ参照):</span>
+                            <span class="font-bold">¥${defaultMonthlySave.toLocaleString()} /月</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="opacity-80">③ 毎月積立額 (② × ${diffMonths}ヶ月):</span>
+                            <span class="opacity-80">③ 未確定の毎月積立 (② × 未確定${unconfirmedMonths}ヶ月):</span>
                             <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
                         </div>
                         ${bonusCount > 0 ? `
                         <div class="flex justify-between items-center theme-accent-text">
-                            <span class="opacity-90">④ ボーナス加算 (¥${bonusPerAccount.toLocaleString()} × ${bonusCount}回):</span>
+                            <span class="opacity-90">④ ボーナス通過加算 (¥${bonusTwoPeople.toLocaleString()} × ${bonusCount}回):</span>
                             <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
                         </div>` : ''}
                         ${totalEventCost > 0 ? `
@@ -820,7 +833,7 @@
                         </div>` : ''}
                     </div>
 
-                    <!-- ★実際の数値を使った計算式ダイレクト表示エリア -->
+                    <!-- ★実際の数値を交えた計算式ダイレクト表示エリア -->
                     <div class="pt-3 border-t border-current/15 bg-current/5 p-3 rounded-xl space-y-1.5">
                         <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">🧮 実際の数値を交えた計算式:</p>
                         <p class="text-[11px] font-bold font-mono theme-deep-text break-all bg-white/60 p-2 rounded-lg border border-current/10">${formulaMathStr}</p>
@@ -853,8 +866,8 @@
                 heroBg: '', 
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
-                defaultMonthlySave: 50000,
-                bonusPerPerson: 0
+                defaultMonthlySave: 40000,
+                bonusPerPerson: 300000
             },
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
@@ -1514,22 +1527,22 @@
 
         function syncSettingsToUI() {
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
-            if (defaultSaveEl) defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave || 50000);
+            if (defaultSaveEl) defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave || 40000);
 
             const bonusEl = document.getElementById('sim-bonus-per-person');
-            if (bonusEl) bonusEl.value = formatNum(appData.settings.bonusPerPerson || 0);
+            if (bonusEl) bonusEl.value = formatNum(appData.settings.bonusPerPerson || 300000);
         }
 
         function saveSimulationSettings() {
             const defaultSaveEl = document.getElementById('sim-default-monthly-save');
             if (defaultSaveEl) {
-                appData.settings.defaultMonthlySave = parseNum(defaultSaveEl.value) || 50000;
+                appData.settings.defaultMonthlySave = parseNum(defaultSaveEl.value) || 40000;
                 defaultSaveEl.value = formatNum(appData.settings.defaultMonthlySave);
             }
 
             const bonusEl = document.getElementById('sim-bonus-per-person');
             if (bonusEl) {
-                appData.settings.bonusPerPerson = parseNum(bonusEl.value) || 0;
+                appData.settings.bonusPerPerson = parseNum(bonusEl.value) || 300000;
                 bonusEl.value = formatNum(appData.settings.bonusPerPerson);
             }
 
@@ -2252,7 +2265,7 @@
             const currentYM = currentMonthData ? currentMonthData.month : actualNowYM;
             
             const isActual = currentMonthData && currentMonthData.type === '実績' && currentMonthData.month <= actualNowYM;
-            const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
+            const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
 
             const rInc = isActual ? parseNum(currentMonthData.rIncome) : 210000;
             const hInc = isActual ? parseNum(currentMonthData.hIncome) : 170000;
@@ -2277,8 +2290,8 @@
                 savingAccAlloc = parseNum(currentMonthData.bankAllocations['貯金用(三菱UFJ銀行)']);
                 yutoriAccAlloc = parseNum(currentMonthData.bankAllocations['ゆとり用(イオン銀行)']);
             } else {
-                savingAccAlloc = Math.floor(surplus / 2);
-                yutoriAccAlloc = surplus - savingAccAlloc;
+                savingAccAlloc = defaultMonthlySave; // ★全額三菱UFJへ
+                yutoriAccAlloc = Math.max(0, surplus - savingAccAlloc);
             }
 
             const gridContainer = document.getElementById('home-kpi-grid');
@@ -2291,7 +2304,7 @@
                     if (isActual && currentMonthData && currentMonthData.bankAllocations && currentMonthData.bankAllocations[accName] !== undefined) {
                         currentMonthAlloc = parseNum(currentMonthData.bankAllocations[accName]);
                     } else {
-                        currentMonthAlloc = Math.floor(defaultMonthlySave / appData.bankAccounts.length);
+                        currentMonthAlloc = accName === '貯金用(三菱UFJ銀行)' ? defaultMonthlySave : 0;
                     }
                     
                     const allHistory = getAllAccountSavingsHistoryDetails(accName);
@@ -2433,6 +2446,7 @@
             }
         }
 
+        // ================= ★推移グラフ描画（全額三菱・全額ボーナス・タップイベント連動追加） =================
         function renderCharts() {
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const colors = themeObj.colors;
@@ -2448,9 +2462,9 @@
                 let runningActual = initialBal;
                 let runningEstimated = initialBal;
 
-                let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
-                let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
-                let totalBonus2People = bonusPerPerson * 2;
+                let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
+                let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
+                let totalBonus2People = bonusPerPerson * 2; // 600,000円
 
                 const actualNowYM = getCurrentActualYM();
 
@@ -2461,11 +2475,7 @@
                         if (m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
                             savingAllocAmt = parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']);
                         } else {
-                            const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
-                            let totalExp = 0;
-                            if (m.expenses) for (let v of Object.values(m.expenses)) totalExp += parseNum(v);
-                            const surplus = totalInc - totalExp - parseNum(m.nisa);
-                            savingAllocAmt = Math.floor(surplus / 2);
+                            savingAllocAmt = defaultMonthlySave;
                         }
 
                         monthlyDataMap[m.month] = { 
@@ -2508,9 +2518,9 @@
 
                     let stepEvCost = eventMap[ymKey] || 0;
 
-                    let estimatedStep = Math.floor(defaultMonthlySave / 2);
+                    let estimatedStep = defaultMonthlySave; // ★全額三菱へ
                     if ((m === 6 || m === 12) && totalBonus2People > 0) {
-                        estimatedStep += Math.floor(totalBonus2People / 2);
+                        estimatedStep += totalBonus2People; // ★60万円全額三菱へ
                     }
                     runningEstimated += (estimatedStep - stepEvCost);
                     estimatedBalanceData.push(runningEstimated);
@@ -2559,7 +2569,7 @@
                                 pointBorderColor: '#ffffff',
                                 pointBorderWidth: 2,
                                 pointRadius: 4,
-                                pointHoverRadius: 7,
+                                pointHoverRadius: 8,
                                 spanGaps: false,
                                 z: 10
                             },
@@ -2593,6 +2603,16 @@
                     options: { 
                         responsive: true, 
                         maintainAspectRatio: false,
+                        // ★タップ/クリックでその月の計算根拠ポップアップを表示するイベント
+                        onClick: function(evt, elements) {
+                            if (elements && elements.length > 0) {
+                                const index = elements[0].index;
+                                const targetYM = sortedYms[index];
+                                if (targetYM) {
+                                    openPredictionModal(targetYM);
+                                }
+                            }
+                        },
                         scales: {
                             y: {
                                 beginAtZero: false,
@@ -2619,7 +2639,7 @@
                                 callbacks: {
                                     title: function(context) {
                                         const idx = context[0].dataIndex;
-                                        return sortedYms[idx] ? sortedYms[idx].replace('-', '年') + '月' : '';
+                                        return sortedYms[idx] ? sortedYms[idx].replace('-', '年') + '月 （※タップで計算詳細）' : '';
                                     },
                                     afterBody: function(context) {
                                         const idx = context[0].dataIndex;
