@@ -168,9 +168,7 @@
                     </label>
                 </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
-                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white">
-                        <!-- JSで動的にテスト／本番表示切替 -->
-                    </div>
+                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white"></div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg">ライフプランシミュレーション</h2>
                 </div>
             </div>
@@ -183,7 +181,6 @@
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金用 (三菱UFJ銀行) 推移グラフ
                     </h3>
                     
-                    <!-- 年月選択＆ポップアップ確認用UI -->
                     <div class="flex items-center gap-2 self-start sm:self-auto">
                         <label class="text-xs font-bold opacity-80 whitespace-nowrap">🔍 指定月:</label>
                         <select id="chart-month-selector" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm"></select>
@@ -384,7 +381,7 @@
 
     </main>
 
-    <!-- ================= PREDICTION MODAL (新計算ロジック反映済み) ================= -->
+    <!-- ================= PREDICTION MODAL (ボーナス・イベント・実際数値反映版) ================= -->
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
@@ -393,9 +390,7 @@
                 </h3>
                 <button onclick="closePredictionModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
-            <div id="prediction-modal-content" class="space-y-3 text-xs">
-                <!-- JSで動的挿入 -->
-            </div>
+            <div id="prediction-modal-content" class="space-y-3 text-xs"></div>
             <div class="pt-3 border-t border-current/15 flex justify-end">
                 <button onclick="closePredictionModal()" class="theme-primary-bg px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer">閉じる</button>
             </div>
@@ -713,7 +708,7 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
-        // ================= ★修正: 新ロジックを反映したポップアップ制御 =================
+        // ================= ★修正: ボーナス・イベント・実際の数値を完全連携したポップアップ制御 =================
         function openPredictionModal() {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
@@ -724,10 +719,9 @@
             const content = document.getElementById('prediction-modal-content');
             if (!modal || !content) return;
 
-            // 口座タブの初期残高
             const baseInitialBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
 
-            // ① 基準残高: 初期残高 ＋ 過去の実績（口座割り振りチェック: 貯金用(三菱UFJ銀行)）の合計額
+            // ① 基準残高: 口座初期残高 ＋ 確定済みの毎月実績（口座割り振り: 貯金用(三菱UFJ銀行)）
             let actualAccumulatedSum = 0;
             if (appData.monthly && appData.monthly.length > 0) {
                 appData.monthly.forEach(m => {
@@ -740,19 +734,57 @@
             }
             const currentBaseBalance = baseInitialBalance + actualAccumulatedSum;
 
-            // ② 標準毎月貯金額: 口座タブの値を直接参照
+            // ② 標準毎月貯金額 & ボーナス設定
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 50000;
+            const mSavePerAccount = Math.floor(defaultMonthlySave / 2); // 三菱割当分
+            const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 0;
+            const bonusTwoPeople = bonusPerPerson * 2;
+            const bonusPerAccount = Math.floor(bonusTwoPeople / 2); // 三菱割当ボーナス分
 
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const startY = 2027, startM = 1;
+
             let diffMonths = (targetY - startY) * 12 + (targetM - startM);
             if (diffMonths < 0) diffMonths = 0;
 
-            // ③ 積み上げ額 (② × 経過月数)
-            const accumulatedAdd = defaultMonthlySave * diffMonths;
+            // ボーナス対象月（6月・12月）の経過回数を算出
+            let bonusCount = 0;
+            let curY = startY, curM = startM;
+            for (let i = 0; i < diffMonths; i++) {
+                curM += 1;
+                if (curM > 12) { curM = 1; curY++; }
+                if (curM === 6 || curM === 12) {
+                    bonusCount++;
+                }
+            }
 
-            // 到達見込み合計 = ① 基準残高 + ③ 積み上げ額
-            const estimatedAccumulated = currentBaseBalance + accumulatedAdd;
+            // ③ 毎月積み上げ額 (三菱割当分 × 経過月数)
+            const monthlyAccumulatedAdd = mSavePerAccount * diffMonths;
+
+            // ④ ボーナス加算総額 (三菱割当ボーナス分 × 経過回数)
+            const bonusAccumulatedAdd = bonusPerAccount * bonusCount;
+
+            // ⑤ 予定費用（イベント費用のマイナス分）
+            let totalEventCost = 0;
+            if (appData.events) {
+                appData.events.forEach(ev => {
+                    if (ev.date && ev.date <= targetYM && ev.cost) {
+                        totalEventCost += parseNum(ev.cost);
+                    }
+                });
+            }
+
+            // 🎯 貯金到達見込み合計 ＝ ①基準残高 ＋ ③積立 ＋ ④ボーナス － ⑤イベント費用
+            const estimatedAccumulated = currentBaseBalance + monthlyAccumulatedAdd + bonusAccumulatedAdd - totalEventCost;
+
+            // 実際の数値を使った計算式の文字列作成
+            let formulaMathStr = `¥${currentBaseBalance.toLocaleString()} + ¥${mSavePerAccount.toLocaleString()}×${diffMonths}ヶ月`;
+            if (bonusCount > 0) {
+                formulaMathStr += ` + ¥${bonusPerAccount.toLocaleString()}×${bonusCount}回`;
+            }
+            if (totalEventCost > 0) {
+                formulaMathStr += ` - ¥${totalEventCost.toLocaleString()}`;
+            }
 
             content.innerHTML = `
                 <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm">
@@ -763,23 +795,36 @@
                     <div class="space-y-2 text-xs font-medium">
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="opacity-80 block">① 基準残高 (三菱初期残高＋実績累計):</span>
-                                <span class="text-[9px] opacity-60">※口座初期残高 ＋ 確定済みの実績値</span>
+                                <span class="opacity-80 block">① 基準残高 (初期残高＋確定実績):</span>
+                                <span class="text-[9px] opacity-60">※口座初期残高 ＋ 実績の確定分</span>
                             </div>
                             <span class="font-bold shrink-0 mt-0.5">¥${currentBaseBalance.toLocaleString()}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="opacity-80">② 標準毎月貯金額 (口座タブ参照):</span>
-                            <span class="font-bold">¥${defaultMonthlySave.toLocaleString()} /月</span>
+                            <span class="opacity-80">② 標準毎月貯金 (三菱割当):</span>
+                            <span class="font-bold">¥${mSavePerAccount.toLocaleString()} /月</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="opacity-80">③ 積み上げ額 (② × 経過月数):</span>
-                            <span class="font-bold">¥${accumulatedAdd.toLocaleString()}</span>
+                            <span class="opacity-80">③ 毎月積立額 (② × ${diffMonths}ヶ月):</span>
+                            <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
                         </div>
+                        ${bonusCount > 0 ? `
+                        <div class="flex justify-between items-center theme-accent-text">
+                            <span class="opacity-90">④ ボーナス加算 (¥${bonusPerAccount.toLocaleString()} × ${bonusCount}回):</span>
+                            <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
+                        </div>` : ''}
+                        ${totalEventCost > 0 ? `
+                        <div class="flex justify-between items-center text-rose-500">
+                            <span class="opacity-90">⑤ 期間内の予定費用 (イベント):</span>
+                            <span class="font-bold">－¥${totalEventCost.toLocaleString()}</span>
+                        </div>` : ''}
                     </div>
-                    <div class="pt-3 border-t border-current/15 bg-current/5 p-3 rounded-xl space-y-1">
-                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">計算式: ① 基準残高 ＋ ③ 積み上げ額</p>
-                        <div class="flex justify-between items-center">
+
+                    <!-- ★実際の数値を使った計算式ダイレクト表示エリア -->
+                    <div class="pt-3 border-t border-current/15 bg-current/5 p-3 rounded-xl space-y-1.5">
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">🧮 実際の数値を交えた計算式:</p>
+                        <p class="text-[11px] font-bold font-mono theme-deep-text break-all bg-white/60 p-2 rounded-lg border border-current/10">${formulaMathStr}</p>
+                        <div class="flex justify-between items-center pt-1 border-t border-current/10">
                             <span class="font-bold text-xs">貯金到達見込み合計:</span>
                             <span class="font-extrabold text-base theme-primary-text">¥${estimatedAccumulated.toLocaleString()}</span>
                         </div>
@@ -2201,7 +2246,6 @@
             return mData;
         }
 
-        // ================= ★修正: ホームカードの視認性・レイアウト調整 =================
         function updateCalculations() {
             const currentMonthData = getCurrentMonthData();
             const actualNowYM = getCurrentActualYM();
@@ -2355,7 +2399,6 @@
                         </div>
                     </div>
 
-                    <!-- ★改行と幅を最適化した「今月のNISA積立」カード -->
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
                             <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立<br><span class="text-[10px] opacity-75">(${currentYM})</span></p>
@@ -2366,7 +2409,6 @@
                         </div>
                     </div>
 
-                    <!-- ★内訳表記をブロック改行で読みやすく整理した「今月の貯金」カード -->
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
                             <div class="flex items-center justify-between">
