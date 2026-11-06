@@ -179,12 +179,13 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金用 (三菱UFJ銀行) 推移グラフ
-                        <span class="text-[10px] opacity-75 font-normal">（※任意の月をタップで詳細確認）</span>
+                        <span class="text-[10px] opacity-75 font-normal">（※各折れ点をタップで詳細確認）</span>
                     </h3>
                     
-                    <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                         <label class="text-xs font-bold opacity-80 whitespace-nowrap">🔍 指定月:</label>
                         <select id="chart-month-selector" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm"></select>
+                        <button onclick="resetChartMonthSelector()" class="theme-card-sm text-xs px-2.5 py-1.5 rounded-xl font-bold border shadow-sm cursor-pointer whitespace-nowrap" title="本月の月にリセット">🔄 リセット</button>
                         <button onclick="openPredictionModal()" class="theme-primary-bg text-xs px-3 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">確認</button>
                     </div>
                 </div>
@@ -382,7 +383,7 @@
 
     </main>
 
-    <!-- ================= PREDICTION MODAL (三菱全額・ボーナス全額・実際の数式完全一致版) ================= -->
+    <!-- ================= PREDICTION MODAL ================= -->
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
@@ -709,7 +710,7 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
-        // ================= ★完全版ポップアップ制御（全額三菱・全額ボーナス・実際の数式完全一致） =================
+        // ================= 予測ポップアップ制御 =================
         function openPredictionModal(specifiedYM) {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
@@ -727,7 +728,6 @@
 
             const baseInitialBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
 
-            // ① 基準残高: 口座初期残高 ＋ 確定済みの毎月実績（口座割り振り: 貯金用(三菱UFJ銀行)）
             let actualAccumulatedSum = 0;
             let actualCount = 0;
             if (appData.monthly && appData.monthly.length > 0) {
@@ -742,10 +742,9 @@
             }
             const currentBaseBalance = baseInitialBalance + actualAccumulatedSum;
 
-            // ② 標準毎月貯金額 & ボーナス設定（★分割せず三菱に全額全反映）
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
             const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
-            const bonusTwoPeople = bonusPerPerson * 2; // 600,000円
+            const bonusTwoPeople = bonusPerPerson * 2;
 
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const startY = 2027, startM = 1;
@@ -753,7 +752,6 @@
             let diffMonths = (targetY - startY) * 12 + (targetM - startM);
             if (diffMonths < 0) diffMonths = 0;
 
-            // ボーナス対象月（6月・12月）の経過回数を算出
             let bonusCount = 0;
             let curY = startY, curM = startM;
             for (let i = 0; i < diffMonths; i++) {
@@ -764,17 +762,12 @@
                 }
             }
 
-            // 未確定の残り積立月数
             let unconfirmedMonths = diffMonths - actualCount;
             if (unconfirmedMonths < 0) unconfirmedMonths = 0;
 
-            // ③ 毎月積立額 (標準積立額 × 未確定月数)
             const monthlyAccumulatedAdd = defaultMonthlySave * unconfirmedMonths;
-
-            // ④ ボーナス加算総額 (60万円 × 経過回数)
             const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
 
-            // ⑤ 予定費用（イベント費用のマイナス分）
             let totalEventCost = 0;
             if (appData.events) {
                 appData.events.forEach(ev => {
@@ -784,10 +777,8 @@
                 });
             }
 
-            // 🎯 貯金到達見込み合計 ＝ ①基準残高 ＋ ③未確定積立 ＋ ④ボーナス － ⑤イベント費用
             const estimatedAccumulated = currentBaseBalance + monthlyAccumulatedAdd + bonusAccumulatedAdd - totalEventCost;
 
-            // 実際の数値を使った計算式の文字列作成
             let formulaMathStr = `¥${currentBaseBalance.toLocaleString()}`;
             if (unconfirmedMonths > 0) {
                 formulaMathStr += ` + ¥${defaultMonthlySave.toLocaleString()}×${unconfirmedMonths}ヶ月`;
@@ -833,7 +824,6 @@
                         </div>` : ''}
                     </div>
 
-                    <!-- ★実際の数値を交えた計算式ダイレクト表示エリア -->
                     <div class="pt-3 border-t border-current/15 bg-current/5 p-3 rounded-xl space-y-1.5">
                         <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">🧮 実際の数値を交えた計算式:</p>
                         <p class="text-[11px] font-bold font-mono theme-deep-text break-all bg-white/60 p-2 rounded-lg border border-current/10">${formulaMathStr}</p>
@@ -2290,7 +2280,7 @@
                 savingAccAlloc = parseNum(currentMonthData.bankAllocations['貯金用(三菱UFJ銀行)']);
                 yutoriAccAlloc = parseNum(currentMonthData.bankAllocations['ゆとり用(イオン銀行)']);
             } else {
-                savingAccAlloc = defaultMonthlySave; // ★全額三菱UFJへ
+                savingAccAlloc = defaultMonthlySave;
                 yutoriAccAlloc = Math.max(0, surplus - savingAccAlloc);
             }
 
@@ -2446,7 +2436,7 @@
             }
         }
 
-        // ================= ★推移グラフ描画（全額三菱・全額ボーナス・タップイベント連動追加） =================
+        // ================= グラフ描画（各折れ点タップ・見やすいサイズ感調整） =================
         function renderCharts() {
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const colors = themeObj.colors;
@@ -2464,7 +2454,7 @@
 
                 let defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
                 let bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
-                let totalBonus2People = bonusPerPerson * 2; // 600,000円
+                let totalBonus2People = bonusPerPerson * 2;
 
                 const actualNowYM = getCurrentActualYM();
 
@@ -2509,7 +2499,6 @@
                 }
 
                 let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
-                let lastActualIndex = -1;
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
@@ -2518,9 +2507,9 @@
 
                     let stepEvCost = eventMap[ymKey] || 0;
 
-                    let estimatedStep = defaultMonthlySave; // ★全額三菱へ
+                    let estimatedStep = defaultMonthlySave;
                     if ((m === 6 || m === 12) && totalBonus2People > 0) {
-                        estimatedStep += totalBonus2People; // ★60万円全額三菱へ
+                        estimatedStep += totalBonus2People;
                     }
                     runningEstimated += (estimatedStep - stepEvCost);
                     estimatedBalanceData.push(runningEstimated);
@@ -2529,10 +2518,8 @@
                     if (mData && mData.type === '実績' && ymKey <= actualNowYM) {
                         runningActual += (mData.saving - stepEvCost);
                         actualBalanceData.push(runningActual);
-                        lastActualIndex = idx;
                     } else if (idx === 0 && ymKey <= actualNowYM) {
                         actualBalanceData.push(initialBal);
-                        lastActualIndex = 0;
                     } else {
                         actualBalanceData.push(null);
                     }
@@ -2562,14 +2549,14 @@
                                 data: actualBalanceData, 
                                 borderColor: primaryHex, 
                                 backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                                borderWidth: 3.5, 
+                                borderWidth: 3, 
                                 fill: { target: 1, above: 'rgba(16, 185, 129, 0.2)', below: 'rgba(244, 63, 94, 0.25)' },
                                 tension: 0.25,
                                 pointBackgroundColor: primaryHex,
                                 pointBorderColor: '#ffffff',
                                 pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 8,
+                                pointRadius: 4,          // 各折れ点の通常サイズ
+                                pointHoverRadius: 7,     // ホバー・タップ時のサイズ
                                 spanGaps: false,
                                 z: 10
                             },
@@ -2582,7 +2569,11 @@
                                 borderWidth: 2, 
                                 fill: false, 
                                 tension: 0.25,
-                                pointRadius: 0,
+                                pointBackgroundColor: '#64748B',
+                                pointBorderColor: '#ffffff',
+                                pointBorderWidth: 1.5,
+                                pointRadius: 3,          // 推定値の折れ点サイズ
+                                pointHoverRadius: 6,
                                 z: 5
                             },
                             {
@@ -2603,12 +2594,13 @@
                     options: { 
                         responsive: true, 
                         maintainAspectRatio: false,
-                        // ★タップ/クリックでその月の計算根拠ポップアップを表示するイベント
                         onClick: function(evt, elements) {
                             if (elements && elements.length > 0) {
                                 const index = elements[0].index;
                                 const targetYM = sortedYms[index];
                                 if (targetYM) {
+                                    const selector = document.getElementById('chart-month-selector');
+                                    if (selector) selector.value = targetYM;
                                     openPredictionModal(targetYM);
                                 }
                             }
@@ -2671,6 +2663,13 @@
                 opts += `<option value="${ym}" ${ym === currentSelected ? 'selected' : ''}>${y}年${m}月</option>`;
             });
             selector.innerHTML = opts;
+        }
+
+        function resetChartMonthSelector() {
+            const selector = document.getElementById('chart-month-selector');
+            if (!selector) return;
+            const targetYM = getCurrentActualYM();
+            selector.value = targetYM;
         }
 
         window.onload = function() { 
