@@ -41,6 +41,12 @@
             transition: background 0.3s ease;
         }
 
+        .tab-content-area {
+            background-size: cover;
+            background-position: center;
+            border-radius: 1.5rem;
+        }
+
         .theme-card {
             background: var(--app-card-bg) !important;
             border: 2px solid var(--app-c2) !important;
@@ -119,13 +125,18 @@
                     <span id="header-icon-text">🌰</span>
                 </div>
                 <div>
-                    <h1 class="text-sm font-bold tracking-tight leading-tight theme-primary-text">ライフプラン</h1>
+                    <h1 class="text-sm font-bold tracking-tight leading-tight theme-primary-text whitespace-nowrap">ライフプラン</h1>
                 </div>
             </div>
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <button onclick="openSyncModal()" class="theme-primary-bg px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer" title="ダイレクトP2P同期">
+                <!-- タブごとの背景画像個別設定ボタン -->
+                <label class="theme-card-sm px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:opacity-90 whitespace-nowrap" title="現在のタブの背景画像を変更">
+                    <span>🖼️</span> <span class="hidden sm:inline">背景変更</span>
+                    <input type="file" id="tab-bg-file-input" accept="image/*" onchange="changeTabBackground(event)" class="hidden">
+                </label>
+                <button onclick="openSyncModal()" class="theme-primary-bg px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer whitespace-nowrap" title="ダイレクトP2P同期">
                     <span>📱</span> <span>データ同期</span>
                 </button>
             </div>
@@ -158,18 +169,12 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 print-container space-y-6">
 
         <!-- ================= TAB 1: HOME ================= -->
-        <div id="tab-dashboard" class="space-y-6">
+        <div id="tab-dashboard" class="space-y-6 tab-content-area">
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-2xl bg-cover bg-center transition-all border-2 border-white/30">
                 <div id="hero-overlay" class="absolute inset-0 bg-black/15 backdrop-blur-[1px]"></div>
-                <div class="absolute right-3 top-3 z-20 no-print flex gap-2">
-                    <label class="bg-white/25 hover:bg-white/35 text-white text-[10px] sm:text-[11px] font-bold px-3 py-1.5 rounded-xl cursor-pointer backdrop-blur-md transition border border-white/40 flex items-center gap-1.5 shadow-md">
-                        <span>📷</span> 背景変更
-                        <input type="file" id="hero-bg-input" accept="image/*" onchange="changeHeroBackground(event)" class="hidden">
-                    </label>
-                </div>
                 <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
-                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white"></div>
-                    <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg">ライフプランシミュレーション</h2>
+                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white whitespace-nowrap"></div>
+                    <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg whitespace-nowrap">ライフプランシミュレーション</h2>
                 </div>
             </div>
 
@@ -177,9 +182,8 @@
 
             <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 貯金用 (三菱UFJ銀行) 推移グラフ
-                        <span class="text-[10px] opacity-75 font-normal">（※各折れ点をタップで詳細確認）</span>
+                    <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap shrink-0">
+                        <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm shrink-0"></span> 貯金用 (三菱UFJ銀行) 推移グラフ
                     </h3>
                     
                     <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
@@ -191,11 +195,11 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-4 text-[11px] font-bold px-1">
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-1.5 theme-primary-bg inline-block rounded-xs shadow-sm"></span> 実績 (貯金用)</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-0 border-t-2 border-dashed border-gray-600 inline-block"></span> 目標推定値</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500/30 inline-block rounded-xs border border-emerald-500/50"></span> 上振れ</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 bg-rose-500/30 inline-block rounded-xs border border-rose-500/50"></span> 下振れ</span>
-                    <span class="flex items-center gap-1.5"><span class="w-3 h-3 theme-accent-bg rounded-xs inline-block border shadow-sm"></span> 予定費用</span>
+                    <span class="flex items-center gap-1.5 whitespace-nowrap"><span class="w-3 h-1.5 theme-primary-bg inline-block rounded-xs shadow-sm"></span> 実績 (貯金用)</span>
+                    <span class="flex items-center gap-1.5 whitespace-nowrap"><span class="w-3 h-0 border-t-2 border-dashed border-gray-600 inline-block"></span> 目標推定値</span>
+                    <span class="flex items-center gap-1.5 whitespace-nowrap"><span class="w-3 h-3 bg-emerald-500/30 inline-block rounded-xs border border-emerald-500/50"></span> 上振れ</span>
+                    <span class="flex items-center gap-1.5 whitespace-nowrap"><span class="w-3 h-3 bg-rose-500/30 inline-block rounded-xs border border-rose-500/50"></span> 下振れ</span>
+                    <span class="flex items-center gap-1.5 whitespace-nowrap"><span class="w-3 h-3 theme-accent-bg rounded-xs inline-block border shadow-sm"></span> 予定費用</span>
                 </div>
                 <div class="overflow-x-auto custom-scrollbar pb-2 pt-2">
                     <div class="min-w-[900px] h-64 sm:h-72 relative">
@@ -206,16 +210,16 @@
         </div>
 
         <!-- ================= TAB 2: MONTHLY INPUT ================= -->
-        <div id="tab-input" class="hidden space-y-6">
+        <div id="tab-input" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6 a4-print-target">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/15 gap-3 no-print">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">毎月の収支計算</h2>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">毎月の収支計算</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm"></select>
-                        <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px]">
+                        <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] whitespace-nowrap">
                             <span>＋</span> 月を追加
                         </button>
                     </div>
@@ -228,11 +232,11 @@
         </div>
 
         <!-- ================= TAB 3: CHARTS & HISTORY ================= -->
-        <div id="tab-charts" class="hidden space-y-6">
+        <div id="tab-charts" class="hidden space-y-6 tab-content-area">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-5">
                     <div class="flex justify-between items-center gap-2">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2">
+                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap">
                             <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 支出の内訳 (金額の高い順)
                         </h3>
                         <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-sm"></select>
@@ -243,13 +247,13 @@
                     </div>
 
                     <div>
-                        <h4 class="text-xs font-bold opacity-80 uppercase tracking-wider mb-2">項目の詳細金額リスト (金額が高い順)</h4>
+                        <h4 class="text-xs font-bold opacity-80 uppercase tracking-wider mb-2 whitespace-nowrap">項目の詳細金額リスト (金額が高い順)</h4>
                         <div id="expense-breakdown-list" class="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
                     </div>
                 </div>
 
                 <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col">
-                    <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2">
+                    <h3 class="font-bold text-xs sm:text-sm mb-4 flex items-center gap-2 whitespace-nowrap">
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 過去の収支履歴一覧 (直近12ヶ月分)
                     </h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-2xl border border-current/15">
@@ -272,18 +276,18 @@
         </div>
 
         <!-- ================= TAB 4: EVENTS ================= -->
-        <div id="tab-events" class="hidden space-y-6">
+        <div id="tab-events" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6">
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/15 gap-3">
                     <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">今後の予定</h2>
+                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">今後の予定</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">登録したイベントの時期と費用は、ホームの折れ線グラフおよび貯金に自動連動します。</p>
                     </div>
                     <div class="flex flex-wrap gap-2 w-full sm:w-auto relative z-40">
-                        <button type="button" onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95">
+                        <button type="button" onclick="toggleAiParserBox()" class="flex-grow sm:flex-initial theme-primary-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95 whitespace-nowrap">
                             <span>🤖</span> Gemini回答から自動反映
                         </button>
-                        <button type="button" onclick="addNewEvent()" class="theme-accent-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer shrink-0 min-h-[44px] active:scale-95">
+                        <button type="button" onclick="addNewEvent()" class="theme-accent-bg text-xs px-4 py-3 rounded-xl font-bold transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer shrink-0 min-h-[44px] active:scale-95 whitespace-nowrap">
                             <span>＋</span> 追加
                         </button>
                     </div>
@@ -291,14 +295,14 @@
 
                 <div id="ai-parser-box" class="theme-card p-4 sm:p-5 rounded-3xl border space-y-3 hidden shadow-xl relative z-20">
                     <div class="flex items-center justify-between pb-2 border-b border-current/15">
-                        <h4 class="font-bold text-xs flex items-center gap-1.5 theme-primary-text">
+                        <h4 class="font-bold text-xs flex items-center gap-1.5 theme-primary-text whitespace-nowrap">
                             <span>✨</span> Gemini回答の自動解析
                         </h4>
                         <button type="button" onclick="toggleAiParserBox()" class="opacity-80 hover:opacity-100 text-xs font-bold p-1 cursor-pointer">×</button>
                     </div>
                     <textarea id="ai-raw-text" rows="4" placeholder="ここにGeminiの回答を貼り付け..." class="w-full theme-card-sm rounded-xl p-3 text-xs focus:outline-none border shadow-inner"></textarea>
                     <div class="flex justify-end">
-                        <button type="button" onclick="parseAiTextAndAddEvent()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md cursor-pointer min-h-[40px]">
+                        <button type="button" onclick="parseAiTextAndAddEvent()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md cursor-pointer min-h-[40px] whitespace-nowrap">
                             📥 解析して今後の予定に追加する
                         </button>
                     </div>
@@ -324,22 +328,22 @@
         </div>
 
         <!-- ================= TAB 5: ACCOUNTS ================= -->
-        <div id="tab-accounts" class="hidden space-y-6">
+        <div id="tab-accounts" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-5 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3">
-                    <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">銀行口座の管理 ＆ 将来予測設定</h2>
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">銀行口座の管理 ＆ 将来予測設定</h2>
                     <p class="text-xs opacity-80 mt-0.5 font-medium">口座の管理と、ホームグラフの未来予測に使う設定を行えます。</p>
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold text-xs theme-primary-text">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
+                    <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
-                            <label class="block font-bold text-[11px] opacity-90 mb-1">標準毎月貯金額 (円)</label>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額 (円)</label>
                             <input type="text" id="sim-default-monthly-save" value="40,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                         </div>
                         <div>
-                            <label class="block font-bold text-[11px] opacity-90 mb-1">🎁 ボーナス額 (年2回 / 1人あたり)</label>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">🎁 ボーナス額 (年2回 / 1人あたり)</label>
                             <input type="text" id="sim-bonus-per-person" value="300,000" onfocus="unformatInput(this)" onblur="formatInput(this); saveSimulationSettings();" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                             <p class="text-[9px] opacity-75 mt-1">※毎年6月・12月に「1人分×2人＝2人分」が自動加算されます</p>
                         </div>
@@ -347,29 +351,27 @@
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold text-xs mb-1 theme-primary-text">🏦 登録口座一覧</h3>
+                    <h3 class="font-bold text-xs mb-1 theme-primary-text whitespace-nowrap">🏦 登録口座一覧</h3>
                     <div id="bank-accounts-manager" class="space-y-3 pt-1"></div>
                     <div class="flex flex-col sm:flex-row gap-2 pt-3 border-t border-current/15">
                         <input type="text" id="new-bank-account-name" placeholder="新しい口座名..." class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs focus:outline-none border shadow-inner">
                         <input type="text" id="new-bank-account-balance" placeholder="初期残高(円)" onfocus="unformatInput(this)" onblur="formatInput(this)" class="w-full sm:w-28 theme-card-sm rounded-xl px-3 py-2 text-xs text-right focus:outline-none border shadow-inner">
-                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition cursor-pointer shrink-0 min-h-[40px] shadow-md">＋ 口座追加</button>
+                        <button onclick="addNewBankAccount()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition cursor-pointer shrink-0 min-h-[40px] shadow-md whitespace-nowrap">＋ 口座追加</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ================= TAB 6: THEMES ================= -->
-        <div id="tab-theme" class="hidden space-y-6">
+        <div id="tab-theme" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
-                <div class="border-b border-current/15 pb-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                        <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text">カラーテーマ設定</h2>
-                        <p class="text-xs opacity-80 mt-0.5 font-medium">毎日ランダムでテーマが変わります。手動で変更するとその日は固定表示されます。</p>
-                    </div>
+                <div class="border-b border-current/15 pb-3">
+                    <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">カラーテーマ設定</h2>
+                    <p class="text-xs opacity-80 mt-0.5 font-medium">毎日ランダムでテーマが変わります。手動で変更するとその日は固定表示されます。</p>
                 </div>
 
                 <div class="theme-card-sm p-5 rounded-2xl border space-y-4 shadow-sm">
-                    <label class="block font-bold text-xs opacity-90">🎨 カラーテーマの選択</label>
+                    <label class="block font-bold text-xs opacity-90 whitespace-nowrap">🎨 カラーテーマの選択</label>
                     <div class="relative">
                         <div id="custom-select-trigger" onclick="toggleThemeDropdown()" class="w-full theme-card-sm rounded-2xl px-4 py-3 text-xs font-bold border flex items-center justify-between cursor-pointer shadow-md hover:scale-[1.01] transition">
                             <div id="selected-theme-display" class="flex items-center gap-3 truncate"></div>
@@ -387,14 +389,14 @@
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
-                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text">
+                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text whitespace-nowrap">
                     <span>💡</span> 貯金到達見込みの計算根拠
                 </h3>
                 <button onclick="closePredictionModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
             <div id="prediction-modal-content" class="space-y-3 text-xs"></div>
             <div class="pt-3 border-t border-current/15 flex justify-end">
-                <button onclick="closePredictionModal()" class="theme-primary-bg px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer">閉じる</button>
+                <button onclick="closePredictionModal()" class="theme-primary-bg px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer whitespace-nowrap">閉じる</button>
             </div>
         </div>
     </div>
@@ -403,14 +405,14 @@
     <div id="history-popup-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeHistoryModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15 shrink-0">
-                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text" id="history-modal-title">
+                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text whitespace-nowrap" id="history-modal-title">
                     <span>📜</span> 全履歴
                 </h3>
                 <button onclick="closeHistoryModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
             
             <div class="flex items-center justify-between gap-2 shrink-0 no-print">
-                <label class="text-xs font-bold opacity-80">絞り込み表示:</label>
+                <label class="text-xs font-bold opacity-80 whitespace-nowrap">絞り込み表示:</label>
                 <select id="history-modal-year-filter" onchange="filterHistoryModalByYear()" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm">
                     <option value="ALL">📅 すべての年</option>
                 </select>
@@ -419,7 +421,7 @@
             <div id="history-modal-content" class="overflow-y-auto custom-scrollbar flex-grow space-y-3 pr-1 text-xs"></div>
             
             <div class="pt-3 border-t border-current/15 flex justify-end shrink-0">
-                <button onclick="closeHistoryModal()" class="theme-card-sm px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer shadow-sm">閉じる</button>
+                <button onclick="closeHistoryModal()" class="theme-card-sm px-4 py-2 rounded-xl text-xs font-bold border cursor-pointer shadow-sm whitespace-nowrap">閉じる</button>
             </div>
         </div>
     </div>
@@ -428,7 +430,7 @@
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
-                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text">
+                <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text whitespace-nowrap">
                     <span>📱</span> ダイレクトP2Pデータ同期
                 </h3>
                 <button onclick="closeSyncModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
@@ -473,6 +475,7 @@
 
         let currentModalRawHistory = [];
         let globalChartDataStore = { yms: [], actuals: [], estimates: [], events: [], monthlyMap: {} };
+        let currentActiveTabId = 'dashboard';
 
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
@@ -529,9 +532,36 @@
 
         let currentThemeId = 1;
 
+        // 給与支給日（26日・土日祝の場合は前営業日判定）当日の0:00自動月度切り替えロジック
+        function getSalaryPayday(year, month) {
+            let payday = new Date(year, month - 1, 26, 0, 0, 0, 0);
+            let dayOfWeek = payday.getDay();
+            if (dayOfWeek === 6) { // 土曜日 -> 金曜日(-1日)
+                payday.setDate(payday.getDate() - 1);
+            } else if (dayOfWeek === 0) { // 日曜日 -> 金曜日(-2日)
+                payday.setDate(payday.getDate() - 2);
+            }
+            return payday;
+        }
+
+        function getActualYMBySalaryCycle(date = new Date()) {
+            let y = date.getFullYear();
+            let m = date.getMonth() + 1;
+
+            let currentPayday = getSalaryPayday(y, m);
+
+            if (date >= currentPayday) {
+                return `${y}-${String(m).padStart(2, '0')}`;
+            } else {
+                let prevM = m - 1;
+                let prevY = y;
+                if (prevM < 1) { prevM = 12; prevY--; }
+                return `${prevY}-${String(prevM).padStart(2, '0')}`;
+            }
+        }
+
         function getCurrentActualYM() {
-            const now = new Date();
-            const realYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            const realYM = getActualYMBySalaryCycle(new Date());
             if (realYM < '2027-01') {
                 return '2027-01';
             }
@@ -542,6 +572,20 @@
             const now = new Date();
             const realYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             return realYM < '2027-01';
+        }
+
+        // 期間表記付きのフォーマット関数 (例: 2027年1月度 (2026/12/25〜2027/1/25))
+        function formatMonthPeriodLabel(ymStr) {
+            if (!ymStr) return '';
+            const parts = ymStr.split('-');
+            if (parts.length !== 2) return ymStr;
+            let y = Number(parts[0]);
+            let m = Number(parts[1]);
+
+            let prevY = y, prevM = m - 1;
+            if (prevM < 1) { prevM = 12; prevY--; }
+
+            return `${y}年${m}月度 (${prevY}/${prevM}/25〜${y}/${m}/25)`;
         }
 
         function setupDailyRandomTheme() {
@@ -603,6 +647,46 @@
         function formatInput(input) {
             if (!input) return;
             input.value = formatNum(input.value);
+        }
+
+        // 各ページ（タブ）ごとの背景画像個別設定
+        function changeTabBackground(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64 = evt.target.result;
+                if (!appData.settings.tabBackgrounds) {
+                    appData.settings.tabBackgrounds = {};
+                }
+                appData.settings.tabBackgrounds[currentActiveTabId] = base64;
+                saveStorage();
+                applyTabBackgroundUI(currentActiveTabId);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyTabBackgroundUI(tabId) {
+            const heroEl = document.getElementById('hero-banner');
+            const tabContent = document.getElementById('tab-' + tabId);
+            if (!tabContent) return;
+
+            const bgImage = appData.settings.tabBackgrounds && appData.settings.tabBackgrounds[tabId];
+            if (bgImage && tabId === 'dashboard' && heroEl) {
+                heroEl.style.backgroundImage = `url("${bgImage}")`;
+            } else if (bgImage) {
+                tabContent.style.backgroundImage = `url("${bgImage}")`;
+                tabContent.style.backgroundSize = 'cover';
+                tabContent.style.backgroundPosition = 'center';
+            } else if (tabId === 'dashboard' && heroEl) {
+                if (appData.settings.heroBg) {
+                    heroEl.style.backgroundImage = `url("${appData.settings.heroBg}")`;
+                } else {
+                    heroEl.style.backgroundImage = '';
+                }
+            } else {
+                tabContent.style.backgroundImage = '';
+            }
         }
 
         function toggleYearAccordion(year) {
@@ -793,7 +877,7 @@
             content.innerHTML = `
                 <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm">
                     <div class="flex items-center justify-between pb-2 border-b border-current/15">
-                        <span class="font-extrabold theme-primary-text text-sm">📅 指定年月: ${targetY}年${targetM}月</span>
+                        <span class="font-extrabold theme-primary-text text-sm whitespace-nowrap">📅 指定年月: ${targetY}年${targetM}月</span>
                         <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md">経過月数: ${diffMonths}ヶ月</span>
                     </div>
                     <div class="space-y-2 text-xs font-medium">
@@ -857,7 +941,8 @@
                 headerIcon: '🌰',
                 headerIconType: 'emoji',
                 defaultMonthlySave: 40000,
-                bonusPerPerson: 300000
+                bonusPerPerson: 300000,
+                tabBackgrounds: {}
             },
             bankAccounts: [...defaultAccounts],
             expenseCategories: [
@@ -899,6 +984,7 @@
         let videoStream = null;
         let qrScanAnimation = null;
 
+        // 期間明記オプション生成関数 (例: 2027年1月度 (2026/12/25〜2027/1/25))
         function generateFuture30YearsOptions(selectedVal) {
             let opts = '';
             const now = new Date();
@@ -908,7 +994,8 @@
             for (let i = 0; i < 360; i++) {
                 const mm = String(m).padStart(2, '0');
                 const val = `${y}-${mm}`;
-                opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${y}年${m}月</option>`;
+                const labelText = formatMonthPeriodLabel(val);
+                opts += `<option value="${val}" ${val===selectedVal?'selected':''}>${labelText}</option>`;
                 m++;
                 if (m > 12) { m = 1; y++; }
             }
@@ -1554,10 +1641,10 @@
                         <input type="text" value="${name}" onchange="updateBankAccountName(${i}, this.value)" class="flex-grow theme-card-sm rounded-xl px-3 py-2 text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-                        <span class="opacity-80 text-[11px]">初期残高:</span>
+                        <span class="opacity-80 text-[11px] whitespace-nowrap">初期残高:</span>
                         <input type="text" value="${formatNum(balance)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateBankAccountBalance(${i}, this.value);" class="w-28 theme-card-sm rounded-xl px-2.5 py-2 text-right text-xs font-bold focus:outline-none border shadow-inner">
-                        <span class="opacity-80 text-[11px]">円</span>
-                        <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2">削除</button>
+                        <span class="opacity-80 text-[11px] whitespace-nowrap">円</span>
+                        <button onclick="removeBankAccount(${i})" class="text-rose-500 hover:text-rose-700 text-xs font-bold cursor-pointer shrink-0 ml-2 whitespace-nowrap">削除</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1615,6 +1702,7 @@
         }
 
         function switchTab(tabId) {
+            currentActiveTabId = tabId;
             const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
             if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
                 alert("⚠️ 毎月入力画面で変更された内容が保存されていません！\n他のページに移動するには、まず「💾 この内容で保存・反映する」ボタンを押してください。");
@@ -1640,6 +1728,8 @@
                 activeBtn.classList.add('theme-primary-bg', 'font-bold', 'shadow-sm');
             }
 
+            applyTabBackgroundUI(tabId);
+
             if (tabId === 'dashboard') { renderCharts(); updateCalculations(); }
             else if (tabId === 'charts') { updatePieSelector(); renderPieChart(); }
             else if (tabId === 'events') { renderEventsTable(); }
@@ -1654,7 +1744,7 @@
             appData.monthly.forEach((m, idx) => {
                 const opt = document.createElement('option');
                 opt.value = idx;
-                opt.textContent = `${m.month} (${m.type})`;
+                opt.textContent = `${formatMonthPeriodLabel(m.month)} (${m.type})`;
                 if (idx === currentEditingIndex) opt.selected = true;
                 selector.appendChild(opt);
             });
@@ -1763,11 +1853,11 @@
             const diff = allocatedSum - autoSaving;
             let diffMessage = '';
             if (diff === 0) {
-                diffMessage = `<span class="theme-deep-text font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                diffMessage = `<span class="theme-deep-text font-bold whitespace-nowrap">✨ 割り振り額が完璧に一致しています！</span>`;
             } else if (diff < 0) {
-                diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
+                diffMessage = `<span class="text-rose-500 font-bold whitespace-nowrap">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
             } else {
-                diffMessage = `<span class="text-rose-500 font-bold">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
+                diffMessage = `<span class="text-rose-500 font-bold whitespace-nowrap">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
             }
 
             const isMatched = (diff === 0);
@@ -1776,7 +1866,7 @@
             getAccountNames().forEach(b => {
                 banksHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between border shadow-sm">
-                        <span class="font-bold text-xs">🏦 ${b}</span>
+                        <span class="font-bold text-xs truncate">🏦 ${b}</span>
                         <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-xl p-2 text-right text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                 `;
@@ -1798,42 +1888,42 @@
             container.innerHTML = `
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
-                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">年月</label>
+                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
                         <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">区分</label>
+                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">区分</label>
                         <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
                             <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※ホームへ即時反映)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1">メモ</label>
+                        <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">メモ</label>
                         <input type="text" id="input-field-memo" value="${m.memo || ''}" oninput="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none shadow-inner">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
-                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3.5 py-2 rounded-xl font-bold transition cursor-pointer shadow-sm">削除</button>
+                        <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3.5 py-2 rounded-xl font-bold transition cursor-pointer shadow-sm whitespace-nowrap">削除</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 theme-card-sm p-4 rounded-2xl border text-center shadow-sm">
                     <div>
-                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">総手取り</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">総手取り</p>
                         <p class="text-xs sm:text-base font-extrabold theme-primary-text mt-1" id="live-total-inc">¥${totalInc.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">生活費合計</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">生活費合計</p>
                         <p class="text-xs sm:text-base font-extrabold theme-deep-text mt-1" id="live-total-exp">¥${totalExp.toLocaleString()}</p>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">NISA積立</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">NISA積立</p>
                         <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-1.5 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider">今月の貯金</p>
+                        <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金</p>
                         <p class="text-xs sm:text-base font-extrabold theme-deep-text mt-1" id="live-auto-saving">¥${autoSaving.toLocaleString()}</p>
                     </div>
                 </div>
@@ -1843,7 +1933,7 @@
                         <div class="flex items-center gap-2">
                             <span class="text-base">👤</span>
                             <div>
-                                <span class="font-bold text-xs">ゲストA貯金額</span>
+                                <span class="font-bold text-xs whitespace-nowrap">ゲストA貯金額</span>
                                 <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                             </div>
                         </div>
@@ -1853,7 +1943,7 @@
                         <div class="flex items-center gap-2">
                             <span class="text-base">🏦</span>
                             <div>
-                                <span class="font-bold text-xs">生活用(三井住友銀行)</span>
+                                <span class="font-bold text-xs whitespace-nowrap">生活用(三井住友銀行)</span>
                                 <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                             </div>
                         </div>
@@ -1863,7 +1953,7 @@
 
                 <div id="allocation-check-box" class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm ${isMatched ? 'border-[var(--app-c2)] bg-[var(--app-c2)]/10' : 'border-rose-500 bg-rose-500/10'}">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <h3 class="font-bold text-xs uppercase tracking-wider">
+                        <h3 class="font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                             💰 口座割り振りチェック (割り振り計: <span id="live-allocated-sum">¥${allocatedSum.toLocaleString()}</span>)
                         </h3>
                         <div id="live-diff-feedback" class="text-xs font-bold">${diffMessage}</div>
@@ -1876,29 +1966,29 @@
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
-                            <span class="text-xs font-bold">ゲストA収入 (円)</span>
+                            <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
                             <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
-                            <span class="text-xs font-bold">ゲストB収入 (円)</span>
+                            <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
                             <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
-                            <span class="text-xs font-bold">🎁 ボーナス (円)</span>
+                            <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
                             <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
-                            <span class="text-xs font-bold">✨ 臨時収入 (円)</span>
+                            <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
                             <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                     </div>
 
                     <div class="space-y-2">
                         <div class="flex justify-between items-center pt-2 border-b border-current/15 pb-1">
-                            <span class="font-bold text-xs">支出項目</span>
+                            <span class="font-bold text-xs whitespace-nowrap">支出項目</span>
                             <div class="flex gap-2">
                                 <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-2.5 py-1.5 text-xs font-bold shadow-inner">
-                                <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-1.5 rounded-xl font-bold shadow-md cursor-pointer">＋ 項目追加</button>
+                                <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
                             </div>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -1908,7 +1998,7 @@
                 </div>
 
                 <div class="pt-4 border-t border-current/15 flex justify-end">
-                    <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-xl transition cursor-pointer hover:scale-105 min-h-[44px]">
+                    <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-xl transition cursor-pointer hover:scale-105 min-h-[44px] whitespace-nowrap">
                         💾 この内容で保存・反映する
                     </button>
                 </div>
@@ -1944,13 +2034,13 @@
             const box = document.getElementById('allocation-check-box');
 
             if (diff === 0) {
-                diffMessage = `<span class="theme-deep-text font-bold">✨ 割り振り額が完璧に一致しています！</span>`;
+                diffMessage = `<span class="theme-deep-text font-bold whitespace-nowrap">✨ 割り振り額が完璧に一致しています！</span>`;
                 if (box) box.className = "theme-card-sm p-4 rounded-2xl space-y-3 border border-[var(--app-c2)] bg-[var(--app-c2)]/10 shadow-sm";
             } else if (diff < 0) {
-                diffMessage = `<span class="text-rose-500 font-bold">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
+                diffMessage = `<span class="text-rose-500 font-bold whitespace-nowrap">⚠️ あと ¥${Math.abs(diff).toLocaleString()} 不足しています</span>`;
                 if (box) box.className = "theme-card-sm p-4 rounded-2xl space-y-3 border border-rose-500 bg-rose-500/10 shadow-sm";
             } else {
-                diffMessage = `<span class="text-rose-500 font-bold">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
+                diffMessage = `<span class="text-rose-500 font-bold whitespace-nowrap">⚠️ ¥${diff.toLocaleString()} オーバーしています</span>`;
                 if (box) box.className = "theme-card-sm p-4 rounded-2xl space-y-3 border border-rose-500 bg-rose-500/10 shadow-sm";
             }
 
@@ -2037,13 +2127,13 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-current/10 transition font-bold";
                 tr.innerHTML = `
-                    <td class="p-3">${m.month}</td>
+                    <td class="p-3">${formatMonthPeriodLabel(m.month)}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${m.type==='実績'?'bg-emerald-500/25 theme-deep-text':'bg-amber-500/25 theme-primary-text'}">${m.type}</span></td>
                     <td class="p-3 text-right theme-primary-text">¥${totalInc.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center">
-                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm">編集</button>
+                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2057,7 +2147,7 @@
             appData.monthly.forEach((m, idx) => {
                 const opt = document.createElement('option');
                 opt.value = idx;
-                opt.textContent = `${m.month} (${m.type})`;
+                opt.textContent = `${formatMonthPeriodLabel(m.month)} (${m.type})`;
                 selector.appendChild(opt);
             });
         }
@@ -2201,7 +2291,7 @@
                     <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center font-bold shadow-inner"></td>
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
-                    <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer">削除</button></td>
+                    <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer whitespace-nowrap">削除</button></td>
                 `;
                 tbody.appendChild(tr);
 
@@ -2210,25 +2300,25 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
                         <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
-                        <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0">削除</button>
+                        <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0 whitespace-nowrap">削除</button>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">予定時期</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定時期</label>
                             <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">${generateFuture30YearsOptions(ev.date)}</select>
                         </div>
                         <div>
-                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">予定費用 (円)</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定費用 (円)</label>
                             <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">ステータス</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">ステータス</label>
                             <input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center font-bold shadow-inner">
                         </div>
                         <div>
-                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold">メモ</label>
+                            <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">メモ</label>
                             <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
                         </div>
                     </div>
@@ -2305,14 +2395,14 @@
                             <div>
                                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                     <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${currentYM}</span>
+                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${formatMonthPeriodLabel(currentYM)}</span>
                                 </div>
                                 <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1.5 sm:mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
                             </div>
                             <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                                 <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
-                                    <span>過去の積み上げ履歴:</span>
-                                    <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴 🔍</span>
+                                    <span class="whitespace-nowrap">過去の積み上げ履歴:</span>
+                                    <span class="text-[9px] theme-primary-text underline font-extrabold whitespace-nowrap">全履歴 🔍</span>
                                 </div>
                             </div>
                         </div>
@@ -2328,14 +2418,14 @@
                         <div>
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${currentYM}</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${formatMonthPeriodLabel(currentYM)}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
-                                <span>過去の積み上げ履歴:</span>
-                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴 🔍</span>
+                                <span class="whitespace-nowrap">過去の積み上げ履歴:</span>
+                                <span class="text-[9px] theme-primary-text underline font-extrabold whitespace-nowrap">全履歴 🔍</span>
                             </div>
                         </div>
                     </div>
@@ -2350,14 +2440,14 @@
                         <div>
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${currentYM}</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${formatMonthPeriodLabel(currentYM)}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">
-                                <span>過去の積み上げ履歴:</span>
-                                <span class="text-[9px] theme-primary-text underline font-extrabold">全履歴 🔍</span>
+                                <span class="whitespace-nowrap">過去の積み上げ履歴:</span>
+                                <span class="text-[9px] theme-primary-text underline font-extrabold whitespace-nowrap">全履歴 🔍</span>
                             </div>
                         </div>
                     </div>
@@ -2369,65 +2459,65 @@
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
                         <div>
                             <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の手取り (${currentYM})</p>
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の手取り (${formatMonthPeriodLabel(currentYM)})</p>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${totalInc.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1 font-bold opacity-90">
                             <div class="flex justify-between items-center">
-                                <span>👤 ゲストA収入:</span>
-                                <span>¥${rInc.toLocaleString()}</span>
+                                <span class="whitespace-nowrap">👤 ゲストA収入:</span>
+                                <span class="whitespace-nowrap">¥${rInc.toLocaleString()}</span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span>👤 ゲストB収入:</span>
-                                <span>¥${hInc.toLocaleString()}</span>
+                                <span class="whitespace-nowrap">👤 ゲストB収入:</span>
+                                <span class="whitespace-nowrap">¥${hInc.toLocaleString()}</span>
                             </div>
                             ${bonus > 0 ? `
                             <div class="flex justify-between items-center theme-accent-text">
-                                <span>🎁 ボーナス:</span>
-                                <span>¥${bonus.toLocaleString()}</span>
+                                <span class="whitespace-nowrap">🎁 ボーナス:</span>
+                                <span class="whitespace-nowrap">¥${bonus.toLocaleString()}</span>
                             </div>` : ''}
                             ${extraInc > 0 ? `
                             <div class="flex justify-between items-center theme-accent-text">
-                                <span>✨ 臨時収入:</span>
-                                <span>¥${extraInc.toLocaleString()}</span>
+                                <span class="whitespace-nowrap">✨ 臨時収入:</span>
+                                <span class="whitespace-nowrap">¥${extraInc.toLocaleString()}</span>
                             </div>` : ''}
                         </div>
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の生活費 (${currentYM})</p>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の生活費 (${formatMonthPeriodLabel(currentYM)})</p>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立<br><span class="text-[10px] opacity-75">(${currentYM})</span></p>
+                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight whitespace-nowrap">今月のNISA積立<br><span class="text-[10px] opacity-75">(${formatMonthPeriodLabel(currentYM)})</span></p>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15">
-                            <span class="inline-block text-[10px] theme-badge-tone font-extrabold px-2.5 py-1 rounded-lg shadow-xs">期間: ${nisaDuration}</span>
+                            <span class="inline-block text-[10px] theme-badge-tone font-extrabold px-2.5 py-1 rounded-lg shadow-xs whitespace-nowrap">期間: ${nisaDuration}</span>
                         </div>
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
                             <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金 (${currentYM})</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0">余剰金計</span>
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金 (${formatMonthPeriodLabel(currentYM)})</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">余剰金計</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${surplus.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[11px] space-y-2 font-bold">
                             <div class="flex justify-between items-center">
                                 <span class="flex items-center gap-1 truncate"><span class="w-2 h-2 rounded-full theme-primary-bg inline-block shrink-0"></span> 🏦 貯金用 (三菱):</span>
-                                <span class="theme-primary-text font-extrabold shrink-0">¥${savingAccAlloc.toLocaleString()}</span>
+                                <span class="theme-primary-text font-extrabold shrink-0 whitespace-nowrap">¥${savingAccAlloc.toLocaleString()}</span>
                             </div>
                             <div class="flex flex-col items-start gap-1 bg-current/5 p-2 rounded-xl">
                                 <span class="flex items-center gap-1 opacity-90 text-[10px] leading-tight"><span class="w-2 h-2 rounded-full theme-accent-bg inline-block shrink-0"></span> 🏦 ゆとり用<br>(イオン):</span>
-                                <span class="font-extrabold self-end text-xs theme-deep-text">¥${yutoriAccAlloc.toLocaleString()}</span>
+                                <span class="font-extrabold self-end text-xs theme-deep-text whitespace-nowrap">¥${yutoriAccAlloc.toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
@@ -2436,7 +2526,7 @@
             }
         }
 
-        // ================= グラフ描画（各折れ点タップ・見やすいサイズ感調整） =================
+        // 折れ線グラフの描画（横軸すっきり表記 ＆ 点のサイズ拡大）
         function renderCharts() {
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const colors = themeObj.colors;
@@ -2502,6 +2592,7 @@
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
+                    // 横軸ラベルは「2027年1月」形式ですっきり表示
                     const isTargetLabel = (ymKey === '2027-01' || m === 1 || m === 4 || m === 7 || m === 10);
                     labels.push(isTargetLabel ? `${y}年${m}月` : '');
 
@@ -2554,9 +2645,9 @@
                                 tension: 0.25,
                                 pointBackgroundColor: primaryHex,
                                 pointBorderColor: '#ffffff',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,          // 各折れ点の通常サイズ
-                                pointHoverRadius: 7,     // ホバー・タップ時のサイズ
+                                pointBorderWidth: 2.5,
+                                pointRadius: 6,          // データポイントの視認性＆タップ向上
+                                pointHoverRadius: 9,     
                                 spanGaps: false,
                                 z: 10
                             },
@@ -2571,9 +2662,9 @@
                                 tension: 0.25,
                                 pointBackgroundColor: '#64748B',
                                 pointBorderColor: '#ffffff',
-                                pointBorderWidth: 1.5,
-                                pointRadius: 3,          // 推定値の折れ点サイズ
-                                pointHoverRadius: 6,
+                                pointBorderWidth: 2,
+                                pointRadius: 5,          // データポイントの視認性向上
+                                pointHoverRadius: 8,
                                 z: 5
                             },
                             {
@@ -2631,7 +2722,7 @@
                                 callbacks: {
                                     title: function(context) {
                                         const idx = context[0].dataIndex;
-                                        return sortedYms[idx] ? sortedYms[idx].replace('-', '年') + '月 （※タップで計算詳細）' : '';
+                                        return sortedYms[idx] ? formatMonthPeriodLabel(sortedYms[idx]) + ' （※タップで計算詳細）' : '';
                                     },
                                     afterBody: function(context) {
                                         const idx = context[0].dataIndex;
@@ -2659,8 +2750,8 @@
             
             let opts = '';
             yms.forEach(ym => {
-                const [y, m] = ym.split('-');
-                opts += `<option value="${ym}" ${ym === currentSelected ? 'selected' : ''}>${y}年${m}月</option>`;
+                const labelText = formatMonthPeriodLabel(ym);
+                opts += `<option value="${ym}" ${ym === currentSelected ? 'selected' : ''}>${labelText}</option>`;
             });
             selector.innerHTML = opts;
         }
