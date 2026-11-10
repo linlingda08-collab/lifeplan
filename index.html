@@ -131,7 +131,6 @@
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <!-- タブごとの背景画像個別設定ボタン -->
                 <label class="theme-card-sm px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:opacity-90 whitespace-nowrap" title="現在のタブの背景画像を変更">
                     <span>🖼️</span> <span class="hidden sm:inline">背景変更</span>
                     <input type="file" id="tab-bg-file-input" accept="image/*" onchange="changeTabBackground(event)" class="hidden">
@@ -336,7 +335,10 @@
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
+                    <h3 class="font-bold text-xs theme-primary-text flex flex-wrap items-center gap-1">
+                        <span>📈 将来予測シミュレーション設定</span> 
+                        <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span>
+                    </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額 (円)</label>
@@ -387,15 +389,15 @@
 
     <!-- ================= PREDICTION MODAL ================= -->
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
-        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between pb-3 border-b border-current/15">
+        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2 max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-current/15 shrink-0">
                 <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text whitespace-nowrap">
                     <span>💡</span> 貯金到達見込みの計算根拠
                 </h3>
                 <button onclick="closePredictionModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
-            <div id="prediction-modal-content" class="space-y-3 text-xs"></div>
-            <div class="pt-3 border-t border-current/15 flex justify-end">
+            <div id="prediction-modal-content" class="overflow-y-auto custom-scrollbar flex-grow space-y-3 text-xs pr-1"></div>
+            <div class="pt-3 border-t border-current/15 flex justify-end shrink-0">
                 <button onclick="closePredictionModal()" class="theme-primary-bg px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer whitespace-nowrap">閉じる</button>
             </div>
         </div>
@@ -453,7 +455,7 @@
                     <div id="qr-canvas-container" class="w-48 h-48 flex items-center justify-center mx-auto"></div>
                 </div>
                 <div class="text-xs font-bold theme-primary-text" id="sync-sender-status">接続待ち受け中...</div>
-                <p class="text-[11px] opacity-84">受信側でアプリの「カメラをスキャン」し、このコードを写してください。</p>
+                <p class="text-[11px] opacity-84">受信側でアプリのアプリ内カメラを起動し、このコードを写してください。</p>
                 <button onclick="closeSyncModal()" class="opacity-90 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer shadow-sm">閉じる</button>
             </div>
 
@@ -573,7 +575,6 @@
             return realYM < '2027-01';
         }
 
-        // 期間表記（見切れ防止のため横並びでゆったり表示し、折り返しさせない形式）
         function formatMonthPeriodLabel(ymStr, isHtml = false) {
             if (!ymStr) return '';
             const parts = ymStr.split('-');
@@ -585,10 +586,8 @@
             if (prevM < 1) { prevM = 12; prevY--; }
 
             if (isHtml) {
-                // ホームカード用（スリムな文字サイズと上下並び）
                 return `<span class="font-bold text-[11px] whitespace-nowrap">${y}年${m}月度</span><span class="block text-[10px] opacity-80 font-normal leading-tight whitespace-nowrap">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
             }
-            // ドロップダウンやテーブル等用（見切れ防止のため横並びで完全表示・折り返し禁止）
             return `${y}年${m}月度 (${prevY}/${prevM}/25〜${y}/${m}/25)`;
         }
 
@@ -839,12 +838,14 @@
             if (diffMonths < 0) diffMonths = 0;
 
             let bonusCount = 0;
+            let bonusDetails = [];
             let curY = startY, curM = startM;
             for (let i = 0; i < diffMonths; i++) {
                 curM += 1;
                 if (curM > 12) { curM = 1; curY++; }
                 if (curM === 6 || curM === 12) {
                     bonusCount++;
+                    bonusDetails.push({ ym: `${curY}年${curM}月`, amount: bonusTwoPeople });
                 }
             }
 
@@ -855,10 +856,13 @@
             const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
 
             let totalEventCost = 0;
+            let targetEvents = [];
             if (appData.events) {
                 appData.events.forEach(ev => {
                     if (ev.date && ev.date <= targetYM && ev.cost) {
-                        totalEventCost += parseNum(ev.cost);
+                        const costNum = parseNum(ev.cost);
+                        totalEventCost += costNum;
+                        targetEvents.push({ name: ev.name || '予定イベント', date: ev.date, cost: costNum });
                     }
                 });
             }
@@ -898,15 +902,29 @@
                             <span class="opacity-80">③ 未確定の毎月積立 (② × 未確定${unconfirmedMonths}ヶ月):</span>
                             <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
                         </div>
+                        
                         ${bonusCount > 0 ? `
-                        <div class="flex justify-between items-center theme-accent-text">
-                            <span class="opacity-90">④ ボーナス通過加算 (¥${bonusTwoPeople.toLocaleString()} × ${bonusCount}回):</span>
-                            <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
+                        <div class="space-y-1.5 theme-accent-text bg-current/5 p-3 rounded-xl border border-current/10">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="opacity-90">④ ボーナス通過加算 (計 ${bonusCount}回):</span>
+                                <span>＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
+                            </div>
+                            <div class="pl-2 space-y-1 text-[10px] opacity-90 font-normal border-t border-current/10 pt-1.5">
+                                <div class="font-bold opacity-75 mb-0.5">【ボーナス支給内訳】</div>
+                                ${bonusDetails.map(b => `<div class="flex justify-between"><span>・${b.ym} 支給</span><span class="font-mono">¥${b.amount.toLocaleString()}</span></div>`).join('')}
+                            </div>
                         </div>` : ''}
+
                         ${totalEventCost > 0 ? `
-                        <div class="flex justify-between items-center text-rose-500">
-                            <span class="opacity-90">⑤ 期間内の予定費用 (イベント):</span>
-                            <span class="font-bold">－¥${totalEventCost.toLocaleString()}</span>
+                        <div class="space-y-1.5 text-rose-500 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="opacity-90">⑤ 期間内の予定費用 (計 ${targetEvents.length}件):</span>
+                                <span>－¥${totalEventCost.toLocaleString()}</span>
+                            </div>
+                            <div class="pl-2 space-y-1 text-[10px] opacity-90 font-normal border-t border-rose-500/20 pt-1.5">
+                                <div class="font-bold opacity-75 mb-0.5">【予定費用（イベント）の内訳】</div>
+                                ${targetEvents.map(e => `<div class="flex justify-between"><span>・${e.name} (${e.date})</span><span class="font-mono">¥${e.cost.toLocaleString()}</span></div>`).join('')}
+                            </div>
                         </div>` : ''}
                     </div>
 
@@ -1017,29 +1035,6 @@
             } else {
                 const now = new Date();
                 badge.innerText = `📅 本日: ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
-            }
-        }
-
-        function changeHeroBackground(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const base64 = evt.target.result;
-                appData.settings.heroBg = base64;
-                saveStorage();
-                applyHeroBackgroundUI();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function applyHeroBackgroundUI() {
-            const heroEl = document.getElementById('hero-banner');
-            if (!heroEl) return;
-            if (appData.settings.heroBg) {
-                heroEl.style.backgroundImage = `url("${appData.settings.heroBg}")`;
-            } else {
-                heroEl.style.backgroundImage = '';
             }
         }
 
