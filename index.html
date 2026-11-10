@@ -188,7 +188,7 @@
                     
                     <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                         <label class="text-xs font-bold opacity-80 whitespace-nowrap">🔍 指定月:</label>
-                        <select id="chart-month-selector" class="theme-card-sm rounded-xl px-3.5 py-2 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm max-w-[220px] truncate"></select>
+                        <select id="chart-month-selector" class="theme-card-sm rounded-xl px-3 py-2 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm max-w-[260px] sm:max-w-[320px] truncate"></select>
                         <button onclick="resetChartMonthSelector()" class="theme-card-sm text-xs px-2.5 py-2 rounded-xl font-bold border shadow-sm cursor-pointer whitespace-nowrap" title="本月にリセット">🔄 リセット</button>
                         <button onclick="openPredictionModal()" class="theme-primary-bg text-xs px-3 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">確認</button>
                     </div>
@@ -218,7 +218,7 @@
                         <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm max-w-[260px] truncate"></select>
+                        <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm max-w-[280px] sm:max-w-[340px] truncate"></select>
                         <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] whitespace-nowrap">
                             <span>＋</span> 月を追加
                         </button>
@@ -239,7 +239,7 @@
                         <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0">
                             <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 支出の内訳
                         </h3>
-                        <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-3.5 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-sm max-w-[240px] truncate"></select>
+                        <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-3.5 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-sm max-w-[280px] sm:max-w-[320px] truncate"></select>
                     </div>
                     
                     <div class="relative h-56 sm:h-64 flex items-center justify-center">
@@ -260,8 +260,8 @@
                         <table class="w-full text-xs text-left border-collapse">
                             <thead>
                                 <tr class="theme-card-sm font-bold border-b border-current/15">
-                                    <th class="p-3 min-w-[190px]">年月</th>
-                                    <th class="p-3">区分</th>
+                                    <th class="p-3 min-w-[210px]">年月</th>
+                                    <th class="p-3 min-w-[90px]">区分</th>
                                     <th class="p-3 text-right">手取り</th>
                                     <th class="p-3 text-right">生活費</th>
                                     <th class="p-3 text-right">貯金</th>
@@ -313,7 +313,7 @@
                         <thead>
                             <tr class="theme-card-sm font-bold border-b border-current/15">
                                 <th class="p-3 w-40">イベント名</th>
-                                <th class="p-3 w-56">予定時期</th>
+                                <th class="p-3 w-64">予定時期</th>
                                 <th class="p-3 w-32">予定費用 (円)</th>
                                 <th class="p-3 w-20">ステータス</th>
                                 <th class="p-3">メモ</th>
@@ -573,7 +573,7 @@
             return realYM < '2027-01';
         }
 
-        // 期間表記（各タブやセレクトボックスで途切れないよう十分にゆとりを持たせたフォーマット）
+        // 期間表記（見切れ防止のため横並びでゆったり表示し、折り返しさせない形式）
         function formatMonthPeriodLabel(ymStr, isHtml = false) {
             if (!ymStr) return '';
             const parts = ymStr.split('-');
@@ -585,10 +585,10 @@
             if (prevM < 1) { prevM = 12; prevY--; }
 
             if (isHtml) {
-                // ホームカード用（調和したスリムな文字サイズと上下並び）
-                return `<span class="font-bold text-[11px]">${y}年${m}月度</span><span class="block text-[10px] opacity-80 font-normal leading-tight">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
+                // ホームカード用（スリムな文字サイズと上下並び）
+                return `<span class="font-bold text-[11px] whitespace-nowrap">${y}年${m}月度</span><span class="block text-[10px] opacity-80 font-normal leading-tight whitespace-nowrap">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
             }
-            // ドロップダウンやテーブル等用（途切れ防止のため横並びでスッキリ見やすく）
+            // ドロップダウンやテーブル等用（見切れ防止のため横並びで完全表示・折り返し禁止）
             return `${y}年${m}月度 (${prevY}/${prevM}/25〜${y}/${m}/25)`;
         }
 
@@ -2128,12 +2128,12 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-current/10 transition font-bold";
                 tr.innerHTML = `
-                    <td class="p-3">${formatMonthPeriodLabel(m.month, true)}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${m.type==='実績'?'bg-emerald-500/25 theme-deep-text':'bg-amber-500/25 theme-primary-text'}">${m.type}</span></td>
-                    <td class="p-3 text-right theme-primary-text">¥${totalInc.toLocaleString()}</td>
-                    <td class="p-3 text-right theme-deep-text">¥${totalExp.toLocaleString()}</td>
-                    <td class="p-3 text-right theme-deep-text">¥${surplus.toLocaleString()}</td>
-                    <td class="p-3 text-center">
+                    <td class="p-3 whitespace-nowrap">${formatMonthPeriodLabel(m.month, true)}</td>
+                    <td class="p-3 whitespace-nowrap"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold whitespace-nowrap ${m.type==='実績'?'bg-emerald-500/25 theme-deep-text':'bg-amber-500/25 theme-primary-text'}">${m.type}</span></td>
+                    <td class="p-3 text-right theme-primary-text whitespace-nowrap">¥${totalInc.toLocaleString()}</td>
+                    <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${totalExp.toLocaleString()}</td>
+                    <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${surplus.toLocaleString()}</td>
+                    <td class="p-3 text-center whitespace-nowrap">
                         <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
                     </td>
                 `;
