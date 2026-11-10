@@ -167,7 +167,7 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 print-container space-y-6">
 
-        <!-- ================= TAB 1: HOME ================= -->
+        <!-- TAB 1: HOME -->
         <div id="tab-dashboard" class="space-y-6 tab-content-area">
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-2xl bg-cover bg-center transition-all border-2 border-white/30">
                 <div id="hero-overlay" class="absolute inset-0 bg-black/15 backdrop-blur-[1px]"></div>
@@ -208,13 +208,13 @@
             </div>
         </div>
 
-        <!-- ================= TAB 2: MONTHLY INPUT ================= -->
+        <!-- TAB 2: MONTHLY INPUT -->
         <div id="tab-input" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6 a4-print-target">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/15 gap-3 no-print">
                     <div>
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">毎月の収支計算</h2>
-                        <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
+                        <p class="text-xs opacity-80 mt-0.5 font-medium">※入力後、「💾 この内容で保存・反映する」ボタンを押して保存してください。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm max-w-[280px] sm:max-w-[340px] truncate"></select>
@@ -230,7 +230,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 3: CHARTS & HISTORY ================= -->
+        <!-- TAB 3: CHARTS & HISTORY -->
         <div id="tab-charts" class="hidden space-y-6 tab-content-area">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-5">
@@ -274,7 +274,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 4: EVENTS ================= -->
+        <!-- TAB 4: EVENTS -->
         <div id="tab-events" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6">
                 <div class="relative z-30 flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 border-b border-current/15 gap-3">
@@ -326,7 +326,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 5: ACCOUNTS ================= -->
+        <!-- TAB 5: ACCOUNTS -->
         <div id="tab-accounts" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-5 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3">
@@ -335,10 +335,7 @@
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold text-xs theme-primary-text flex flex-wrap items-center gap-1">
-                        <span>📈 将来予測シミュレーション設定</span> 
-                        <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span>
-                    </h3>
+                    <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額 (円)</label>
@@ -364,7 +361,7 @@
             </div>
         </div>
 
-        <!-- ================= TAB 6: THEMES ================= -->
+        <!-- TAB 6: THEMES -->
         <div id="tab-theme" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl max-w-2xl mx-auto space-y-6 shadow-xl">
                 <div class="border-b border-current/15 pb-3">
@@ -387,23 +384,23 @@
 
     </main>
 
-    <!-- ================= PREDICTION MODAL ================= -->
+    <!-- PREDICTION MODAL -->
     <div id="prediction-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closePredictionModal()">
-        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2 max-h-[85vh] flex flex-col" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between pb-3 border-b border-current/15 shrink-0">
+        <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 border-b border-current/15">
                 <h3 class="font-bold text-base flex items-center gap-2 theme-primary-text whitespace-nowrap">
                     <span>💡</span> 貯金到達見込みの計算根拠
                 </h3>
                 <button onclick="closePredictionModal()" class="opacity-80 hover:opacity-100 font-bold text-lg cursor-pointer">×</button>
             </div>
-            <div id="prediction-modal-content" class="overflow-y-auto custom-scrollbar flex-grow space-y-3 text-xs pr-1"></div>
-            <div class="pt-3 border-t border-current/15 flex justify-end shrink-0">
+            <div id="prediction-modal-content" class="space-y-3 text-xs"></div>
+            <div class="pt-3 border-t border-current/15 flex justify-end">
                 <button onclick="closePredictionModal()" class="theme-primary-bg px-4 py-2 rounded-xl text-xs font-bold shadow-md cursor-pointer whitespace-nowrap">閉じる</button>
             </div>
         </div>
     </div>
 
-    <!-- ================= HISTORY POPUP MODAL ================= -->
+    <!-- HISTORY POPUP MODAL -->
     <div id="history-popup-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeHistoryModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative max-h-[85vh] flex flex-col border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15 shrink-0">
@@ -428,7 +425,7 @@
         </div>
     </div>
 
-    <!-- ================= SYNC MODAL ================= -->
+    <!-- SYNC MODAL -->
     <div id="sync-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeSyncModal()">
         <div class="theme-card max-w-md w-full p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl relative border-2" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between pb-3 border-b border-current/15">
@@ -455,7 +452,7 @@
                     <div id="qr-canvas-container" class="w-48 h-48 flex items-center justify-center mx-auto"></div>
                 </div>
                 <div class="text-xs font-bold theme-primary-text" id="sync-sender-status">接続待ち受け中...</div>
-                <p class="text-[11px] opacity-84">受信側でアプリのアプリ内カメラを起動し、このコードを写してください。</p>
+                <p class="text-[11px] opacity-84">受信側でアプリの「カメラをスキャン」し、このコードを写してください。</p>
                 <button onclick="closeSyncModal()" class="opacity-90 hover:opacity-100 text-xs font-bold px-4 py-2 border rounded-xl cursor-pointer shadow-sm">閉じる</button>
             </div>
 
@@ -489,47 +486,7 @@
             { id: 7, name: "スターライトブルー配色", colors: ["#E1F5FE", "#81AID4", "#75C9C9", "#88B9DD"] },
             { id: 8, name: "優しい和モダン配色", colors: ["#F5EFE6", "#92A593", "#CCDBD8", "#EAC9CF"] },
             { id: 9, name: "星のミスティック配色", colors: ["#EDE7F6", "#1F2B63", "#8383DE", "#D7BFDF"] },
-            { id: 10, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#92C3A5", "#FFCE55"] },
-            { id: 11, name: "都会のブルーアワー配色", colors: ["#E6ECF2", "#3E5066", "#B4C4D9", "#9C8BBE"] },
-            { id: 12, name: "ソーダ水と夕暮れの配色", colors: ["#F1F5F9", "#CBD5E1", "#A5F3FC", "#FB923C"] },
-            { id: 13, name: "古民家カフェ配色", colors: ["#F4ECDB", "#1F2937", "#9A3412", "#EFCF86"] },
-            { id: 14, name: "もぎたてライチの果実配色", colors: ["#FFF1F2", "#C62828", "#EF5350", "#E0F2F1"] },
-            { id: 15, name: "夏色ファミリーキャンプ配色", colors: ["#F0FDF4", "#388E3C", "#29B6F6", "#FFA726"] },
-            { id: 16, name: "弾けるシャインマスカット配色", colors: ["#F6FAEE", "#3A7D32", "#72C04D", "#D8E65D"] },
-            { id: 17, name: "カフェラテムード配色", colors: ["#F2E8DB", "#B28772", "#DDA886", "#A8A29C"] },
-            { id: 18, name: "レモン彗星配色", colors: ["#F7FEE7", "#194660", "#74C3A0", "#3DAA97"] },
-            { id: 19, name: "静かな駅の朝配色", colors: ["#F9F5F3", "#FFE38F", "#FFC3D4", "#8AD7F7"] },
-            { id: 20, name: "ソフトモーブ配色", colors: ["#EFEEF2", "#767891", "#D9B3C4", "#C7C6D1"] },
-            { id: 21, name: "デイリーブルーコーデ配色", colors: ["#EBF5FB", "#AFA397", "#C6D8C2", "#849DBB"] },
-            { id: 22, name: "チョコミントな配色", colors: ["#E0F2F1", "#614633", "#C22730", "#BBDFCF"] },
-            { id: 23, name: "マーメイド・パステル配色", colors: ["#E0F7FA", "#5C789D", "#7CAFCE", "#E2BDAD"] },
-            { id: 24, name: "センチメンタル・グリーン配色", colors: ["#F0FDF4", "#99B9A4", "#B1CBC3", "#0C10D1"] },
-            { id: 25, name: "雨宿りのレトロカフェ配色", colors: ["#C6F3E6", "#33271F", "#A06C44", "#7DC8D0"] },
-            { id: 26, name: "朝焼けのグラデーション配色", colors: ["#FEEEDF", "#B67AB4", "#F4C3D3", "#F8A3BF"] },
-            { id: 27, name: "星降る夜の七夕配色", colors: ["#E0F2FE", "#001133", "#1A4D2E", "#FFF176"] },
-            { id: 28, name: "風そよぐみずみずしい草露配色", colors: ["#E8F5E9", "#B2DFDB", "#E3F2FD", "#C8E6C9"] },
-            { id: 29, name: "紫陽花小路配色", colors: ["#D9D8DF", "#1E1B4B", "#A78BFA", "#0D9488"] },
-            { id: 30, name: "夏薫るシトラスアイス配色", colors: ["#F6F6D2", "#EE8D2C", "#F4DD64", "#5FCF63"] },
-            { id: 31, name: "爽やかなピスタチオラテ配色", colors: ["#E3FBEA", "#451A03", "#B45309", "#86EFAC"] },
-            { id: 32, name: "初夏のジェラート配色", colors: ["#FFFBEB", "#0D9488", "#38BDF8", "#FEF08A"] },
-            { id: 33, name: "黄昏のラジカセ・ドライブ配色", colors: ["#FFEDD5", "#54227C", "#F5883D", "#9D73CE"] },
-            { id: 34, name: "夕暮れの駄菓子屋配色", colors: ["#F8E6B8", "#4C0519", "#D97706", "#991B1B"] },
-            { id: 35, name: "雨のメトロポリス配色", colors: ["#CBD7D7", "#1C2B50", "#475569", "#0EA5E9"] },
-            { id: 36, name: "朝のハチミツトースト配色", colors: ["#FEF08A", "#451A03", "#CA8A04", "#FDE047"] },
-            { id: 37, name: "異国のバザール配色", colors: ["#F6F1E9", "#1488A6", "#991B1B", "#D6B28D"] },
-            { id: 38, name: "星屑が溶けるソーダの海配色", colors: ["#E0F2FE", "#0F172A", "#316281", "#5FDDC9"] },
-            { id: 39, name: "雨宿りの紫陽花配色", colors: ["#E3F2FD", "#1D4ED8", "#B3E5FC", "#F8BBD0"] },
-            { id: 40, name: "ふんわり桃っぽ配色", colors: ["#FFF0F5", "#881337", "#F43F5E", "#FDA4AF"] },
-            { id: 41, name: "真夏のナイト・プール配色", colors: ["#E0F2F1", "#232F49", "#237297", "#38B2AC"] },
-            { id: 42, name: "華やかなシャンパンゴールド配色", colors: ["#FDFCFO", "#D4AF37", "#E2E8F0", "#EEE6BB"] },
-            { id: 43, name: "深海に沈むサンゴ配色", colors: ["#E0F2FE", "#112953", "#F054A0", "#F98D3A"] },
-            { id: 44, name: "夕暮れどきのシトラス配色", colors: ["#FFF7ED", "#3E5066", "#EA580C", "#FDBA74"] },
-            { id: 45, name: "月夜のサファイア配色", colors: ["#E0F2FE", "#1B263B", "#778DA9", "#C3BE6F"] },
-            { id: 46, name: "焼きたてカヌレのビター配色", colors: ["#F7EFE2", "#4A3732", "#8C6A5E", "#D7C087"] },
-            { id: 47, name: "秘密のジャックポット配色", colors: ["#F2E7D5", "#2B2D42", "#3A6073", "#E94E3A"] },
-            { id: 48, name: "霧の森の朝配色", colors: ["#F0FDF4", "#385C51", "#8CB19B", "#E4D6A5"] },
-            { id: 49, name: "カジュアル・カントリー配色", colors: ["#FEF3C7", "#78350F", "#D97706", "#63AC86"] },
-            { id: 50, name: "海とヒトデの配色", colors: ["#FFE1D7", "#012C70", "#0259DE", "#FF6647"] }
+            { id: 10, name: "陽だまりグリーン配色", colors: ["#F1F8E9", "#568366", "#92C3A5", "#FFCE55"] }
         ];
 
         let currentThemeId = 1;
@@ -838,14 +795,12 @@
             if (diffMonths < 0) diffMonths = 0;
 
             let bonusCount = 0;
-            let bonusDetails = [];
             let curY = startY, curM = startM;
             for (let i = 0; i < diffMonths; i++) {
                 curM += 1;
                 if (curM > 12) { curM = 1; curY++; }
                 if (curM === 6 || curM === 12) {
                     bonusCount++;
-                    bonusDetails.push({ ym: `${curY}年${curM}月`, amount: bonusTwoPeople });
                 }
             }
 
@@ -856,13 +811,10 @@
             const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
 
             let totalEventCost = 0;
-            let targetEvents = [];
             if (appData.events) {
                 appData.events.forEach(ev => {
                     if (ev.date && ev.date <= targetYM && ev.cost) {
-                        const costNum = parseNum(ev.cost);
-                        totalEventCost += costNum;
-                        targetEvents.push({ name: ev.name || '予定イベント', date: ev.date, cost: costNum });
+                        totalEventCost += parseNum(ev.cost);
                     }
                 });
             }
@@ -902,29 +854,15 @@
                             <span class="opacity-80">③ 未確定の毎月積立 (② × 未確定${unconfirmedMonths}ヶ月):</span>
                             <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
                         </div>
-                        
                         ${bonusCount > 0 ? `
-                        <div class="space-y-1.5 theme-accent-text bg-current/5 p-3 rounded-xl border border-current/10">
-                            <div class="flex justify-between items-center font-bold">
-                                <span class="opacity-90">④ ボーナス通過加算 (計 ${bonusCount}回):</span>
-                                <span>＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
-                            </div>
-                            <div class="pl-2 space-y-1 text-[10px] opacity-90 font-normal border-t border-current/10 pt-1.5">
-                                <div class="font-bold opacity-75 mb-0.5">【ボーナス支給内訳】</div>
-                                ${bonusDetails.map(b => `<div class="flex justify-between"><span>・${b.ym} 支給</span><span class="font-mono">¥${b.amount.toLocaleString()}</span></div>`).join('')}
-                            </div>
+                        <div class="flex justify-between items-center theme-accent-text">
+                            <span class="opacity-90">④ ボーナス通過加算 (¥${bonusTwoPeople.toLocaleString()} × ${bonusCount}回):</span>
+                            <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
                         </div>` : ''}
-
                         ${totalEventCost > 0 ? `
-                        <div class="space-y-1.5 text-rose-500 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
-                            <div class="flex justify-between items-center font-bold">
-                                <span class="opacity-90">⑤ 期間内の予定費用 (計 ${targetEvents.length}件):</span>
-                                <span>－¥${totalEventCost.toLocaleString()}</span>
-                            </div>
-                            <div class="pl-2 space-y-1 text-[10px] opacity-90 font-normal border-t border-rose-500/20 pt-1.5">
-                                <div class="font-bold opacity-75 mb-0.5">【予定費用（イベント）の内訳】</div>
-                                ${targetEvents.map(e => `<div class="flex justify-between"><span>・${e.name} (${e.date})</span><span class="font-mono">¥${e.cost.toLocaleString()}</span></div>`).join('')}
-                            </div>
+                        <div class="flex justify-between items-center text-rose-500">
+                            <span class="opacity-90">⑤ 期間内の予定費用 (イベント):</span>
+                            <span class="font-bold">－¥${totalEventCost.toLocaleString()}</span>
                         </div>` : ''}
                     </div>
 
@@ -1135,11 +1073,6 @@
                     setTimeout(() => closeSyncModal(), 1500);
                 });
             });
-
-            activePeer.on('error', (err) => {
-                console.error('PeerJSエラー:', err);
-                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しぐさい。';
-            });
         }
 
         function startPeerReceive() {
@@ -1203,17 +1136,7 @@
                                         }, 800);
                                     }
                                 });
-                                conn.on('error', (err) => {
-                                    statusEl.innerText = '通信エラーが発生しました。';
-                                    isConnecting = false;
-                                });
                             });
-
-                            activePeer.on('error', (err) => {
-                                statusEl.innerText = '接続に失敗しました。';
-                                isConnecting = false;
-                            });
-
                             return;
                         }
                     }
@@ -1335,7 +1258,7 @@
             const theme = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             let circlesHtml = '';
             theme.colors.forEach(hex => {
-                circlesHtml += `<div class="w-6 h-6 rounded-full shadow-sm border border-black/20 shrink-0" style="background-color: ${hex};" title="${hex}"></div>`;
+                circlesHtml += `<div class="w-6 h-6 rounded-full shadow-sm border border-black/20 shrink-0" style="background-color: ${hex};"></div>`;
             });
 
             displayEl.innerHTML = `
@@ -1487,7 +1410,7 @@
                 return;
             }
 
-            let emojiInput = prompt('絵文字を入力してください。');
+            let emojiInput = prompt('絵文字を入力してください。', '📌');
             if (!emojiInput || !emojiInput.trim()) return;
             
             let emoji = emojiInput.trim();
@@ -1701,8 +1624,9 @@
             currentActiveTabId = tabId;
             const currentActiveTab = document.querySelector('main > div:not(.hidden)')?.id;
             if (currentActiveTab === 'tab-input' && isMonthFormModified && tabId !== 'input') {
-                alert("⚠️ 毎月入力画面で変更された内容が保存されていません！\n他のページに移動するには、まず「💾 この内容で保存・反映する」ボタンを押してください。");
-                return;
+                if (!confirm("⚠️ 毎月入力画面で保存されていない変更があります。\n保存せずに他のタブへ移動しますか？")) {
+                    return;
+                }
             }
             isMonthFormModified = false;
 
@@ -1748,9 +1672,10 @@
 
         function confirmAndSwitchMonth(index) {
             if (isMonthFormModified) {
-                alert("⚠️ 現在の月の入力内容が保存されていません。保存ボタンを押してから移動してください。");
-                document.getElementById('month-selector').value = currentEditingIndex;
-                return;
+                if (!confirm("⚠️ 現在の月の入力内容が保存されていません。保存せずに切り替えますか？")) {
+                    document.getElementById('month-selector').value = currentEditingIndex;
+                    return;
+                }
             }
             isMonthFormModified = false;
             currentEditingIndex = Number(index);
@@ -1759,8 +1684,9 @@
 
         function addNewMonthByDropdown() {
             if (isMonthFormModified) {
-                alert("⚠️ 保存されていない変更があります。新しい月を追加する前に保存してください。");
-                return;
+                if (!confirm("⚠️ 保存されていない変更があります。新しい月を追加する前に移動しますか？")) {
+                    return;
+                }
             }
             isMonthFormModified = false;
 
@@ -2078,15 +2004,22 @@
 
             let newBankAllocs = {};
             let allocatedSum = 0;
-            getAccountNames().forEach(b => {
+            const accountNames = getAccountNames();
+            accountNames.forEach(b => {
                 const val = parseNum(document.getElementById(`input-bank-${b}`).value);
                 newBankAllocs[b] = val;
                 allocatedSum += val;
             });
 
-            if (allocatedSum !== autoSaving) {
-                alert(`⚠️ 保存エラー: 今月の貯金額（¥${autoSaving.toLocaleString()}）と、口座への割り振り合計（¥${allocatedSum.toLocaleString()}）が一致していません。ぴったり一致させてから保存してください。`);
-                return;
+            // 差額のチェックと自動調整サポート
+            const diff = allocatedSum - autoSaving;
+            if (diff !== 0) {
+                const confirmSave = confirm(`⚠️ 今月の貯金額（¥${autoSaving.toLocaleString()}）と、口座への割り振り合計（¥${allocatedSum.toLocaleString()}）に ¥${Math.abs(diff).toLocaleString()} の差額があります。\n\nこのまま差額を1つ目の口座（${accountNames[0]}）に自動調整して保存しますか？\n[OK] 自動調整して保存\n[キャンセル] 修正し直す`);
+                if (confirmSave) {
+                    newBankAllocs[accountNames[0]] = parseNum(newBankAllocs[accountNames[0]]) - diff;
+                } else {
+                    return;
+                }
             }
 
             m.month = document.getElementById('input-field-month').value;
@@ -2129,7 +2062,7 @@
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
+                        <button onclick="isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
