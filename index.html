@@ -188,8 +188,8 @@
                     
                     <div class="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                         <label class="text-xs font-bold opacity-80 whitespace-nowrap">🔍 指定月:</label>
-                        <select id="chart-month-selector" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm"></select>
-                        <button onclick="resetChartMonthSelector()" class="theme-card-sm text-xs px-2.5 py-1.5 rounded-xl font-bold border shadow-sm cursor-pointer whitespace-nowrap" title="本月の月にリセット">🔄 リセット</button>
+                        <select id="chart-month-selector" class="theme-card-sm rounded-xl px-3 py-1.5 text-xs font-bold border focus:outline-none cursor-pointer shadow-sm max-w-[200px] truncate"></select>
+                        <button onclick="resetChartMonthSelector()" class="theme-card-sm text-xs px-2.5 py-1.5 rounded-xl font-bold border shadow-sm cursor-pointer whitespace-nowrap" title="本月にリセット">🔄 リセット</button>
                         <button onclick="openPredictionModal()" class="theme-primary-bg text-xs px-3 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">確認</button>
                     </div>
                 </div>
@@ -218,7 +218,7 @@
                         <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm"></select>
+                        <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm max-w-[240px] truncate"></select>
                         <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] whitespace-nowrap">
                             <span>＋</span> 月を追加
                         </button>
@@ -235,11 +235,11 @@
         <div id="tab-charts" class="hidden space-y-6 tab-content-area">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-5">
-                    <div class="flex justify-between items-center gap-2">
-                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 whitespace-nowrap">
-                            <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 支出の内訳 (金額の高い順)
+                    <div class="flex justify-between items-center gap-2 flex-wrap">
+                        <h3 class="font-bold text-xs sm:text-sm flex items-center gap-2 shrink-0">
+                            <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 支出の内訳
                         </h3>
-                        <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-sm"></select>
+                        <select id="pie-month-selector" onchange="renderPieChart()" class="theme-card-sm rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-sm max-w-[220px] truncate"></select>
                     </div>
                     
                     <div class="relative h-56 sm:h-64 flex items-center justify-center">
@@ -257,10 +257,10 @@
                         <span class="w-3 h-3 rounded-full theme-primary-bg shadow-sm"></span> 過去の収支履歴一覧 (直近12ヶ月分)
                     </h3>
                     <div class="overflow-x-auto custom-scrollbar flex-grow max-h-[440px] rounded-2xl border border-current/15">
-                        <table class="w-full text-xs text-left border-collapse whitespace-nowrap sm:whitespace-normal">
+                        <table class="w-full text-xs text-left border-collapse">
                             <thead>
                                 <tr class="theme-card-sm font-bold border-b border-current/15">
-                                    <th class="p-3">年月</th>
+                                    <th class="p-3 min-w-[160px]">年月</th>
                                     <th class="p-3">区分</th>
                                     <th class="p-3 text-right">手取り</th>
                                     <th class="p-3 text-right">生活費</th>
@@ -313,7 +313,7 @@
                         <thead>
                             <tr class="theme-card-sm font-bold border-b border-current/15">
                                 <th class="p-3 w-40">イベント名</th>
-                                <th class="p-3 w-32">予定時期</th>
+                                <th class="p-3 w-48">予定時期</th>
                                 <th class="p-3 w-32">予定費用 (円)</th>
                                 <th class="p-3 w-20">ステータス</th>
                                 <th class="p-3">メモ</th>
@@ -532,13 +532,12 @@
 
         let currentThemeId = 1;
 
-        // 給与支給日（26日・土日祝の場合は前営業日判定）当日の0:00自動月度切り替えロジック
         function getSalaryPayday(year, month) {
             let payday = new Date(year, month - 1, 26, 0, 0, 0, 0);
             let dayOfWeek = payday.getDay();
-            if (dayOfWeek === 6) { // 土曜日 -> 金曜日(-1日)
+            if (dayOfWeek === 6) { 
                 payday.setDate(payday.getDate() - 1);
-            } else if (dayOfWeek === 0) { // 日曜日 -> 金曜日(-2日)
+            } else if (dayOfWeek === 0) { 
                 payday.setDate(payday.getDate() - 2);
             }
             return payday;
@@ -574,8 +573,8 @@
             return realYM < '2027-01';
         }
 
-        // 期間表記付きのフォーマット関数 (例: 2027年1月度 (2026/12/25〜2027/1/25))
-        function formatMonthPeriodLabel(ymStr) {
+        // 期間表記付きのフォーマット関数（改行や縦並びに対応しやすいHTML対応構造）
+        function formatMonthPeriodLabel(ymStr, isHtml = false) {
             if (!ymStr) return '';
             const parts = ymStr.split('-');
             if (parts.length !== 2) return ymStr;
@@ -585,6 +584,9 @@
             let prevY = y, prevM = m - 1;
             if (prevM < 1) { prevM = 12; prevY--; }
 
+            if (isHtml) {
+                return `<span class="font-bold">${y}年${m}月度</span><span class="block sm:inline sm:ml-1 text-[11px] opacity-80 font-normal">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
+            }
             return `${y}年${m}月度 (${prevY}/${prevM}/25〜${y}/${m}/25)`;
         }
 
@@ -649,7 +651,6 @@
             input.value = formatNum(input.value);
         }
 
-        // 各ページ（タブ）ごとの背景画像個別設定
         function changeTabBackground(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -763,9 +764,9 @@
                 const isFirst = index === 0;
 
                 const itemsHtml = list.map(d => `
-                    <div class="flex items-center justify-between theme-card-sm p-2.5 rounded-xl border text-xs shadow-sm">
-                        <span class="font-bold">${d.month.replace('-', '年')}月</span>
-                        <span class="font-bold theme-primary-text">¥${d.amount.toLocaleString()}</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between theme-card-sm p-3 rounded-xl border text-xs shadow-sm gap-1">
+                        <span class="font-bold">${formatMonthPeriodLabel(d.month, true)}</span>
+                        <span class="font-bold theme-primary-text self-end sm:self-auto">¥${d.amount.toLocaleString()}</span>
                     </div>
                 `).join('');
 
@@ -794,7 +795,6 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
-        // ================= 予測ポップアップ制御 =================
         function openPredictionModal(specifiedYM) {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
@@ -876,12 +876,12 @@
 
             content.innerHTML = `
                 <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm">
-                    <div class="flex items-center justify-between pb-2 border-b border-current/15">
-                        <span class="font-extrabold theme-primary-text text-sm whitespace-nowrap">📅 指定年月: ${targetY}年${targetM}月</span>
-                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md">経過月数: ${diffMonths}ヶ月</span>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-current/15 gap-1">
+                        <span class="font-extrabold theme-primary-text text-xs sm:text-sm">📅 指定年月: ${formatMonthPeriodLabel(targetYM)}</span>
+                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto">経過月数: ${diffMonths}ヶ月</span>
                     </div>
                     <div class="space-y-2 text-xs font-medium">
-                        <div class="flex justify-between items-start">
+                        <div class="flex justify-between items-start gap-2">
                             <div>
                                 <span class="opacity-80 block">① 基準残高 (初期残高 ＋ 確定実績):</span>
                                 <span class="text-[9px] opacity-60">※初期残高 ¥${baseInitialBalance.toLocaleString()} ＋ 確定実績${actualCount}ヶ月分</span>
@@ -984,7 +984,6 @@
         let videoStream = null;
         let qrScanAnimation = null;
 
-        // 期間明記オプション生成関数 (例: 2027年1月度 (2026/12/25〜2027/1/25))
         function generateFuture30YearsOptions(selectedVal) {
             let opts = '';
             const now = new Date();
@@ -1889,7 +1888,7 @@
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
-                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
+                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
@@ -2127,7 +2126,7 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-current/10 transition font-bold";
                 tr.innerHTML = `
-                    <td class="p-3">${formatMonthPeriodLabel(m.month)}</td>
+                    <td class="p-3">${formatMonthPeriodLabel(m.month, true)}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${m.type==='実績'?'bg-emerald-500/25 theme-deep-text':'bg-amber-500/25 theme-primary-text'}">${m.type}</span></td>
                     <td class="p-3 text-right theme-primary-text">¥${totalInc.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text">¥${totalExp.toLocaleString()}</td>
@@ -2287,7 +2286,7 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
-                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">${generateFuture30YearsOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
                     <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner"></td>
                     <td class="p-2.5"><input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center font-bold shadow-inner"></td>
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
@@ -2302,10 +2301,10 @@
                         <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
                         <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0 whitespace-nowrap">削除</button>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定時期</label>
-                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">${generateFuture30YearsOptions(ev.date)}</select>
+                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select>
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定費用 (円)</label>
@@ -2393,9 +2392,9 @@
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                             <div>
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                <div class="flex flex-col gap-0.5">
                                     <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${formatMonthPeriodLabel(currentYM)}</span>
+                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
                                 </div>
                                 <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1.5 sm:mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
                             </div>
@@ -2416,9 +2415,9 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <div class="flex flex-col gap-0.5">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${formatMonthPeriodLabel(currentYM)}</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
                         </div>
@@ -2438,9 +2437,9 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <div class="flex flex-col gap-0.5">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto shrink-0 whitespace-nowrap">${formatMonthPeriodLabel(currentYM)}</span>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
                         </div>
@@ -2458,8 +2457,9 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
                         <div>
-                            <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の手取り (${formatMonthPeriodLabel(currentYM)})</p>
+                            <div class="flex flex-col gap-0.5">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の手取り</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${totalInc.toLocaleString()}</p>
                         </div>
@@ -2487,14 +2487,20 @@
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の生活費 (${formatMonthPeriodLabel(currentYM)})</p>
+                            <div class="flex flex-col gap-0.5">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の生活費</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                            </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
-                            <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight whitespace-nowrap">今月のNISA積立<br><span class="text-[10px] opacity-75">(${formatMonthPeriodLabel(currentYM)})</span></p>
+                            <div class="flex flex-col gap-0.5">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                            </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15">
@@ -2504,9 +2510,9 @@
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
-                            <div class="flex items-center justify-between">
-                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金 (${formatMonthPeriodLabel(currentYM)})</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">余剰金計</span>
+                            <div class="flex flex-col gap-0.5">
+                                <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金</p>
+                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
                             </div>
                             <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${surplus.toLocaleString()}</p>
                         </div>
@@ -2526,7 +2532,6 @@
             }
         }
 
-        // 折れ線グラフの描画（横軸すっきり表記 ＆ 点のサイズ拡大）
         function renderCharts() {
             const themeObj = colorPickupDatabase.find(t => t.id === currentThemeId) || colorPickupDatabase[0];
             const colors = themeObj.colors;
@@ -2592,7 +2597,6 @@
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
-                    // 横軸ラベルは「2027年1月」形式ですっきり表示
                     const isTargetLabel = (ymKey === '2027-01' || m === 1 || m === 4 || m === 7 || m === 10);
                     labels.push(isTargetLabel ? `${y}年${m}月` : '');
 
@@ -2646,8 +2650,8 @@
                                 pointBackgroundColor: primaryHex,
                                 pointBorderColor: '#ffffff',
                                 pointBorderWidth: 2.5,
-                                pointRadius: 6,          // データポイントの視認性＆タップ向上
-                                pointHoverRadius: 9,     
+                                pointRadius: 6,
+                                pointHoverRadius: 9,
                                 spanGaps: false,
                                 z: 10
                             },
@@ -2663,7 +2667,7 @@
                                 pointBackgroundColor: '#64748B',
                                 pointBorderColor: '#ffffff',
                                 pointBorderWidth: 2,
-                                pointRadius: 5,          // データポイントの視認性向上
+                                pointRadius: 5,
                                 pointHoverRadius: 8,
                                 z: 5
                             },
