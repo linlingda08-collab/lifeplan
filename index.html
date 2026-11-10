@@ -15,7 +15,7 @@
     <!-- QRCode Generator Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <!-- jsQR Library for Camera Scanning -->
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsQR@1.4.0/dist/jsQR.js"></script>
     <!-- PeerJS for WebRTC Direct P2P Sync -->
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <!-- Google Fonts -->
@@ -89,8 +89,7 @@
         .theme-badge-tone {
             background-color: var(--app-c3);
             color: #ffffff;
-            white-space: nowrap !important;
-            word-break: keep-all !important;
+            word-break: break-all !important;
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -573,7 +572,7 @@
             return realYM < '2027-01';
         }
 
-        // 期間表記付きのフォーマット関数（改行や縦並びに対応しやすいHTML対応構造）
+        // 期間表記（スマホのカード幅できれいに折り返すように調整）
         function formatMonthPeriodLabel(ymStr, isHtml = false) {
             if (!ymStr) return '';
             const parts = ymStr.split('-');
@@ -585,7 +584,7 @@
             if (prevM < 1) { prevM = 12; prevY--; }
 
             if (isHtml) {
-                return `<span class="font-bold">${y}年${m}月度</span><span class="block sm:inline sm:ml-1 text-[11px] opacity-80 font-normal">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
+                return `<span class="font-bold">${y}年${m}月度</span><span class="block text-[10px] opacity-80 font-normal leading-tight">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
             }
             return `${y}年${m}月度 (${prevY}/${prevM}/25〜${y}/${m}/25)`;
         }
@@ -2392,11 +2391,11 @@
                     html += `
                         <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                             <div>
-                                <div class="flex flex-col gap-0.5">
+                                <div class="flex flex-col gap-1">
                                     <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 ${accName}</p>
-                                    <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                    <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                                 </div>
-                                <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-1.5 sm:mt-1 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
+                                <p class="text-lg sm:text-2xl font-extrabold tracking-tight mt-2 theme-primary-text">¥${currentMonthAlloc.toLocaleString()}</p>
                             </div>
                             <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                                 <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('${accName.replace(/'/g, "\\'")}', ${jsonHistory})">
@@ -2415,11 +2414,11 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex flex-col gap-0.5">
+                            <div class="flex flex-col gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">👤 ゲストA貯金</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthRSaving.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-2">¥${currentMonthRSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('ゲストA貯金', ${jsonRHistory})">
@@ -2437,11 +2436,11 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between space-y-3 shadow-lg">
                         <div>
-                            <div class="flex flex-col gap-0.5">
+                            <div class="flex flex-col gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider truncate">🏦 生活用(三井住友銀行)</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1.5 sm:mt-1">¥${currentMonthLifeSaving.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-2">¥${currentMonthLifeSaving.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1">
                             <div class="opacity-90 font-bold flex justify-between items-center cursor-pointer" onclick="openHistoryModal('生活用(三井住友銀行)', ${jsonLifeHistory})">
@@ -2457,11 +2456,11 @@
                 html += `
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-2">
                         <div>
-                            <div class="flex flex-col gap-0.5">
+                            <div class="flex flex-col gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の手取り</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-1">¥${totalInc.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-primary-text tracking-tight mt-2">¥${totalInc.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[10px] space-y-1 font-bold opacity-90">
                             <div class="flex justify-between items-center">
@@ -2487,21 +2486,21 @@
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg">
                         <div>
-                            <div class="flex flex-col gap-0.5">
+                            <div class="flex flex-col gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の生活費</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${exp.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-2">¥${exp.toLocaleString()}</p>
                         </div>
                     </div>
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
-                            <div class="flex flex-col gap-0.5">
+                            <div class="flex flex-col gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider leading-tight">今月のNISA積立</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${nisaAmt.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-2">¥${nisaAmt.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15">
                             <span class="inline-block text-[10px] theme-badge-tone font-extrabold px-2.5 py-1 rounded-lg shadow-xs whitespace-nowrap">期間: ${nisaDuration}</span>
@@ -2510,11 +2509,11 @@
 
                     <div class="theme-card p-4 sm:p-5 rounded-3xl flex flex-col justify-between shadow-lg space-y-3">
                         <div>
-                            <div class="flex flex-col gap-0.5">
+                            <div class="flex flex-col gap-1">
                                 <p class="text-[11px] sm:text-xs font-bold opacity-80 uppercase tracking-wider">今月の貯金</p>
-                                <span class="text-[9px] font-extrabold theme-badge-tone px-2 py-0.5 rounded-md self-start shrink-0">${formatMonthPeriodLabel(currentYM)}</span>
+                                <div class="inline-block theme-badge-tone px-2 py-1 rounded-md self-start">${formatMonthPeriodLabel(currentYM, true)}</div>
                             </div>
-                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-1">¥${surplus.toLocaleString()}</p>
+                            <p class="text-lg sm:text-2xl font-extrabold theme-deep-text tracking-tight mt-2">¥${surplus.toLocaleString()}</p>
                         </div>
                         <div class="pt-2 border-t border-current/15 text-[11px] space-y-2 font-bold">
                             <div class="flex justify-between items-center">
