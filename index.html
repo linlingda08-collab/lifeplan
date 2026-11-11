@@ -172,9 +172,30 @@
         <div id="tab-dashboard" class="space-y-6 tab-content-area">
             <div id="hero-banner" class="relative overflow-hidden rounded-3xl theme-primary-bg p-6 sm:p-8 text-white shadow-2xl bg-cover bg-center transition-all border-2 border-white/30">
                 <div id="hero-overlay" class="absolute inset-0 bg-black/15 backdrop-blur-[1px]"></div>
-                <div class="relative z-10 text-center max-w-2xl mx-auto space-y-2.5 py-4 sm:py-6">
-                    <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-extrabold mb-1 border border-white/50 shadow-md text-white whitespace-nowrap"></div>
+                <div class="relative z-10 text-center max-w-2xl mx-auto space-y-3 py-3 sm:py-5">
+                    <div class="flex flex-wrap items-center justify-center gap-2">
+                        <div id="today-date-badge" class="inline-block bg-white/30 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-extrabold border border-white/50 shadow-md text-white whitespace-nowrap"></div>
+                        <div id="payday-countdown-badge" class="inline-block bg-emerald-500/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-extrabold border border-white/50 shadow-md text-white whitespace-nowrap"></div>
+                        <div id="next-event-countdown-badge" class="inline-block bg-amber-500/80 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-extrabold border border-white/50 shadow-md text-white whitespace-nowrap hidden"></div>
+                    </div>
                     <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white drop-shadow-lg whitespace-nowrap">ライフプランシミュレーション</h2>
+                </div>
+            </div>
+
+            <!-- 総資産（累積貯蓄残高）のサマリーカード -->
+            <div id="total-net-worth-card" class="theme-card p-5 sm:p-6 rounded-3xl shadow-xl border-2 border-[var(--app-c2)] bg-gradient-to-r from-[var(--app-c1)]/50 to-white/90">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">💰</span>
+                            <span class="font-bold text-xs sm:text-sm theme-deep-text uppercase tracking-wider">現在の総貯蓄残高 (初期残高 ＋ 実績の累計)</span>
+                        </div>
+                        <p class="text-2xl sm:text-4xl font-extrabold tracking-tight theme-primary-text mt-2" id="total-net-worth-val">¥0</p>
+                    </div>
+                    <div class="text-[11px] font-bold opacity-80 space-y-1 text-right self-end sm:self-center bg-white/60 p-3 rounded-2xl border border-current/10">
+                        <div id="total-initial-balance-desc">初期残高合計: ¥0</div>
+                        <div id="total-actual-accumulated-desc" class="theme-primary-text">確定実績積み上げ: ＋¥0</div>
+                    </div>
                 </div>
             </div>
 
@@ -315,7 +336,7 @@
                                 <th class="p-3 w-40">イベント名</th>
                                 <th class="p-3 w-64">予定時期</th>
                                 <th class="p-3 w-32">予定費用 (円)</th>
-                                <th class="p-3 w-20">ステータス</th>
+                                <th class="p-3 w-28">ステータス</th>
                                 <th class="p-3">メモ</th>
                                 <th class="p-3 w-16 text-center">操作</th>
                             </tr>
@@ -1012,12 +1033,49 @@
 
         function updateTodayDateBadge() {
             const badge = document.getElementById('today-date-badge');
+            const paydayBadge = document.getElementById('payday-countdown-badge');
+            const eventBadge = document.getElementById('next-event-countdown-badge');
+
             if (!badge) return;
+            const now = new Date();
+
             if (isTestPeriod()) {
                 badge.innerText = `📅 テスト表示中: 2027年1月期 (動作確認モード)`;
             } else {
-                const now = new Date();
                 badge.innerText = `📅 本日: ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+            }
+
+            // 次回給料日カウントダウンの計算
+            let y = now.getFullYear();
+            let m = now.getMonth() + 1;
+            let nextPayday = getSalaryPayday(y, m);
+            if (now > nextPayday) {
+                m += 1;
+                if (m > 12) { m = 1; y++; }
+                nextPayday = getSalaryPayday(y, m);
+            }
+            const diffDaysPayday = Math.ceil((nextPayday - now) / (1000 * 60 * 60 * 24));
+            if (paydayBadge) {
+                paydayBadge.innerText = `💸 給料日まであと ${diffDaysPayday}日`;
+            }
+
+            // 直近の予定イベントカウントダウンの計算
+            if (eventBadge) {
+                const upcomingEvent = (appData.events || []).find(ev => ev.status !== '完了' && ev.status !== 'キャンセル' && ev.date);
+                if (upcomingEvent && upcomingEvent.date) {
+                    const [evY, evM] = upcomingEvent.date.split('-').map(Number);
+                    const evDate = new Date(evY, evM - 1, 1);
+                    const diffDaysEv = Math.ceil((evDate - now) / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDaysEv > 0) {
+                        eventBadge.innerText = `🎉 次の予定: 「${upcomingEvent.name}」まであと ${diffDaysEv}日`;
+                    } else {
+                        eventBadge.innerText = `🎉 予定月到達: 「${upcomingEvent.name}」`;
+                    }
+                    eventBadge.classList.remove('hidden');
+                } else {
+                    eventBadge.classList.add('hidden');
+                }
             }
         }
 
@@ -1599,6 +1657,7 @@
             cleanupOldMonthlyData();
             sortEventsChronologically();
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            updateTodayDateBadge();
             updateCalculations();
             renderHistoryTable();
             renderCharts();
@@ -2123,7 +2182,6 @@
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
-            // 保存時点での標準目標値を月データとして固定保持
             m.targetSaving = parseNum(appData.settings.defaultMonthlySave) || 40000;
             m.targetBonus = parseNum(appData.settings.bonusPerPerson) || 300000;
 
@@ -2305,22 +2363,35 @@
             }
 
             appData.events.forEach((ev, index) => {
+                const isCompleted = ev.status === '完了';
+                const isCanceled = ev.status === 'キャンセル';
+                let statusBadgeClass = "bg-amber-500/20 text-amber-700";
+                if (isCompleted) statusBadgeClass = "bg-emerald-500/20 text-emerald-700 font-extrabold";
+                if (isCanceled) statusBadgeClass = "bg-rose-500/20 text-rose-700 line-through";
+
                 const tr = document.createElement('tr');
+                tr.className = isCompleted || isCanceled ? "opacity-75" : "";
                 tr.innerHTML = `
-                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}"></td>
                     <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
                     <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner"></td>
-                    <td class="p-2.5"><input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center font-bold shadow-inner"></td>
+                    <td class="p-2.5">
+                        <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${statusBadgeClass}">
+                            <option value="予定" ${ev.status==='予定'?'selected':''}>⏳ 予定</option>
+                            <option value="完了" ${ev.status==='完了'?'selected':''}>✅ 完了</option>
+                            <option value="キャンセル" ${ev.status==='キャンセル'?'selected':''}>❌ キャンセル</option>
+                        </select>
+                    </td>
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
                     <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer whitespace-nowrap">削除</button></td>
                 `;
                 tbody.appendChild(tr);
 
                 const card = document.createElement('div');
-                card.className = "theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm";
+                card.className = `theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm ${isCompleted || isCanceled ? 'opacity-75' : ''}`;
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
-                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
+                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}">
                         <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0 whitespace-nowrap">削除</button>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -2336,7 +2407,11 @@
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">ステータス</label>
-                            <input type="text" value="${ev.status}" onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-center font-bold shadow-inner">
+                            <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${statusBadgeClass}">
+                                <option value="予定" ${ev.status==='予定'?'selected':''}>⏳ 予定</option>
+                                <option value="完了" ${ev.status==='完了'?'selected':''}>✅ 完了</option>
+                                <option value="キャンセル" ${ev.status==='キャンセル'?'selected':''}>❌ キャンセル</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">メモ</label>
@@ -2394,6 +2469,34 @@
                 savingAccAlloc = defaultMonthlySave;
                 yutoriAccAlloc = Math.max(0, surplus - savingAccAlloc);
             }
+
+            // 総資産（総貯蓄残高）の集計計算
+            let totalInitialBal = 0;
+            if (appData.bankAccounts) {
+                appData.bankAccounts.forEach(acc => {
+                    totalInitialBal += getAccountInitialBalance(typeof acc === 'string' ? acc : acc.name);
+                });
+            }
+
+            let totalActualAccumulated = 0;
+            if (appData.monthly) {
+                appData.monthly.forEach(m => {
+                    if (m.type === '実績' && m.month <= actualNowYM && m.bankAllocations) {
+                        for (let val of Object.values(m.bankAllocations)) {
+                            totalActualAccumulated += parseNum(val);
+                        }
+                    }
+                });
+            }
+
+            const grandTotalNetWorth = totalInitialBal + totalActualAccumulated;
+            const netWorthValEl = document.getElementById('total-net-worth-val');
+            const initBalDescEl = document.getElementById('total-initial-balance-desc');
+            const actualAccDescEl = document.getElementById('total-actual-accumulated-desc');
+
+            if (netWorthValEl) netWorthValEl.innerText = '¥' + grandTotalNetWorth.toLocaleString();
+            if (initBalDescEl) initBalDescEl.innerText = `初期残高合計: ¥${totalInitialBal.toLocaleString()}`;
+            if (actualAccDescEl) actualAccDescEl.innerText = `確定実績積み上げ: ＋¥${totalActualAccumulated.toLocaleString()}`;
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
@@ -2626,7 +2729,6 @@
                     let stepEvCost = eventMap[ymKey] || 0;
                     const mData = monthlyDataMap[ymKey];
 
-                    // 過去データに個別目標設定値があれば優先使用し、無ければ全体設定を使用
                     let stepTargetSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : defaultMonthlySave;
                     let stepTargetBonusPerson = (mData && mData.targetBonus !== undefined) ? mData.targetBonus : bonusPerPerson;
                     let stepTargetBonusTwo = stepTargetBonusPerson * 2;
