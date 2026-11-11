@@ -338,10 +338,10 @@
                 <!-- アーカイブ（完了済み）セクション -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
                     <button onclick="toggleArchiveSection()" class="w-full flex items-center justify-between font-bold text-xs theme-primary-text cursor-pointer">
-                        <span class="flex items-center gap-2">
+                        <span class="flex items-center gap-2 whitespace-nowrap">
                             <span>📦</span> アーカイブ（完了済みの予定） <span id="archive-count-badge" class="theme-badge-tone px-2 py-0.5 rounded-full text-[10px]">0件</span>
                         </span>
-                        <span id="archive-toggle-icon">▼ 展開</span>
+                        <span id="archive-toggle-icon" class="whitespace-nowrap">▼ 展開</span>
                     </button>
                     <div id="archive-content-box" class="hidden space-y-3 pt-2 border-t border-current/15">
                         <div class="overflow-x-auto custom-scrollbar rounded-xl border border-current/15">
@@ -366,10 +366,10 @@
                 <!-- ゴミ箱（キャンセル）セクション -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
                     <button onclick="toggleTrashSection()" class="w-full flex items-center justify-between font-bold text-xs text-rose-600 cursor-pointer">
-                        <span class="flex items-center gap-2">
+                        <span class="flex items-center gap-2 whitespace-nowrap">
                             <span>🗑️</span> ゴミ箱（キャンセルした予定） <span id="trash-count-badge" class="bg-rose-500/20 text-rose-700 px-2 py-0.5 rounded-full text-[10px]">0件</span>
                         </span>
-                        <span id="trash-toggle-icon">▼ 展開</span>
+                        <span id="trash-toggle-icon" class="whitespace-nowrap">▼ 展開</span>
                     </button>
                     <div id="trash-content-box" class="hidden space-y-3 pt-2 border-t border-current/15">
                         <div class="overflow-x-auto custom-scrollbar rounded-xl border border-current/15">
