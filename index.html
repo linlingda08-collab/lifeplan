@@ -923,7 +923,6 @@
             let totalEventCost = 0;
             if (appData.events) {
                 appData.events.forEach(ev => {
-                    // 「キャンセル」以外（予定・完了）はグラフ連動計算に含める
                     if (ev.date && ev.date <= targetYM && ev.cost && ev.status !== 'キャンセル') {
                         totalEventCost += parseNum(ev.cost);
                     }
@@ -1105,7 +1104,6 @@
             }
 
             if (eventBadge) {
-                // キャンセルされていない直近の予定
                 const upcomingEvent = (appData.events || []).find(ev => ev.status !== '完了' && ev.status !== 'キャンセル' && ev.date);
                 if (upcomingEvent && upcomingEvent.date) {
                     const [evY, evM] = upcomingEvent.date.split('-').map(Number);
@@ -2424,7 +2422,6 @@
             if (archiveCountBadge) archiveCountBadge.innerText = `${archiveEvents.length}件`;
             if (trashCountBadge) trashCountBadge.innerText = `${trashEvents.length}件`;
 
-            // 1. 通常の予定リストの描画
             if (normalEvents.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-85">進行中の予定はありません。</td></tr>`;
                 cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-85 rounded-2xl border shadow-sm">進行中の予定はありません。</div>`;
@@ -2434,7 +2431,6 @@
                 });
             }
 
-            // 2. アーカイブ（完了）の描画
             if (archiveEvents.length === 0) {
                 if (archiveTbody) archiveTbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-xs opacity-75">完了した予定はありません。</td></tr>`;
                 if (archiveCardList) archiveCardList.innerHTML = `<div class="theme-card-sm p-4 text-center text-xs opacity-75 rounded-xl border">完了した予定はありません。</div>`;
@@ -2444,7 +2440,6 @@
                 });
             }
 
-            // 3. ゴミ箱（キャンセル）の描画
             if (trashEvents.length === 0) {
                 if (trashTbody) trashTbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-xs opacity-75">キャンセルした予定はありません。</td></tr>`;
                 if (trashCardList) trashCardList.innerHTML = `<div class="theme-card-sm p-4 text-center text-xs opacity-75 rounded-xl border">キャンセルした予定はありません。</div>`;
@@ -2767,7 +2762,6 @@
                 let eventMap = {};
                 if (appData.events) {
                     appData.events.forEach(ev => {
-                        // 「キャンセル」以外のイベントのみグラフ連動計算に含める（「予定」「完了」は含める）
                         if (ev.date && ev.cost && ev.status !== 'キャンセル') {
                             eventMap[ev.date] = (eventMap[ev.date] || 0) + parseNum(ev.cost);
                         }
