@@ -336,7 +336,10 @@
                 </div>
 
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
-                    <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定 <span class="text-[10px] opacity-80 font-normal">(未確定月のグラフ計算に使用)</span></h3>
+                    <div>
+                        <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定</h3>
+                        <p class="text-[10px] opacity-80 font-normal mt-0.5">(未確定月のグラフ計算に使用)</p>
+                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額 (円)</label>
@@ -573,7 +576,6 @@
             return realYM < '2027-01';
         }
 
-        // 期間表記（見切れ防止のため横並びでゆったり表示し、折り返しさせない形式）
         function formatMonthPeriodLabel(ymStr, isHtml = false) {
             if (!ymStr) return '';
             const parts = ymStr.split('-');
@@ -585,10 +587,8 @@
             if (prevM < 1) { prevM = 12; prevY--; }
 
             if (isHtml) {
-                // ホームカード用（スリムな文字サイズと上下並び）
                 return `<span class="font-bold text-[11px] whitespace-nowrap">${y}年${m}月度</span><span class="block text-[10px] opacity-80 font-normal leading-tight whitespace-nowrap">(${prevY}/${prevM}/25〜${y}/${m}/25)</span>`;
             }
-            // ドロップダウンやテーブル等用（見切れ防止のため横並びで完全表示・折り返し禁止）
             return `${y}年${m}月度 (${prevY}/${prevM}/25〜${y}/${m}/25)`;
         }
 
@@ -1887,6 +1887,7 @@
             });
 
             container.innerHTML = `
+                <!-- 【STEP 1】年月・区分・メモ選択 -->
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
@@ -1910,6 +1911,44 @@
                     </div>
                 </div>
 
+                <!-- 【STEP 2】手取り（収入）入力 -->
+                <div class="space-y-2">
+                    <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text whitespace-nowrap">💵 今月の手取り（収入）</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
+                            <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                        </div>
+                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
+                            <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                        </div>
+                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
+                            <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                        </div>
+                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
+                            <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 【STEP 3】支出入力 -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center border-b border-current/15 pb-1">
+                        <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text whitespace-nowrap">🛍️ 支出項目</h3>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-2.5 py-1.5 text-xs font-bold shadow-inner">
+                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+                        ${expensesHtml}
+                    </div>
+                </div>
+
+                <!-- 【STEP 4】集計サマリー表示 -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 theme-card-sm p-4 rounded-2xl border text-center shadow-sm">
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">総手取り</p>
@@ -1929,75 +1968,45 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="text-base">👤</span>
-                            <div>
-                                <span class="font-bold text-xs whitespace-nowrap">ゲストA貯金額</span>
-                                <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
-                            </div>
-                        </div>
-                        <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
-                    </div>
-                    <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="text-base">🏦</span>
-                            <div>
-                                <span class="font-bold text-xs whitespace-nowrap">生活用(三井住友銀行)</span>
-                                <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
-                            </div>
-                        </div>
-                        <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
-                    </div>
-                </div>
-
-                <div id="allocation-check-box" class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm ${isMatched ? 'border-[var(--app-c2)] bg-[var(--app-c2)]/10' : 'border-rose-500 bg-rose-500/10'}">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <h3 class="font-bold text-xs uppercase tracking-wider whitespace-nowrap">
-                            💰 口座割り振りチェック (割り振り計: <span id="live-allocated-sum">¥${allocatedSum.toLocaleString()}</span>)
-                        </h3>
-                        <div id="live-diff-feedback" class="text-xs font-bold">${diffMessage}</div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
-                        ${banksHtml}
-                    </div>
-                </div>
-
+                <!-- 【STEP 5】個別貯金額 ＆ 口座割り振り -->
                 <div class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
-                            <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
-                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base">👤</span>
+                                <div>
+                                    <span class="font-bold text-xs whitespace-nowrap">ゲストA貯金額</span>
+                                    <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
+                                </div>
+                            </div>
+                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
-                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
-                            <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
-                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
-                        </div>
-                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
-                            <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
-                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
-                        </div>
-                        <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
-                            <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
-                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                        <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="text-base">🏦</span>
+                                <div>
+                                    <span class="font-bold text-xs whitespace-nowrap">生活用(三井住友銀行)</span>
+                                    <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
+                                </div>
+                            </div>
+                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center pt-2 border-b border-current/15 pb-1">
-                            <span class="font-bold text-xs whitespace-nowrap">支出項目</span>
-                            <div class="flex gap-2">
-                                <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-2.5 py-1.5 text-xs font-bold shadow-inner">
-                                <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
-                            </div>
+                    <div id="allocation-check-box" class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm ${isMatched ? 'border-[var(--app-c2)] bg-[var(--app-c2)]/10' : 'border-rose-500 bg-rose-500/10'}">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <h3 class="font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                                💰 口座割り振りチェック (割り振り計: <span id="live-allocated-sum">¥${allocatedSum.toLocaleString()}</span>)
+                            </h3>
+                            <div id="live-diff-feedback" class="text-xs font-bold">${diffMessage}</div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
-                            ${expensesHtml}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                            ${banksHtml}
                         </div>
                     </div>
                 </div>
 
+                <!-- 保存ボタン -->
                 <div class="pt-4 border-t border-current/15 flex justify-end">
                     <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-xl transition cursor-pointer hover:scale-105 min-h-[44px] whitespace-nowrap">
                         💾 この内容で保存・反映する
