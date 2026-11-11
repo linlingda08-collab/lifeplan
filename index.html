@@ -182,23 +182,6 @@
                 </div>
             </div>
 
-            <!-- 総資産（累積貯蓄残高）のサマリーカード -->
-            <div id="total-net-worth-card" class="theme-card p-5 sm:p-6 rounded-3xl shadow-xl border-2 border-[var(--app-c2)] bg-gradient-to-r from-[var(--app-c1)]/50 to-white/90">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xl">💰</span>
-                            <span class="font-bold text-xs sm:text-sm theme-deep-text uppercase tracking-wider">現在の総貯蓄残高 (初期残高 ＋ 実績の累計)</span>
-                        </div>
-                        <p class="text-2xl sm:text-4xl font-extrabold tracking-tight theme-primary-text mt-2" id="total-net-worth-val">¥0</p>
-                    </div>
-                    <div class="text-[11px] font-bold opacity-80 space-y-1 text-right self-end sm:self-center bg-white/60 p-3 rounded-2xl border border-current/10">
-                        <div id="total-initial-balance-desc">初期残高合計: ¥0</div>
-                        <div id="total-actual-accumulated-desc" class="theme-primary-text">確定実績積み上げ: ＋¥0</div>
-                    </div>
-                </div>
-            </div>
-
             <div id="home-kpi-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"></div>
 
             <div class="theme-card p-4 sm:p-6 rounded-3xl flex flex-col space-y-4">
@@ -329,21 +312,83 @@
                     </div>
                 </div>
 
-                <div class="relative z-10 space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-2xl sm:border sm:border-current/15">
-                    <table class="hidden sm:table w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="theme-card-sm font-bold border-b border-current/15">
-                                <th class="p-3 w-40">イベント名</th>
-                                <th class="p-3 w-64">予定時期</th>
-                                <th class="p-3 w-32">予定費用 (円)</th>
-                                <th class="p-3 w-28">ステータス</th>
-                                <th class="p-3">メモ</th>
-                                <th class="p-3 w-16 text-center">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="events-table-body" class="divide-y divide-current/10"></tbody>
-                    </table>
-                    <div id="events-card-list" class="sm:hidden space-y-3"></div>
+                <!-- 通常の予定リスト -->
+                <div class="space-y-3">
+                    <h3 class="font-bold text-xs sm:text-sm theme-primary-text flex items-center gap-2">
+                        <span>⏳</span> 進行中の予定
+                    </h3>
+                    <div class="relative z-10 space-y-4 sm:space-y-0 sm:overflow-x-auto sm:custom-scrollbar sm:rounded-2xl sm:border sm:border-current/15">
+                        <table class="hidden sm:table w-full text-xs text-left border-collapse">
+                            <thead>
+                                <tr class="theme-card-sm font-bold border-b border-current/15">
+                                    <th class="p-3 w-40">イベント名</th>
+                                    <th class="p-3 w-64">予定時期</th>
+                                    <th class="p-3 w-32">予定費用 (円)</th>
+                                    <th class="p-3 w-28">ステータス</th>
+                                    <th class="p-3">メモ</th>
+                                    <th class="p-3 w-16 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="events-table-body" class="divide-y divide-current/10"></tbody>
+                        </table>
+                        <div id="events-card-list" class="sm:hidden space-y-3"></div>
+                    </div>
+                </div>
+
+                <!-- アーカイブ（完了済み）セクション -->
+                <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
+                    <button onclick="toggleArchiveSection()" class="w-full flex items-center justify-between font-bold text-xs theme-primary-text cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span>📦</span> アーカイブ（完了済みの予定） <span id="archive-count-badge" class="theme-badge-tone px-2 py-0.5 rounded-full text-[10px]">0件</span>
+                        </span>
+                        <span id="archive-toggle-icon">▼ 展開</span>
+                    </button>
+                    <div id="archive-content-box" class="hidden space-y-3 pt-2 border-t border-current/15">
+                        <div class="overflow-x-auto custom-scrollbar rounded-xl border border-current/15">
+                            <table class="hidden sm:table w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="theme-card-sm font-bold border-b border-current/15">
+                                        <th class="p-2.5 w-40">イベント名</th>
+                                        <th class="p-2.5 w-56">時期</th>
+                                        <th class="p-2.5 w-28">費用 (円)</th>
+                                        <th class="p-2.5 w-28">ステータス</th>
+                                        <th class="p-2.5">メモ</th>
+                                        <th class="p-2.5 w-16 text-center">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="archive-table-body" class="divide-y divide-current/10"></tbody>
+                            </table>
+                            <div id="archive-card-list" class="sm:hidden space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ゴミ箱（キャンセル）セクション -->
+                <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
+                    <button onclick="toggleTrashSection()" class="w-full flex items-center justify-between font-bold text-xs text-rose-600 cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <span>🗑️</span> ゴミ箱（キャンセルした予定） <span id="trash-count-badge" class="bg-rose-500/20 text-rose-700 px-2 py-0.5 rounded-full text-[10px]">0件</span>
+                        </span>
+                        <span id="trash-toggle-icon">▼ 展開</span>
+                    </button>
+                    <div id="trash-content-box" class="hidden space-y-3 pt-2 border-t border-current/15">
+                        <div class="overflow-x-auto custom-scrollbar rounded-xl border border-current/15">
+                            <table class="hidden sm:table w-full text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="theme-card-sm font-bold border-b border-current/15">
+                                        <th class="p-2.5 w-40">イベント名</th>
+                                        <th class="p-2.5 w-56">時期</th>
+                                        <th class="p-2.5 w-28">費用 (円)</th>
+                                        <th class="p-2.5 w-28">ステータス</th>
+                                        <th class="p-2.5">メモ</th>
+                                        <th class="p-2.5 w-16 text-center">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trash-table-body" class="divide-y divide-current/10"></tbody>
+                            </table>
+                            <div id="trash-card-list" class="sm:hidden space-y-2"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -878,7 +923,8 @@
             let totalEventCost = 0;
             if (appData.events) {
                 appData.events.forEach(ev => {
-                    if (ev.date && ev.date <= targetYM && ev.cost) {
+                    // 「キャンセル」以外（予定・完了）はグラフ連動計算に含める
+                    if (ev.date && ev.date <= targetYM && ev.cost && ev.status !== 'キャンセル') {
                         totalEventCost += parseNum(ev.cost);
                     }
                 });
@@ -1045,7 +1091,6 @@
                 badge.innerText = `📅 本日: ${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
             }
 
-            // 次回給料日カウントダウンの計算
             let y = now.getFullYear();
             let m = now.getMonth() + 1;
             let nextPayday = getSalaryPayday(y, m);
@@ -1059,8 +1104,8 @@
                 paydayBadge.innerText = `💸 給料日まであと ${diffDaysPayday}日`;
             }
 
-            // 直近の予定イベントカウントダウンの計算
             if (eventBadge) {
+                // キャンセルされていない直近の予定
                 const upcomingEvent = (appData.events || []).find(ev => ev.status !== '完了' && ev.status !== 'キャンセル' && ev.date);
                 if (upcomingEvent && upcomingEvent.date) {
                     const [evY, evM] = upcomingEvent.date.split('-').map(Number);
@@ -1076,29 +1121,6 @@
                 } else {
                     eventBadge.classList.add('hidden');
                 }
-            }
-        }
-
-        function changeHeroBackground(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const base64 = evt.target.result;
-                appData.settings.heroBg = base64;
-                saveStorage();
-                applyHeroBackgroundUI();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function applyHeroBackgroundUI() {
-            const heroEl = document.getElementById('hero-banner');
-            if (!heroEl) return;
-            if (appData.settings.heroBg) {
-                heroEl.style.backgroundImage = `url("${appData.settings.heroBg}")`;
-            } else {
-                heroEl.style.backgroundImage = '';
             }
         }
 
@@ -2312,6 +2334,24 @@
 
         function toggleAiParserBox() { document.getElementById('ai-parser-box').classList.toggle('hidden'); }
 
+        function toggleArchiveSection() {
+            const box = document.getElementById('archive-content-box');
+            const icon = document.getElementById('archive-toggle-icon');
+            if (box) {
+                box.classList.toggle('hidden');
+                icon.innerText = box.classList.contains('hidden') ? '▼ 展開' : '▲ 折りたたむ';
+            }
+        }
+
+        function toggleTrashSection() {
+            const box = document.getElementById('trash-content-box');
+            const icon = document.getElementById('trash-toggle-icon');
+            if (box) {
+                box.classList.toggle('hidden');
+                icon.innerText = box.classList.contains('hidden') ? '▼ 展開' : '▲ 折りたたむ';
+            }
+        }
+
         function parseAiTextAndAddEvent() {
             const rawText = document.getElementById('ai-raw-text').value;
             if (!rawText.trim()) return;
@@ -2338,7 +2378,7 @@
             const ev = appData.events[index];
             const evName = ev ? ev.name : 'このイベント';
 
-            if (!confirm(`⚠️ 警告: 予定「${evName}」を本当に削除してよろしいですか？`)) {
+            if (!confirm(`⚠️ 警告: 予定「${evName}」を完全に削除してよろしいですか？`)) {
                 return;
             }
 
@@ -2351,26 +2391,80 @@
             sortEventsChronologically();
             const tbody = document.getElementById('events-table-body');
             const cardList = document.getElementById('events-card-list');
+            const archiveTbody = document.getElementById('archive-table-body');
+            const archiveCardList = document.getElementById('archive-card-list');
+            const trashTbody = document.getElementById('trash-table-body');
+            const trashCardList = document.getElementById('trash-card-list');
+            const archiveCountBadge = document.getElementById('archive-count-badge');
+            const trashCountBadge = document.getElementById('trash-count-badge');
+
             if (!tbody || !cardList) return;
             
             tbody.innerHTML = '';
             cardList.innerHTML = '';
+            if (archiveTbody) archiveTbody.innerHTML = '';
+            if (archiveCardList) archiveCardList.innerHTML = '';
+            if (trashTbody) trashTbody.innerHTML = '';
+            if (trashCardList) trashCardList.innerHTML = '';
 
-            if (appData.events.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-80">予定はまだ登録されていません。</td></tr>`;
-                cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-80 rounded-2xl border shadow-sm">予定はまだ登録されていません。</div>`;
-                return;
+            let normalEvents = [];
+            let archiveEvents = [];
+            let trashEvents = [];
+
+            appData.events.forEach((ev, idx) => {
+                if (ev.status === '完了') {
+                    archiveEvents.push({ ev, idx });
+                } else if (ev.status === 'キャンセル') {
+                    trashEvents.push({ ev, idx });
+                } else {
+                    normalEvents.push({ ev, idx });
+                }
+            });
+
+            if (archiveCountBadge) archiveCountBadge.innerText = `${archiveEvents.length}件`;
+            if (trashCountBadge) trashCountBadge.innerText = `${trashEvents.length}件`;
+
+            // 1. 通常の予定リストの描画
+            if (normalEvents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-xs opacity-85">進行中の予定はありません。</td></tr>`;
+                cardList.innerHTML = `<div class="theme-card-sm p-6 text-center text-xs opacity-85 rounded-2xl border shadow-sm">進行中の予定はありません。</div>`;
+            } else {
+                normalEvents.forEach(({ ev, idx }) => {
+                    renderSingleEventRow(ev, idx, tbody, cardList, false);
+                });
             }
 
-            appData.events.forEach((ev, index) => {
-                const isCompleted = ev.status === '完了';
-                const isCanceled = ev.status === 'キャンセル';
-                let statusBadgeClass = "bg-amber-500/20 text-amber-700";
-                if (isCompleted) statusBadgeClass = "bg-emerald-500/20 text-emerald-700 font-extrabold";
-                if (isCanceled) statusBadgeClass = "bg-rose-500/20 text-rose-700 line-through";
+            // 2. アーカイブ（完了）の描画
+            if (archiveEvents.length === 0) {
+                if (archiveTbody) archiveTbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-xs opacity-75">完了した予定はありません。</td></tr>`;
+                if (archiveCardList) archiveCardList.innerHTML = `<div class="theme-card-sm p-4 text-center text-xs opacity-75 rounded-xl border">完了した予定はありません。</div>`;
+            } else {
+                archiveEvents.forEach(({ ev, idx }) => {
+                    renderSingleEventRow(ev, idx, archiveTbody, archiveCardList, true);
+                });
+            }
 
+            // 3. ゴミ箱（キャンセル）の描画
+            if (trashEvents.length === 0) {
+                if (trashTbody) trashTbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-xs opacity-75">キャンセルした予定はありません。</td></tr>`;
+                if (trashCardList) trashCardList.innerHTML = `<div class="theme-card-sm p-4 text-center text-xs opacity-75 rounded-xl border">キャンセルした予定はありません。</div>`;
+            } else {
+                trashEvents.forEach(({ ev, idx }) => {
+                    renderSingleEventRow(ev, idx, trashTbody, trashCardList, true);
+                });
+            }
+        }
+
+        function renderSingleEventRow(ev, index, tableBodyTarget, cardListTarget, isArchivedOrTrash) {
+            const isCompleted = ev.status === '完了';
+            const isCanceled = ev.status === 'キャンセル';
+            let statusBadgeClass = "bg-amber-500/20 text-amber-700";
+            if (isCompleted) statusBadgeClass = "bg-emerald-500/20 text-emerald-700 font-extrabold";
+            if (isCanceled) statusBadgeClass = "bg-rose-500/20 text-rose-700 line-through";
+
+            if (tableBodyTarget) {
                 const tr = document.createElement('tr');
-                tr.className = isCompleted || isCanceled ? "opacity-75" : "";
+                tr.className = isCompleted || isCanceled ? "opacity-80" : "";
                 tr.innerHTML = `
                     <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}"></td>
                     <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
@@ -2385,10 +2479,12 @@
                     <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
                     <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer whitespace-nowrap">削除</button></td>
                 `;
-                tbody.appendChild(tr);
+                tableBodyTarget.appendChild(tr);
+            }
 
+            if (cardListTarget) {
                 const card = document.createElement('div');
-                card.className = `theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm ${isCompleted || isCanceled ? 'opacity-75' : ''}`;
+                card.className = `theme-card-sm p-3 rounded-xl border space-y-2 shadow-sm ${isCompleted || isCanceled ? 'opacity-80' : ''}`;
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
                         <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}">
@@ -2419,8 +2515,8 @@
                         </div>
                     </div>
                 `;
-                cardList.appendChild(card);
-            });
+                cardListTarget.appendChild(card);
+            }
         }
 
         function getCurrentMonthData() {
@@ -2469,34 +2565,6 @@
                 savingAccAlloc = defaultMonthlySave;
                 yutoriAccAlloc = Math.max(0, surplus - savingAccAlloc);
             }
-
-            // 総資産（総貯蓄残高）の集計計算
-            let totalInitialBal = 0;
-            if (appData.bankAccounts) {
-                appData.bankAccounts.forEach(acc => {
-                    totalInitialBal += getAccountInitialBalance(typeof acc === 'string' ? acc : acc.name);
-                });
-            }
-
-            let totalActualAccumulated = 0;
-            if (appData.monthly) {
-                appData.monthly.forEach(m => {
-                    if (m.type === '実績' && m.month <= actualNowYM && m.bankAllocations) {
-                        for (let val of Object.values(m.bankAllocations)) {
-                            totalActualAccumulated += parseNum(val);
-                        }
-                    }
-                });
-            }
-
-            const grandTotalNetWorth = totalInitialBal + totalActualAccumulated;
-            const netWorthValEl = document.getElementById('total-net-worth-val');
-            const initBalDescEl = document.getElementById('total-initial-balance-desc');
-            const actualAccDescEl = document.getElementById('total-actual-accumulated-desc');
-
-            if (netWorthValEl) netWorthValEl.innerText = '¥' + grandTotalNetWorth.toLocaleString();
-            if (initBalDescEl) initBalDescEl.innerText = `初期残高合計: ¥${totalInitialBal.toLocaleString()}`;
-            if (actualAccDescEl) actualAccDescEl.innerText = `確定実績積み上げ: ＋¥${totalActualAccumulated.toLocaleString()}`;
 
             const gridContainer = document.getElementById('home-kpi-grid');
             if (gridContainer) {
@@ -2699,7 +2767,8 @@
                 let eventMap = {};
                 if (appData.events) {
                     appData.events.forEach(ev => {
-                        if (ev.date && ev.cost) {
+                        // 「キャンセル」以外のイベントのみグラフ連動計算に含める（「予定」「完了」は含める）
+                        if (ev.date && ev.cost && ev.status !== 'キャンセル') {
                             eventMap[ev.date] = (eventMap[ev.date] || 0) + parseNum(ev.cost);
                         }
                     });
