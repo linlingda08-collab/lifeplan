@@ -61,11 +61,6 @@
             color: var(--app-text) !important;
         }
 
-        /* 💡 スマホの自動ズーム防止対策（16px以上に固定） */
-        input[type="text"], input[type="number"], select, textarea {
-            font-size: 16px !important;
-        }
-
         .theme-primary-bg {
             background-color: var(--app-c2) !important;
             color: #ffffff !important;
@@ -1958,7 +1953,7 @@
                 banksHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between border shadow-sm">
                         <span class="font-bold text-xs truncate">🏦 ${b}</span>
-                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none border shadow-inner">
+                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-xl p-2 text-right text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                 `;
             });
@@ -1971,7 +1966,7 @@
                             <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
                             <span class="text-xs font-bold truncate">${cat.name}</span>
                         </div>
-                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
+                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-xl p-2 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
                     </div>
                 `;
             });
@@ -2007,19 +2002,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
-                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
-                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
-                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
-                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                     </div>
                 </div>
@@ -2029,8 +2024,8 @@
                     <div class="flex justify-between items-center border-b border-current/15 pb-1">
                         <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text whitespace-nowrap">🛍️ 支出項目</h3>
                         <div class="flex gap-2">
-                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold shadow-inner">
-                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
+                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-2.5 py-1.5 text-xs font-bold shadow-inner">
+                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -2050,7 +2045,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">NISA積立</p>
-                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-2 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-1.5 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金</p>
@@ -2069,7 +2064,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
                             <div class="flex items-center gap-2">
@@ -2079,7 +2074,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                     </div>
 
@@ -2465,17 +2460,17 @@
                 const tr = document.createElement('tr');
                 tr.className = isCompleted || isCanceled ? "opacity-80" : "";
                 tr.innerHTML = `
-                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}"></td>
-                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
-                    <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs text-right font-bold shadow-inner"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}"></td>
+                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner"></td>
                     <td class="p-2.5">
-                        <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${statusBadgeClass}">
+                        <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${statusBadgeClass}">
                             <option value="予定" ${ev.status==='予定'?'selected':''}>⏳ 予定</option>
                             <option value="完了" ${ev.status==='完了'?'selected':''}>✅ 完了</option>
                             <option value="キャンセル" ${ev.status==='キャンセル'?'selected':''}>❌ キャンセル</option>
                         </select>
                     </td>
-                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
                     <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer whitespace-nowrap">削除</button></td>
                 `;
                 tableBodyTarget.appendChild(tr);
@@ -2486,23 +2481,23 @@
                 card.className = `theme-card-sm p-3 rounded-xl border space-y-2 shadow-sm ${isCompleted || isCanceled ? 'opacity-80' : ''}`;
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
-                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}">
+                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}">
                         <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0 whitespace-nowrap">削除</button>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定時期</label>
-                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select>
+                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select>
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定費用 (円)</label>
-                            <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs text-right font-bold shadow-inner">
+                            <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">ステータス</label>
-                            <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${statusBadgeClass}">
+                            <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${statusBadgeClass}">
                                 <option value="予定" ${ev.status==='予定'?'selected':''}>⏳ 予定</option>
                                 <option value="完了" ${ev.status==='完了'?'selected':''}>✅ 完了</option>
                                 <option value="キャンセル" ${ev.status==='キャンセル'?'selected':''}>❌ キャンセル</option>
@@ -2510,7 +2505,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">メモ</label>
-                            <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner">
+                            <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
                         </div>
                     </div>
                 `;
