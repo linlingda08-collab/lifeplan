@@ -2175,7 +2175,7 @@
                 <!-- 【STEP 6】一番最後の「目標シミュレーション設定（この月の計画値）」エリアにロック解除ボタンを組み込み -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-2.5 shadow-sm">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
-                        <h3 class="font-bold text-xs theme-primary-text truncate min-w-0">🎯 目標シミュレーション設定（この月の計画値）</h3>
+                        <h3 class="font-bold text-xs theme-primary-text leading-snug min-w-0">🎯 目標シミュレーション設定（この月の計画値）</h3>
                         <div class="flex items-center gap-1.5 shrink-0">
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${isTargetUnlocked ? 'bg-emerald-500/20 text-emerald-700' : 'bg-slate-500/20 text-slate-700'}">${isTargetUnlocked ? '🔓 解除中' : '🔒 ロック中'}</span>
                             <button type="button" onclick="toggleMonthEditLock()" id="btn-toggle-month-lock" class="text-[11px] px-2.5 py-1 rounded-xl font-bold transition shadow-sm flex items-center gap-1 cursor-pointer border whitespace-nowrap ${isTargetUnlocked ? 'theme-accent-bg' : 'theme-card-sm'}">
@@ -2183,16 +2183,16 @@
                             </button>
                         </div>
                     </div>
-                    <p class="text-[10px] opacity-80 truncate">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測に連動します。</p>
+                    <p class="text-[10px] opacity-80 leading-snug">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測に連動します。</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="min-w-0">
-                            <label class="block font-bold text-[11px] opacity-90 mb-1 truncate">標準毎月貯金額（目標値・円）</label>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 leading-snug">標準毎月貯金額（目標値・円）</label>
                             <input type="text" id="input-target-saving" value="${formatNum(targetSavingVal)}" ${targetDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                         </div>
                         <div class="min-w-0">
-                            <label class="block font-bold text-[11px] opacity-90 mb-1 truncate">🎁 ボーナス額（1人あたり・円）</label>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 leading-snug">🎁 ボーナス額（1人あたり・円）</label>
                             <input type="text" id="input-target-bonus" value="${formatNum(targetBonusVal)}" ${bonusDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
-                            <p id="target-bonus-status-note" class="text-[10px] opacity-75 mt-1 truncate">${bonusMonthAllowed ? '※1人あたり（6・12月は×2人分）' : '※6月・12月度のみ入力可能'}</p>
+                            <p id="target-bonus-status-note" class="text-[10px] opacity-75 mt-1 leading-snug">${bonusMonthAllowed ? '※1人あたり（6・12月は×2人分）' : '※6月・12月度のみ入力可能'}</p>
                         </div>
                     </div>
                 </div>
