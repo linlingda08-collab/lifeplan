@@ -61,6 +61,11 @@
             color: var(--app-text) !important;
         }
 
+        /* スマホの自動ズーム防止対策（16px以上に固定） */
+        input[type="text"], input[type="number"], select, textarea {
+            font-size: 16px !important;
+        }
+
         .theme-primary-bg {
             background-color: var(--app-c2) !important;
             color: #ffffff !important;
@@ -404,7 +409,7 @@
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
                     <div>
                         <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定</h3>
-                        <p class="text-[10px] opacity-80 font-normal mt-0.5">(未確定月のグラフ計算に使用)</p>
+                        <p class="text-[10px] opacity-80 font-normal mt-0.5">(未確定月のグラフ計算に使用 / 毎月入力の目標設定とも自動連動)</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
@@ -545,6 +550,7 @@
         let currentModalRawHistory = [];
         let globalChartDataStore = { yms: [], actuals: [], estimates: [], events: [], monthlyMap: {} };
         let currentActiveTabId = 'dashboard';
+        let isTargetPlanUnlocked = false;
 
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
@@ -709,13 +715,13 @@
         }
 
         function unformatInput(input) {
-            if (!input) return;
+            if (!input || input.disabled) return;
             const raw = parseNum(input.value);
             input.value = raw === 0 && input.value.trim() === '' ? '' : raw;
         }
 
         function formatInput(input) {
-            if (!input) return;
+            if (!input || input.disabled) return;
             input.value = formatNum(input.value);
         }
 
@@ -879,64 +885,73 @@
             if (!modal || !content) return;
 
             const baseInitialBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
-
-            let actualAccumulatedSum = 0;
-            let actualCount = 0;
-            if (appData.monthly && appData.monthly.length > 0) {
-                appData.monthly.forEach(m => {
-                    if (m.type === '実績' && m.month <= targetYM) {
-                        actualCount++;
-                        if (m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
-                            actualAccumulatedSum += parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']);
-                        }
-                    }
-                });
-            }
-            const currentBaseBalance = baseInitialBalance + actualAccumulatedSum;
-
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
             const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
-            const bonusTwoPeople = bonusPerPerson * 2;
 
-            const [targetY, targetM] = targetYM.split('-').map(Number);
-            const startY = 2027, startM = 1;
-
-            let diffMonths = (targetY - startY) * 12 + (targetM - startM);
-            if (diffMonths < 0) diffMonths = 0;
-
-            let bonusCount = 0;
-            let curY = startY, curM = startM;
-            for (let i = 0; i < diffMonths; i++) {
-                curM += 1;
-                if (curM > 12) { curM = 1; curY++; }
-                if (curM === 6 || curM === 12) {
-                    bonusCount++;
-                }
+            let monthlyDataMap = {};
+            if (appData.monthly) {
+                appData.monthly.forEach(m => {
+                    monthlyDataMap[m.month] = {
+                        type: m.type,
+                        targetSaving: m.targetSaving !== undefined ? parseNum(m.targetSaving) : defaultMonthlySave,
+                        targetBonus: m.targetBonus !== undefined ? parseNum(m.targetBonus) : bonusPerPerson
+                    };
+                });
             }
 
-            let unconfirmedMonths = diffMonths - actualCount;
-            if (unconfirmedMonths < 0) unconfirmedMonths = 0;
-
-            const monthlyAccumulatedAdd = defaultMonthlySave * unconfirmedMonths;
-            const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
-
-            let totalEventCost = 0;
+            let eventMap = {};
             if (appData.events) {
                 appData.events.forEach(ev => {
-                    if (ev.date && ev.date <= targetYM && ev.cost && ev.status !== 'キャンセル') {
-                        totalEventCost += parseNum(ev.cost);
+                    if (ev.date && ev.cost && ev.status !== 'キャンセル') {
+                        eventMap[ev.date] = (eventMap[ev.date] || 0) + parseNum(ev.cost);
                     }
                 });
             }
 
-            const estimatedAccumulated = currentBaseBalance + monthlyAccumulatedAdd + bonusAccumulatedAdd - totalEventCost;
+            // 2027-01 から targetYM まで1ヶ月ずつ目標推定値を積算（グラフの目標推定値と完全一致）
+            let curY = 2027, curM = 1;
+            let totalTargetSaveSum = 0;
+            let totalBonusSum = 0;
+            let bonusCount = 0;
+            let totalEventCost = 0;
+            let monthCount = 0;
+            let currentActiveTargetSave = defaultMonthlySave;
 
-            let formulaMathStr = `¥${currentBaseBalance.toLocaleString()}`;
-            if (unconfirmedMonths > 0) {
-                formulaMathStr += ` + ¥${defaultMonthlySave.toLocaleString()}×${unconfirmedMonths}ヶ月`;
+            while (true) {
+                const ymKey = `${curY}-${String(curM).padStart(2, '0')}`;
+                if (ymKey > targetYM) break;
+
+                monthCount++;
+                const mData = monthlyDataMap[ymKey];
+                if (mData && mData.targetSaving !== undefined) {
+                    currentActiveTargetSave = mData.targetSaving;
+                }
+                const stepSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : currentActiveTargetSave;
+                totalTargetSaveSum += stepSave;
+
+                if (curM === 6 || curM === 12) {
+                    const stepBonusPerson = (mData && mData.targetBonus !== undefined) ? mData.targetBonus : bonusPerPerson;
+                    const stepBonusTwo = stepBonusPerson * 2;
+                    if (stepBonusTwo > 0) {
+                        totalBonusSum += stepBonusTwo;
+                        bonusCount++;
+                    }
+                }
+
+                if (eventMap[ymKey]) {
+                    totalEventCost += eventMap[ymKey];
+                }
+
+                curM++;
+                if (curM > 12) { curM = 1; curY++; }
+                if (monthCount > 600) break;
             }
-            if (bonusCount > 0) {
-                formulaMathStr += ` + ¥${bonusTwoPeople.toLocaleString()}×${bonusCount}回`;
+
+            const estimatedAccumulated = baseInitialBalance + totalTargetSaveSum + totalBonusSum - totalEventCost;
+
+            let formulaMathStr = `¥${baseInitialBalance.toLocaleString()} + ¥${totalTargetSaveSum.toLocaleString()}`;
+            if (totalBonusSum > 0) {
+                formulaMathStr += ` + ¥${totalBonusSum.toLocaleString()}`;
             }
             if (totalEventCost > 0) {
                 formulaMathStr += ` - ¥${totalEventCost.toLocaleString()}`;
@@ -946,32 +961,28 @@
                 <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-current/15 gap-1">
                         <span class="font-extrabold theme-primary-text text-xs sm:text-sm">📅 指定年月: ${formatMonthPeriodLabel(targetYM)}</span>
-                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto">経過月数: ${diffMonths}ヶ月</span>
+                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto">対象期間: ${monthCount}ヶ月分</span>
                     </div>
                     <div class="space-y-2 text-xs font-medium">
+                        <div class="flex justify-between items-center">
+                            <span class="opacity-80">① 初期残高 (貯金用口座):</span>
+                            <span class="font-bold">¥${baseInitialBalance.toLocaleString()}</span>
+                        </div>
                         <div class="flex justify-between items-start gap-2">
                             <div>
-                                <span class="opacity-80 block">① 基準残高 (初期残高 ＋ 確定実績):</span>
-                                <span class="text-[9px] opacity-60">※初期残高 ¥${baseInitialBalance.toLocaleString()} ＋ 確定実績${actualCount}ヶ月分</span>
+                                <span class="opacity-80 block">② 毎月の目標積立 累計 (${monthCount}ヶ月分):</span>
+                                <span class="text-[9px] opacity-60">※各月に設定した標準毎月貯金額を月ごとに合算</span>
                             </div>
-                            <span class="font-bold shrink-0 mt-0.5">¥${currentBaseBalance.toLocaleString()}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="opacity-80">② 標準毎月貯金額 (口座タブ参照):</span>
-                            <span class="font-bold">¥${defaultMonthlySave.toLocaleString()} /月</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="opacity-80">③ 未確定の毎月積立 (② × 未確定${unconfirmedMonths}ヶ月):</span>
-                            <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
+                            <span class="font-bold shrink-0 mt-0.5">＋¥${totalTargetSaveSum.toLocaleString()}</span>
                         </div>
                         ${bonusCount > 0 ? `
                         <div class="flex justify-between items-center theme-accent-text">
-                            <span class="opacity-90">④ ボーナス通過加算 (¥${bonusTwoPeople.toLocaleString()} × ${bonusCount}回):</span>
-                            <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
+                            <span class="opacity-90">③ ボーナス通過加算 (${bonusCount}回分 / ×2人):</span>
+                            <span class="font-bold">＋¥${totalBonusSum.toLocaleString()}</span>
                         </div>` : ''}
                         ${totalEventCost > 0 ? `
                         <div class="flex justify-between items-center text-rose-500">
-                            <span class="opacity-90">⑤ 期間内の予定費用 (イベント):</span>
+                            <span class="opacity-90">④ 期間内の予定費用 (イベント):</span>
                             <span class="font-bold">－¥${totalEventCost.toLocaleString()}</span>
                         </div>` : ''}
                     </div>
@@ -980,7 +991,7 @@
                         <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">🧮 実際の数値を交えた計算式:</p>
                         <p class="text-[11px] font-bold font-mono theme-deep-text break-all bg-white/60 p-2 rounded-lg border border-current/10">${formulaMathStr}</p>
                         <div class="flex justify-between items-center pt-1 border-t border-current/10">
-                            <span class="font-bold text-xs">貯金到達見込み合計:</span>
+                            <span class="font-bold text-xs">目標推定値 合計:</span>
                             <span class="font-extrabold text-base theme-primary-text">¥${estimatedAccumulated.toLocaleString()}</span>
                         </div>
                     </div>
@@ -1660,6 +1671,7 @@
             setupDailyRandomTheme();
             initColorPickupUI();
 
+            isTargetPlanUnlocked = false;
             applyHeaderIconUI();
             syncSettingsToUI();
             updateMonthSelector();
@@ -1838,6 +1850,7 @@
                 return;
             }
             isMonthFormModified = false;
+            isTargetPlanUnlocked = false;
             currentEditingIndex = Number(index);
             renderMonthEditor();
         }
@@ -1892,9 +1905,62 @@
             });
 
             currentEditingIndex = appData.monthly.length - 1;
+            // 月を追加した直後は目標設定欄を入力可能状態にする
+            isTargetPlanUnlocked = true;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
+        }
+
+        function unlockTargetPlanInputs() {
+            isTargetPlanUnlocked = true;
+            const mVal = document.getElementById('input-field-month')?.value || '';
+            const monthNum = Number((mVal.split('-')[1]) || 0);
+            const isBonusMonth = (monthNum === 6 || monthNum === 12);
+
+            const saveInput = document.getElementById('input-field-targetSaving');
+            const bonusInput = document.getElementById('input-field-targetBonus');
+            const unlockBtn = document.getElementById('btn-unlock-target-plan');
+            const statusBadge = document.getElementById('target-plan-status-badge');
+
+            if (saveInput) {
+                saveInput.disabled = false;
+                saveInput.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+            if (bonusInput && isBonusMonth) {
+                bonusInput.disabled = false;
+                bonusInput.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+            if (unlockBtn) {
+                unlockBtn.classList.add('hidden');
+            }
+            if (statusBadge) {
+                statusBadge.innerText = '✏️ 編集中 (保存で将来予測にも連動)';
+            }
+        }
+
+        function handleMonthSelectChange() {
+            markModified();
+            const mVal = document.getElementById('input-field-month')?.value || '';
+            const monthNum = Number((mVal.split('-')[1]) || 0);
+            const isBonusMonth = (monthNum === 6 || monthNum === 12);
+
+            const bonusInput = document.getElementById('input-field-targetBonus');
+            const bonusNote = document.getElementById('target-bonus-month-note');
+            if (bonusInput) {
+                if (isTargetPlanUnlocked && isBonusMonth) {
+                    bonusInput.disabled = false;
+                    bonusInput.classList.remove('opacity-60', 'cursor-not-allowed');
+                } else {
+                    bonusInput.disabled = true;
+                    bonusInput.classList.add('opacity-60', 'cursor-not-allowed');
+                }
+            }
+            if (bonusNote) {
+                bonusNote.innerText = isBonusMonth
+                    ? '※ボーナス月（6月・12月）のため入力・変更可能です（グラフでは×2人分で加算）'
+                    : '※ボーナス月（6月・12月）以外の月は変更できません';
+            }
         }
 
         function deleteMonth(index) {
@@ -1913,6 +1979,7 @@
             appData.monthly.splice(index, 1);
             currentEditingIndex = Math.max(0, index - 1);
             isMonthFormModified = false;
+            isTargetPlanUnlocked = false;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
@@ -1948,12 +2015,20 @@
 
             const isMatched = (diff === 0);
 
+            const monthNum = Number((m.month.split('-')[1]) || 0);
+            const isBonusMonth = (monthNum === 6 || monthNum === 12);
+            const targetSavingVal = m.targetSaving !== undefined ? parseNum(m.targetSaving) : (parseNum(appData.settings.defaultMonthlySave) || 40000);
+            const targetBonusVal = m.targetBonus !== undefined ? parseNum(m.targetBonus) : (parseNum(appData.settings.bonusPerPerson) || 300000);
+
+            const canEditTargetSave = isTargetPlanUnlocked;
+            const canEditTargetBonus = isTargetPlanUnlocked && isBonusMonth;
+
             let banksHtml = '';
             getAccountNames().forEach(b => {
                 banksHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between border shadow-sm">
                         <span class="font-bold text-xs truncate">🏦 ${b}</span>
-                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-xl p-2 text-right text-xs font-bold focus:outline-none border shadow-inner">
+                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                 `;
             });
@@ -1966,7 +2041,7 @@
                             <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
                             <span class="text-xs font-bold truncate">${cat.name}</span>
                         </div>
-                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm rounded-xl p-2 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
+                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
                     </div>
                 `;
             });
@@ -1976,7 +2051,7 @@
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
-                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
+                        <select id="input-field-month" onchange="handleMonthSelectChange()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
@@ -2002,19 +2077,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
-                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
-                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
-                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
-                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-28 theme-card-sm border rounded-xl p-2 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                     </div>
                 </div>
@@ -2024,8 +2099,8 @@
                     <div class="flex justify-between items-center border-b border-current/15 pb-1">
                         <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text whitespace-nowrap">🛍️ 支出項目</h3>
                         <div class="flex gap-2">
-                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-2.5 py-1.5 text-xs font-bold shadow-inner">
-                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-1.5 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
+                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold shadow-inner">
+                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -2045,7 +2120,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">NISA積立</p>
-                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-1.5 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-2 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金</p>
@@ -2064,7 +2139,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
                             <div class="flex items-center gap-2">
@@ -2074,7 +2149,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                     </div>
 
@@ -2087,6 +2162,51 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
                             ${banksHtml}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 【STEP 6】目標シミュレーション設定（この月の計画値・将来予測連動） -->
+                <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm bg-current/5 no-print">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-current/15">
+                        <div>
+                            <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text flex items-center gap-1.5 whitespace-nowrap">
+                                <span>📈</span> 標準毎月貯金額・ボーナス目標の変更（将来予測グラフ連動）
+                            </h3>
+                            <p class="text-[10px] opacity-80 font-medium mt-0.5">
+                                ※基本は「月を追加」した時に入力します。ここで保存した額は「口座」タブの将来予測設定や翌月以降のグラフ予測にも自動連動します。
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span id="target-plan-status-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-current/10 opacity-90 whitespace-nowrap">
+                                ${isTargetPlanUnlocked ? '✏️ 入力可能 (保存で将来予測にも連動)' : '🔒 ロック中 (月追加時のみ標準入力)'}
+                            </span>
+                            ${!isTargetPlanUnlocked ? `
+                            <button type="button" id="btn-unlock-target-plan" onclick="unlockTargetPlanInputs()" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold border shadow-sm cursor-pointer hover:opacity-90 whitespace-nowrap">
+                                🔓 編集する
+                            </button>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div class="theme-card-sm p-3.5 rounded-2xl border space-y-1.5 shadow-sm">
+                            <div class="flex justify-between items-center gap-2">
+                                <label class="font-bold text-xs whitespace-nowrap">標準毎月貯金額 (円)</label>
+                                <input type="text" id="input-field-targetSaving" value="${formatNum(targetSavingVal)}" ${canEditTargetSave ? '' : 'disabled'} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner ${canEditTargetSave ? '' : 'opacity-60 cursor-not-allowed'}">
+                            </div>
+                            <p class="text-[10px] opacity-75">※この月に貯金できそうな目標額を入力してください（翌月以降の標準額にも引き継がれます）</p>
+                        </div>
+
+                        <div class="theme-card-sm p-3.5 rounded-2xl border space-y-1.5 shadow-sm">
+                            <div class="flex justify-between items-center gap-2">
+                                <label class="font-bold text-xs whitespace-nowrap">🎁 ボーナス目標 (1人あたり)</label>
+                                <input type="text" id="input-field-targetBonus" value="${formatNum(targetBonusVal)}" ${canEditTargetBonus ? '' : 'disabled'} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner ${canEditTargetBonus ? '' : 'opacity-60 cursor-not-allowed'}">
+                            </div>
+                            <p id="target-bonus-month-note" class="text-[10px] opacity-75">
+                                ${isBonusMonth
+                                    ? '※ボーナス月（6月・12月）のため入力・変更可能です（グラフでは×2人分で加算）'
+                                    : '※ボーナス月（6月・12月）以外の月は変更できません'}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -2188,7 +2308,8 @@
                 return;
             }
 
-            m.month = document.getElementById('input-field-month').value;
+            const newMonthVal = document.getElementById('input-field-month').value;
+            m.month = newMonthVal;
             m.type = document.getElementById('input-field-type').value;
             m.memo = document.getElementById('input-field-memo').value;
             m.rIncome = rInc;
@@ -2201,14 +2322,42 @@
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
-            m.targetSaving = parseNum(appData.settings.defaultMonthlySave) || 40000;
-            m.targetBonus = parseNum(appData.settings.bonusPerPerson) || 300000;
+            // 下部フォームの「標準毎月貯金額・ボーナス目標」を取得してこの月に記録＆将来予測設定へ連動
+            const targetSaveInput = document.getElementById('input-field-targetSaving');
+            const targetBonusInput = document.getElementById('input-field-targetBonus');
+
+            const newTargetSave = targetSaveInput
+                ? parseNum(targetSaveInput.value)
+                : (m.targetSaving !== undefined ? parseNum(m.targetSaving) : (parseNum(appData.settings.defaultMonthlySave) || 40000));
+            m.targetSaving = newTargetSave;
+
+            const monthNum = Number((newMonthVal.split('-')[1]) || 0);
+            const isBonusMonth = (monthNum === 6 || monthNum === 12);
+
+            if (isBonusMonth && targetBonusInput) {
+                const newTargetBonus = parseNum(targetBonusInput.value);
+                m.targetBonus = newTargetBonus;
+                appData.settings.bonusPerPerson = newTargetBonus;
+            } else if (m.targetBonus === undefined) {
+                m.targetBonus = parseNum(appData.settings.bonusPerPerson) || 300000;
+            }
+
+            // 最も新しい月の設定値を「口座」タブの将来予測シミュレーション設定（defaultMonthlySave）と連動させる
+            const sortedMonths = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
+            const latestMonthObj = sortedMonths[sortedMonths.length - 1];
+            if (latestMonthObj && latestMonthObj.targetSaving !== undefined) {
+                appData.settings.defaultMonthlySave = parseNum(latestMonthObj.targetSaving);
+            } else {
+                appData.settings.defaultMonthlySave = newTargetSave;
+            }
 
             isMonthFormModified = false;
+            isTargetPlanUnlocked = false;
             saveStorage();
+            syncSettingsToUI();
             updateMonthSelector();
             renderMonthEditor();
-            alert('🎉 今月の収支データを正常に保存・各タブへ反映しました！');
+            alert('🎉 今月の収支データを正常に保存・各タブおよび将来予測へ反映しました！');
         }
 
         function renderHistoryTable() {
@@ -2231,7 +2380,7 @@
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
+                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;isTargetPlanUnlocked=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2460,17 +2609,17 @@
                 const tr = document.createElement('tr');
                 tr.className = isCompleted || isCanceled ? "opacity-80" : "";
                 tr.innerHTML = `
-                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}"></td>
-                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
-                    <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}"></td>
+                    <td class="p-2.5"><select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select></td>
+                    <td class="p-2.5"><input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs text-right font-bold shadow-inner"></td>
                     <td class="p-2.5">
-                        <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${statusBadgeClass}">
+                        <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${statusBadgeClass}">
                             <option value="予定" ${ev.status==='予定'?'selected':''}>⏳ 予定</option>
                             <option value="完了" ${ev.status==='完了'?'selected':''}>✅ 完了</option>
                             <option value="キャンセル" ${ev.status==='キャンセル'?'selected':''}>❌ キャンセル</option>
                         </select>
                     </td>
-                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner"></td>
+                    <td class="p-2.5"><input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner"></td>
                     <td class="p-2.5 text-center"><button onclick="deleteEvent(${index})" class="text-rose-500 font-bold text-xs p-1 cursor-pointer whitespace-nowrap">削除</button></td>
                 `;
                 tableBodyTarget.appendChild(tr);
@@ -2481,23 +2630,23 @@
                 card.className = `theme-card-sm p-3 rounded-xl border space-y-2 shadow-sm ${isCompleted || isCanceled ? 'opacity-80' : ''}`;
                 card.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
-                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}">
+                        <input type="text" value="${ev.name}" onchange="updateEventField(${index}, 'name', this.value)" placeholder="イベント名" class="flex-grow theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${isCompleted ? 'line-through' : ''}">
                         <button onclick="deleteEvent(${index})" class="text-rose-500 hover:text-rose-700 text-xs font-bold p-1 shrink-0 whitespace-nowrap">削除</button>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定時期</label>
-                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select>
+                            <select onchange="updateEventField(${index}, 'date', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner truncate">${generateFuture30YearsOptions(ev.date)}</select>
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">予定費用 (円)</label>
-                            <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2 text-xs text-right font-bold shadow-inner">
+                            <input type="text" value="${formatNum(ev.cost)}" onfocus="unformatInput(this)" onblur="formatInput(this); updateEventField(${index}, 'cost', this.value);" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs text-right font-bold shadow-inner">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">ステータス</label>
-                            <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner ${statusBadgeClass}">
+                            <select onchange="updateEventField(${index}, 'status', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner ${statusBadgeClass}">
                                 <option value="予定" ${ev.status==='予定'?'selected':''}>⏳ 予定</option>
                                 <option value="完了" ${ev.status==='完了'?'selected':''}>✅ 完了</option>
                                 <option value="キャンセル" ${ev.status==='キャンセル'?'selected':''}>❌ キャンセル</option>
@@ -2505,7 +2654,7 @@
                         </div>
                         <div>
                             <label class="block text-[10px] opacity-80 mb-0.5 font-bold whitespace-nowrap">メモ</label>
-                            <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2 text-xs font-bold shadow-inner">
+                            <input type="text" value="${ev.memo || ''}" onchange="updateEventField(${index}, 'memo', this.value)" class="w-full theme-card-sm border rounded-xl p-2.5 text-xs font-bold shadow-inner">
                         </div>
                     </div>
                 `;
@@ -2782,6 +2931,7 @@
                 }
 
                 let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
+                let currentActiveTargetSave = defaultMonthlySave;
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
@@ -2791,7 +2941,10 @@
                     let stepEvCost = eventMap[ymKey] || 0;
                     const mData = monthlyDataMap[ymKey];
 
-                    let stepTargetSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : defaultMonthlySave;
+                    if (mData && mData.targetSaving !== undefined) {
+                        currentActiveTargetSave = mData.targetSaving;
+                    }
+                    let stepTargetSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : currentActiveTargetSave;
                     let stepTargetBonusPerson = (mData && mData.targetBonus !== undefined) ? mData.targetBonus : bonusPerPerson;
                     let stepTargetBonusTwo = stepTargetBonusPerson * 2;
 
