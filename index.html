@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>ライフプラン</title>
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" href="icon.png">
@@ -59,11 +59,6 @@
             background: rgba(255, 255, 255, 0.85) !important;
             border: 1.5px solid var(--app-c2) !important;
             color: var(--app-text) !important;
-        }
-
-        /* スマホの自動ズーム防止対策（16px以上に固定） */
-        input[type="text"], input[type="number"], select, textarea {
-            font-size: 16px !important;
         }
 
         .theme-primary-bg {
@@ -723,6 +718,15 @@
             if (!input) return;
             input.value = formatNum(input.value);
         }
+
+        // キーボードが閉じた後にスクロール位置を元に戻す
+        document.addEventListener('focusout', function(e) {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) {
+                setTimeout(() => {
+                    window.scrollTo({ left: 0, top: window.scrollY, behavior: 'instant' });
+                }, 50);
+            }
+        });
 
         function changeTabBackground(e) {
             const file = e.target.files[0];
