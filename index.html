@@ -1958,9 +1958,9 @@
                 bonusInput.disabled = !canEditBonus;
                 if (bonusNote) {
                     if (!isBonusEditableMonth(monthSel.value)) {
-                        bonusNote.textContent = '※6月度・12月度のみ入力可能（それ以外の月は自動ロック）';
+                        bonusNote.textContent = '※6月・12月度のみ入力可能';
                     } else {
-                        bonusNote.textContent = '※1人あたりの金額を入力（6月・12月は×2人分で自動加算）';
+                        bonusNote.textContent = '※1人あたり（6・12月は×2人分）';
                     }
                 }
             }
@@ -2173,22 +2173,18 @@
                 </div>
 
                 <!-- 【STEP 6】一番最後の「目標シミュレーション設定（この月の計画値）」エリアにロック解除ボタンを組み込み -->
-                <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <div class="min-w-0 flex-1">
-                            <h3 class="font-bold text-xs theme-primary-text truncate">🎯 目標シミュレーション設定（この月の計画値）</h3>
-                            <p class="text-[10px] opacity-80 mt-0.5">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測にも連動します。</p>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
-                            <span class="text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${isTargetUnlocked ? 'bg-emerald-500/20 text-emerald-700' : 'bg-slate-500/20 text-slate-700'}">
-                                ${isTargetUnlocked ? '🔓 解除中' : '🔒 ロック中'}
-                            </span>
-                            <button type="button" onclick="toggleMonthEditLock()" id="btn-toggle-month-lock" class="text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1 cursor-pointer border whitespace-nowrap ${isTargetUnlocked ? 'theme-accent-bg' : 'theme-card-sm'}">
+                <div class="theme-card-sm p-4 rounded-2xl border space-y-2.5 shadow-sm">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <h3 class="font-bold text-xs theme-primary-text truncate min-w-0">🎯 目標シミュレーション設定（この月の計画値）</h3>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${isTargetUnlocked ? 'bg-emerald-500/20 text-emerald-700' : 'bg-slate-500/20 text-slate-700'}">${isTargetUnlocked ? '🔓 解除中' : '🔒 ロック中'}</span>
+                            <button type="button" onclick="toggleMonthEditLock()" id="btn-toggle-month-lock" class="text-[11px] px-2.5 py-1 rounded-xl font-bold transition shadow-sm flex items-center gap-1 cursor-pointer border whitespace-nowrap ${isTargetUnlocked ? 'theme-accent-bg' : 'theme-card-sm'}">
                                 <span>${isTargetUnlocked ? '🔒 ロックする' : '🔓 ロック解除'}</span>
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <p class="text-[10px] opacity-80 truncate">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測に連動します。</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="min-w-0">
                             <label class="block font-bold text-[11px] opacity-90 mb-1 truncate">標準毎月貯金額（目標値・円）</label>
                             <input type="text" id="input-target-saving" value="${formatNum(targetSavingVal)}" ${targetDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
@@ -2196,7 +2192,7 @@
                         <div class="min-w-0">
                             <label class="block font-bold text-[11px] opacity-90 mb-1 truncate">🎁 ボーナス額（1人あたり・円）</label>
                             <input type="text" id="input-target-bonus" value="${formatNum(targetBonusVal)}" ${bonusDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
-                            <p id="target-bonus-status-note" class="text-[9px] opacity-75 mt-1">${bonusMonthAllowed ? '※1人あたりの金額を入力（6月・12月は×2人分で自動加算）' : '※6月度・12月度のみ入力可能（それ以外の月は自動ロック）'}</p>
+                            <p id="target-bonus-status-note" class="text-[10px] opacity-75 mt-1 truncate">${bonusMonthAllowed ? '※1人あたり（6・12月は×2人分）' : '※6月・12月度のみ入力可能'}</p>
                         </div>
                     </div>
                 </div>
