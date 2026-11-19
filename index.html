@@ -409,7 +409,7 @@
                 <div class="space-y-3 theme-card-sm p-4 rounded-2xl border shadow-sm">
                     <div>
                         <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">📈 将来予測シミュレーション設定</h3>
-                        <p class="text-[10px] opacity-80 font-normal mt-0.5">(未確定月のグラフ計算に使用 / 毎月入力の目標設定とも自動連動)</p>
+                        <p class="text-[10px] opacity-80 font-normal mt-0.5">(未確定月のグラフ計算に使用)</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
@@ -550,7 +550,6 @@
         let currentModalRawHistory = [];
         let globalChartDataStore = { yms: [], actuals: [], estimates: [], events: [], monthlyMap: {} };
         let currentActiveTabId = 'dashboard';
-        let isTargetPlanUnlocked = false;
 
         const colorPickupDatabase = [
             { id: 1, name: "雨上がりのミントキャンディ配色", colors: ["#E0F2F1", "#4DB6AC", "#B2DFDB", "#FFBACD"] },
@@ -715,13 +714,13 @@
         }
 
         function unformatInput(input) {
-            if (!input || input.disabled) return;
+            if (!input) return;
             const raw = parseNum(input.value);
             input.value = raw === 0 && input.value.trim() === '' ? '' : raw;
         }
 
         function formatInput(input) {
-            if (!input || input.disabled) return;
+            if (!input) return;
             input.value = formatNum(input.value);
         }
 
@@ -885,73 +884,64 @@
             if (!modal || !content) return;
 
             const baseInitialBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
+
+            let actualAccumulatedSum = 0;
+            let actualCount = 0;
+            if (appData.monthly && appData.monthly.length > 0) {
+                appData.monthly.forEach(m => {
+                    if (m.type === '実績' && m.month <= targetYM) {
+                        actualCount++;
+                        if (m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
+                            actualAccumulatedSum += parseNum(m.bankAllocations['貯金用(三菱UFJ銀行)']);
+                        }
+                    }
+                });
+            }
+            const currentBaseBalance = baseInitialBalance + actualAccumulatedSum;
+
             const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
             const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
+            const bonusTwoPeople = bonusPerPerson * 2;
 
-            let monthlyDataMap = {};
-            if (appData.monthly) {
-                appData.monthly.forEach(m => {
-                    monthlyDataMap[m.month] = {
-                        type: m.type,
-                        targetSaving: m.targetSaving !== undefined ? parseNum(m.targetSaving) : defaultMonthlySave,
-                        targetBonus: m.targetBonus !== undefined ? parseNum(m.targetBonus) : bonusPerPerson
-                    };
-                });
+            const [targetY, targetM] = targetYM.split('-').map(Number);
+            const startY = 2027, startM = 1;
+
+            let diffMonths = (targetY - startY) * 12 + (targetM - startM);
+            if (diffMonths < 0) diffMonths = 0;
+
+            let bonusCount = 0;
+            let curY = startY, curM = startM;
+            for (let i = 0; i < diffMonths; i++) {
+                curM += 1;
+                if (curM > 12) { curM = 1; curY++; }
+                if (curM === 6 || curM === 12) {
+                    bonusCount++;
+                }
             }
 
-            let eventMap = {};
+            let unconfirmedMonths = diffMonths - actualCount;
+            if (unconfirmedMonths < 0) unconfirmedMonths = 0;
+
+            const monthlyAccumulatedAdd = defaultMonthlySave * unconfirmedMonths;
+            const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
+
+            let totalEventCost = 0;
             if (appData.events) {
                 appData.events.forEach(ev => {
-                    if (ev.date && ev.cost && ev.status !== 'キャンセル') {
-                        eventMap[ev.date] = (eventMap[ev.date] || 0) + parseNum(ev.cost);
+                    if (ev.date && ev.date <= targetYM && ev.cost && ev.status !== 'キャンセル') {
+                        totalEventCost += parseNum(ev.cost);
                     }
                 });
             }
 
-            // 2027-01 から targetYM まで1ヶ月ずつ目標推定値を積算（グラフの目標推定値と完全一致）
-            let curY = 2027, curM = 1;
-            let totalTargetSaveSum = 0;
-            let totalBonusSum = 0;
-            let bonusCount = 0;
-            let totalEventCost = 0;
-            let monthCount = 0;
-            let currentActiveTargetSave = defaultMonthlySave;
+            const estimatedAccumulated = currentBaseBalance + monthlyAccumulatedAdd + bonusAccumulatedAdd - totalEventCost;
 
-            while (true) {
-                const ymKey = `${curY}-${String(curM).padStart(2, '0')}`;
-                if (ymKey > targetYM) break;
-
-                monthCount++;
-                const mData = monthlyDataMap[ymKey];
-                if (mData && mData.targetSaving !== undefined) {
-                    currentActiveTargetSave = mData.targetSaving;
-                }
-                const stepSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : currentActiveTargetSave;
-                totalTargetSaveSum += stepSave;
-
-                if (curM === 6 || curM === 12) {
-                    const stepBonusPerson = (mData && mData.targetBonus !== undefined) ? mData.targetBonus : bonusPerPerson;
-                    const stepBonusTwo = stepBonusPerson * 2;
-                    if (stepBonusTwo > 0) {
-                        totalBonusSum += stepBonusTwo;
-                        bonusCount++;
-                    }
-                }
-
-                if (eventMap[ymKey]) {
-                    totalEventCost += eventMap[ymKey];
-                }
-
-                curM++;
-                if (curM > 12) { curM = 1; curY++; }
-                if (monthCount > 600) break;
+            let formulaMathStr = `¥${currentBaseBalance.toLocaleString()}`;
+            if (unconfirmedMonths > 0) {
+                formulaMathStr += ` + ¥${defaultMonthlySave.toLocaleString()}×${unconfirmedMonths}ヶ月`;
             }
-
-            const estimatedAccumulated = baseInitialBalance + totalTargetSaveSum + totalBonusSum - totalEventCost;
-
-            let formulaMathStr = `¥${baseInitialBalance.toLocaleString()} + ¥${totalTargetSaveSum.toLocaleString()}`;
-            if (totalBonusSum > 0) {
-                formulaMathStr += ` + ¥${totalBonusSum.toLocaleString()}`;
+            if (bonusCount > 0) {
+                formulaMathStr += ` + ¥${bonusTwoPeople.toLocaleString()}×${bonusCount}回`;
             }
             if (totalEventCost > 0) {
                 formulaMathStr += ` - ¥${totalEventCost.toLocaleString()}`;
@@ -961,28 +951,32 @@
                 <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-current/15 gap-1">
                         <span class="font-extrabold theme-primary-text text-xs sm:text-sm">📅 指定年月: ${formatMonthPeriodLabel(targetYM)}</span>
-                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto">対象期間: ${monthCount}ヶ月分</span>
+                        <span class="text-[10px] font-bold theme-badge-tone px-2 py-0.5 rounded-md self-start sm:self-auto">経過月数: ${diffMonths}ヶ月</span>
                     </div>
                     <div class="space-y-2 text-xs font-medium">
-                        <div class="flex justify-between items-center">
-                            <span class="opacity-80">① 初期残高 (貯金用口座):</span>
-                            <span class="font-bold">¥${baseInitialBalance.toLocaleString()}</span>
-                        </div>
                         <div class="flex justify-between items-start gap-2">
                             <div>
-                                <span class="opacity-80 block">② 毎月の目標積立 累計 (${monthCount}ヶ月分):</span>
-                                <span class="text-[9px] opacity-60">※各月に設定した標準毎月貯金額を月ごとに合算</span>
+                                <span class="opacity-80 block">① 基準残高 (初期残高 ＋ 確定実績):</span>
+                                <span class="text-[9px] opacity-60">※初期残高 ¥${baseInitialBalance.toLocaleString()} ＋ 確定実績${actualCount}ヶ月分</span>
                             </div>
-                            <span class="font-bold shrink-0 mt-0.5">＋¥${totalTargetSaveSum.toLocaleString()}</span>
+                            <span class="font-bold shrink-0 mt-0.5">¥${currentBaseBalance.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="opacity-80">② 標準毎月貯金額 (口座タブ参照):</span>
+                            <span class="font-bold">¥${defaultMonthlySave.toLocaleString()} /月</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="opacity-80">③ 未確定の毎月積立 (② × 未確定${unconfirmedMonths}ヶ月):</span>
+                            <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
                         </div>
                         ${bonusCount > 0 ? `
                         <div class="flex justify-between items-center theme-accent-text">
-                            <span class="opacity-90">③ ボーナス通過加算 (${bonusCount}回分 / ×2人):</span>
-                            <span class="font-bold">＋¥${totalBonusSum.toLocaleString()}</span>
+                            <span class="opacity-90">④ ボーナス通過加算 (¥${bonusTwoPeople.toLocaleString()} × ${bonusCount}回):</span>
+                            <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
                         </div>` : ''}
                         ${totalEventCost > 0 ? `
                         <div class="flex justify-between items-center text-rose-500">
-                            <span class="opacity-90">④ 期間内の予定費用 (イベント):</span>
+                            <span class="opacity-90">⑤ 期間内の予定費用 (イベント):</span>
                             <span class="font-bold">－¥${totalEventCost.toLocaleString()}</span>
                         </div>` : ''}
                     </div>
@@ -991,7 +985,7 @@
                         <p class="text-[10px] font-bold opacity-80 uppercase tracking-wider">🧮 実際の数値を交えた計算式:</p>
                         <p class="text-[11px] font-bold font-mono theme-deep-text break-all bg-white/60 p-2 rounded-lg border border-current/10">${formulaMathStr}</p>
                         <div class="flex justify-between items-center pt-1 border-t border-current/10">
-                            <span class="font-bold text-xs">目標推定値 合計:</span>
+                            <span class="font-bold text-xs">貯金到達見込み合計:</span>
                             <span class="font-extrabold text-base theme-primary-text">¥${estimatedAccumulated.toLocaleString()}</span>
                         </div>
                     </div>
@@ -1671,7 +1665,6 @@
             setupDailyRandomTheme();
             initColorPickupUI();
 
-            isTargetPlanUnlocked = false;
             applyHeaderIconUI();
             syncSettingsToUI();
             updateMonthSelector();
@@ -1850,7 +1843,6 @@
                 return;
             }
             isMonthFormModified = false;
-            isTargetPlanUnlocked = false;
             currentEditingIndex = Number(index);
             renderMonthEditor();
         }
@@ -1905,62 +1897,9 @@
             });
 
             currentEditingIndex = appData.monthly.length - 1;
-            // 月を追加した直後は目標設定欄を入力可能状態にする
-            isTargetPlanUnlocked = true;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
-        }
-
-        function unlockTargetPlanInputs() {
-            isTargetPlanUnlocked = true;
-            const mVal = document.getElementById('input-field-month')?.value || '';
-            const monthNum = Number((mVal.split('-')[1]) || 0);
-            const isBonusMonth = (monthNum === 6 || monthNum === 12);
-
-            const saveInput = document.getElementById('input-field-targetSaving');
-            const bonusInput = document.getElementById('input-field-targetBonus');
-            const unlockBtn = document.getElementById('btn-unlock-target-plan');
-            const statusBadge = document.getElementById('target-plan-status-badge');
-
-            if (saveInput) {
-                saveInput.disabled = false;
-                saveInput.classList.remove('opacity-60', 'cursor-not-allowed');
-            }
-            if (bonusInput && isBonusMonth) {
-                bonusInput.disabled = false;
-                bonusInput.classList.remove('opacity-60', 'cursor-not-allowed');
-            }
-            if (unlockBtn) {
-                unlockBtn.classList.add('hidden');
-            }
-            if (statusBadge) {
-                statusBadge.innerText = '✏️ 編集中 (保存で将来予測にも連動)';
-            }
-        }
-
-        function handleMonthSelectChange() {
-            markModified();
-            const mVal = document.getElementById('input-field-month')?.value || '';
-            const monthNum = Number((mVal.split('-')[1]) || 0);
-            const isBonusMonth = (monthNum === 6 || monthNum === 12);
-
-            const bonusInput = document.getElementById('input-field-targetBonus');
-            const bonusNote = document.getElementById('target-bonus-month-note');
-            if (bonusInput) {
-                if (isTargetPlanUnlocked && isBonusMonth) {
-                    bonusInput.disabled = false;
-                    bonusInput.classList.remove('opacity-60', 'cursor-not-allowed');
-                } else {
-                    bonusInput.disabled = true;
-                    bonusInput.classList.add('opacity-60', 'cursor-not-allowed');
-                }
-            }
-            if (bonusNote) {
-                bonusNote.innerText = isBonusMonth
-                    ? '※ボーナス月（6月・12月）のため入力・変更可能です（グラフでは×2人分で加算）'
-                    : '※ボーナス月（6月・12月）以外の月は変更できません';
-            }
         }
 
         function deleteMonth(index) {
@@ -1979,7 +1918,6 @@
             appData.monthly.splice(index, 1);
             currentEditingIndex = Math.max(0, index - 1);
             isMonthFormModified = false;
-            isTargetPlanUnlocked = false;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
@@ -2015,14 +1953,6 @@
 
             const isMatched = (diff === 0);
 
-            const monthNum = Number((m.month.split('-')[1]) || 0);
-            const isBonusMonth = (monthNum === 6 || monthNum === 12);
-            const targetSavingVal = m.targetSaving !== undefined ? parseNum(m.targetSaving) : (parseNum(appData.settings.defaultMonthlySave) || 40000);
-            const targetBonusVal = m.targetBonus !== undefined ? parseNum(m.targetBonus) : (parseNum(appData.settings.bonusPerPerson) || 300000);
-
-            const canEditTargetSave = isTargetPlanUnlocked;
-            const canEditTargetBonus = isTargetPlanUnlocked && isBonusMonth;
-
             let banksHtml = '';
             getAccountNames().forEach(b => {
                 banksHtml += `
@@ -2051,7 +1981,7 @@
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
-                        <select id="input-field-month" onchange="handleMonthSelectChange()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
+                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
@@ -2166,51 +2096,6 @@
                     </div>
                 </div>
 
-                <!-- 【STEP 6】目標シミュレーション設定（この月の計画値・将来予測連動） -->
-                <div class="theme-card-sm p-4 rounded-2xl space-y-3 border shadow-sm bg-current/5 no-print">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-current/15">
-                        <div>
-                            <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text flex items-center gap-1.5 whitespace-nowrap">
-                                <span>📈</span> 標準毎月貯金額・ボーナス目標の変更（将来予測グラフ連動）
-                            </h3>
-                            <p class="text-[10px] opacity-80 font-medium mt-0.5">
-                                ※基本は「月を追加」した時に入力します。ここで保存した額は「口座」タブの将来予測設定や翌月以降のグラフ予測にも自動連動します。
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span id="target-plan-status-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-current/10 opacity-90 whitespace-nowrap">
-                                ${isTargetPlanUnlocked ? '✏️ 入力可能 (保存で将来予測にも連動)' : '🔒 ロック中 (月追加時のみ標準入力)'}
-                            </span>
-                            ${!isTargetPlanUnlocked ? `
-                            <button type="button" id="btn-unlock-target-plan" onclick="unlockTargetPlanInputs()" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold border shadow-sm cursor-pointer hover:opacity-90 whitespace-nowrap">
-                                🔓 編集する
-                            </button>` : ''}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        <div class="theme-card-sm p-3.5 rounded-2xl border space-y-1.5 shadow-sm">
-                            <div class="flex justify-between items-center gap-2">
-                                <label class="font-bold text-xs whitespace-nowrap">標準毎月貯金額 (円)</label>
-                                <input type="text" id="input-field-targetSaving" value="${formatNum(targetSavingVal)}" ${canEditTargetSave ? '' : 'disabled'} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner ${canEditTargetSave ? '' : 'opacity-60 cursor-not-allowed'}">
-                            </div>
-                            <p class="text-[10px] opacity-75">※この月に貯金できそうな目標額を入力してください（翌月以降の標準額にも引き継がれます）</p>
-                        </div>
-
-                        <div class="theme-card-sm p-3.5 rounded-2xl border space-y-1.5 shadow-sm">
-                            <div class="flex justify-between items-center gap-2">
-                                <label class="font-bold text-xs whitespace-nowrap">🎁 ボーナス目標 (1人あたり)</label>
-                                <input type="text" id="input-field-targetBonus" value="${formatNum(targetBonusVal)}" ${canEditTargetBonus ? '' : 'disabled'} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner ${canEditTargetBonus ? '' : 'opacity-60 cursor-not-allowed'}">
-                            </div>
-                            <p id="target-bonus-month-note" class="text-[10px] opacity-75">
-                                ${isBonusMonth
-                                    ? '※ボーナス月（6月・12月）のため入力・変更可能です（グラフでは×2人分で加算）'
-                                    : '※ボーナス月（6月・12月）以外の月は変更できません'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- 保存ボタン -->
                 <div class="pt-4 border-t border-current/15 flex justify-end">
                     <button onclick="saveCurrentMonthForm()" class="theme-primary-bg px-6 py-3 rounded-2xl text-xs font-bold shadow-xl transition cursor-pointer hover:scale-105 min-h-[44px] whitespace-nowrap">
@@ -2308,8 +2193,7 @@
                 return;
             }
 
-            const newMonthVal = document.getElementById('input-field-month').value;
-            m.month = newMonthVal;
+            m.month = document.getElementById('input-field-month').value;
             m.type = document.getElementById('input-field-type').value;
             m.memo = document.getElementById('input-field-memo').value;
             m.rIncome = rInc;
@@ -2322,42 +2206,14 @@
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
-            // 下部フォームの「標準毎月貯金額・ボーナス目標」を取得してこの月に記録＆将来予測設定へ連動
-            const targetSaveInput = document.getElementById('input-field-targetSaving');
-            const targetBonusInput = document.getElementById('input-field-targetBonus');
-
-            const newTargetSave = targetSaveInput
-                ? parseNum(targetSaveInput.value)
-                : (m.targetSaving !== undefined ? parseNum(m.targetSaving) : (parseNum(appData.settings.defaultMonthlySave) || 40000));
-            m.targetSaving = newTargetSave;
-
-            const monthNum = Number((newMonthVal.split('-')[1]) || 0);
-            const isBonusMonth = (monthNum === 6 || monthNum === 12);
-
-            if (isBonusMonth && targetBonusInput) {
-                const newTargetBonus = parseNum(targetBonusInput.value);
-                m.targetBonus = newTargetBonus;
-                appData.settings.bonusPerPerson = newTargetBonus;
-            } else if (m.targetBonus === undefined) {
-                m.targetBonus = parseNum(appData.settings.bonusPerPerson) || 300000;
-            }
-
-            // 最も新しい月の設定値を「口座」タブの将来予測シミュレーション設定（defaultMonthlySave）と連動させる
-            const sortedMonths = [...appData.monthly].sort((a, b) => a.month.localeCompare(b.month));
-            const latestMonthObj = sortedMonths[sortedMonths.length - 1];
-            if (latestMonthObj && latestMonthObj.targetSaving !== undefined) {
-                appData.settings.defaultMonthlySave = parseNum(latestMonthObj.targetSaving);
-            } else {
-                appData.settings.defaultMonthlySave = newTargetSave;
-            }
+            m.targetSaving = parseNum(appData.settings.defaultMonthlySave) || 40000;
+            m.targetBonus = parseNum(appData.settings.bonusPerPerson) || 300000;
 
             isMonthFormModified = false;
-            isTargetPlanUnlocked = false;
             saveStorage();
-            syncSettingsToUI();
             updateMonthSelector();
             renderMonthEditor();
-            alert('🎉 今月の収支データを正常に保存・各タブおよび将来予測へ反映しました！');
+            alert('🎉 今月の収支データを正常に保存・各タブへ反映しました！');
         }
 
         function renderHistoryTable() {
@@ -2380,7 +2236,7 @@
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;isTargetPlanUnlocked=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
+                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2931,7 +2787,6 @@
                 }
 
                 let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
-                let currentActiveTargetSave = defaultMonthlySave;
 
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
@@ -2941,10 +2796,7 @@
                     let stepEvCost = eventMap[ymKey] || 0;
                     const mData = monthlyDataMap[ymKey];
 
-                    if (mData && mData.targetSaving !== undefined) {
-                        currentActiveTargetSave = mData.targetSaving;
-                    }
-                    let stepTargetSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : currentActiveTargetSave;
+                    let stepTargetSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : defaultMonthlySave;
                     let stepTargetBonusPerson = (mData && mData.targetBonus !== undefined) ? mData.targetBonus : bonusPerPerson;
                     let stepTargetBonusTwo = stepTargetBonusPerson * 2;
 
