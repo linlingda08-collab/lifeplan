@@ -107,6 +107,12 @@
             touch-action: manipulation;
         }
 
+        input:disabled, select:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            background-color: rgba(148, 163, 184, 0.18) !important;
+        }
+
         @media print {
             .no-print { display: none !important; }
             body { background: #ffffff !important; color: #000000 !important; padding-bottom: 0 !important; }
@@ -131,7 +137,6 @@
             <input type="file" id="header-icon-file-input" accept="image/*" onchange="changeHeaderIconImage(event)" class="hidden">
 
             <div class="flex items-center space-x-2">
-                <!-- タブごとの背景画像個別設定ボタン -->
                 <label class="theme-card-sm px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:opacity-90 whitespace-nowrap" title="現在のタブの背景画像を変更">
                     <span>🖼️</span> <span class="hidden sm:inline">背景変更</span>
                     <input type="file" id="tab-bg-file-input" accept="image/*" onchange="changeTabBackground(event)" class="hidden">
@@ -221,8 +226,11 @@
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">毎月の収支計算</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
-                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                         <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm max-w-[280px] sm:max-w-[340px] truncate"></select>
+                        <button onclick="toggleMonthEditLock()" id="btn-toggle-month-lock" class="theme-card-sm text-xs px-3.5 py-2.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] border whitespace-nowrap">
+                            <span id="month-lock-icon">🔒</span> <span id="month-lock-label">ロック解除して編集</span>
+                        </button>
                         <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] whitespace-nowrap">
                             <span>＋</span> 月を追加
                         </button>
@@ -312,7 +320,6 @@
                     </div>
                 </div>
 
-                <!-- 進行中の予定リスト -->
                 <div class="space-y-3">
                     <h3 class="font-bold text-xs sm:text-sm theme-primary-text flex items-center gap-2">
                         <span>⏳</span> 進行中の予定
@@ -335,7 +342,6 @@
                     </div>
                 </div>
 
-                <!-- アーカイブ（完了済み）セクション -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
                     <button onclick="toggleArchiveSection()" class="w-full flex items-center justify-between font-bold text-xs theme-primary-text cursor-pointer">
                         <span class="flex items-center gap-2 whitespace-nowrap">
@@ -363,7 +369,6 @@
                     </div>
                 </div>
 
-                <!-- ゴミ箱（キャンセル）セクション -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
                     <button onclick="toggleTrashSection()" class="w-full flex items-center justify-between font-bold text-xs text-rose-600 cursor-pointer">
                         <span class="flex items-center gap-2 whitespace-nowrap">
@@ -604,9 +609,9 @@
         function getSalaryPayday(year, month) {
             let payday = new Date(year, month - 1, 26, 0, 0, 0, 0);
             let dayOfWeek = payday.getDay();
-            if (dayOfWeek === 6) { 
+            if (dayOfWeek === 6) {
                 payday.setDate(payday.getDate() - 1);
-            } else if (dayOfWeek === 0) { 
+            } else if (dayOfWeek === 0) {
                 payday.setDate(payday.getDate() - 2);
             }
             return payday;
@@ -709,7 +714,7 @@
         }
 
         function unformatInput(input) {
-            if (!input) return;
+            if (!input || input.disabled) return;
             const raw = parseNum(input.value);
             input.value = raw === 0 && input.value.trim() === '' ? '' : raw;
         }
@@ -719,7 +724,6 @@
             input.value = formatNum(input.value);
         }
 
-        // キーボードが閉じた後にスクロール位置を元に戻す
         document.addEventListener('focusout', function(e) {
             if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA')) {
                 setTimeout(() => {
@@ -872,6 +876,7 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
+        // 3. 「確認」モーダル（計算根拠）の月別目標額 1ヶ月ずつ積算
         function openPredictionModal(specifiedYM) {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
@@ -889,10 +894,12 @@
 
             const baseInitialBalance = getAccountInitialBalance('貯金用(三菱UFJ銀行)');
 
+            const monthlyMapByYM = {};
             let actualAccumulatedSum = 0;
             let actualCount = 0;
             if (appData.monthly && appData.monthly.length > 0) {
                 appData.monthly.forEach(m => {
+                    monthlyMapByYM[m.month] = m;
                     if (m.type === '実績' && m.month <= targetYM) {
                         actualCount++;
                         if (m.bankAllocations && m.bankAllocations['貯金用(三菱UFJ銀行)'] !== undefined) {
@@ -903,9 +910,8 @@
             }
             const currentBaseBalance = baseInitialBalance + actualAccumulatedSum;
 
-            const defaultMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
-            const bonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
-            const bonusTwoPeople = bonusPerPerson * 2;
+            const fallbackMonthlySave = parseNum(appData.settings.defaultMonthlySave) || 40000;
+            const fallbackBonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
 
             const [targetY, targetM] = targetYM.split('-').map(Number);
             const startY = 2027, startM = 1;
@@ -913,21 +919,40 @@
             let diffMonths = (targetY - startY) * 12 + (targetM - startM);
             if (diffMonths < 0) diffMonths = 0;
 
-            let bonusCount = 0;
+            // 月ごとの目標額を1ヶ月ずつ積算
             let curY = startY, curM = startM;
+            let monthlyTargetAddSum = 0;
+            let bonusTargetAddSum = 0;
+            let bonusCount = 0;
+            let unconfirmedCount = 0;
+
             for (let i = 0; i < diffMonths; i++) {
                 curM += 1;
                 if (curM > 12) { curM = 1; curY++; }
+                const ymKey = `${curY}-${String(curM).padStart(2, '0')}`;
+                const mRec = monthlyMapByYM[ymKey];
+
+                const isActualMonth = mRec && mRec.type === '実績';
+                const monthTargetSave = (mRec && mRec.targetSaving !== undefined)
+                    ? parseNum(mRec.targetSaving)
+                    : fallbackMonthlySave;
+
+                if (!isActualMonth) {
+                    unconfirmedCount++;
+                    monthlyTargetAddSum += monthTargetSave;
+                }
+
                 if (curM === 6 || curM === 12) {
-                    bonusCount++;
+                    const monthBonusPerson = (mRec && mRec.targetBonus !== undefined)
+                        ? parseNum(mRec.targetBonus)
+                        : fallbackBonusPerPerson;
+                    const twoPeopleBonus = monthBonusPerson * 2;
+                    if (twoPeopleBonus > 0) {
+                        bonusCount++;
+                        bonusTargetAddSum += twoPeopleBonus;
+                    }
                 }
             }
-
-            let unconfirmedMonths = diffMonths - actualCount;
-            if (unconfirmedMonths < 0) unconfirmedMonths = 0;
-
-            const monthlyAccumulatedAdd = defaultMonthlySave * unconfirmedMonths;
-            const bonusAccumulatedAdd = bonusTwoPeople * bonusCount;
 
             let totalEventCost = 0;
             if (appData.events) {
@@ -938,14 +963,14 @@
                 });
             }
 
-            const estimatedAccumulated = currentBaseBalance + monthlyAccumulatedAdd + bonusAccumulatedAdd - totalEventCost;
+            const estimatedAccumulated = currentBaseBalance + monthlyTargetAddSum + bonusTargetAddSum - totalEventCost;
 
             let formulaMathStr = `¥${currentBaseBalance.toLocaleString()}`;
-            if (unconfirmedMonths > 0) {
-                formulaMathStr += ` + ¥${defaultMonthlySave.toLocaleString()}×${unconfirmedMonths}ヶ月`;
+            if (monthlyTargetAddSum > 0) {
+                formulaMathStr += ` + ¥${monthlyTargetAddSum.toLocaleString()}(未確定${unconfirmedCount}ヶ月分)`;
             }
-            if (bonusCount > 0) {
-                formulaMathStr += ` + ¥${bonusTwoPeople.toLocaleString()}×${bonusCount}回`;
+            if (bonusTargetAddSum > 0) {
+                formulaMathStr += ` + ¥${bonusTargetAddSum.toLocaleString()}(ボーナス${bonusCount}回分)`;
             }
             if (totalEventCost > 0) {
                 formulaMathStr += ` - ¥${totalEventCost.toLocaleString()}`;
@@ -966,21 +991,17 @@
                             <span class="font-bold shrink-0 mt-0.5">¥${currentBaseBalance.toLocaleString()}</span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="opacity-80">② 標準毎月貯金額 (口座タブ参照):</span>
-                            <span class="font-bold">¥${defaultMonthlySave.toLocaleString()} /月</span>
+                            <span class="opacity-80">② 未確定月の目標貯金積算 (${unconfirmedCount}ヶ月分・月別目標反映):</span>
+                            <span class="font-bold">¥${monthlyTargetAddSum.toLocaleString()}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="opacity-80">③ 未確定の毎月積立 (② × 未確定${unconfirmedMonths}ヶ月):</span>
-                            <span class="font-bold">¥${monthlyAccumulatedAdd.toLocaleString()}</span>
-                        </div>
-                        ${bonusCount > 0 ? `
+                        ${bonusTargetAddSum > 0 ? `
                         <div class="flex justify-between items-center theme-accent-text">
-                            <span class="opacity-90">④ ボーナス通過加算 (¥${bonusTwoPeople.toLocaleString()} × ${bonusCount}回):</span>
-                            <span class="font-bold">＋¥${bonusAccumulatedAdd.toLocaleString()}</span>
+                            <span class="opacity-90">③ 6月・12月ボーナス目標積算 (2人分×${bonusCount}回):</span>
+                            <span class="font-bold">＋¥${bonusTargetAddSum.toLocaleString()}</span>
                         </div>` : ''}
                         ${totalEventCost > 0 ? `
                         <div class="flex justify-between items-center text-rose-500">
-                            <span class="opacity-90">⑤ 期間内の予定費用 (イベント):</span>
+                            <span class="opacity-90">④ 期間内の予定費用 (イベント):</span>
                             <span class="font-bold">－¥${totalEventCost.toLocaleString()}</span>
                         </div>` : ''}
                     </div>
@@ -1046,7 +1067,8 @@
                     expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                     nisa: 20000, rSaving: 0, lifeSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2027年1月期スタート)',
                     bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 },
-                    targetSaving: 40000, targetBonus: 300000
+                    targetSaving: 40000, targetBonus: 300000,
+                    isUnlocked: false
                 }
             ],
             events: [
@@ -1231,7 +1253,7 @@
 
             activePeer.on('error', (err) => {
                 console.error('PeerJSエラー:', err);
-                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しぐさい。';
+                document.getElementById('sync-sender-status').innerText = '接続エラーが発生しました。再度お試しください。';
             });
         }
 
@@ -1657,7 +1679,8 @@
                         expenses: { food: 35000, rTrans: 10000, hTrans: 15000, house: 75000, goods: 15000, utility: 20000, rLoan: 10000, pon: 3000, kenmin: 2000, rSub: 6500, rPocket: 30000, hPocket: 30000, hHair: 15000, rComm: 0, hComm: 0 },
                         nisa: 20000, rSaving: 0, lifeSaving: 0, bonus: 0, extraInc: 0, memo: '運用開始月 (2027年1月期スタート)',
                         bankAllocations: { '貯金用(三菱UFJ銀行)': 30000, 'ゆとり用(イオン銀行)': 25500 },
-                        targetSaving: 40000, targetBonus: 300000
+                        targetSaving: 40000, targetBonus: 300000,
+                        isUnlocked: false
                     }];
                 }
             }
@@ -1848,9 +1871,13 @@
             }
             isMonthFormModified = false;
             currentEditingIndex = Number(index);
+            if (appData.monthly[currentEditingIndex]) {
+                appData.monthly[currentEditingIndex].isUnlocked = false;
+            }
             renderMonthEditor();
         }
 
+        // 2. 新規追加時はロック解除状態で開く
         function addNewMonthByDropdown() {
             if (isMonthFormModified) {
                 alert("⚠️ 保存されていない変更があります。新しい月を追加する前に保存してください。");
@@ -1880,7 +1907,9 @@
                 newBankAllocs[b] = lastMonthData && lastMonthData.bankAllocations ? parseNum(lastMonthData.bankAllocations[b]) : 0;
             });
 
-            const currentDefaultSave = parseNum(appData.settings.defaultMonthlySave) || 40000;
+            const currentDefaultSave = (lastMonthData && lastMonthData.targetSaving !== undefined)
+                ? parseNum(lastMonthData.targetSaving)
+                : (parseNum(appData.settings.defaultMonthlySave) || 40000);
             const currentBonusPerPerson = parseNum(appData.settings.bonusPerPerson) || 300000;
 
             appData.monthly.push({ 
@@ -1897,13 +1926,50 @@
                 memo: '', 
                 bankAllocations: newBankAllocs,
                 targetSaving: currentDefaultSave,
-                targetBonus: currentBonusPerPerson
+                targetBonus: currentBonusPerPerson,
+                isUnlocked: true
             });
 
             currentEditingIndex = appData.monthly.length - 1;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
+        }
+
+        function toggleMonthEditLock() {
+            const m = appData.monthly[currentEditingIndex];
+            if (!m) return;
+            m.isUnlocked = !m.isUnlocked;
+            renderMonthEditor();
+        }
+
+        function isBonusEditableMonth(ymStr) {
+            if (!ymStr) return false;
+            const parts = ymStr.split('-');
+            if (parts.length !== 2) return false;
+            const monthNum = Number(parts[1]);
+            return monthNum === 6 || monthNum === 12;
+        }
+
+        function handleTargetMonthChange() {
+            markModified();
+            const monthSel = document.getElementById('input-field-month');
+            const bonusInput = document.getElementById('input-target-bonus');
+            const bonusNote = document.getElementById('target-bonus-status-note');
+            const m = appData.monthly[currentEditingIndex];
+            const isLocked = !(m && m.isUnlocked);
+
+            if (monthSel && bonusInput) {
+                const canEditBonus = !isLocked && isBonusEditableMonth(monthSel.value);
+                bonusInput.disabled = !canEditBonus;
+                if (bonusNote) {
+                    if (!isBonusEditableMonth(monthSel.value)) {
+                        bonusNote.textContent = '※6月度・12月度のみ入力可能（それ以外の月は自動ロック）';
+                    } else {
+                        bonusNote.textContent = '※1人あたりの金額を入力（6月・12月は×2人分で自動加算）';
+                    }
+                }
+            }
         }
 
         function deleteMonth(index) {
@@ -1927,11 +1993,32 @@
             renderMonthEditor();
         }
 
+        function updateMonthLockButtonUI(isUnlocked) {
+            const iconEl = document.getElementById('month-lock-icon');
+            const labelEl = document.getElementById('month-lock-label');
+            const btnEl = document.getElementById('btn-toggle-month-lock');
+            if (iconEl) iconEl.textContent = isUnlocked ? '🔓' : '🔒';
+            if (labelEl) labelEl.textContent = isUnlocked ? '編集中（ロック中）' : 'ロック解除して編集';
+            if (btnEl) {
+                if (isUnlocked) {
+                    btnEl.classList.remove('theme-card-sm');
+                    btnEl.classList.add('theme-accent-bg');
+                } else {
+                    btnEl.classList.remove('theme-accent-bg');
+                    btnEl.classList.add('theme-card-sm');
+                }
+            }
+        }
+
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
             if (!container) return;
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
+
+            const isUnlocked = Boolean(m.isUnlocked);
+            const disabledAttr = isUnlocked ? '' : 'disabled';
+            updateMonthLockButtonUI(isUnlocked);
 
             const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
             let totalExp = 0;
@@ -1957,12 +2044,21 @@
 
             const isMatched = (diff === 0);
 
+            const targetSavingVal = (m.targetSaving !== undefined)
+                ? parseNum(m.targetSaving)
+                : (parseNum(appData.settings.defaultMonthlySave) || 40000);
+            const targetBonusVal = (m.targetBonus !== undefined)
+                ? parseNum(m.targetBonus)
+                : (parseNum(appData.settings.bonusPerPerson) || 300000);
+            const bonusMonthAllowed = isBonusEditableMonth(m.month);
+            const bonusDisabledAttr = (!isUnlocked || !bonusMonthAllowed) ? 'disabled' : '';
+
             let banksHtml = '';
             getAccountNames().forEach(b => {
                 banksHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between border shadow-sm">
                         <span class="font-bold text-xs truncate">🏦 ${b}</span>
-                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none border shadow-inner">
+                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                 `;
             });
@@ -1972,10 +2068,10 @@
                 expensesHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between gap-2 border shadow-sm">
                         <div class="flex items-center gap-2 truncate">
-                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
+                            <button onclick="removeExpenseCategory('${cat.id}')" ${disabledAttr} class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
                             <span class="text-xs font-bold truncate">${cat.name}</span>
                         </div>
-                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
+                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
                     </div>
                 `;
             });
@@ -1985,20 +2081,20 @@
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
-                        <select id="input-field-month" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
+                        <select id="input-field-month" ${disabledAttr} onchange="handleTargetMonthChange()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">区分</label>
-                        <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
+                        <select id="input-field-type" ${disabledAttr} onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
                             <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※ホームへ即時反映)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">メモ</label>
-                        <input type="text" id="input-field-memo" value="${m.memo || ''}" oninput="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none shadow-inner">
+                        <input type="text" id="input-field-memo" value="${m.memo || ''}" ${disabledAttr} oninput="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none shadow-inner">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
                         <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3.5 py-2 rounded-xl font-bold transition cursor-pointer shadow-sm whitespace-nowrap">削除</button>
@@ -2011,19 +2107,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
-                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
-                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
-                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
-                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                     </div>
                 </div>
@@ -2033,8 +2129,8 @@
                     <div class="flex justify-between items-center border-b border-current/15 pb-1">
                         <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text whitespace-nowrap">🛍️ 支出項目</h3>
                         <div class="flex gap-2">
-                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold shadow-inner">
-                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
+                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." ${disabledAttr} class="theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold shadow-inner">
+                            <button onclick="startAddingExpense()" ${disabledAttr} class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -2054,7 +2150,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">NISA積立</p>
-                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-2 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-2 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金</p>
@@ -2073,7 +2169,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
                             <div class="flex items-center gap-2">
@@ -2083,7 +2179,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                     </div>
 
@@ -2096,6 +2192,25 @@
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
                             ${banksHtml}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 【STEP 6】1. 目標シミュレーション設定（この月の計画値） -->
+                <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">🎯 目標シミュレーション設定（この月の計画値）</h3>
+                        <p class="text-[10px] opacity-80 mt-0.5">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測にも連動します。</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額（目標値・円）</label>
+                            <input type="text" id="input-target-saving" value="${formatNum(targetSavingVal)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">🎁 ボーナス額（1人あたり・円）</label>
+                            <input type="text" id="input-target-bonus" value="${formatNum(targetBonusVal)}" ${bonusDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                            <p id="target-bonus-status-note" class="text-[9px] opacity-75 mt-1">${bonusMonthAllowed ? '※1人あたりの金額を入力（6月・12月は×2人分で自動加算）' : '※6月度・12月度のみ入力可能（それ以外の月は自動ロック）'}</p>
                         </div>
                     </div>
                 </div>
@@ -2197,7 +2312,16 @@
                 return;
             }
 
-            m.month = document.getElementById('input-field-month').value;
+            const selectedMonthVal = document.getElementById('input-field-month').value;
+            const targetSavingInputVal = parseNum(document.getElementById('input-target-saving')?.value);
+            const targetBonusInputVal = parseNum(document.getElementById('input-target-bonus')?.value);
+
+            const savedTargetSaving = targetSavingInputVal > 0 ? targetSavingInputVal : (parseNum(appData.settings.defaultMonthlySave) || 40000);
+            const savedTargetBonus = isBonusEditableMonth(selectedMonthVal)
+                ? (targetBonusInputVal >= 0 ? targetBonusInputVal : (parseNum(appData.settings.bonusPerPerson) || 300000))
+                : (m.targetBonus !== undefined ? parseNum(m.targetBonus) : (parseNum(appData.settings.bonusPerPerson) || 300000));
+
+            m.month = selectedMonthVal;
             m.type = document.getElementById('input-field-type').value;
             m.memo = document.getElementById('input-field-memo').value;
             m.rIncome = rInc;
@@ -2210,14 +2334,22 @@
             m.expenses = newExpenses;
             m.bankAllocations = newBankAllocs;
 
-            m.targetSaving = parseNum(appData.settings.defaultMonthlySave) || 40000;
-            m.targetBonus = parseNum(appData.settings.bonusPerPerson) || 300000;
+            m.targetSaving = savedTargetSaving;
+            m.targetBonus = savedTargetBonus;
+            m.isUnlocked = false;
+
+            // 口座タブの将来予測設定へも連動
+            appData.settings.defaultMonthlySave = savedTargetSaving;
+            if (isBonusEditableMonth(selectedMonthVal) && targetBonusInputVal > 0) {
+                appData.settings.bonusPerPerson = targetBonusInputVal;
+            }
+            syncSettingsToUI();
 
             isMonthFormModified = false;
             saveStorage();
             updateMonthSelector();
             renderMonthEditor();
-            alert('🎉 今月の収支データを正常に保存・各タブへ反映しました！');
+            alert('🎉 今月の収支データと目標シミュレーション設定を保存・反映しました！');
         }
 
         function renderHistoryTable() {
@@ -2240,7 +2372,7 @@
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${totalExp.toLocaleString()}</td>
                     <td class="p-3 text-right theme-deep-text whitespace-nowrap">¥${surplus.toLocaleString()}</td>
                     <td class="p-3 text-center whitespace-nowrap">
-                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
+                        <button onclick="if(isMonthFormModified){alert('⚠️ 変更内容が保存されていません。まず保存してください。');return;}isMonthFormModified=false;currentEditingIndex=${idx};if(appData.monthly[currentEditingIndex])appData.monthly[currentEditingIndex].isUnlocked=false;switchTab('input');updateMonthSelector();renderMonthEditor();" class="theme-card-sm px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border shadow-sm whitespace-nowrap">編集</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -2792,6 +2924,9 @@
 
                 let sortedYms = Array.from(allYms).sort((a, b) => a.localeCompare(b));
 
+                let activeTargetSave = defaultMonthlySave;
+                let activeTargetBonusPerson = bonusPerPerson;
+
                 sortedYms.forEach((ymKey, idx) => {
                     let [y, m] = ymKey.split('-').map(Number);
                     const isTargetLabel = (ymKey === '2027-01' || m === 1 || m === 4 || m === 7 || m === 10);
@@ -2800,9 +2935,13 @@
                     let stepEvCost = eventMap[ymKey] || 0;
                     const mData = monthlyDataMap[ymKey];
 
-                    let stepTargetSave = (mData && mData.targetSaving !== undefined) ? mData.targetSaving : defaultMonthlySave;
-                    let stepTargetBonusPerson = (mData && mData.targetBonus !== undefined) ? mData.targetBonus : bonusPerPerson;
-                    let stepTargetBonusTwo = stepTargetBonusPerson * 2;
+                    if (mData) {
+                        if (mData.targetSaving !== undefined) activeTargetSave = mData.targetSaving;
+                        if (mData.targetBonus !== undefined) activeTargetBonusPerson = mData.targetBonus;
+                    }
+
+                    let stepTargetSave = activeTargetSave;
+                    let stepTargetBonusTwo = activeTargetBonusPerson * 2;
 
                     let estimatedStep = stepTargetSave;
                     if ((m === 6 || m === 12) && stepTargetBonusTwo > 0) {
