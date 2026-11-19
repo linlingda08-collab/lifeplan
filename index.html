@@ -876,7 +876,6 @@
             if (modalEl) modalEl.classList.add('hidden');
         }
 
-        // 3. 「確認」モーダル（計算根拠）の月別目標額 1ヶ月ずつ積算
         function openPredictionModal(specifiedYM) {
             const selector = document.getElementById('chart-month-selector');
             if (!selector) return;
@@ -919,7 +918,6 @@
             let diffMonths = (targetY - startY) * 12 + (targetM - startM);
             if (diffMonths < 0) diffMonths = 0;
 
-            // 月ごとの目標額を1ヶ月ずつ積算
             let curY = startY, curM = startM;
             let monthlyTargetAddSum = 0;
             let bonusTargetAddSum = 0;
@@ -1877,7 +1875,6 @@
             renderMonthEditor();
         }
 
-        // 2. 新規追加時はロック解除状態で開く
         function addNewMonthByDropdown() {
             if (isMonthFormModified) {
                 alert("⚠️ 保存されていない変更があります。新しい月を追加する前に保存してください。");
@@ -1957,10 +1954,10 @@
             const bonusInput = document.getElementById('input-target-bonus');
             const bonusNote = document.getElementById('target-bonus-status-note');
             const m = appData.monthly[currentEditingIndex];
-            const isLocked = !(m && m.isUnlocked);
+            const isTargetLocked = !(m && m.isUnlocked);
 
             if (monthSel && bonusInput) {
-                const canEditBonus = !isLocked && isBonusEditableMonth(monthSel.value);
+                const canEditBonus = !isTargetLocked && isBonusEditableMonth(monthSel.value);
                 bonusInput.disabled = !canEditBonus;
                 if (bonusNote) {
                     if (!isBonusEditableMonth(monthSel.value)) {
@@ -1998,7 +1995,7 @@
             const labelEl = document.getElementById('month-lock-label');
             const btnEl = document.getElementById('btn-toggle-month-lock');
             if (iconEl) iconEl.textContent = isUnlocked ? '🔓' : '🔒';
-            if (labelEl) labelEl.textContent = isUnlocked ? '編集中（ロック中）' : 'ロック解除して編集';
+            if (labelEl) labelEl.textContent = isUnlocked ? '目標設定を編集可能' : 'ロック解除して編集';
             if (btnEl) {
                 if (isUnlocked) {
                     btnEl.classList.remove('theme-card-sm');
@@ -2016,9 +2013,10 @@
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
 
-            const isUnlocked = Boolean(m.isUnlocked);
-            const disabledAttr = isUnlocked ? '' : 'disabled';
-            updateMonthLockButtonUI(isUnlocked);
+            // ロックをかけるのは一番最後の「目標シミュレーション設定」のみ
+            const isTargetUnlocked = Boolean(m.isUnlocked);
+            const targetDisabledAttr = isTargetUnlocked ? '' : 'disabled';
+            updateMonthLockButtonUI(isTargetUnlocked);
 
             const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
             let totalExp = 0;
@@ -2051,14 +2049,14 @@
                 ? parseNum(m.targetBonus)
                 : (parseNum(appData.settings.bonusPerPerson) || 300000);
             const bonusMonthAllowed = isBonusEditableMonth(m.month);
-            const bonusDisabledAttr = (!isUnlocked || !bonusMonthAllowed) ? 'disabled' : '';
+            const bonusDisabledAttr = (!isTargetUnlocked || !bonusMonthAllowed) ? 'disabled' : '';
 
             let banksHtml = '';
             getAccountNames().forEach(b => {
                 banksHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between border shadow-sm">
                         <span class="font-bold text-xs truncate">🏦 ${b}</span>
-                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none border shadow-inner">
+                        <input type="text" id="input-bank-${b}" value="${formatNum(m.bankAllocations[b])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none border shadow-inner">
                     </div>
                 `;
             });
@@ -2068,10 +2066,10 @@
                 expensesHtml += `
                     <div class="theme-card-sm p-3.5 rounded-2xl flex items-center justify-between gap-2 border shadow-sm">
                         <div class="flex items-center gap-2 truncate">
-                            <button onclick="removeExpenseCategory('${cat.id}')" ${disabledAttr} class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
+                            <button onclick="removeExpenseCategory('${cat.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold cursor-pointer shrink-0 no-print" title="項目を削除">×</button>
                             <span class="text-xs font-bold truncate">${cat.name}</span>
                         </div>
-                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
+                        <input type="text" id="input-exp-${cat.id}" value="${formatNum(m.expenses[cat.id])}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shrink-0 border shadow-inner">
                     </div>
                 `;
             });
@@ -2081,20 +2079,20 @@
                 <div class="theme-card-sm p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-3 items-center border no-print shadow-sm">
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">年月</label>
-                        <select id="input-field-month" ${disabledAttr} onchange="handleTargetMonthChange()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
+                        <select id="input-field-month" onchange="handleTargetMonthChange()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner truncate">
                             ${generateFuture30YearsOptions(m.month)}
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">区分</label>
-                        <select id="input-field-type" ${disabledAttr} onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
+                        <select id="input-field-type" onchange="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none cursor-pointer shadow-inner">
                             <option value="想定" ${m.type==='想定'?'selected':''}>想定</option>
                             <option value="実績" ${m.type==='実績'?'selected':''}>実績 (※ホームへ即時反映)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold opacity-80 uppercase tracking-wider mb-1 whitespace-nowrap">メモ</label>
-                        <input type="text" id="input-field-memo" value="${m.memo || ''}" ${disabledAttr} oninput="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none shadow-inner">
+                        <input type="text" id="input-field-memo" value="${m.memo || ''}" oninput="markModified()" class="w-full theme-card-sm border rounded-xl px-3.5 py-2.5 text-xs font-bold focus:outline-none shadow-inner">
                     </div>
                     <div class="flex justify-end sm:justify-start items-end">
                         <button onclick="deleteMonth(${currentEditingIndex})" class="bg-rose-500/20 text-rose-500 hover:bg-rose-500/30 text-xs px-3.5 py-2 rounded-xl font-bold transition cursor-pointer shadow-sm whitespace-nowrap">削除</button>
@@ -2107,19 +2105,19 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストA収入 (円)</span>
-                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rIncome" value="${formatNum(m.rIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">ゲストB収入 (円)</span>
-                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-hIncome" value="${formatNum(m.hIncome)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">🎁 ボーナス (円)</span>
-                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-bonus" value="${formatNum(m.bonus)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-3.5 rounded-2xl flex justify-between items-center border bg-amber-500/15 shadow-sm">
                             <span class="text-xs font-bold whitespace-nowrap">✨ 臨時収入 (円)</span>
-                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-extraInc" value="${formatNum(m.extraInc)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-32 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold focus:outline-none shadow-inner">
                         </div>
                     </div>
                 </div>
@@ -2129,8 +2127,8 @@
                     <div class="flex justify-between items-center border-b border-current/15 pb-1">
                         <h3 class="font-bold text-xs uppercase tracking-wider theme-primary-text whitespace-nowrap">🛍️ 支出項目</h3>
                         <div class="flex gap-2">
-                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." ${disabledAttr} class="theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold shadow-inner">
-                            <button onclick="startAddingExpense()" ${disabledAttr} class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
+                            <input type="text" id="new-expense-raw-name" placeholder="項目名..." class="theme-card-sm border rounded-xl px-3 py-2 text-xs font-bold shadow-inner">
+                            <button onclick="startAddingExpense()" class="theme-primary-bg text-xs px-3.5 py-2 rounded-xl font-bold shadow-md cursor-pointer whitespace-nowrap">＋ 項目追加</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -2150,7 +2148,7 @@
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">NISA積立</p>
-                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-2 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
+                        <input type="text" id="input-field-nisa" value="${formatNum(m.nisa)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified(); updateAllocationRealtimeFeedback();" oninput="markModified(); updateAllocationRealtimeFeedback();" class="w-full theme-card-sm border rounded-xl p-2 text-center text-xs sm:text-sm font-extrabold theme-deep-text mt-0.5 focus:outline-none shadow-inner">
                     </div>
                     <div>
                         <p class="text-[11px] font-bold opacity-80 uppercase tracking-wider whitespace-nowrap">今月の貯金</p>
@@ -2169,7 +2167,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-rSaving" value="${formatNum(m.rSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                         <div class="theme-card-sm p-4 rounded-2xl border flex flex-col sm:flex-row justify-between items-center gap-3 shadow-sm">
                             <div class="flex items-center gap-2">
@@ -2179,7 +2177,7 @@
                                     <p class="text-[10px] opacity-80 font-medium">共通手取りからの引き算には影響しません</p>
                                 </div>
                             </div>
-                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
+                            <input type="text" id="input-field-lifeSaving" value="${formatNum(m.lifeSaving)}" onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full sm:w-36 theme-card-sm border rounded-xl p-2.5 text-right text-xs font-bold theme-primary-text focus:outline-none shadow-inner">
                         </div>
                     </div>
 
@@ -2196,16 +2194,21 @@
                     </div>
                 </div>
 
-                <!-- 【STEP 6】1. 目標シミュレーション設定（この月の計画値） -->
+                <!-- 【STEP 6】一番最後の「目標シミュレーション設定（この月の計画値）」のみロック制御 -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
-                    <div>
-                        <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">🎯 目標シミュレーション設定（この月の計画値）</h3>
-                        <p class="text-[10px] opacity-80 mt-0.5">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測にも連動します。</p>
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">🎯 目標シミュレーション設定（この月の計画値）</h3>
+                            <p class="text-[10px] opacity-80 mt-0.5">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測にも連動します。</p>
+                        </div>
+                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isTargetUnlocked ? 'bg-emerald-500/20 text-emerald-700' : 'bg-slate-500/20 text-slate-700'} whitespace-nowrap">
+                            ${isTargetUnlocked ? '🔓 編集可能' : '🔒 ロック中'}
+                        </span>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額（目標値・円）</label>
-                            <input type="text" id="input-target-saving" value="${formatNum(targetSavingVal)}" ${disabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
+                            <input type="text" id="input-target-saving" value="${formatNum(targetSavingVal)}" ${targetDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                         </div>
                         <div>
                             <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">🎁 ボーナス額（1人あたり・円）</label>
@@ -2338,7 +2341,6 @@
             m.targetBonus = savedTargetBonus;
             m.isUnlocked = false;
 
-            // 口座タブの将来予測設定へも連動
             appData.settings.defaultMonthlySave = savedTargetSaving;
             if (isBonusEditableMonth(selectedMonthVal) && targetBonusInputVal > 0) {
                 appData.settings.bonusPerPerson = targetBonusInputVal;
