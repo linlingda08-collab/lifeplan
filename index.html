@@ -222,15 +222,12 @@
         <div id="tab-input" class="hidden space-y-6 tab-content-area">
             <div class="theme-card p-4 sm:p-6 rounded-3xl space-y-6 a4-print-target">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b border-current/15 gap-3 no-print">
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="font-bold text-base sm:text-lg tracking-tight theme-primary-text whitespace-nowrap">毎月の収支計算</h2>
                         <p class="text-xs opacity-80 mt-0.5 font-medium">※口座への割り振り額が今月の貯金額にぴったり一致していないと保存できません。</p>
                     </div>
                     <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                         <select id="month-selector" onchange="confirmAndSwitchMonth(this.value)" class="flex-grow sm:flex-initial theme-card-sm rounded-xl px-3.5 py-2.5 text-xs font-bold transition cursor-pointer focus:outline-none shadow-sm max-w-[280px] sm:max-w-[340px] truncate"></select>
-                        <button onclick="toggleMonthEditLock()" id="btn-toggle-month-lock" class="theme-card-sm text-xs px-3.5 py-2.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] border whitespace-nowrap">
-                            <span id="month-lock-icon">🔒</span> <span id="month-lock-label">ロック解除して編集</span>
-                        </button>
                         <button onclick="addNewMonthByDropdown()" class="theme-primary-bg text-xs px-4 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-1 cursor-pointer shrink-0 min-h-[40px] whitespace-nowrap">
                             <span>＋</span> 月を追加
                         </button>
@@ -1990,33 +1987,14 @@
             renderMonthEditor();
         }
 
-        function updateMonthLockButtonUI(isUnlocked) {
-            const iconEl = document.getElementById('month-lock-icon');
-            const labelEl = document.getElementById('month-lock-label');
-            const btnEl = document.getElementById('btn-toggle-month-lock');
-            if (iconEl) iconEl.textContent = isUnlocked ? '🔓' : '🔒';
-            if (labelEl) labelEl.textContent = isUnlocked ? '目標設定を編集可能' : 'ロック解除して編集';
-            if (btnEl) {
-                if (isUnlocked) {
-                    btnEl.classList.remove('theme-card-sm');
-                    btnEl.classList.add('theme-accent-bg');
-                } else {
-                    btnEl.classList.remove('theme-accent-bg');
-                    btnEl.classList.add('theme-card-sm');
-                }
-            }
-        }
-
         function renderMonthEditor() {
             const container = document.getElementById('month-editor-container');
             if (!container) return;
             const m = appData.monthly[currentEditingIndex];
             if (!m) return;
 
-            // ロックをかけるのは一番最後の「目標シミュレーション設定」のみ
             const isTargetUnlocked = Boolean(m.isUnlocked);
             const targetDisabledAttr = isTargetUnlocked ? '' : 'disabled';
-            updateMonthLockButtonUI(isTargetUnlocked);
 
             const totalInc = parseNum(m.rIncome) + parseNum(m.hIncome) + parseNum(m.bonus) + parseNum(m.extraInc);
             let totalExp = 0;
@@ -2194,24 +2172,29 @@
                     </div>
                 </div>
 
-                <!-- 【STEP 6】一番最後の「目標シミュレーション設定（この月の計画値）」のみロック制御 -->
+                <!-- 【STEP 6】一番最後の「目標シミュレーション設定（この月の計画値）」エリアにロック解除ボタンを組み込み -->
                 <div class="theme-card-sm p-4 rounded-2xl border space-y-3 shadow-sm">
-                    <div class="flex items-center justify-between gap-2">
-                        <div>
-                            <h3 class="font-bold text-xs theme-primary-text whitespace-nowrap">🎯 目標シミュレーション設定（この月の計画値）</h3>
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-bold text-xs theme-primary-text truncate">🎯 目標シミュレーション設定（この月の計画値）</h3>
                             <p class="text-[10px] opacity-80 mt-0.5">保存すると「口座」タブの将来予測設定や翌月以降のグラフ予測にも連動します。</p>
                         </div>
-                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isTargetUnlocked ? 'bg-emerald-500/20 text-emerald-700' : 'bg-slate-500/20 text-slate-700'} whitespace-nowrap">
-                            ${isTargetUnlocked ? '🔓 編集可能' : '🔒 ロック中'}
-                        </span>
+                        <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
+                            <span class="text-[10px] font-bold px-2 py-1 rounded-full whitespace-nowrap ${isTargetUnlocked ? 'bg-emerald-500/20 text-emerald-700' : 'bg-slate-500/20 text-slate-700'}">
+                                ${isTargetUnlocked ? '🔓 解除中' : '🔒 ロック中'}
+                            </span>
+                            <button type="button" onclick="toggleMonthEditLock()" id="btn-toggle-month-lock" class="text-[11px] px-2.5 py-1.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1 cursor-pointer border whitespace-nowrap ${isTargetUnlocked ? 'theme-accent-bg' : 'theme-card-sm'}">
+                                <span>${isTargetUnlocked ? '🔒 ロックする' : '🔓 ロック解除'}</span>
+                            </button>
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                        <div>
-                            <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">標準毎月貯金額（目標値・円）</label>
+                        <div class="min-w-0">
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 truncate">標準毎月貯金額（目標値・円）</label>
                             <input type="text" id="input-target-saving" value="${formatNum(targetSavingVal)}" ${targetDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                         </div>
-                        <div>
-                            <label class="block font-bold text-[11px] opacity-90 mb-1 whitespace-nowrap">🎁 ボーナス額（1人あたり・円）</label>
+                        <div class="min-w-0">
+                            <label class="block font-bold text-[11px] opacity-90 mb-1 truncate">🎁 ボーナス額（1人あたり・円）</label>
                             <input type="text" id="input-target-bonus" value="${formatNum(targetBonusVal)}" ${bonusDisabledAttr} onfocus="unformatInput(this)" onblur="formatInput(this); markModified();" oninput="markModified()" class="w-full theme-card-sm rounded-xl p-2.5 text-xs font-bold focus:outline-none border shadow-inner">
                             <p id="target-bonus-status-note" class="text-[9px] opacity-75 mt-1">${bonusMonthAllowed ? '※1人あたりの金額を入力（6月・12月は×2人分で自動加算）' : '※6月度・12月度のみ入力可能（それ以外の月は自動ロック）'}</p>
                         </div>
